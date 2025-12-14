@@ -1,0 +1,135 @@
+@import '../../variables.css';
+
+.home-page {
+  margin: 4.5rem 0.5rem;
+  padding: 1rem;
+  background-color: var(--container-bg);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px var(--color-shadow-light);
+}
+.search-input-group {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-start;
+}
+
+.search-input {
+  flex: 1;
+  padding: 0.75rem;
+  border: 1px solid var(--border-grey);
+  border-radius: 8px;
+  font-size: 1rem;
+  background-color: var(--light-grey);
+  color: var(--text-grey);
+  outline: none;
+}
+
+.search-input:focus {
+  border-color: var(--focus-grey);
+}
+
+.search-button {
+  padding: 0.75rem 1.25rem;
+  border: 1px solid var(--border-grey);
+  border-radius: 8px;
+  background-color: var(--dark-blue);
+  color: var(--light-grey);
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  align-self: stretch;
+}
+
+.search-button:hover {
+  background-color: #4a5568;
+}
+
+.toggle-filters-button {
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border-grey);
+  border-radius: 8px;
+  background-color: var(--grey);
+  color: var(--dark-blue);
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  align-self: stretch;
+}
+
+.toggle-filters-button:hover {
+  background-color: #e5e7eb;
+}
+
+.filters-panel {
+  background-color: var(--light-grey);
+  border-radius: 8px;
+  border: 1px solid var(--border-grey);
+  padding: 1.5rem;
+  margin-top: 1.5rem;
+  box-sizing: border-box;
+}
+
+.filters-panel-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  gap: 2rem; 
+}
+
+.filter-group {
+  margin-bottom: 0;
+}
+
+.filter-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: var(--dark-blue);
+}
+
+.checkbox-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  color: var(--text-grey);
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: 1rem;
+  height: 1rem;
+  cursor: pointer;
+}
+
+.experience-inputs {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.experience-input {
+  padding: 0.5rem;
+  border: 1px solid var(--border-grey);
+  border-radius: 4px;
+  font-size: 1rem;
+  background-color: var(--container-bg);
+  color: var(--dark-blue);
+  width: 100%;
+}
+
+.experience-input:focus {
+  outline: none;
+  border-color: var(--focus-grey);
+}
+
+.status-checkboxes {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
