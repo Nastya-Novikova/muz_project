@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Header from '../../components/Header/Header';
+import MultiSelectDropdown from '../../components/MultiSelectDropDown/MultiSelectDropDown';
 import './HomePage.css';
 
 function HomePage() {
@@ -26,18 +27,6 @@ function HomePage() {
     { id: 3, label: 'Поп' },
     { id: 4, label: 'Хип-хоп' },
   ];
-
-  const handleActivityChange = (id) => {
-    setActivityTypes(prev =>
-      prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
-    );
-  };
-
-  const handleGenreChange = (id) => {
-    setGenres(prev =>
-      prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
-    );
-  };
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -80,38 +69,31 @@ function HomePage() {
         {filtersOpen && (
           <div className="filters-panel">
             <div className="filters-panel-grid">
+              {/* Вид деятельности - переиспользуемый компонент */}
               <div className="filter-group">
-                <label>Вид деятельности:</label>
-                <div className="checkbox-list">
-                  {activityOptions.map(option => (
-                    <label key={option.id} className="checkbox-label">
-                      <input
-                        type="checkbox"
-                        checked={activityTypes.includes(option.id)}
-                        onChange={() => handleActivityChange(option.id)}
-                      />
-                      {option.label}
-                    </label>
-                  ))}
-                </div>
+                <MultiSelectDropdown
+                  label="Вид деятельности"
+                  options={activityOptions}
+                  selectedIds={activityTypes}
+                  onChange={setActivityTypes}
+                  placeholder="Выберите виды деятельности..."
+                  allText="Все виды"
+                />
               </div>
 
+              {/* Жанр - переиспользуемый компонент */}
               <div className="filter-group">
-                <label>Жанр:</label>
-                <div className="checkbox-list">
-                  {genreOptions.map(option => (
-                    <label key={option.id} className="checkbox-label">
-                      <input
-                        type="checkbox"
-                        checked={genres.includes(option.id)}
-                        onChange={() => handleGenreChange(option.id)}
-                      />
-                      {option.label}
-                    </label>
-                  ))}
-                </div>
+                <MultiSelectDropdown
+                  label="Жанр"
+                  options={genreOptions}
+                  selectedIds={genres}
+                  onChange={setGenres}
+                  placeholder="Выберите жанры..."
+                  allText="Все жанры"
+                />
               </div>
 
+              {/* Остальные фильтры остаются без изменений */}
               <div className="filter-group">
                 <label>Стаж (лет):</label>
                 <div className="experience-inputs">

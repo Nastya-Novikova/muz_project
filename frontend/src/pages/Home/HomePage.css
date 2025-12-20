@@ -7,6 +7,7 @@
   border-radius: 8px;
   box-shadow: 0 4px 12px var(--color-shadow-light);
 }
+
 .search-input-group {
   display: flex;
   gap: 0.5rem;
@@ -87,24 +88,57 @@
   color: var(--dark-blue);
 }
 
-.checkbox-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
+/* ФИКС: Обновленные стили для обычных чекбоксов */
 .checkbox-label {
-  display: flex;
+  display: flex !important;
+  flex-direction: row; /* Явно указываем горизонтальное направление */
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.75rem;
   cursor: pointer;
   color: var(--text-grey);
+  min-height: auto; /* Убираем фиксированную высоту */
+  padding: 0.25rem 0;
+  margin: 0; /* Убираем внешние отступы */
 }
 
 .checkbox-label input[type="checkbox"] {
-  width: 1rem;
-  height: 1rem;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  width: 1.125rem;
+  height: 1.125rem;
+  border: 2px solid var(--border-grey);
+  border-radius: 3px;
+  background-color: white;
   cursor: pointer;
+  position: relative;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  margin: 0; /* Убираем стандартные отступы */
+}
+
+.checkbox-label input[type="checkbox"]:checked {
+  background-color: var(--dark-blue);
+  border-color: var(--dark-blue);
+}
+
+.checkbox-label input[type="checkbox"]:checked::after {
+  content: '';
+  position: absolute;
+  top: 45%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(45deg);
+  width: 0.375rem;
+  height: 0.625rem;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+}
+
+/* ФИКС: Текст в чекбоксах */
+.checkbox-label span {
+  line-height: normal;
+  display: inline;
+  white-space: nowrap;
 }
 
 .experience-inputs {
