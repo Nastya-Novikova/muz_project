@@ -99,30 +99,28 @@
   padding: 0.5rem;
 }
 
-/* ФИКС: Убедитесь, что dropdown-option использует row направление */
 .dropdown-option {
   display: flex !important;
-  flex-direction: row; /* Это ключевое изменение! */
+  flex-direction: row;
   align-items: center;
   padding: 0.5rem;
   cursor: pointer;
   border-radius: 4px;
   transition: background-color 0.2s;
-  min-height: auto; /* Убираем фиксированную высоту */
+  min-height: auto;
 }
 
 .dropdown-option:hover {
   background-color: var(--light-grey);
 }
 
-/* Кастомные стили для чекбоксов */
 .dropdown-checkbox {
-  appearance: none;
-  -webkit-appearance: none;
   -moz-appearance: none;
+  -webkit-appearance: none;
+  appearance: none;
   width: 1.125rem;
   height: 1.125rem;
-  margin-right: 0.75rem; /* Увеличиваем отступ справа */
+  margin-right: 0.75rem;
   border: 2px solid var(--border-grey);
   border-radius: 3px;
   background-color: white;
@@ -130,8 +128,8 @@
   position: relative;
   transition: all 0.2s ease;
   flex-shrink: 0;
-  margin-top: 0; /* Убираем любые отступы сверху */
-  margin-bottom: 0; /* Убираем любые отступы снизу */
+  margin-top: 0;
+  margin-bottom: 0; 
 }
 
 .dropdown-checkbox:checked {
@@ -151,11 +149,10 @@
   border-width: 0 2px 2px 0;
 }
 
-/* ФИКС: Упрощаем стили для текста */
 .dropdown-option-label {
   color: var(--dark-blue);
   user-select: none;
-  line-height: normal; /* Убираем фиксированную высоту строки */
-  display: inline; /* Меняем на inline */
-  white-space: nowrap; /* Запрещаем перенос текста */
+  line-height: normal;
+  display: inline;
+  white-space: nowrap;
 }

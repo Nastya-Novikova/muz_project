@@ -69,7 +69,6 @@ function HomePage() {
         {filtersOpen && (
           <div className="filters-panel">
             <div className="filters-panel-grid">
-              {/* Вид деятельности - переиспользуемый компонент */}
               <div className="filter-group">
                 <MultiSelectDropdown
                   label="Вид деятельности"
@@ -81,7 +80,6 @@ function HomePage() {
                 />
               </div>
 
-              {/* Жанр - переиспользуемый компонент */}
               <div className="filter-group">
                 <MultiSelectDropdown
                   label="Жанр"
@@ -93,7 +91,6 @@ function HomePage() {
                 />
               </div>
 
-              {/* Остальные фильтры остаются без изменений */}
               <div className="filter-group">
                 <label>Стаж (лет):</label>
                 <div className="experience-inputs">

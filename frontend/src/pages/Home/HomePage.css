@@ -88,23 +88,22 @@
   color: var(--dark-blue);
 }
 
-/* ФИКС: Обновленные стили для обычных чекбоксов */
 .checkbox-label {
   display: flex !important;
-  flex-direction: row; /* Явно указываем горизонтальное направление */
+  flex-direction: row;
   align-items: center;
   gap: 0.75rem;
   cursor: pointer;
   color: var(--text-grey);
-  min-height: auto; /* Убираем фиксированную высоту */
+  min-height: auto; 
   padding: 0.25rem 0;
-  margin: 0; /* Убираем внешние отступы */
+  margin: 0;
 }
 
 .checkbox-label input[type="checkbox"] {
-  appearance: none;
-  -webkit-appearance: none;
   -moz-appearance: none;
+  -webkit-appearance: none;
+  appearance: none;
   width: 1.125rem;
   height: 1.125rem;
   border: 2px solid var(--border-grey);
@@ -114,7 +113,7 @@
   position: relative;
   transition: all 0.2s ease;
   flex-shrink: 0;
-  margin: 0; /* Убираем стандартные отступы */
+  margin: 0; 
 }
 
 .checkbox-label input[type="checkbox"]:checked {
@@ -134,7 +133,6 @@
   border-width: 0 2px 2px 0;
 }
 
-/* ФИКС: Текст в чекбоксах */
 .checkbox-label span {
   line-height: normal;
   display: inline;
