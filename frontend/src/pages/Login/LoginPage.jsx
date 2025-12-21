@@ -56,6 +56,7 @@ function LoginOTP() {
         profileCompleted: false,
         fullName: '',
         age: '',
+        city: '',
         activityType: '',
         contact: email,
         phone: '',

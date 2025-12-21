@@ -12,6 +12,7 @@ function EditProfilePage() {
     fullName: '',
     age: '',
     activityType: '',
+    city: '',
     contact: '',
     phone: '',
     telegram: '',
@@ -36,6 +37,7 @@ function EditProfilePage() {
         fullName: user.fullName || '',
         age: user.age || '',
         activityType: user.activityType || '',
+        city: user.city || '',
         contact: user.contact || user.email || '',
         phone: user.phone || '',
         telegram: user.telegram || '',
@@ -57,6 +59,15 @@ function EditProfilePage() {
   const genreOptions = [
     'Рок', 'Джаз', 'Поп', 'Хип-хоп', 'Блюз', 'Классика',
     'Метал', 'Кантри', 'Электроника', 'R&B'
+  ];
+
+  const cityOptions = [
+    'Москва',
+    'Санкт-Петербург',
+    'Новосибирск',
+    'Екатеринбург',
+    'Казань',
+    'Нижний Новгород',
   ];
 
   const handleInputChange = (e) => {
@@ -187,10 +198,26 @@ function EditProfilePage() {
                     value={formData.age}
                     onChange={handleInputChange}
                     required
-                    min="16"
+                    min="10"
                     max="100"
                     placeholder="25"
                   />
+                </div>
+
+                <div className="form-group">
+                  <label>Город *</label>
+                  <select
+                    name="city"
+                    value={formData.city}
+                    onChange={handleInputChange}
+                    required
+                    className="city-select"
+                  >
+                    <option value="">Выберите город</option>
+                    {cityOptions.map(city => (
+                      <option key={city} value={city}>{city}</option>
+                    ))}
+                  </select>
                 </div>
                 
                 <div className="form-group">
