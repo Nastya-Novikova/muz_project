@@ -1,4 +1,4 @@
-﻿using backend.Services.Interfaces;
+﻿/*using backend.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
@@ -58,4 +58,4 @@ public class TestController : ControllerBase
             return StatusCode(500, $"Failed: {ex.Message}");
         }
     }
-}
+}*/

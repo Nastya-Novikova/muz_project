@@ -17,7 +17,7 @@ public class AuthController : ControllerBase
     {
         _service = service;
     }
-    
+
     /// <summary>
     /// Запрос кода подтверждения на email
     /// </summary>

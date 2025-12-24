@@ -102,6 +102,7 @@ public class ProfileRepository : IProfileRepository
             .Include(p => p.CollaborationGoals)
             .Include(p => p.AudioFiles)
             .Include(p => p.VideoFiles)
+            .Include(p => p.Photos)
             .FirstOrDefaultAsync(p => p.Id == id);
     }
 

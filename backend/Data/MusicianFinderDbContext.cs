@@ -37,6 +37,7 @@ namespace backend.Data
             modelBuilder.Entity<CollaborationSuggestion>();
             modelBuilder.Entity<PortfolioAudio>();
             modelBuilder.Entity<PortfolioVideo>();
+            modelBuilder.Entity<PortfolioPhoto>();
 
             modelBuilder.Entity<User>().HasQueryFilter(u => !u.IsDeleted);
             modelBuilder.Entity<MusicianProfile>().HasQueryFilter(p => !p.IsDeleted);
@@ -51,6 +52,11 @@ namespace backend.Data
             {
                 entity.Property(p => p.Avatar)
                       .HasColumnType("bytea");
+            });
+
+            modelBuilder.Entity<PortfolioPhoto>(entity =>
+            {
+                entity.Property(p => p.FileData).HasColumnType("bytea");
             });
 
             modelBuilder.Entity<PortfolioAudio>(entity =>
@@ -112,9 +118,9 @@ namespace backend.Data
 
             // Many-to-many
             modelBuilder.Entity<MusicianProfile>()
-            .HasMany(p => p.Genres)
-            .WithMany(g => g.Profiles)
-            .UsingEntity("ProfileGenre");
+                .HasMany(p => p.Genres)
+                .WithMany(g => g.Profiles)
+                .UsingEntity("ProfileGenre");
 
             modelBuilder.Entity<MusicianProfile>()
                 .HasMany(p => p.Specialties)
@@ -125,6 +131,21 @@ namespace backend.Data
                 .HasMany(p => p.CollaborationGoals)
                 .WithMany(g => g.Profiles)
                 .UsingEntity("ProfileCollaborationGoal");
+
+            modelBuilder.Entity<MusicianProfile>()
+                .HasMany(p => p.AudioFiles)
+                .WithOne(a => a.Profile)
+                .HasForeignKey(a => a.ProfileId);
+
+            modelBuilder.Entity<MusicianProfile>()
+                .HasMany(p => p.VideoFiles)
+                .WithOne(v => v.Profile)
+                .HasForeignKey(v => v.ProfileId);
+
+            modelBuilder.Entity<MusicianProfile>()
+                .HasMany(p => p.Photos)
+                .WithOne(p => p.Profile)
+                .HasForeignKey(p => p.ProfileId);
         }
 
         public static void EnsureDatabaseCreated(MusicianFinderDbContext context)

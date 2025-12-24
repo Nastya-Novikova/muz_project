@@ -71,4 +71,17 @@ public class FavoriteService : IFavoriteService
             return null;
         }
     }
+
+    public async Task<bool> IsFavoriteAsync(Guid userId, Guid favoriteUserId)
+    {
+        try
+        {
+            var user = await _userRepository.GetByIdAsync(userId);
+            return user?.FavoriteProfileIds.Contains(favoriteUserId) == true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
 }

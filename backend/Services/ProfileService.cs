@@ -248,4 +248,58 @@ public class ProfileService : IProfileService
             return null;
         }
     }
+
+    public async Task<JsonDocument?> GetFullProfileAsync(Guid userId)
+    {
+        try
+        {
+            var profile = await _profileRepository.GetByUserIdAsync(userId);
+            if (profile == null) return null;
+
+            // Загружаем избранные профили
+            var favoriteUsers = new List<User>();
+            if (profile.User?.FavoriteProfileIds != null)
+            {
+                favoriteUsers = await _userRepository.GetUsersByIdsAsync(profile.User.FavoriteProfileIds);
+            }
+
+            // Формируем расширенный профиль
+            var extendedProfile = new
+            {
+                profile.Id,
+                profile.UserId,
+                profile.FullName,
+                profile.Avatar,
+                profile.Age,
+                profile.Description,
+                profile.Phone,
+                profile.Telegram,
+                profile.Experience,
+                profile.CreatedAt,
+                profile.UpdatedAt,
+                City = new { profile.City.Id, profile.City.Name, profile.City.LocalizedName },
+                Genres = profile.Genres.Select(g => new { g.Id, g.Name, g.LocalizedName }),
+                Specialties = profile.Specialties.Select(s => new { s.Id, s.Name, s.LocalizedName }),
+                CollaborationGoals = profile.CollaborationGoals.Select(g => new { g.Id, g.Name, g.LocalizedName }),
+                Media = new
+                {
+                    Audio = profile.AudioFiles.Select(a => new { a.Id, a.Title, a.Description, a.MimeType, a.Duration, a.CreatedAt }),
+                    Video = profile.VideoFiles.Select(v => new { v.Id, v.Title, v.Description, v.MimeType, v.Duration, v.CreatedAt }),
+                    Photos = profile.Photos.Select(p => new { p.Id, p.Title, p.Description, p.MimeType, p.CreatedAt })
+                },
+                Favorites = favoriteUsers.Select(u => new
+                {
+                    u.Id,
+                    u.FullName,
+                    u.Avatar
+                })
+            };
+
+            return JsonDocument.Parse(JsonSerializer.Serialize(extendedProfile, _options));
+        }
+        catch
+        {
+            return null;
+        }
+    }
 }

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using System.Text.Json;
 using backend.Services.Interfaces;
+using backend.Services;
 
 namespace backend.Controllers;
 
@@ -14,11 +15,15 @@ namespace backend.Controllers;
 [Authorize]
 public class ProfilesController : ControllerBase
 {
-    private readonly IProfileService _service;
+    private readonly IProfileService _profileService;
+    private readonly ICollaborationService _collaborationService;
+    private readonly IFavoriteService _favoriteService;
 
-    public ProfilesController(IProfileService service)
+    public ProfilesController(IProfileService profileService, ICollaborationService collaborationService, IFavoriteService favoriteService)
     {
-        _service = service;
+        _profileService = profileService;
+        _collaborationService = collaborationService;
+        _favoriteService = favoriteService;
     }
 
     /// <summary>
@@ -27,7 +32,7 @@ public class ProfilesController : ControllerBase
     [HttpPost("search")]
     public async Task<IActionResult> Search([FromBody] JsonDocument searchParams)
     {
-        var result = await _service.SearchAsync(searchParams);
+        var result = await _profileService.SearchAsync(searchParams);
         return result != null ? Ok(result) : BadRequest();
     }
 
@@ -38,7 +43,7 @@ public class ProfilesController : ControllerBase
     public async Task<IActionResult> GetMyProfile()
     {
         var userId = GetUserId();
-        var obj = await _service.GetByUserIdAsync(userId);
+        var obj = await _profileService.GetByUserIdAsync(userId);
         return obj != null ? Ok(obj) : BadRequest();
     }
 
@@ -48,7 +53,7 @@ public class ProfilesController : ControllerBase
     [HttpGet("{id}")]
     public async Task<IActionResult> Get(Guid id)
     {
-        var obj = await _service.GetByIdAsync(id);
+        var obj = await _profileService.GetByIdAsync(id);
         return obj != null ? Ok(obj) : BadRequest();
     }
 
@@ -59,7 +64,7 @@ public class ProfilesController : ControllerBase
     public async Task<IActionResult> Create([FromBody] JsonDocument objJson)
     {
         var userId = GetUserId();
-        var obj = await _service.CreateAsync(objJson, userId);
+        var obj = await _profileService.CreateAsync(objJson, userId);
         return obj != null ? Ok(obj) : BadRequest();
     }
 
@@ -70,7 +75,7 @@ public class ProfilesController : ControllerBase
     public async Task<IActionResult> Update([FromBody] JsonDocument objJson)
     {
         var userId = GetUserId();
-        var obj = await _service.UpdateAsync(Guid.Empty, objJson, userId); // ID из JWT
+        var obj = await _profileService.UpdateAsync(Guid.Empty, objJson, userId); // ID из JWT
         return obj != null ? Ok(obj) : BadRequest();
     }
 
@@ -80,8 +85,39 @@ public class ProfilesController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(Guid id)
     {
-        var obj = await _service.DeleteAsync(id);
+        var obj = await _profileService.DeleteAsync(id);
         return obj != null ? Ok(obj) : BadRequest();
+    }
+
+    [HttpGet("full")]
+    [Authorize]
+    public async Task<IActionResult> GetFullProfile()
+    {
+        var userId = GetUserId();
+
+        // Получаем свой профиль
+        var profile = await _profileService.GetFullProfileAsync(userId);
+        if (profile == null) return BadRequest();
+
+        // Получаем предложения
+        var received = await _collaborationService.GetReceivedAsync(userId, JsonDocument.Parse("{}"));
+        var sent = await _collaborationService.GetSentAsync(userId, JsonDocument.Parse("{}"));
+
+        // Получаем избранные ID
+        var favorites = await _favoriteService.GetFavoritesAsync(userId, JsonDocument.Parse("{}"));
+
+        var fullProfile = new
+        {
+            profile = profile.RootElement,
+            collaborations = new
+            {
+                received = received?.RootElement.GetProperty("suggestions") ?? JsonDocument.Parse("[]").RootElement,
+                sent = sent?.RootElement.GetProperty("suggestions") ?? JsonDocument.Parse("[]").RootElement
+            },
+            favorites = favorites?.RootElement.GetProperty("favorites") ?? JsonDocument.Parse("[]").RootElement
+        };
+
+        return Ok(JsonDocument.Parse(JsonSerializer.Serialize(fullProfile)));
     }
 
     private Guid GetUserId()

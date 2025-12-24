@@ -195,6 +195,29 @@ namespace backend.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "PortfolioPhotos",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    ProfileId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Title = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    Description = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    FileData = table.Column<byte[]>(type: "bytea", nullable: false),
+                    MimeType = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PortfolioPhotos", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_PortfolioPhotos_MusicianProfiles_ProfileId",
+                        column: x => x.ProfileId,
+                        principalTable: "MusicianProfiles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "PortfolioVideo",
                 columns: table => new
                 {
@@ -372,6 +395,11 @@ namespace backend.Migrations
                 column: "ProfileId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_PortfolioPhotos_ProfileId",
+                table: "PortfolioPhotos",
+                column: "ProfileId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_PortfolioVideo_ProfileId",
                 table: "PortfolioVideo",
                 column: "ProfileId");
@@ -403,6 +431,9 @@ namespace backend.Migrations
 
             migrationBuilder.DropTable(
                 name: "PortfolioAudio");
+
+            migrationBuilder.DropTable(
+                name: "PortfolioPhotos");
 
             migrationBuilder.DropTable(
                 name: "PortfolioVideo");

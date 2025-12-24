@@ -20,13 +20,15 @@ public class UploadsController : ControllerBase
     private readonly IProfileService _profileService;
     private readonly IAudioUploadService _audioService;
     private readonly IVideoUploadService _videoService;
+    private readonly IPhotoUploadService _photoService;
 
-    public UploadsController(IUserService userService, IProfileService profileService, IAudioUploadService audioUploadService, IVideoUploadService videoUploadService)
+    public UploadsController(IUserService userService, IProfileService profileService, IAudioUploadService audioUploadService, IVideoUploadService videoUploadService, IPhotoUploadService photoUploadService)
     {
         _userService = userService;
         _profileService = profileService;
         _audioService = audioUploadService;
         _videoService = videoUploadService;
+        _photoService = photoUploadService;
     }
 
     /// <summary>
@@ -61,8 +63,6 @@ public class UploadsController : ControllerBase
         var userIdStr = User.FindFirst("userId")?.Value;
         return Guid.TryParse(userIdStr, out var userId) ? userId : Guid.Empty;
     }
-
-    // В UploadsController.cs
 
     [HttpPost("portfolio/audio")]
     public async Task<IActionResult> UploadAudio(
@@ -103,6 +103,28 @@ public class UploadsController : ControllerBase
             var profileId = Guid.Parse(profile.RootElement.GetProperty("id").GetString()!);
 
             var result = await _videoService.UploadVideoAsync(profileId, video, title, description);
+            return Ok(result);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
+
+    [HttpPost("portfolio/photo")]
+    public async Task<IActionResult> UploadPhoto(
+    IFormFile photo,
+    [FromForm] string title,
+    [FromForm] string? description = null)
+    {
+        try
+        {
+            var userId = GetUserId();
+            var profile = await _profileService.GetByUserIdAsync(userId);
+            if (profile == null) return BadRequest("Профиль не найден");
+            var profileId = Guid.Parse(profile.RootElement.GetProperty("id").GetString()!);
+
+            var result = await _photoService.UploadPhotoAsync(profileId, photo, title, description);
             return Ok(result);
         }
         catch (ArgumentException ex)

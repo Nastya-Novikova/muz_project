@@ -36,9 +36,9 @@ public class MusicianProfile : ISoftDeletable
     public byte[]? Avatar { get; set; }
 
     /// <summary>
-    /// Возраст (16-100)
+    /// Возраст (0-100)
     /// </summary>
-    [Range(16, 100)]
+    [Range(0, 100)]
     public int? Age { get; set; }
 
     /// <summary>
@@ -94,6 +94,10 @@ public class MusicianProfile : ISoftDeletable
     public List<CollaborationGoal> CollaborationGoals { get; set; } = new();
 
     // === Портфолио ===
+    /*/// <summary>
+    /// Портфолио пользователя (аудио, видео, фото)
+    /// </summary>
+    public Portfolio Portfolio { get; set; } = new();*/
     /// <summary>
     /// Аудиозаписи в портфолио
     /// </summary>
@@ -103,6 +107,11 @@ public class MusicianProfile : ISoftDeletable
     /// Видеозаписи в портфолио
     /// </summary>
     public List<PortfolioVideo> VideoFiles { get; set; } = new();
+
+    /// <summary>
+    /// Фотографии в портфолио
+    /// </summary>
+    public List<PortfolioPhoto> Photos { get; set; } = new();
 
     // === Soft-delete ===
     /// <inheritdoc />

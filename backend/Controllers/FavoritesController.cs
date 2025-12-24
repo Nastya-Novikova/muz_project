@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using System.Text.Json;
 using backend.Services.Interfaces;
+using backend.Services;
 
 namespace backend.Controllers;
 
@@ -54,6 +55,18 @@ public class FavoritesController : ControllerBase
         var result = await _service.RemoveAsync(userId, favoriteUserId);
         return result != null ? Ok(result) : BadRequest();
     }
+
+    /// <summary>
+    /// Проверить, добавлен ли пользователь в избранное
+    /// </summary>
+    [HttpGet("{favoriteUserId}")]
+    public async Task<IActionResult> IsFavorite(Guid favoriteUserId)
+    {
+        var userId = GetUserId();
+        var isFavorite = await _service.IsFavoriteAsync(userId, favoriteUserId);
+        return Ok(new { isFavorite });
+    }
+
 
     private Guid GetUserId()
     {
