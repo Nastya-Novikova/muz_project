@@ -1,4 +1,5 @@
 ﻿using backend.Data;
+using backend.Middleware;
 using backend.Models.Repositories;
 using backend.Models.Repositories.Interfaces;
 using backend.Services;
@@ -153,6 +154,7 @@ API для музыкального сервиса поиска музыкант
             });
 
             var app = builder.Build();
+            app.UseMiddleware<ExceptionMiddleware>();
 
             /*app.Use(async (context, next) =>
             {

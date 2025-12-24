@@ -47,6 +47,12 @@ public class User : ISoftDeletable
     /// </summary>
     public List<Guid> FavoriteProfileIds { get; set; } = new();
 
+    // === Навигационное свойство ===
+    /// <summary>
+    /// Музыкальный профиль пользователя (связь один-к-одному)
+    /// </summary>
+    public MusicianProfile? MusicianProfile { get; set; }
+
     // === Soft-delete ===
     /// <inheritdoc />
     public bool IsDeleted { get; set; } = false;
