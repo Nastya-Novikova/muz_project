@@ -55,7 +55,7 @@ public class AudioUploadService : IAudioUploadService
             Description = description,
             FileData = fileBytes,
             MimeType = file.ContentType,
-            Duration = 0 // TODO: получить через NAudio
+            Duration = 0
         };
 
         await _audioRepository.AddAsync(audio);

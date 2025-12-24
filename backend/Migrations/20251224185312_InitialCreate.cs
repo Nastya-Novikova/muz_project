@@ -369,6 +369,65 @@ namespace backend.Migrations
                     { 10, "Скрипач", "violinist" }
                 });
 
+            migrationBuilder.InsertData(
+                table: "Users",
+                columns: new[] { "Id", "Avatar", "CreatedAt", "DeletedAt", "Email", "FavoriteProfileIds", "FullName", "IsDeleted", "ProfileCompleted" },
+                values: new object[,]
+                {
+                    { new Guid("11111111-1111-1111-1111-111111111111"), null, new DateTime(2025, 12, 24, 18, 43, 10, 371, DateTimeKind.Utc).AddTicks(9170), null, "user1@example.com", new List<Guid> { new Guid("33333333-3333-3333-3333-333333333333") }, "Алексей Иванов", false, true },
+                    { new Guid("22222222-2222-2222-2222-222222222222"), null, new DateTime(2025, 12, 24, 18, 44, 10, 371, DateTimeKind.Utc).AddTicks(9183), null, "user2@example.com", new List<Guid> { new Guid("44444444-4444-4444-4444-444444444444") }, "Мария Петрова", false, true },
+                    { new Guid("33333333-3333-3333-3333-333333333333"), null, new DateTime(2025, 12, 24, 18, 45, 10, 371, DateTimeKind.Utc).AddTicks(9186), null, "user3@example.com", new List<Guid>(), "Иван Сидоров", false, true }
+                });
+
+            migrationBuilder.InsertData(
+                table: "CollaborationSuggestions",
+                columns: new[] { "Id", "CreatedAt", "FromUserId", "Message", "Status", "ToUserId", "UpdatedAt" },
+                values: new object[,]
+                {
+                    { new Guid("77777777-7777-7777-7777-777777777777"), new DateTime(2025, 12, 24, 18, 48, 10, 371, DateTimeKind.Utc).AddTicks(9395), new Guid("11111111-1111-1111-1111-111111111111"), "Привет! Слушал твои записи — классный голос. Хочу пригласить в новый проект.", "pending", new Guid("22222222-2222-2222-2222-222222222222"), new DateTime(2025, 12, 24, 18, 48, 10, 371, DateTimeKind.Utc).AddTicks(9396) },
+                    { new Guid("88888888-8888-8888-8888-888888888888"), new DateTime(2025, 12, 24, 18, 49, 10, 371, DateTimeKind.Utc).AddTicks(9400), new Guid("22222222-2222-2222-2222-222222222222"), "Спасибо! Давай обсудим детали.", "accepted", new Guid("11111111-1111-1111-1111-111111111111"), new DateTime(2025, 12, 24, 18, 49, 10, 371, DateTimeKind.Utc).AddTicks(9401) }
+                });
+
+            migrationBuilder.InsertData(
+                table: "MusicianProfiles",
+                columns: new[] { "Id", "Age", "Avatar", "CityId", "CreatedAt", "DeletedAt", "Description", "Experience", "FullName", "IsDeleted", "Phone", "Telegram", "UpdatedAt", "UserId" },
+                values: new object[,]
+                {
+                    { new Guid("44444444-4444-4444-4444-444444444444"), 28, null, 1, new DateTime(2025, 12, 24, 18, 43, 10, 371, DateTimeKind.Utc).AddTicks(9266), null, "Профессиональный гитарист, ищу группу для выступлений.", 7, "Алексей Иванов", false, null, null, new DateTime(2025, 12, 24, 18, 43, 10, 371, DateTimeKind.Utc).AddTicks(9267), new Guid("11111111-1111-1111-1111-111111111111") },
+                    { new Guid("55555555-5555-5555-5555-555555555555"), 25, null, 2, new DateTime(2025, 12, 24, 18, 44, 10, 371, DateTimeKind.Utc).AddTicks(9271), null, "Вокалистка, участвую в джазовых проектах.", 5, "Мария Петрова", false, null, null, new DateTime(2025, 12, 24, 18, 44, 10, 371, DateTimeKind.Utc).AddTicks(9272), new Guid("22222222-2222-2222-2222-222222222222") },
+                    { new Guid("66666666-6666-6666-6666-666666666666"), 30, null, 3, new DateTime(2025, 12, 24, 18, 45, 10, 371, DateTimeKind.Utc).AddTicks(9277), null, "Бас-гитарист, открыт к совместным проектам.", 10, "Иван Сидоров", false, null, null, new DateTime(2025, 12, 24, 18, 45, 10, 371, DateTimeKind.Utc).AddTicks(9277), new Guid("33333333-3333-3333-3333-333333333333") }
+                });
+
+            migrationBuilder.InsertData(
+                table: "ProfileCollaborationGoal",
+                columns: new[] { "CollaborationGoalsId", "ProfilesId" },
+                values: new object[,]
+                {
+                    { 1, new Guid("44444444-4444-4444-4444-444444444444") },
+                    { 2, new Guid("66666666-6666-6666-6666-666666666666") },
+                    { 3, new Guid("55555555-5555-5555-5555-555555555555") }
+                });
+
+            migrationBuilder.InsertData(
+                table: "ProfileGenre",
+                columns: new[] { "GenresId", "ProfilesId" },
+                values: new object[,]
+                {
+                    { 1, new Guid("55555555-5555-5555-5555-555555555555") },
+                    { 2, new Guid("44444444-4444-4444-4444-444444444444") },
+                    { 2, new Guid("66666666-6666-6666-6666-666666666666") }
+                });
+
+            migrationBuilder.InsertData(
+                table: "ProfileSpecialty",
+                columns: new[] { "ProfilesId", "SpecialtiesId" },
+                values: new object[,]
+                {
+                    { new Guid("44444444-4444-4444-4444-444444444444"), 2 },
+                    { new Guid("55555555-5555-5555-5555-555555555555"), 1 },
+                    { new Guid("66666666-6666-6666-6666-666666666666"), 3 }
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_CollaborationSuggestions_FromUserId",
                 table: "CollaborationSuggestions",
@@ -387,7 +446,8 @@ namespace backend.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_MusicianProfiles_UserId",
                 table: "MusicianProfiles",
-                column: "UserId");
+                column: "UserId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_PortfolioAudio_ProfileId",

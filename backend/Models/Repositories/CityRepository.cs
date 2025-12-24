@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using backend.Data;
 using backend.Models.Classes;
 using backend.Models.Repositories.Interfaces;
+using backend.Exceptions;
 
 namespace backend.Models.Repositories;
 
@@ -34,6 +35,21 @@ public class CityRepository : ICityRepository
     public async Task<City?> GetByIdAsync(int id)
     {
         return await Cities.FindAsync(id);
+    }
+
+    public async Task AddAsync(City city)
+    {
+        if (string.IsNullOrWhiteSpace(city.Name))
+            throw new ApiException(400, "Название города обязательно", "MISSING_CITY_NAME");
+
+        await Cities.AddAsync(city);
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task UpdateAsync(City city)
+    {
+        Cities.Update(city);
+        await _context.SaveChangesAsync();
     }
 
     private static IQueryable<City> ApplySorting(IQueryable<City> query, string? sortBy, bool sortDesc)

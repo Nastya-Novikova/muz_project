@@ -146,6 +146,136 @@ namespace backend.Data
                 .HasMany(p => p.Photos)
                 .WithOne(p => p.Profile)
                 .HasForeignKey(p => p.ProfileId);
+
+
+
+
+
+            // === Seed-данные пользователей ===
+            var user1 = new User
+            {
+                Id = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+                Email = "user1@example.com",
+                FullName = "Алексей Иванов",
+                ProfileCompleted = true,
+                CreatedAt = DateTime.UtcNow.AddMinutes(-10),
+                FavoriteProfileIds = new List<Guid>
+    {
+        Guid.Parse("33333333-3333-3333-3333-333333333333") // user2
+    }
+            };
+
+            var user2 = new User
+            {
+                Id = Guid.Parse("22222222-2222-2222-2222-222222222222"),
+                Email = "user2@example.com",
+                FullName = "Мария Петрова",
+                ProfileCompleted = true,
+                CreatedAt = DateTime.UtcNow.AddMinutes(-9),
+                FavoriteProfileIds = new List<Guid>
+    {
+        Guid.Parse("44444444-4444-4444-4444-444444444444") // user3
+    }
+            };
+
+            var user3 = new User
+            {
+                Id = Guid.Parse("33333333-3333-3333-3333-333333333333"),
+                Email = "user3@example.com",
+                FullName = "Иван Сидоров",
+                ProfileCompleted = true,
+                CreatedAt = DateTime.UtcNow.AddMinutes(-8),
+                FavoriteProfileIds = new List<Guid>()
+            };
+
+            modelBuilder.Entity<User>().HasData(user1, user2, user3);
+
+            // === Seed-данные профилей ===
+            var profile1 = new MusicianProfile
+            {
+                Id = Guid.Parse("44444444-4444-4444-4444-444444444444"),
+                UserId = user1.Id,
+                FullName = "Алексей Иванов",
+                CityId = 1, // Moscow
+                Age = 28,
+                Experience = 7,
+                Description = "Профессиональный гитарист, ищу группу для выступлений.",
+                CreatedAt = DateTime.UtcNow.AddMinutes(-10),
+                UpdatedAt = DateTime.UtcNow.AddMinutes(-10)
+            };
+
+            var profile2 = new MusicianProfile
+            {
+                Id = Guid.Parse("55555555-5555-5555-5555-555555555555"),
+                UserId = user2.Id,
+                FullName = "Мария Петрова",
+                CityId = 2, // Saint Petersburg
+                Age = 25,
+                Experience = 5,
+                Description = "Вокалистка, участвую в джазовых проектах.",
+                CreatedAt = DateTime.UtcNow.AddMinutes(-9),
+                UpdatedAt = DateTime.UtcNow.AddMinutes(-9)
+            };
+
+            var profile3 = new MusicianProfile
+            {
+                Id = Guid.Parse("66666666-6666-6666-6666-666666666666"),
+                UserId = user3.Id,
+                FullName = "Иван Сидоров",
+                CityId = 3, // Novosibirsk
+                Age = 30,
+                Experience = 10,
+                Description = "Бас-гитарист, открыт к совместным проектам.",
+                CreatedAt = DateTime.UtcNow.AddMinutes(-8),
+                UpdatedAt = DateTime.UtcNow.AddMinutes(-8)
+            };
+
+            modelBuilder.Entity<MusicianProfile>().HasData(profile1, profile2, profile3);
+
+            // === Связи: Профиль — Жанры ===
+            modelBuilder.Entity("ProfileGenre").HasData(
+                new { GenresId = 2, ProfilesId = profile1.Id }, // rock
+                new { GenresId = 1, ProfilesId = profile2.Id }, // jazz
+                new { GenresId = 2, ProfilesId = profile3.Id }  // rock
+            );
+
+            // === Связи: Профиль — Специальности ===
+            modelBuilder.Entity("ProfileSpecialty").HasData(
+                new { ProfilesId = profile1.Id, SpecialtiesId = 2 }, // guitarist
+                new { ProfilesId = profile2.Id, SpecialtiesId = 1 }, // vocalist
+                new { ProfilesId = profile3.Id, SpecialtiesId = 3 }  // bassist
+            );
+
+            // === Связи: Профиль — Цели ===
+            modelBuilder.Entity("ProfileCollaborationGoal").HasData(
+                new { ProfilesId = profile1.Id, CollaborationGoalsId = 1 }, // ищу группу
+                new { ProfilesId = profile2.Id, CollaborationGoalsId = 3 }, // открыт к проектам
+                new { ProfilesId = profile3.Id, CollaborationGoalsId = 2 }  // сессионная работа
+            );
+
+            // === Предложения о сотрудничестве ===
+            modelBuilder.Entity<CollaborationSuggestion>().HasData(
+                new CollaborationSuggestion
+                {
+                    Id = Guid.Parse("77777777-7777-7777-7777-777777777777"),
+                    FromUserId = user1.Id,
+                    ToUserId = user2.Id,
+                    Message = "Привет! Слушал твои записи — классный голос. Хочу пригласить в новый проект.",
+                    Status = "pending",
+                    CreatedAt = DateTime.UtcNow.AddMinutes(-5),
+                    UpdatedAt = DateTime.UtcNow.AddMinutes(-5)
+                },
+                new CollaborationSuggestion
+                {
+                    Id = Guid.Parse("88888888-8888-8888-8888-888888888888"),
+                    FromUserId = user2.Id,
+                    ToUserId = user1.Id,
+                    Message = "Спасибо! Давай обсудим детали.",
+                    Status = "accepted",
+                    CreatedAt = DateTime.UtcNow.AddMinutes(-4),
+                    UpdatedAt = DateTime.UtcNow.AddMinutes(-4)
+                }
+            );
         }
 
         public static void EnsureDatabaseCreated(MusicianFinderDbContext context)

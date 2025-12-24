@@ -13,7 +13,7 @@ using backend.Data;
 namespace backend.Migrations
 {
     [DbContext(typeof(MusicianFinderDbContext))]
-    [Migration("20251224155213_InitialCreate")]
+    [Migration("20251224185312_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -76,6 +76,23 @@ namespace backend.Migrations
                     b.HasIndex("ProfilesId");
 
                     b.ToTable("ProfileCollaborationGoal");
+
+                    b.HasData(
+                        new
+                        {
+                            CollaborationGoalsId = 1,
+                            ProfilesId = new Guid("44444444-4444-4444-4444-444444444444")
+                        },
+                        new
+                        {
+                            CollaborationGoalsId = 3,
+                            ProfilesId = new Guid("55555555-5555-5555-5555-555555555555")
+                        },
+                        new
+                        {
+                            CollaborationGoalsId = 2,
+                            ProfilesId = new Guid("66666666-6666-6666-6666-666666666666")
+                        });
                 });
 
             modelBuilder.Entity("ProfileGenre", b =>
@@ -91,6 +108,23 @@ namespace backend.Migrations
                     b.HasIndex("ProfilesId");
 
                     b.ToTable("ProfileGenre");
+
+                    b.HasData(
+                        new
+                        {
+                            GenresId = 2,
+                            ProfilesId = new Guid("44444444-4444-4444-4444-444444444444")
+                        },
+                        new
+                        {
+                            GenresId = 1,
+                            ProfilesId = new Guid("55555555-5555-5555-5555-555555555555")
+                        },
+                        new
+                        {
+                            GenresId = 2,
+                            ProfilesId = new Guid("66666666-6666-6666-6666-666666666666")
+                        });
                 });
 
             modelBuilder.Entity("ProfileSpecialty", b =>
@@ -106,6 +140,23 @@ namespace backend.Migrations
                     b.HasIndex("SpecialtiesId");
 
                     b.ToTable("ProfileSpecialty");
+
+                    b.HasData(
+                        new
+                        {
+                            ProfilesId = new Guid("44444444-4444-4444-4444-444444444444"),
+                            SpecialtiesId = 2
+                        },
+                        new
+                        {
+                            ProfilesId = new Guid("55555555-5555-5555-5555-555555555555"),
+                            SpecialtiesId = 1
+                        },
+                        new
+                        {
+                            ProfilesId = new Guid("66666666-6666-6666-6666-666666666666"),
+                            SpecialtiesId = 3
+                        });
                 });
 
             modelBuilder.Entity("backend.Models.Classes.City", b =>
@@ -251,6 +302,28 @@ namespace backend.Migrations
                     b.HasIndex("ToUserId");
 
                     b.ToTable("CollaborationSuggestions");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("77777777-7777-7777-7777-777777777777"),
+                            CreatedAt = new DateTime(2025, 12, 24, 18, 48, 10, 371, DateTimeKind.Utc).AddTicks(9395),
+                            FromUserId = new Guid("11111111-1111-1111-1111-111111111111"),
+                            Message = "Привет! Слушал твои записи — классный голос. Хочу пригласить в новый проект.",
+                            Status = "pending",
+                            ToUserId = new Guid("22222222-2222-2222-2222-222222222222"),
+                            UpdatedAt = new DateTime(2025, 12, 24, 18, 48, 10, 371, DateTimeKind.Utc).AddTicks(9396)
+                        },
+                        new
+                        {
+                            Id = new Guid("88888888-8888-8888-8888-888888888888"),
+                            CreatedAt = new DateTime(2025, 12, 24, 18, 49, 10, 371, DateTimeKind.Utc).AddTicks(9400),
+                            FromUserId = new Guid("22222222-2222-2222-2222-222222222222"),
+                            Message = "Спасибо! Давай обсудим детали.",
+                            Status = "accepted",
+                            ToUserId = new Guid("11111111-1111-1111-1111-111111111111"),
+                            UpdatedAt = new DateTime(2025, 12, 24, 18, 49, 10, 371, DateTimeKind.Utc).AddTicks(9401)
+                        });
                 });
 
             modelBuilder.Entity("backend.Models.Classes.EmailVerificationCode", b =>
@@ -490,9 +563,51 @@ namespace backend.Migrations
 
                     b.HasIndex("CityId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserId")
+                        .IsUnique();
 
                     b.ToTable("MusicianProfiles");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("44444444-4444-4444-4444-444444444444"),
+                            Age = 28,
+                            CityId = 1,
+                            CreatedAt = new DateTime(2025, 12, 24, 18, 43, 10, 371, DateTimeKind.Utc).AddTicks(9266),
+                            Description = "Профессиональный гитарист, ищу группу для выступлений.",
+                            Experience = 7,
+                            FullName = "Алексей Иванов",
+                            IsDeleted = false,
+                            UpdatedAt = new DateTime(2025, 12, 24, 18, 43, 10, 371, DateTimeKind.Utc).AddTicks(9267),
+                            UserId = new Guid("11111111-1111-1111-1111-111111111111")
+                        },
+                        new
+                        {
+                            Id = new Guid("55555555-5555-5555-5555-555555555555"),
+                            Age = 25,
+                            CityId = 2,
+                            CreatedAt = new DateTime(2025, 12, 24, 18, 44, 10, 371, DateTimeKind.Utc).AddTicks(9271),
+                            Description = "Вокалистка, участвую в джазовых проектах.",
+                            Experience = 5,
+                            FullName = "Мария Петрова",
+                            IsDeleted = false,
+                            UpdatedAt = new DateTime(2025, 12, 24, 18, 44, 10, 371, DateTimeKind.Utc).AddTicks(9272),
+                            UserId = new Guid("22222222-2222-2222-2222-222222222222")
+                        },
+                        new
+                        {
+                            Id = new Guid("66666666-6666-6666-6666-666666666666"),
+                            Age = 30,
+                            CityId = 3,
+                            CreatedAt = new DateTime(2025, 12, 24, 18, 45, 10, 371, DateTimeKind.Utc).AddTicks(9277),
+                            Description = "Бас-гитарист, открыт к совместным проектам.",
+                            Experience = 10,
+                            FullName = "Иван Сидоров",
+                            IsDeleted = false,
+                            UpdatedAt = new DateTime(2025, 12, 24, 18, 45, 10, 371, DateTimeKind.Utc).AddTicks(9277),
+                            UserId = new Guid("33333333-3333-3333-3333-333333333333")
+                        });
                 });
 
             modelBuilder.Entity("backend.Models.Classes.PortfolioAudio", b =>
@@ -612,6 +727,38 @@ namespace backend.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Users");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("11111111-1111-1111-1111-111111111111"),
+                            CreatedAt = new DateTime(2025, 12, 24, 18, 43, 10, 371, DateTimeKind.Utc).AddTicks(9170),
+                            Email = "user1@example.com",
+                            FavoriteProfileIds = new List<Guid> { new Guid("33333333-3333-3333-3333-333333333333") },
+                            FullName = "Алексей Иванов",
+                            IsDeleted = false,
+                            ProfileCompleted = true
+                        },
+                        new
+                        {
+                            Id = new Guid("22222222-2222-2222-2222-222222222222"),
+                            CreatedAt = new DateTime(2025, 12, 24, 18, 44, 10, 371, DateTimeKind.Utc).AddTicks(9183),
+                            Email = "user2@example.com",
+                            FavoriteProfileIds = new List<Guid> { new Guid("44444444-4444-4444-4444-444444444444") },
+                            FullName = "Мария Петрова",
+                            IsDeleted = false,
+                            ProfileCompleted = true
+                        },
+                        new
+                        {
+                            Id = new Guid("33333333-3333-3333-3333-333333333333"),
+                            CreatedAt = new DateTime(2025, 12, 24, 18, 45, 10, 371, DateTimeKind.Utc).AddTicks(9186),
+                            Email = "user3@example.com",
+                            FavoriteProfileIds = new List<Guid>(),
+                            FullName = "Иван Сидоров",
+                            IsDeleted = false,
+                            ProfileCompleted = true
+                        });
                 });
 
             modelBuilder.Entity("PortfolioPhoto", b =>
@@ -698,8 +845,8 @@ namespace backend.Migrations
                         .IsRequired();
 
                     b.HasOne("backend.Models.Classes.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
+                        .WithOne("MusicianProfile")
+                        .HasForeignKey("backend.Models.Classes.MusicianProfile", "UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -742,6 +889,11 @@ namespace backend.Migrations
                     b.Navigation("Photos");
 
                     b.Navigation("VideoFiles");
+                });
+
+            modelBuilder.Entity("backend.Models.Classes.User", b =>
+                {
+                    b.Navigation("MusicianProfile");
                 });
 #pragma warning restore 612, 618
         }
