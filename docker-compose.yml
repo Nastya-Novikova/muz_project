@@ -31,6 +31,15 @@ services:
     networks:
       - musician-net
 
+      
+  mailhog:
+    image: mailhog/mailhog
+    ports:
+      - "8025:8025"
+      - "1025:1025"
+    networks:
+      - musician-net
+
 networks:
   musician-net:
     driver: bridge
