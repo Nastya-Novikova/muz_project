@@ -88,10 +88,16 @@ function LoginOTP() {
     setTimer(60);
   };
 
+  const handleLogoClick = () => {
+    navigate('/');
+  };
+
   return (
     <div className="login-page-wrapper">
       <div className="login-container">
-        <h1>Войти в MusicianFinder</h1>
+        <h1 onClick={handleLogoClick} style={{ cursor: 'pointer' }}>
+          Войти в MusicianFinder
+        </h1>
         <p>Введите ваш email - мы отправим одноразовый код для входа</p>
 
         <div className="email-input-group">

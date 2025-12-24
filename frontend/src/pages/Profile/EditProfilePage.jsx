@@ -179,10 +179,11 @@ function EditProfilePage() {
               <h2>Личные данные</h2>
               <div className="form-grid">
                 <div className="form-group">
-                  <label>ФИО *</label>
+                  <label>ФИО или название коллектива *</label>
                   <input
                     type="text"
                     name="fullName"
+                    autoComplete='off'
                     value={formData.fullName}
                     onChange={handleInputChange}
                     required
@@ -235,6 +236,7 @@ function EditProfilePage() {
                   <input
                     type="tel"
                     name="phone"
+                    autoComplete='off'
                     value={formData.phone}
                     onChange={handleInputChange}
                     placeholder="+7 (999) 123-45-67"

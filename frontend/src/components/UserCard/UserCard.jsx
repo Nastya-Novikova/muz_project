@@ -80,25 +80,6 @@ const UserCard = ({
           </div>
         </div>
       </div>
-
-      {/* Действия */}
-      {showActions && (
-        <div className="card-actions">
-          <button 
-            className={`action-btn favorite-btn ${isFavorite ? 'active' : ''}`}
-            onClick={handleFavorite}
-          >
-            {isFavorite ? 'В избранном' : 'В избранное'}
-          </button>
-          
-          <button 
-            className="action-btn view-btn"
-            onClick={handleProfileClick}
-          >
-            Профиль
-          </button>
-        </div>
-      )}
     </div>
   );
 };

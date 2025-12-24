@@ -123,7 +123,7 @@ function HomePage() {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Поиск по имени, инструменту, жанру..."
+              placeholder="Поиск по имени исполнителя или названию коллектива"
               className="search-input"
             />
             <button type="submit" className="search-button">Найти</button>
@@ -190,36 +190,6 @@ function HomePage() {
                     className="experience-input"
                     min="0"
                   />
-                </div>
-              </div>
-
-              <div className="filter-group">
-                <label>Статус поиска:</label>
-                <div className="status-checkboxes">
-                  <label className="checkbox-label">
-                    <input
-                      type="checkbox"
-                      checked={searchCommercial}
-                      onChange={(e) => setSearchCommercial(e.target.checked)}
-                    />
-                    Ищу коммерцию
-                  </label>
-                  <label className="checkbox-label">
-                    <input
-                      type="checkbox"
-                      checked={searchBand}
-                      onChange={(e) => setSearchBand(e.target.checked)}
-                    />
-                    Ищу коллектив
-                  </label>
-                  <label className="checkbox-label">
-                    <input
-                      type="checkbox"
-                      checked={searchTeam}
-                      onChange={(e) => setSearchTeam(e.target.checked)}
-                    />
-                    Ищу команду
-                  </label>
                 </div>
               </div>
             </div>
