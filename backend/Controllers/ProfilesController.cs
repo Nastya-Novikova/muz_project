@@ -1,49 +1,128 @@
-﻿using backend.Services;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using System.Text.Json;
+using backend.Services.Interfaces;
+using backend.Services;
 
-namespace backend.Controllers
+namespace backend.Controllers;
+
+/// <summary>
+/// Контроллер профилей
+/// </summary>
+[ApiController]
+[Route("api/[controller]")]
+[Authorize]
+public class ProfilesController : ControllerBase
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class ProfilesController : ControllerBase
+    private readonly IProfileService _profileService;
+    private readonly ICollaborationService _collaborationService;
+    private readonly IFavoriteService _favoriteService;
+
+    public ProfilesController(IProfileService profileService, ICollaborationService collaborationService, IFavoriteService favoriteService)
     {
-        private readonly IProfileService _profileService;
+        _profileService = profileService;
+        _collaborationService = collaborationService;
+        _favoriteService = favoriteService;
+    }
 
-        public ProfilesController(IProfileService profileService)
-        {
-            _profileService = profileService;
-        }
+    /// <summary>
+    /// Поиск музыкантов
+    /// </summary>
+    [HttpPost("search")]
+    public async Task<IActionResult> Search([FromBody] JsonDocument searchParams)
+    {
+        var result = await _profileService.SearchAsync(searchParams);
+        return result != null ? Ok(result) : BadRequest();
+    }
 
-        [HttpGet]
-        public async Task<JsonDocument> Search([FromQuery] string? city, [FromQuery] string? genre)
-        {
-            var json = await _profileService.SearchAsync(city, genre);
-            return JsonDocument.Parse(json);
-        }
+    /// <summary>
+    /// Получить свой профиль
+    /// </summary>
+    [HttpGet]
+    public async Task<IActionResult> GetMyProfile()
+    {
+        var userId = GetUserId();
+        var obj = await _profileService.GetByUserIdAsync(userId);
+        return obj != null ? Ok(obj) : BadRequest();
+    }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> Get(Guid id)
-        {
-            var json = await _profileService.GetByIdAsync(id);
-            return json == null ? NotFound() : Ok(JsonDocument.Parse(json));
-        }
+    /// <summary>
+    /// Получить профиль по ID
+    /// </summary>
+    [HttpGet("{id}")]
+    public async Task<IActionResult> Get(Guid id)
+    {
+        var obj = await _profileService.GetByIdAsync(id);
+        return obj != null ? Ok(obj) : BadRequest();
+    }
 
-        [HttpPost]
-        public async Task<IActionResult> Create([FromBody] JsonDocument jsonDocument)
-        {
-            var resultJson = await _profileService.CreateAsync(jsonDocument);
-            var doc = JsonDocument.Parse(resultJson);
-            var id = Guid.Parse(doc.RootElement.GetProperty("id").GetString()!);
-            return CreatedAtAction(nameof(Get), new { id }, doc.RootElement);
-        }
+    /// <summary>
+    /// Создать профиль
+    /// </summary>
+    [HttpPost]
+    public async Task<IActionResult> Create([FromBody] JsonDocument objJson)
+    {
+        var userId = GetUserId();
+        var obj = await _profileService.CreateAsync(objJson, userId);
+        return obj != null ? Ok(obj) : BadRequest();
+    }
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(Guid id)
+    /// <summary>
+    /// Обновить профиль
+    /// </summary>
+    [HttpPut]
+    public async Task<IActionResult> Update([FromBody] JsonDocument objJson)
+    {
+        var userId = GetUserId();
+        var obj = await _profileService.UpdateAsync(Guid.Empty, objJson, userId); // ID из JWT
+        return obj != null ? Ok(obj) : BadRequest();
+    }
+
+    /// <summary>
+    /// Удалить профиль (soft-delete)
+    /// </summary>
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(Guid id)
+    {
+        var obj = await _profileService.DeleteAsync(id);
+        return obj != null ? Ok(obj) : BadRequest();
+    }
+
+    [HttpGet("full")]
+    [Authorize]
+    public async Task<IActionResult> GetFullProfile()
+    {
+        var userId = GetUserId();
+
+        // Получаем свой профиль
+        var profile = await _profileService.GetFullProfileAsync(userId);
+        if (profile == null) return BadRequest();
+
+        // Получаем предложения
+        var received = await _collaborationService.GetReceivedAsync(userId, JsonDocument.Parse("{}"));
+        var sent = await _collaborationService.GetSentAsync(userId, JsonDocument.Parse("{}"));
+
+        // Получаем избранные ID
+        var favorites = await _favoriteService.GetFavoritesAsync(userId, JsonDocument.Parse("{}"));
+
+        var fullProfile = new
         {
-            var success = await _profileService.DeleteAsync(id);
-            return success ? Ok() : NotFound();
-        }
+            profile = profile.RootElement,
+            collaborations = new
+            {
+                received = received?.RootElement.GetProperty("suggestions") ?? JsonDocument.Parse("[]").RootElement,
+                sent = sent?.RootElement.GetProperty("suggestions") ?? JsonDocument.Parse("[]").RootElement
+            },
+            favorites = favorites?.RootElement.GetProperty("favorites") ?? JsonDocument.Parse("[]").RootElement
+        };
+
+        return Ok(JsonDocument.Parse(JsonSerializer.Serialize(fullProfile)));
+    }
+
+    private Guid GetUserId()
+    {
+        var userIdStr = User.FindFirst("userId")?.Value;
+        return Guid.TryParse(userIdStr, out var userId) ? userId : Guid.Empty;
     }
 }
