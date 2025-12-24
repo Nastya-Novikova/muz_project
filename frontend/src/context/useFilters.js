@@ -1,3 +1,4 @@
+// Упрощенная версия useFilters.js
 import { useState, useEffect } from 'react';
 import { api } from '../services/api';
 
@@ -6,37 +7,37 @@ export function useFilters() {
     cities: [],
     activities: [],
     genres: [],
-    loading: true
   });
 
   useEffect(() => {
-    loadFilters();
+    const loadData = async () => {
+      try {
+        const activities = await api.getActivities();
+        const cities = await api.getCities();
+        const genres = await api.getGenres();
+
+        // Извлекаем specialties из activities если они там есть
+        const activityList = activities?.specialties || activities || [];
+        
+        setFilters({
+          cities: cities || [],
+          activities: activityList.map(item => ({
+            id: item.id,
+            name: item.localizedName || item.name
+          })),
+          genres: (genres || []).map(item => ({
+            id: item.id,
+            name: item.localizedName || item.name
+          })),
+        });
+      } catch (error) {
+        console.log('Ошибка:', error);
+        setFilters(prev => ({ ...prev}));
+      }
+    };
+
+    loadData();
   }, []);
-
-  const loadFilters = async () => {
-    try {
-      const [cities, activities, genres] = await Promise.all([
-        api.getCities(),
-        api.getActivities(),
-        api.getGenres()
-      ]);
-
-      setFilters({
-        cities,
-        activities,
-        genres,
-        loading: false
-      });
-    } catch (error) {
-      console.log('Ошибка');
-      setFilters({
-        cities: [],
-        activities: [],
-        genres: [],
-        loading: false
-      });
-    }
-  };
 
   return filters;
 }

@@ -15,7 +15,7 @@ function HomePage() {
   const [experienceTo, setExperienceTo] = useState('');
   const [filtersOpen, setFiltersOpen] = useState(false);
 
-  const { cities, activities, genres: genreData, loading } = useFilters();
+  const { cities, activities, genres: genreData } = useFilters();
 
   const mockUsers = [
     {

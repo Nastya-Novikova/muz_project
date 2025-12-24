@@ -99,7 +99,7 @@ const MultiSelectDropdown = ({
                     onChange={() => handleOptionChange(option.id)}
                     className="dropdown-checkbox"
                   />
-                  <span className="dropdown-option-label">{option.label}</span>
+                  <span className="dropdown-option-label">{option.name}</span>
                 </label>
               ))}
             </div>

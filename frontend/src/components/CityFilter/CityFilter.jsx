@@ -43,7 +43,6 @@ const CityFilter = ({
           type="button"
           className="city-filter-button"
           onClick={toggleDropdown}
-          disabled={loading}
         >
           <span className="city-filter-placeholder">
             {selectedCity || placeholder}
