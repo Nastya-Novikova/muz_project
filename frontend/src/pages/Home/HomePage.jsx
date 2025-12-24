@@ -3,6 +3,7 @@ import Header from '../../components/Header/Header';
 import MultiSelectDropdown from '../../components/MultiSelectDropDown/MultiSelectDropDown';
 import CityFilter from '../../components/CityFilter/CityFilter';
 import UserCard from '../../components/UserCard/UserCard';
+import { useFilters } from '../../context/useFilters';
 import './HomePage.css';
 
 function HomePage() {
@@ -12,25 +13,9 @@ function HomePage() {
   const [city, setCity] = useState(''); 
   const [experienceFrom, setExperienceFrom] = useState('');
   const [experienceTo, setExperienceTo] = useState('');
-  const [searchCommercial, setSearchCommercial] = useState(false);
-  const [searchBand, setSearchBand] = useState(false);
-  const [searchTeam, setSearchTeam] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const [favorites, setFavorites] = useState([]);
 
-  const activityOptions = [
-    { id: 1, label: 'Вокал' },
-    { id: 2, label: 'Гитара' },
-    { id: 3, label: 'Бас-гитара' },
-    { id: 4, label: 'Ударные' },
-  ];
-
-  const genreOptions = [
-    { id: 1, label: 'Рок' },
-    { id: 2, label: 'Джаз' },
-    { id: 3, label: 'Поп' },
-    { id: 4, label: 'Хип-хоп' },
-  ];
+  const { cities, activities, genres: genreData, loading } = useFilters();
 
   const mockUsers = [
     {
@@ -90,14 +75,6 @@ function HomePage() {
     }
   ];
 
-  const handleFavoriteClick = (userId) => {
-    setFavorites(prev => 
-      prev.includes(userId) 
-        ? prev.filter(id => id !== userId)
-        : [...prev, userId]
-    );
-  };
-
   const handleSearch = (e) => {
     e.preventDefault();
     console.log({
@@ -143,7 +120,7 @@ function HomePage() {
               <div className="filter-group">
                 <MultiSelectDropdown
                   label="Вид деятельности"
-                  options={activityOptions}
+                  options={activities}
                   selectedIds={activityTypes}
                   onChange={setActivityTypes}
                   placeholder="Выберите виды деятельности..."
@@ -154,7 +131,7 @@ function HomePage() {
               <div className="filter-group">
                 <MultiSelectDropdown
                   label="Жанр"
-                  options={genreOptions}
+                  options={genreData}
                   selectedIds={genres}
                   onChange={setGenres}
                   placeholder="Выберите жанры..."
@@ -166,6 +143,7 @@ function HomePage() {
                 <CityFilter
                   selectedCity={city}
                   onCityChange={setCity}
+                  cities = {cities}
                   placeholder="Выберите город"
                   allCitiesText="Все города"
                 />
@@ -203,8 +181,6 @@ function HomePage() {
               <UserCard
                 key={user.id}
                 user={user}
-                isFavorite={favorites.includes(user.id)}
-                onFavoriteClick={handleFavoriteClick}
                 showActions={true}
               />
             ))}

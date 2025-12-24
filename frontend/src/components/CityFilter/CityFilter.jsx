@@ -10,15 +10,6 @@ const CityFilter = ({
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
 
-  const cityOptions = [
-    'Москва',
-    'Санкт-Петербург',
-    'Новосибирск',
-    'Екатеринбург',
-    'Казань',
-    'Нижний Новгород',
-  ];
-
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -32,9 +23,7 @@ const CityFilter = ({
     };
   }, []);
 
-  const toggleDropdown = () => {
-    setIsOpen(!isOpen);
-  };
+  const toggleDropdown = () => setIsOpen(!isOpen);
 
   const handleCitySelect = (city) => {
     onCityChange(city === allCitiesText ? '' : city);
@@ -54,6 +43,7 @@ const CityFilter = ({
           type="button"
           className="city-filter-button"
           onClick={toggleDropdown}
+          disabled={loading}
         >
           <span className="city-filter-placeholder">
             {selectedCity || placeholder}
@@ -86,16 +76,19 @@ const CityFilter = ({
                 {allCitiesText}
               </button>
               
-              {cityOptions.map(city => (
-                <button
-                  key={city}
-                  type="button"
-                  className={`city-option ${selectedCity === city ? 'selected' : ''}`}
-                  onClick={() => handleCitySelect(city)}
-                >
-                  {city}
-                </button>
-              ))}
+              {cities.map((city, index) => {
+                const cityName = typeof city === 'string' ? city : city.name;
+                return (
+                  <button
+                    key={index}
+                    type="button"
+                    className={`city-option ${selectedCity === cityName ? 'selected' : ''}`}
+                    onClick={() => handleCitySelect(cityName)}
+                  >
+                    {cityName}
+                  </button>
+                );
+              })}
             </div>
           </div>
         )}

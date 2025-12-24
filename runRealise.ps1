@@ -2,6 +2,13 @@
 
 Set-Location -Path $PSScriptRoot
 
-docker-compose up --build
-
-Write-Host "🛑 Остановлено." -ForegroundColor Yellow
+try {
+    docker-compose up --build
+}
+catch {
+    Write-Host "❌ Произошла ошибка:" -ForegroundColor Red
+    Write-Host $_.Exception.Message -ForegroundColor Red
+}
+finally {
+    Write-Host "🛑 Остановлено." -ForegroundColor Yellow
+    Read-Host "Нажмите Enter для закрытия окна"
