@@ -44,16 +44,18 @@ const MultiSelectDropdown = ({
     onChange([]);
   };
 
-  const getDisplayText = () => {
-    if (selectedIds.length === 0) return placeholder;
-    if (selectedIds.length === options.length) return allText;
-    
-    const selectedCount = selectedIds.length;
-    const firstSelectedOption = options.find(opt => selectedIds.includes(opt.id));
-    
-    if (selectedCount === 1) return firstSelectedOption.label;
-    return `${firstSelectedOption.label} + ещё ${selectedCount - 1}`;
-  };
+const getDisplayText = () => {
+  if (selectedIds.length === 0) return placeholder;
+  if (selectedIds.length === options.length) return allText;
+  
+  const selectedCount = selectedIds.length;
+  const firstSelectedOption = options.find(opt => selectedIds.includes(opt.id));
+  
+  const displayName = firstSelectedOption?.name || firstSelectedOption?.label || '';
+  
+  if (selectedCount === 1) return displayName;
+  return `${displayName} + ещё ${selectedCount - 1}`;
+};
 
   return (
     <div className="multi-select-dropdown" ref={dropdownRef}>

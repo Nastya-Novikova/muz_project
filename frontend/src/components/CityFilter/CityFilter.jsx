@@ -4,6 +4,7 @@ import './CityFilter.css';
 const CityFilter = ({ 
   selectedCity, 
   onCityChange, 
+  cities = [],
   placeholder = "Выберите город",
   allCitiesText = "Все города"
 }) => {
@@ -76,7 +77,7 @@ const CityFilter = ({
               </button>
               
               {cities.map((city, index) => {
-                const cityName = typeof city === 'string' ? city : city.name;
+                const cityName = typeof city === 'string' ? city : city.localizedName || city.name;
                 return (
                   <button
                     key={index}

@@ -6,6 +6,13 @@
   width: 100%;
 }
 
+.filter-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: var(--dark-blue);
+}
+
 .city-filter-container {
   position: relative;
   width: 100%;

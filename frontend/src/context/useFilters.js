@@ -1,4 +1,3 @@
-// Упрощенная версия useFilters.js
 import { useState, useEffect } from 'react';
 import { api } from '../services/api';
 
@@ -16,16 +15,20 @@ export function useFilters() {
         const cities = await api.getCities();
         const genres = await api.getGenres();
 
-        // Извлекаем specialties из activities если они там есть
-        const activityList = activities?.specialties || activities || [];
-        
+        const activityList = Array.isArray(activities) ? activities : (activities?.specialties || []);
+        const genreList = Array.isArray(genres) ? genres : (genres?.genres || []);
+        const cityList = Array.isArray(cities) ? cities : (cities?.cities || []);
+
         setFilters({
-          cities: cities || [],
+          cities: cityList.map(item => ({
+            id: item.id,
+            name: item.localizedName || item.name
+          })),
           activities: activityList.map(item => ({
             id: item.id,
             name: item.localizedName || item.name
           })),
-          genres: (genres || []).map(item => ({
+          genres: genreList.map(item => ({
             id: item.id,
             name: item.localizedName || item.name
           })),

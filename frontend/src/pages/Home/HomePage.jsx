@@ -150,7 +150,7 @@ function HomePage() {
               </div>
 
               <div className="filter-group">
-                <label>Стаж (лет):</label>
+                <label className="filter-group-label">Стаж (лет):</label>
                 <div className="experience-inputs">
                   <input
                     type="number"
