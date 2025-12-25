@@ -29,6 +29,13 @@
   font-size: 0.95rem;
 }
 
+.error-message {
+  color: var(--red);
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
 .email-input-group {
   display: flex;
   gap: 0.5rem;
