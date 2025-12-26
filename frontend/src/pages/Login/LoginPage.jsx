@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { api } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import './LoginPage.css';
 
@@ -9,6 +10,7 @@ function LoginOTP() {
   const [isEmailSent, setIsEmailSent] = useState(false);
   const [isCodeResendAvailable, setIsCodeResendAvailable] = useState(false);
   const [timer, setTimer] = useState(60);
+  const [error, setError] = useState('');
   const navigate = useNavigate();
   const { login, setIsNewUser } = useAuth();
 
@@ -29,55 +31,47 @@ function LoginOTP() {
     return () => clearInterval(interval);
   }, [isEmailSent, isCodeResendAvailable]);
 
-  const handleSendCode = () => {
-    if (!email || !email.includes('@')) return;
-    console.log('Отправляем код на:', email);
-    setIsEmailSent(true);
-    setIsCodeResendAvailable(false);
+  const handleSendCode = async () => {
+    if (!email || !email.includes('@')) {
+      setError('Введите корректный email');
+      return;
+    }
+
+    setError('');
+    try {
+      await api.requestAuthCode(email);
+      setIsEmailSent(true);
+      setIsCodeResendAvailable(false);
+      setTimer(60);
+      setCode('');
+    } catch (err) {
+      setError('Не удалось отправить код');
+    }
   };
 
-  const handleVerifyCode = () => {
-    if (code.length !== 6) return;
-    console.log('Проверяем код:', code);
-    
-    const existingUsers = JSON.parse(localStorage.getItem('musicianFinder_users') || '{}');
-    const existingUser = existingUsers[email];
-    
-    if (existingUser) {
-      login(existingUser);
-      navigate('/');
-    } else {
-      const newUser = {
-        id: Date.now().toString(),
-        email: email,
-        name: '',
-        avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(email)}&background=random`,
-        isAuthenticated: true,
-        profileCompleted: false,
-        fullName: '',
-        age: '',
-        city: '',
-        activityType: '',
-        contact: email,
-        phone: '',
-        telegram: '',
-        genres: [],
-        experience: '',
-        description: '',
-        portfolio: {
-          audio: [],
-          photos: [],
-          other: ''
-        }
-      };
-      
-      existingUsers[email] = newUser;
-      localStorage.setItem('musicianFinder_users', JSON.stringify(existingUsers));
-      
-      login(newUser);
-      setIsNewUser(true);
-      navigate('/profile/edit');
+  const handleVerifyCode = async () => {
+    if (code.length !== 6) {
+      setError('Введите 6-значный код');
+      return;
     }
+    
+    setError('');
+    try {
+      const response = await api.loginWithCode(email, code);
+      if (response.success && response.token) {
+        login(response.user, response.token);
+        setIsNewUser(!response.user.profileCompleted);
+        if (!response.user.profileCompleted) {
+          navigate('/profile/edit'); 
+        } else {
+          navigate('/');
+        }
+      } else {
+         setError('Неверный код или ошибка сервера');
+      }
+    } catch (err) {
+      setError('Не удалось войти');
+    }  
   };
 
   const handleResetEmail = () => {
@@ -86,6 +80,7 @@ function LoginOTP() {
     setIsEmailSent(false);
     setIsCodeResendAvailable(false);
     setTimer(60);
+    setError('');
   };
 
   const handleLogoClick = () => {
@@ -99,6 +94,8 @@ function LoginOTP() {
           Войти в MusicianFinder
         </h1>
         <p>Введите ваш email - мы отправим одноразовый код для входа</p>
+
+        {error && <div className="error-message">{error}</div>}
 
         <div className="email-input-group">
           <input

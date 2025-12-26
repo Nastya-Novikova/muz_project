@@ -7,21 +7,23 @@ namespace backend.Services;
 public class FavoriteService : IFavoriteService
 {
     private readonly IUserRepository _userRepository;
+    private readonly IProfileRepository _profileRepository;
     private readonly JsonSerializerOptions _options = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
-    public FavoriteService(IUserRepository userRepository)
+    public FavoriteService(IUserRepository userRepository, IProfileRepository profileRepository)
     {
         _userRepository = userRepository;
+        _profileRepository = profileRepository;
     }
 
-    public async Task<JsonDocument?> AddAsync(Guid userId, Guid favoriteUserId)
+    public async Task<JsonDocument?> AddAsync(Guid userId, Guid favoriteProfileId)
     {
         try
         {
             var user = await _userRepository.GetByIdAsync(userId);
-            if (user == null || user.FavoriteProfileIds.Contains(favoriteUserId)) return null;
+            if (user == null || user.FavoriteProfileIds.Contains(favoriteProfileId)) return null;
 
-            user.FavoriteProfileIds.Add(favoriteUserId);
+            user.FavoriteProfileIds.Add(favoriteProfileId);
             await _userRepository.UpdateAsync(user);
             return JsonDocument.Parse(JsonSerializer.Serialize(new { success = true }, _options));
         }
@@ -31,14 +33,14 @@ public class FavoriteService : IFavoriteService
         }
     }
 
-    public async Task<JsonDocument?> RemoveAsync(Guid userId, Guid favoriteUserId)
+    public async Task<JsonDocument?> RemoveAsync(Guid userId, Guid favoriteProfileId)
     {
         try
         {
             var user = await _userRepository.GetByIdAsync(userId);
-            if (user == null || !user.FavoriteProfileIds.Contains(favoriteUserId)) return null;
+            if (user == null || !user.FavoriteProfileIds.Contains(favoriteProfileId)) return null;
 
-            user.FavoriteProfileIds.Remove(favoriteUserId);
+            user.FavoriteProfileIds.Remove(favoriteProfileId);
             await _userRepository.UpdateAsync(user);
             return JsonDocument.Parse(JsonSerializer.Serialize(new { success = true }, _options));
         }
@@ -61,7 +63,7 @@ public class FavoriteService : IFavoriteService
 
             var allFavoriteIds = user.FavoriteProfileIds;
             var favoriteIds = allFavoriteIds.Skip((page - 1) * limit).Take(limit).ToList();
-            var favorites = await _userRepository.GetUsersByIdsAsync(favoriteIds);
+            var favorites = await _profileRepository.GetProfilesByIdsAsync(favoriteIds);
 
             var result = new { favorites };
             return JsonDocument.Parse(JsonSerializer.Serialize(result, _options));

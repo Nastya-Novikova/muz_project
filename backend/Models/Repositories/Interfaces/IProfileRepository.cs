@@ -22,8 +22,10 @@ public interface IProfileRepository
         bool sortDesc = true);
 
     Task<MusicianProfile?> GetByIdAsync(Guid id);
-    Task<MusicianProfile?> GetByUserIdAsync(Guid userId);
+    //Task<MusicianProfile?> GetByUserIdAsync(Guid userId);
     Task AddAsync(MusicianProfile profile);
     Task UpdateAsync(MusicianProfile profile);
     Task SoftDeleteAsync(Guid id);
+    Task SaveChanges();
+    Task<List<MusicianProfile>> GetProfilesByIdsAsync(List<Guid> ids);
 }

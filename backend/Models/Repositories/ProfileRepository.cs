@@ -39,11 +39,10 @@ public class ProfileRepository : IProfileRepository
         bool sortDesc = true)
     {
         var queryable = MusicianProfiles
-            .Include(p => p.User)
-            .Include(p => p.City)
+            /*.Include(p => p.City)
             .Include(p => p.Genres)
             .Include(p => p.Specialties)
-            .Include(p => p.CollaborationGoals)
+            .Include(p => p.CollaborationGoals)*/
             .Where(p => !p.IsDeleted);
 
         // Фильтрация по строке
@@ -95,6 +94,10 @@ public class ProfileRepository : IProfileRepository
         // Пагинация
         var profiles = await queryable
             .Skip((page - 1) * limit)
+            .Include(p => p.Genres)
+            .Include(p => p.Specialties)
+            .Include(p => p.CollaborationGoals)
+            .Include(p => p.City)
             .Take(limit)
             .ToListAsync();
 
@@ -103,8 +106,8 @@ public class ProfileRepository : IProfileRepository
 
     public async Task<MusicianProfile?> GetByIdAsync(Guid id)
     {
+
         return await MusicianProfiles
-            .Include(p => p.User)
             .Include(p => p.City)
             .Include(p => p.Genres)
             .Include(p => p.Specialties)
@@ -115,32 +118,34 @@ public class ProfileRepository : IProfileRepository
             .FirstOrDefaultAsync(p => p.Id == id && !p.IsDeleted);
     }
 
-    public async Task<MusicianProfile?> GetByUserIdAsync(Guid userId)
+    /*public async Task<MusicianProfile?> GetByUserIdAsync(Guid userId)
     {
         return await MusicianProfiles
-            .Include(p => p.User)
             .Include(p => p.City)
             .Include(p => p.Genres)
             .Include(p => p.Specialties)
             .Include(p => p.CollaborationGoals)
+            .Include(p => p.AudioFiles)
+            .Include(p => p.VideoFiles)
+            .Include(p => p.Photos)
             .FirstOrDefaultAsync(p => p.UserId == userId && !p.IsDeleted);
-    }
+    }*/
 
     public async Task AddAsync(MusicianProfile profile)
     {
-        if (profile.UserId == Guid.Empty)
-            throw new ApiException(400, "UserID обязателен", "MISSING_USER_ID");
+        /*if (profile.UserId == Guid.Empty)
+            throw new ApiException(400, "UserID обязателен", "MISSING_USER_ID");*/
 
         // Валидация связей
         var city = await _cityRepository.GetByIdAsync(profile.CityId);
         if (city == null)
             throw new ApiException(404, "Город не найден", "CITY_NOT_FOUND");
 
-        // Обновляем связь: город → профиль
+        /*// Обновляем связь: город → профиль
         if (!city.Profiles.Any(p => p.Id == profile.Id))
         {
             city.Profiles.Add(profile);
-        }
+        }*/
 
         // Обновляем связи: жанры → профиль
         foreach (var genre in profile.Genres)
@@ -181,7 +186,7 @@ public class ProfileRepository : IProfileRepository
         if (profile.Id == Guid.Empty)
             throw new ApiException(400, "Некорректный ID профиля", "INVALID_PROFILE_ID");
 
-        // Сохраняем старый город для обновления связи
+        /*// Сохраняем старый город для обновления связи
         var oldProfile = await GetByIdAsync(profile.Id);
         if (oldProfile?.CityId != profile.CityId)
         {
@@ -196,7 +201,7 @@ public class ProfileRepository : IProfileRepository
             {
                 newCity.Profiles.Add(profile);
             }
-        }
+        }*/
 
         MusicianProfiles.Update(profile);
         await _context.SaveChangesAsync();
@@ -225,5 +230,14 @@ public class ProfileRepository : IProfileRepository
             "createdat" => sortDesc ? query.OrderByDescending(p => p.CreatedAt) : query.OrderBy(p => p.CreatedAt),
             _ => query.OrderByDescending(p => p.CreatedAt)
         };
+    }
+    public async Task SaveChanges()
+    {
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task<List<MusicianProfile>> GetProfilesByIdsAsync(List<Guid> ids)
+    {
+        return await MusicianProfiles.Where(u => ids.Contains(u.Id) && !u.IsDeleted).ToListAsync();
     }
 }

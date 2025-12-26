@@ -6,37 +6,41 @@ export function useFilters() {
     cities: [],
     activities: [],
     genres: [],
-    loading: true
   });
 
   useEffect(() => {
-    loadFilters();
+    const loadData = async () => {
+      try {
+        const activities = await api.getActivities();
+        const cities = await api.getCities();
+        const genres = await api.getGenres();
+
+        const activityList = Array.isArray(activities) ? activities : (activities?.specialties || []);
+        const genreList = Array.isArray(genres) ? genres : (genres?.genres || []);
+        const cityList = Array.isArray(cities) ? cities : (cities?.cities || []);
+
+        setFilters({
+          cities: cityList.map(item => ({
+            id: item.id,
+            name: item.localizedName || item.name
+          })),
+          activities: activityList.map(item => ({
+            id: item.id,
+            name: item.localizedName || item.name
+          })),
+          genres: genreList.map(item => ({
+            id: item.id,
+            name: item.localizedName || item.name
+          })),
+        });
+      } catch (error) {
+        console.log('Ошибка:', error);
+        setFilters(prev => ({ ...prev}));
+      }
+    };
+
+    loadData();
   }, []);
-
-  const loadFilters = async () => {
-    try {
-      const [cities, activities, genres] = await Promise.all([
-        api.getCities(),
-        api.getActivities(),
-        api.getGenres()
-      ]);
-
-      setFilters({
-        cities,
-        activities,
-        genres,
-        loading: false
-      });
-    } catch (error) {
-      console.log('Ошибка');
-      setFilters({
-        cities: [],
-        activities: [],
-        genres: [],
-        loading: false
-      });
-    }
-  };
 
   return filters;
 }

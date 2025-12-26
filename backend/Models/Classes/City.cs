@@ -28,8 +28,8 @@ public class City
     [Required, MaxLength(50)]
     public string LocalizedName { get; set; } = string.Empty;
 
-    /// <summary>
+    /*/// <summary>
     /// Связанные профили
     /// </summary>
-    public List<MusicianProfile> Profiles { get; set; } = new();
+    public List<MusicianProfile> Profiles { get; set; } = new();*/
 }

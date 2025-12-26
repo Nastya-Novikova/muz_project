@@ -19,13 +19,13 @@ public class CollaborationSuggestion
     /// ID отправителя
     /// </summary>
     [Required]
-    public Guid FromUserId { get; set; }
+    public Guid FromProfileId { get; set; }
 
     /// <summary>
     /// ID получателя
     /// </summary>
     [Required]
-    public Guid ToUserId { get; set; }
+    public Guid ToProfileId { get; set; }
 
     /// <summary>
     /// Сообщение

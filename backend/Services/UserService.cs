@@ -38,7 +38,7 @@ public class UserService : IUserService
             var user = await _userRepository.GetByIdAsync(userId);
             if (user == null) return false;
 
-            user.Avatar = avatarBytes;
+            //user.Avatar = avatarBytes;
             await _userRepository.UpdateAsync(user);
             return true;
         }
@@ -56,8 +56,8 @@ public class UserService : IUserService
             if (user == null) return null;
 
             var root = profileJson.RootElement;
-            user.FullName = root.TryGetProperty("fullName", out var fn) ? fn.GetString() ?? user.FullName : user.FullName;
-            user.ProfileCompleted = true; // После первого обновления профиль считается завершённым
+            //user.FullName = root.TryGetProperty("fullName", out var fn) ? fn.GetString() ?? user.FullName : user.FullName;
+            //user.ProfileCompleted = true; // После первого обновления профиль считается завершённым
 
             // Обновление избранных профилей (если передано)
             if (root.TryGetProperty("favoriteProfileIds", out var favIds))

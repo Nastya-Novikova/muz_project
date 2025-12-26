@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using SwaggerThemes;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Reflection;
 using System.Text;
@@ -112,9 +113,9 @@ API для музыкального сервиса поиска музыкант
             // CORS
             builder.Services.AddCors(options =>
             {
-                options.AddPolicy("ReactApp", policy =>
+                options.AddPolicy("AllowAll", policy =>
                 {
-                    policy.WithOrigins("http://localhost:80")
+                    policy.AllowAnyOrigin()
                           .AllowAnyHeader()
                           .AllowAnyMethod();
                 });
@@ -170,9 +171,8 @@ API для музыкального сервиса поиска музыкант
             });*/
 
 
-
+            app.UseCors("AllowAll");
             app.UseHttpsRedirection();
-            app.UseCors("ReactApp");
             app.UseAuthentication();
             app.UseAuthorization();
             app.MapControllers();
@@ -183,7 +183,7 @@ API для музыкального сервиса поиска музыкант
                 var db = scope.ServiceProvider.GetRequiredService<MusicianFinderDbContext>();
                 db.Database.MigrateAsync();
                 app.UseSwagger();
-                app.UseSwaggerUI();
+                app.UseSwaggerUI(Theme.UniversalDark);
             }
 
             /*if (app.Environment.IsDevelopment())

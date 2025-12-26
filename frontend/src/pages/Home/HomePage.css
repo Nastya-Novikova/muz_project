@@ -81,7 +81,7 @@
   margin-bottom: 0;
 }
 
-.filter-group label {
+.filter-group-label {
   display: block;
   margin-bottom: 0.5rem;
   color: var(--dark-blue);

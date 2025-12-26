@@ -1,3 +1,4 @@
+using backend.Models.DTOs;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -7,7 +8,7 @@ namespace backend.Models.Classes;
 /// Музыкальная специальность: вокалист, гитарист, композитор и т.д.
 /// </summary>
 [Table("MusicalSpecializations")]
-public class MusicalSpecialty
+public class MusicalSpecialty : ILookupItem
 {
     /// <summary>
     /// Идентификатор
