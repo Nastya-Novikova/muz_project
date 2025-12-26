@@ -11,6 +11,4 @@ public interface IUserRepository
     Task<User?> GetByEmailAsync(string email);
     Task UpdateAsync(User user);
     Task SoftDeleteAsync(Guid id);
-
-    Task<List<User>> GetUsersByIdsAsync(List<Guid> ids);
 }

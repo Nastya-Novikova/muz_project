@@ -21,11 +21,5 @@ services:
     depends_on:
       - postgres
 
-  mailhog:
-    image: mailhog/mailhog
-    ports:
-      - "8025:8025"
-      - "1025:1025"
-
 volumes:
   pgdata:

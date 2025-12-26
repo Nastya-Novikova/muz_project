@@ -13,7 +13,7 @@ using backend.Data;
 namespace backend.Migrations
 {
     [DbContext(typeof(MusicianFinderDbContext))]
-    [Migration("20251226022547_InitialCreate")]
+    [Migration("20251226160103_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -25,43 +25,6 @@ namespace backend.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
-
-            modelBuilder.Entity("PortfolioPhoto", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
-
-                    b.Property<byte[]>("FileData")
-                        .IsRequired()
-                        .HasColumnType("bytea");
-
-                    b.Property<string>("MimeType")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
-
-                    b.Property<Guid>("ProfileId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ProfileId");
-
-                    b.ToTable("PortfolioPhotos");
-                });
 
             modelBuilder.Entity("ProfileCollaborationGoal", b =>
                 {
@@ -536,6 +499,43 @@ namespace backend.Migrations
                     b.ToTable("PortfolioAudio");
                 });
 
+            modelBuilder.Entity("backend.Models.Classes.PortfolioPhoto", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<byte[]>("FileData")
+                        .IsRequired()
+                        .HasColumnType("bytea");
+
+                    b.Property<string>("MimeType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<Guid>("ProfileId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProfileId");
+
+                    b.ToTable("PortfolioPhotos");
+                });
+
             modelBuilder.Entity("backend.Models.Classes.PortfolioVideo", b =>
                 {
                     b.Property<Guid>("Id")
@@ -610,17 +610,6 @@ namespace backend.Migrations
                     b.HasIndex("MusicianProfileId");
 
                     b.ToTable("Users");
-                });
-
-            modelBuilder.Entity("PortfolioPhoto", b =>
-                {
-                    b.HasOne("backend.Models.Classes.MusicianProfile", "Profile")
-                        .WithMany("Photos")
-                        .HasForeignKey("ProfileId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Profile");
                 });
 
             modelBuilder.Entity("ProfileCollaborationGoal", b =>
@@ -702,6 +691,17 @@ namespace backend.Migrations
                 {
                     b.HasOne("backend.Models.Classes.MusicianProfile", "Profile")
                         .WithMany("AudioFiles")
+                        .HasForeignKey("ProfileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Profile");
+                });
+
+            modelBuilder.Entity("backend.Models.Classes.PortfolioPhoto", b =>
+                {
+                    b.HasOne("backend.Models.Classes.MusicianProfile", "Profile")
+                        .WithMany("Photos")
                         .HasForeignKey("ProfileId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();

@@ -16,15 +16,13 @@ namespace backend.Controllers;
 [Authorize]
 public class UploadsController : ControllerBase
 {
-    private readonly IUserService _userService;
     private readonly IProfileService _profileService;
     private readonly IAudioUploadService _audioService;
     private readonly IVideoUploadService _videoService;
     private readonly IPhotoUploadService _photoService;
 
-    public UploadsController(IUserService userService, IProfileService profileService, IAudioUploadService audioUploadService, IVideoUploadService videoUploadService, IPhotoUploadService photoUploadService)
+    public UploadsController(IProfileService profileService, IAudioUploadService audioUploadService, IVideoUploadService videoUploadService, IPhotoUploadService photoUploadService)
     {
-        _userService = userService;
         _profileService = profileService;
         _audioService = audioUploadService;
         _videoService = videoUploadService;
@@ -43,7 +41,7 @@ public class UploadsController : ControllerBase
         if (!avatar.ContentType.StartsWith("image/"))
             return BadRequest("Разрешены только изображения");
 
-        if (avatar.Length > 2 * 1024 * 1024) // 2 МБ
+        if (avatar.Length > 2 * 1024 * 1024)
             return BadRequest("Файл слишком большой");
 
         using var memoryStream = new MemoryStream();
@@ -51,19 +49,16 @@ public class UploadsController : ControllerBase
         var avatarBytes = memoryStream.ToArray();
 
         var userId = GetUserId();
-        var success = await _userService.UpdateAvatarAsync(userId, avatarBytes);
+        var success = await _profileService.UpdateAvatarAsync(userId, avatarBytes);
 
         return success
             ? Ok(new { success = true })
             : BadRequest("Не удалось обновить аватар");
     }
 
-    private Guid GetUserId()
-    {
-        var userIdStr = User.FindFirst("userId")?.Value;
-        return Guid.TryParse(userIdStr, out var userId) ? userId : Guid.Empty;
-    }
-
+    /// <summary>
+    /// Загрузить аудио в портфолио
+    /// </summary>
     [HttpPost("portfolio/audio")]
     public async Task<IActionResult> UploadAudio(
          IFormFile audio,
@@ -111,6 +106,9 @@ public class UploadsController : ControllerBase
         }
     }
 
+    /// <summary>
+    /// Загрузить фото в портфолио
+    /// </summary>
     [HttpPost("portfolio/photo")]
     public async Task<IActionResult> UploadPhoto(
     IFormFile photo,
@@ -131,5 +129,11 @@ public class UploadsController : ControllerBase
         {
             return BadRequest(ex.Message);
         }
+    }
+
+    private Guid GetUserId()
+    {
+        var userIdStr = User.FindFirst("userId")?.Value;
+        return Guid.TryParse(userIdStr, out var userId) ? userId : Guid.Empty;
     }
 }

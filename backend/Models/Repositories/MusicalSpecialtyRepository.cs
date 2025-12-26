@@ -1,4 +1,3 @@
-// Аналогично CityRepository
 using Microsoft.EntityFrameworkCore;
 using backend.Data;
 using backend.Models.Classes;

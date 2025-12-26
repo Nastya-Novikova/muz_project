@@ -27,9 +27,4 @@ public class City
     /// </summary>
     [Required, MaxLength(50)]
     public string LocalizedName { get; set; } = string.Empty;
-
-    /*/// <summary>
-    /// Связанные профили
-    /// </summary>
-    public List<MusicianProfile> Profiles { get; set; } = new();*/
 }

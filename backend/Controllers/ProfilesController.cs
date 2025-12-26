@@ -13,18 +13,13 @@ namespace backend.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
-//[Authorize]
 public class ProfilesController : ControllerBase
 {
-    private readonly IProfileService _profileService;
-    private readonly ICollaborationService _collaborationService;
-    private readonly IFavoriteService _favoriteService;
+    private readonly IProfileService _service;
 
-    public ProfilesController(IProfileService profileService, ICollaborationService collaborationService, IFavoriteService favoriteService)
+    public ProfilesController(IProfileService service)
     {
-        _profileService = profileService;
-        _collaborationService = collaborationService;
-        _favoriteService = favoriteService;
+        _service = service;
     }
 
     /// <summary>
@@ -33,7 +28,7 @@ public class ProfilesController : ControllerBase
     [HttpPost("search")]
     public async Task<IActionResult> Search([FromBody] JsonDocument? searchParams)
     {
-        var result = await _profileService.SearchAsync(searchParams ?? JsonDocument.Parse("{}"));
+        var result = await _service.SearchAsync(searchParams ?? JsonDocument.Parse("{}"));
         return result != null ? Ok(result) : BadRequest();
     }
 
@@ -41,10 +36,11 @@ public class ProfilesController : ControllerBase
     /// Получить свой профиль
     /// </summary>
     [HttpGet]
+    [Authorize]
     public async Task<IActionResult> GetMyProfile()
     {
         var userId = GetUserId();
-        var obj = await _profileService.GetByUserIdAsync(userId);
+        var obj = await _service.GetByUserIdAsync(userId);
         return obj != null ? Ok(obj) : BadRequest();
     }
 
@@ -54,7 +50,7 @@ public class ProfilesController : ControllerBase
     [HttpGet("{id}")]
     public async Task<IActionResult> Get(Guid id)
     {
-        var obj = await _profileService.GetByIdAsync(id);
+        var obj = await _service.GetByIdAsync(id);
         return obj != null ? Ok(obj) : BadRequest();
     }
 
@@ -62,10 +58,11 @@ public class ProfilesController : ControllerBase
     /// Создать профиль
     /// </summary>
     [HttpPost]
+    [Authorize]
     public async Task<IActionResult> Create([FromBody] JsonDocument objJson)
     {
         var userId = GetUserId();
-        var obj = await _profileService.CreateAsync(objJson, userId);
+        var obj = await _service.CreateAsync(objJson, userId);
         return obj != null ? Ok(obj) : BadRequest();
     }
 
@@ -73,10 +70,11 @@ public class ProfilesController : ControllerBase
     /// Обновить профиль
     /// </summary>
     [HttpPut]
+    [Authorize]
     public async Task<IActionResult> Update([FromBody] JsonDocument objJson)
     {
         var userId = GetUserId();
-        var obj = await _profileService.UpdateAsync(objJson, userId);
+        var obj = await _service.UpdateAsync(objJson, userId);
         return obj != null ? Ok(obj) : BadRequest();
     }
 
@@ -84,70 +82,16 @@ public class ProfilesController : ControllerBase
     /// Удалить профиль (soft-delete)
     /// </summary>
     [HttpDelete("{id}")]
+    [Authorize]
     public async Task<IActionResult> Delete(Guid id)
     {
-        var obj = await _profileService.DeleteAsync(id);
+        var obj = await _service.DeleteAsync(id);
         return obj != null ? Ok(obj) : BadRequest();
     }
-
-    /*[HttpGet("full")]
-    public async Task<IActionResult> GetFullProfile()
-    {
-        var userId = GetUserId();
-        var result = await _profileService.GetFullProfileAsync(userId);
-        if (result == null) return NotFound("Profile not found");
-        return Ok(result);
-    }*/
-
-    /*[HttpGet("full")]
-    [Authorize]
-    public async Task<IActionResult> GetFullProfile()
-    {
-        var userId = GetUserId();
-
-        // Получаем свой профиль
-        var profile = await _profileService.GetFullProfileAsync(userId);
-        if (profile == null) return BadRequest();
-
-        // Получаем предложения
-        var received = await _collaborationService.GetReceivedAsync(userId, JsonDocument.Parse("{}"));
-        var sent = await _collaborationService.GetSentAsync(userId, JsonDocument.Parse("{}"));
-
-        // Получаем избранные ID
-        var favorites = await _favoriteService.GetFavoritesAsync(userId, JsonDocument.Parse("{}"));
-
-        var fullProfile = new
-        {
-            profile = profile.RootElement,
-            collaborations = new
-            {
-                received = received?.RootElement.GetProperty("suggestions") ?? JsonDocument.Parse("[]").RootElement,
-                sent = sent?.RootElement.GetProperty("suggestions") ?? JsonDocument.Parse("[]").RootElement
-            },
-            favorites = favorites?.RootElement.GetProperty("favorites") ?? JsonDocument.Parse("[]").RootElement
-        };
-
-        return Ok(JsonDocument.Parse(JsonSerializer.Serialize(fullProfile)));
-    }*/
 
     private Guid GetUserId()
     {
         var userIdStr = User.FindFirst("userId")?.Value;
         return Guid.TryParse(userIdStr, out var userId) ? userId : Guid.Empty;
-    }
-
-    [HttpGet("test-seed-data")]
-    public async Task<IActionResult> TestSeedData()
-    {
-        try
-        {
-            // Тестовое письмо на реальный email
-            var result = await _profileService.TestSeedData();
-            return Ok(result);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, $"Failed: {ex.Message}");
-        }
     }
 }

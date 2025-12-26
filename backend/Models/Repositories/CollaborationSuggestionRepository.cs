@@ -28,7 +28,6 @@ public class CollaborationSuggestionRepository : ICollaborationSuggestionReposit
         if (suggestion.FromProfileId == suggestion.ToProfileId)
             throw new ApiException(400, "Нельзя отправить предложение самому себе", "SELF_SUGGESTION");
 
-        // Загружаем пользователей
         var fromUser = await _userRepository.GetByIdAsync(suggestion.FromProfileId);
         var toUser = await _userRepository.GetByIdAsync(suggestion.ToProfileId);
 
@@ -36,16 +35,6 @@ public class CollaborationSuggestionRepository : ICollaborationSuggestionReposit
             throw new ApiException(404, "Отправитель не найден", "FROM_USER_NOT_FOUND");
         if (toUser == null)
             throw new ApiException(404, "Получатель не найден", "TO_USER_NOT_FOUND");
-
-        /*// Обновляем коллекции
-        if (!fromUser.SentSuggestions.Any(s => s.Id == suggestion.Id))
-        {
-            fromUser.SentSuggestions.Add(suggestion);
-        }
-        if (!toUser.ReceivedSuggestions.Any(s => s.Id == suggestion.Id))
-        {
-            toUser.ReceivedSuggestions.Add(suggestion);
-        }*/
 
         await Suggestions.AddAsync(suggestion);
         await _context.SaveChangesAsync();
