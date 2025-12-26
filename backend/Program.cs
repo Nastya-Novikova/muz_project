@@ -113,9 +113,9 @@ API для музыкального сервиса поиска музыкант
             // CORS
             builder.Services.AddCors(options =>
             {
-                options.AddPolicy("ReactApp", policy =>
+                options.AddPolicy("AllowAll", policy =>
                 {
-                    policy.WithOrigins("http://localhost:80")
+                    policy.AllowAnyOrigin()
                           .AllowAnyHeader()
                           .AllowAnyMethod();
                 });
@@ -171,9 +171,8 @@ API для музыкального сервиса поиска музыкант
             });*/
 
 
-
+            app.UseCors("AllowAll");
             app.UseHttpsRedirection();
-            app.UseCors("ReactApp");
             app.UseAuthentication();
             app.UseAuthorization();
             app.MapControllers();

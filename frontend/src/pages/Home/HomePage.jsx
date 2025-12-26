@@ -15,7 +15,7 @@ function HomePage() {
   const [experienceTo, setExperienceTo] = useState('');
   const [filtersOpen, setFiltersOpen] = useState(false);
 
-  const { cities, activities, genres: genreData, loading } = useFilters();
+  const { cities, activities, genres: genreData } = useFilters();
 
   const mockUsers = [
     {
@@ -150,7 +150,7 @@ function HomePage() {
               </div>
 
               <div className="filter-group">
-                <label>Стаж (лет):</label>
+                <label className="filter-group-label">Стаж (лет):</label>
                 <div className="experience-inputs">
                   <input
                     type="number"
