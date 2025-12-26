@@ -4,6 +4,7 @@ using System.Security.Claims;
 using System.Text.Json;
 using backend.Services.Interfaces;
 using backend.Services;
+using backend.Models.Classes;
 
 namespace backend.Controllers;
 
@@ -12,7 +13,7 @@ namespace backend.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
-[Authorize]
+//[Authorize]
 public class ProfilesController : ControllerBase
 {
     private readonly IProfileService _profileService;
@@ -30,9 +31,9 @@ public class ProfilesController : ControllerBase
     /// Поиск музыкантов
     /// </summary>
     [HttpPost("search")]
-    public async Task<IActionResult> Search([FromBody] JsonDocument searchParams)
+    public async Task<IActionResult> Search([FromBody] JsonDocument? searchParams)
     {
-        var result = await _profileService.SearchAsync(searchParams);
+        var result = await _profileService.SearchAsync(searchParams ?? JsonDocument.Parse("{}"));
         return result != null ? Ok(result) : BadRequest();
     }
 
@@ -75,7 +76,7 @@ public class ProfilesController : ControllerBase
     public async Task<IActionResult> Update([FromBody] JsonDocument objJson)
     {
         var userId = GetUserId();
-        var obj = await _profileService.UpdateAsync(Guid.Empty, objJson, userId); // ID из JWT
+        var obj = await _profileService.UpdateAsync(objJson, userId);
         return obj != null ? Ok(obj) : BadRequest();
     }
 
@@ -89,7 +90,16 @@ public class ProfilesController : ControllerBase
         return obj != null ? Ok(obj) : BadRequest();
     }
 
-    [HttpGet("full")]
+    /*[HttpGet("full")]
+    public async Task<IActionResult> GetFullProfile()
+    {
+        var userId = GetUserId();
+        var result = await _profileService.GetFullProfileAsync(userId);
+        if (result == null) return NotFound("Profile not found");
+        return Ok(result);
+    }*/
+
+    /*[HttpGet("full")]
     [Authorize]
     public async Task<IActionResult> GetFullProfile()
     {
@@ -118,11 +128,26 @@ public class ProfilesController : ControllerBase
         };
 
         return Ok(JsonDocument.Parse(JsonSerializer.Serialize(fullProfile)));
-    }
+    }*/
 
     private Guid GetUserId()
     {
         var userIdStr = User.FindFirst("userId")?.Value;
         return Guid.TryParse(userIdStr, out var userId) ? userId : Guid.Empty;
+    }
+
+    [HttpGet("test-seed-data")]
+    public async Task<IActionResult> TestSeedData()
+    {
+        try
+        {
+            // Тестовое письмо на реальный email
+            var result = await _profileService.TestSeedData();
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Failed: {ex.Message}");
+        }
     }
 }

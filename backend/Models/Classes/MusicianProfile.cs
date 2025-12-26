@@ -18,11 +18,11 @@ public class MusicianProfile : ISoftDeletable
     [Key]
     public Guid Id { get; set; }
 
-    /// <summary>
+    /*/// <summary>
     /// ID пользователя
     /// </summary>
     [Required]
-    public Guid UserId { get; set; }
+    public Guid UserId { get; set; }*/
 
     /// <summary>
     /// Полное имя
@@ -81,9 +81,9 @@ public class MusicianProfile : ISoftDeletable
     /// </summary>
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
-    // === Навигационные свойства ===
+    /*// === Навигационные свойства ===
     [ForeignKey("UserId")]
-    public User User { get; set; } = null!;
+    public User User { get; set; } = null!;*/
 
     [ForeignKey("CityId")]
     public City City { get; set; } = null!;

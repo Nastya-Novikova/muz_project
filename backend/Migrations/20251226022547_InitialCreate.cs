@@ -87,59 +87,10 @@ namespace backend.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Users",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Email = table.Column<string>(type: "text", nullable: false),
-                    FullName = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                    Avatar = table.Column<byte[]>(type: "bytea", nullable: true),
-                    ProfileCompleted = table.Column<bool>(type: "boolean", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    FavoriteProfileIds = table.Column<List<Guid>>(type: "uuid[]", nullable: false),
-                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
-                    DeletedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Users", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "CollaborationSuggestions",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    FromUserId = table.Column<Guid>(type: "uuid", nullable: false),
-                    ToUserId = table.Column<Guid>(type: "uuid", nullable: false),
-                    Message = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
-                    Status = table.Column<string>(type: "text", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_CollaborationSuggestions", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_CollaborationSuggestions_Users_FromUserId",
-                        column: x => x.FromUserId,
-                        principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_CollaborationSuggestions_Users_ToUserId",
-                        column: x => x.ToUserId,
-                        principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "MusicianProfiles",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
                     FullName = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     Avatar = table.Column<byte[]>(type: "bytea", nullable: true),
                     Age = table.Column<int>(type: "integer", nullable: true),
@@ -160,12 +111,6 @@ namespace backend.Migrations
                         name: "FK_MusicianProfiles_Cities_CityId",
                         column: x => x.CityId,
                         principalTable: "Cities",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_MusicianProfiles_Users_UserId",
-                        column: x => x.UserId,
-                        principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -313,6 +258,60 @@ namespace backend.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "Users",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Email = table.Column<string>(type: "text", nullable: false),
+                    ProfileCreated = table.Column<bool>(type: "boolean", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    FavoriteProfileIds = table.Column<List<Guid>>(type: "uuid[]", nullable: false),
+                    MusicianProfileId = table.Column<Guid>(type: "uuid", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    DeletedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Users", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Users_MusicianProfiles_MusicianProfileId",
+                        column: x => x.MusicianProfileId,
+                        principalTable: "MusicianProfiles",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CollaborationSuggestions",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    FromProfileId = table.Column<Guid>(type: "uuid", nullable: false),
+                    ToProfileId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Message = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    Status = table.Column<string>(type: "text", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    FromUserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    ToUserId = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CollaborationSuggestions", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_CollaborationSuggestions_Users_FromProfileId",
+                        column: x => x.FromProfileId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_CollaborationSuggestions_Users_ToProfileId",
+                        column: x => x.ToProfileId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.InsertData(
                 table: "Cities",
                 columns: new[] { "Id", "LocalizedName", "Name" },
@@ -369,85 +368,20 @@ namespace backend.Migrations
                     { 10, "Скрипач", "violinist" }
                 });
 
-            migrationBuilder.InsertData(
-                table: "Users",
-                columns: new[] { "Id", "Avatar", "CreatedAt", "DeletedAt", "Email", "FavoriteProfileIds", "FullName", "IsDeleted", "ProfileCompleted" },
-                values: new object[,]
-                {
-                    { new Guid("11111111-1111-1111-1111-111111111111"), null, new DateTime(2025, 12, 24, 18, 43, 10, 371, DateTimeKind.Utc).AddTicks(9170), null, "user1@example.com", new List<Guid> { new Guid("33333333-3333-3333-3333-333333333333") }, "Алексей Иванов", false, true },
-                    { new Guid("22222222-2222-2222-2222-222222222222"), null, new DateTime(2025, 12, 24, 18, 44, 10, 371, DateTimeKind.Utc).AddTicks(9183), null, "user2@example.com", new List<Guid> { new Guid("44444444-4444-4444-4444-444444444444") }, "Мария Петрова", false, true },
-                    { new Guid("33333333-3333-3333-3333-333333333333"), null, new DateTime(2025, 12, 24, 18, 45, 10, 371, DateTimeKind.Utc).AddTicks(9186), null, "user3@example.com", new List<Guid>(), "Иван Сидоров", false, true }
-                });
-
-            migrationBuilder.InsertData(
+            migrationBuilder.CreateIndex(
+                name: "IX_CollaborationSuggestions_FromProfileId",
                 table: "CollaborationSuggestions",
-                columns: new[] { "Id", "CreatedAt", "FromUserId", "Message", "Status", "ToUserId", "UpdatedAt" },
-                values: new object[,]
-                {
-                    { new Guid("77777777-7777-7777-7777-777777777777"), new DateTime(2025, 12, 24, 18, 48, 10, 371, DateTimeKind.Utc).AddTicks(9395), new Guid("11111111-1111-1111-1111-111111111111"), "Привет! Слушал твои записи — классный голос. Хочу пригласить в новый проект.", "pending", new Guid("22222222-2222-2222-2222-222222222222"), new DateTime(2025, 12, 24, 18, 48, 10, 371, DateTimeKind.Utc).AddTicks(9396) },
-                    { new Guid("88888888-8888-8888-8888-888888888888"), new DateTime(2025, 12, 24, 18, 49, 10, 371, DateTimeKind.Utc).AddTicks(9400), new Guid("22222222-2222-2222-2222-222222222222"), "Спасибо! Давай обсудим детали.", "accepted", new Guid("11111111-1111-1111-1111-111111111111"), new DateTime(2025, 12, 24, 18, 49, 10, 371, DateTimeKind.Utc).AddTicks(9401) }
-                });
-
-            migrationBuilder.InsertData(
-                table: "MusicianProfiles",
-                columns: new[] { "Id", "Age", "Avatar", "CityId", "CreatedAt", "DeletedAt", "Description", "Experience", "FullName", "IsDeleted", "Phone", "Telegram", "UpdatedAt", "UserId" },
-                values: new object[,]
-                {
-                    { new Guid("44444444-4444-4444-4444-444444444444"), 28, null, 1, new DateTime(2025, 12, 24, 18, 43, 10, 371, DateTimeKind.Utc).AddTicks(9266), null, "Профессиональный гитарист, ищу группу для выступлений.", 7, "Алексей Иванов", false, null, null, new DateTime(2025, 12, 24, 18, 43, 10, 371, DateTimeKind.Utc).AddTicks(9267), new Guid("11111111-1111-1111-1111-111111111111") },
-                    { new Guid("55555555-5555-5555-5555-555555555555"), 25, null, 2, new DateTime(2025, 12, 24, 18, 44, 10, 371, DateTimeKind.Utc).AddTicks(9271), null, "Вокалистка, участвую в джазовых проектах.", 5, "Мария Петрова", false, null, null, new DateTime(2025, 12, 24, 18, 44, 10, 371, DateTimeKind.Utc).AddTicks(9272), new Guid("22222222-2222-2222-2222-222222222222") },
-                    { new Guid("66666666-6666-6666-6666-666666666666"), 30, null, 3, new DateTime(2025, 12, 24, 18, 45, 10, 371, DateTimeKind.Utc).AddTicks(9277), null, "Бас-гитарист, открыт к совместным проектам.", 10, "Иван Сидоров", false, null, null, new DateTime(2025, 12, 24, 18, 45, 10, 371, DateTimeKind.Utc).AddTicks(9277), new Guid("33333333-3333-3333-3333-333333333333") }
-                });
-
-            migrationBuilder.InsertData(
-                table: "ProfileCollaborationGoal",
-                columns: new[] { "CollaborationGoalsId", "ProfilesId" },
-                values: new object[,]
-                {
-                    { 1, new Guid("44444444-4444-4444-4444-444444444444") },
-                    { 2, new Guid("66666666-6666-6666-6666-666666666666") },
-                    { 3, new Guid("55555555-5555-5555-5555-555555555555") }
-                });
-
-            migrationBuilder.InsertData(
-                table: "ProfileGenre",
-                columns: new[] { "GenresId", "ProfilesId" },
-                values: new object[,]
-                {
-                    { 1, new Guid("55555555-5555-5555-5555-555555555555") },
-                    { 2, new Guid("44444444-4444-4444-4444-444444444444") },
-                    { 2, new Guid("66666666-6666-6666-6666-666666666666") }
-                });
-
-            migrationBuilder.InsertData(
-                table: "ProfileSpecialty",
-                columns: new[] { "ProfilesId", "SpecialtiesId" },
-                values: new object[,]
-                {
-                    { new Guid("44444444-4444-4444-4444-444444444444"), 2 },
-                    { new Guid("55555555-5555-5555-5555-555555555555"), 1 },
-                    { new Guid("66666666-6666-6666-6666-666666666666"), 3 }
-                });
+                column: "FromProfileId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_CollaborationSuggestions_FromUserId",
+                name: "IX_CollaborationSuggestions_ToProfileId",
                 table: "CollaborationSuggestions",
-                column: "FromUserId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_CollaborationSuggestions_ToUserId",
-                table: "CollaborationSuggestions",
-                column: "ToUserId");
+                column: "ToProfileId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_MusicianProfiles_CityId",
                 table: "MusicianProfiles",
                 column: "CityId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_MusicianProfiles_UserId",
-                table: "MusicianProfiles",
-                column: "UserId",
-                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_PortfolioAudio_ProfileId",
@@ -478,6 +412,11 @@ namespace backend.Migrations
                 name: "IX_ProfileSpecialty_SpecialtiesId",
                 table: "ProfileSpecialty",
                 column: "SpecialtiesId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Users_MusicianProfileId",
+                table: "Users",
+                column: "MusicianProfileId");
         }
 
         /// <inheritdoc />
@@ -508,6 +447,9 @@ namespace backend.Migrations
                 name: "ProfileSpecialty");
 
             migrationBuilder.DropTable(
+                name: "Users");
+
+            migrationBuilder.DropTable(
                 name: "CollaborationGoals");
 
             migrationBuilder.DropTable(
@@ -521,9 +463,6 @@ namespace backend.Migrations
 
             migrationBuilder.DropTable(
                 name: "Cities");
-
-            migrationBuilder.DropTable(
-                name: "Users");
         }
     }
 }

@@ -1,4 +1,5 @@
 using backend.Models.Classes;
+using backend.Models.DTOs;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -8,7 +9,7 @@ namespace backend.Models.Classes;
 /// Музыкальный жанр
 /// </summary>
 [Table("Genres")]
-public class Genre
+public class Genre : ILookupItem
 {
     /// <summary>
     /// Идентификатор

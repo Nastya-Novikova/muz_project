@@ -9,29 +9,34 @@ public class CollaborationService : ICollaborationService
 {
     private readonly ICollaborationSuggestionRepository _suggestionRepository;
     private readonly IUserRepository _userRepository;
+    private readonly IProfileRepository _profileRepository;
+
     private readonly JsonSerializerOptions _options = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
     public CollaborationService(
         ICollaborationSuggestionRepository suggestionRepository,
-        IUserRepository userRepository)
+        IUserRepository userRepository,
+        IProfileRepository profileRepository)
     {
         _suggestionRepository = suggestionRepository;
         _userRepository = userRepository;
+        _profileRepository = profileRepository;
     }
 
-    public async Task<JsonDocument?> SendSuggestionAsync(Guid fromUserId, Guid toUserId, string? message)
+    public async Task<JsonDocument?> SendSuggestionAsync(Guid userId, Guid toProfileId, string? message)
     {
         try
         {
-            var fromUser = await _userRepository.GetByIdAsync(fromUserId);
-            var toUser = await _userRepository.GetByIdAsync(toUserId);
-            if (fromUser == null || toUser == null) return null;
+            var user = await _userRepository.GetByIdAsync(userId);
+            var fromProfile = await _profileRepository.GetByIdAsync(user.MusicianProfile.Id);
+            var toProfile = await _profileRepository.GetByIdAsync(toProfileId);
+            if (fromProfile == null || toProfile == null) return null;
 
             var suggestion = new CollaborationSuggestion
             {
                 Id = Guid.NewGuid(),
-                FromUserId = fromUserId,
-                ToUserId = toUserId,
+                FromProfileId = fromProfile.Id,
+                ToProfileId = toProfile.Id,
                 Message = message
             };
 
@@ -54,7 +59,8 @@ public class CollaborationService : ICollaborationService
             var sortBy = root.TryGetProperty("sortBy", out var sb) ? sb.GetString() : "createdAt";
             var sortDesc = root.TryGetProperty("sortDesc", out var sd) ? sd.GetBoolean() : true;
 
-            var suggestions = await _suggestionRepository.GetReceivedAsync(userId, page, limit, sortBy, sortDesc);
+            var user = await _userRepository.GetByIdAsync(userId);
+            var suggestions = await _suggestionRepository.GetReceivedAsync(user.MusicianProfile.Id, page, limit, sortBy, sortDesc);
             var result = new { suggestions };
             return JsonDocument.Parse(JsonSerializer.Serialize(result, _options));
         }
@@ -74,7 +80,8 @@ public class CollaborationService : ICollaborationService
             var sortBy = root.TryGetProperty("sortBy", out var sb) ? sb.GetString() : "createdAt";
             var sortDesc = root.TryGetProperty("sortDesc", out var sd) ? sd.GetBoolean() : true;
 
-            var suggestions = await _suggestionRepository.GetSentAsync(userId, page, limit, sortBy, sortDesc);
+            var user = await _userRepository.GetByIdAsync(userId);
+            var suggestions = await _suggestionRepository.GetSentAsync(user.MusicianProfile.Id, page, limit, sortBy, sortDesc);
             var result = new { suggestions };
             return JsonDocument.Parse(JsonSerializer.Serialize(result, _options));
         }

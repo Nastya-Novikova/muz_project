@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using SwaggerThemes;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Reflection;
 using System.Text;
@@ -183,7 +184,7 @@ API для музыкального сервиса поиска музыкант
                 var db = scope.ServiceProvider.GetRequiredService<MusicianFinderDbContext>();
                 db.Database.MigrateAsync();
                 app.UseSwagger();
-                app.UseSwaggerUI();
+                app.UseSwaggerUI(Theme.UniversalDark);
             }
 
             /*if (app.Environment.IsDevelopment())

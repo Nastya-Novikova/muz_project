@@ -21,21 +21,21 @@ public class User : ISoftDeletable
     [Required, EmailAddress]
     public string Email { get; set; } = string.Empty;
 
-    /// <summary>
+    /*/// <summary>
     /// Полное имя
     /// </summary>
     [MaxLength(100)]
-    public string FullName { get; set; } = string.Empty;
+    public string FullName { get; set; } = string.Empty;*/
 
-    /// <summary>
+    /*/// <summary>
     /// Аватар пользователя (бинарные данные)
     /// </summary>
-    public byte[]? Avatar { get; set; }
+    public byte[]? Avatar { get; set; }*/
 
     /// <summary>
     /// Флаг завершён ли профиль
     /// </summary>
-    public bool ProfileCompleted { get; set; }
+    public bool ProfileCreated { get; set; } = false;
 
     /// <summary>
     /// Дата регистрации
@@ -46,6 +46,16 @@ public class User : ISoftDeletable
     /// Список ID избранных профилей
     /// </summary>
     public List<Guid> FavoriteProfileIds { get; set; } = new();
+
+    /*/// <summary>
+    /// Отправленные предложения о сотрудничестве
+    /// </summary>
+    public List<CollaborationSuggestion> SentSuggestions { get; set; } = new();
+
+    /// <summary>
+    /// Полученные предложения о сотрудничестве
+    /// </summary>
+    public List<CollaborationSuggestion> ReceivedSuggestions { get; set; } = new();*/
 
     // === Навигационное свойство ===
     /// <summary>

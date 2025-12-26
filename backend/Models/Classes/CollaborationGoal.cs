@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using backend.Models.DTOs;
 
 namespace backend.Models.Classes;
 
@@ -7,7 +8,7 @@ namespace backend.Models.Classes;
 /// Цель сотрудничества
 /// </summary>
 [Table("CollaborationGoals")]
-public class CollaborationGoal
+public class CollaborationGoal : ILookupItem
 {
     /// <summary>
     /// Идентификатор

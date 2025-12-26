@@ -2,6 +2,7 @@
 using backend.Data;
 using backend.Models.Classes;
 using backend.Models.Repositories.Interfaces;
+using backend.Exceptions;
 
 namespace backend.Models.Repositories;
 
@@ -18,6 +19,9 @@ public class PortfolioVideoRepository : IPortfolioVideoRepository
 
     public async Task AddAsync(PortfolioVideo video)
     {
+        if (video.ProfileId == Guid.Empty)
+            throw new ApiException(400, "ProfileID обязателен", "MISSING_PROFILE_ID");
+
         await VideoFiles.AddAsync(video);
         await _context.SaveChangesAsync();
     }
@@ -34,10 +38,10 @@ public class PortfolioVideoRepository : IPortfolioVideoRepository
 
     public async Task RemoveAsync(Guid id)
     {
-        var audio = await VideoFiles.FindAsync(id);
-        if (audio != null)
+        var video = await VideoFiles.FindAsync(id);
+        if (video != null)
         {
-            VideoFiles.Remove(audio);
+            VideoFiles.Remove(video);
             await _context.SaveChangesAsync();
         }
     }

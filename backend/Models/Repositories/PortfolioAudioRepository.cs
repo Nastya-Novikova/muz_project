@@ -2,6 +2,7 @@
 using backend.Data;
 using backend.Models.Classes;
 using backend.Models.Repositories.Interfaces;
+using backend.Exceptions;
 
 namespace backend.Models.Repositories;
 
@@ -18,6 +19,9 @@ public class PortfolioAudioRepository : IPortfolioAudioRepository
 
     public async Task AddAsync(PortfolioAudio audio)
     {
+        if (audio.ProfileId == Guid.Empty)
+            throw new ApiException(400, "ProfileID обязателен", "MISSING_PROFILE_ID");
+
         await AudioFiles.AddAsync(audio);
         await _context.SaveChangesAsync();
     }

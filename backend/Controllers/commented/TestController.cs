@@ -1,4 +1,4 @@
-﻿/*using backend.Services.Interfaces;
+﻿using backend.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
@@ -7,6 +7,8 @@ public class TestController : ControllerBase
 {
     private readonly IEmailService _emailService;
     private readonly ILogger<TestController> _logger;
+    private readonly IProfileService _profileService;
+    private readonly IUserService _userService;
 
     public TestController(IEmailService emailService, ILogger<TestController> logger)
     {
@@ -58,4 +60,5 @@ public class TestController : ControllerBase
             return StatusCode(500, $"Failed: {ex.Message}");
         }
     }
-}*/
+    
+}
