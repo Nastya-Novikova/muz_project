@@ -26,27 +26,23 @@ public class AudioUploadService : IAudioUploadService
         string title,
         string? description = null)
     {
-        // Валидация
         if (file == null || file.Length == 0)
             throw new ArgumentException("Файл не выбран");
 
         if (!IsAudio(file.ContentType))
             throw new ArgumentException("Разрешены только аудиофайлы");
 
-        if (file.Length > 10 * 1024 * 1024) // 10 МБ
+        if (file.Length > 10 * 1024 * 1024)
             throw new ArgumentException("Файл слишком большой");
 
-        // Проверка существования профиля
         var profile = await _profileRepository.GetByIdAsync(profileId);
         if (profile == null)
             throw new ArgumentException("Профиль не найден");
 
-        // Чтение файла
         using var memoryStream = new MemoryStream();
         await file.CopyToAsync(memoryStream);
         var fileBytes = memoryStream.ToArray();
 
-        // Создание записи
         var audio = new PortfolioAudio
         {
             Id = Guid.NewGuid(),
@@ -55,7 +51,7 @@ public class AudioUploadService : IAudioUploadService
             Description = description,
             FileData = fileBytes,
             MimeType = file.ContentType,
-            Duration = 0
+            Duration = 0 //TODO:Получить продолжительность
         };
 
         await _audioRepository.AddAsync(audio);

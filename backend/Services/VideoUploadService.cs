@@ -26,27 +26,23 @@ public class VideoUploadService : IVideoUploadService
         string title,
         string? description = null)
     {
-        // Валидация
         if (file == null || file.Length == 0)
             throw new ArgumentException("Файл не выбран");
 
         if (!IsVideo(file.ContentType))
             throw new ArgumentException("Разрешены только видеофайлы");
 
-        if (file.Length > 50 * 1024 * 1024) // 50 МБ
+        if (file.Length > 50 * 1024 * 1024)
             throw new ArgumentException("Файл слишком большой");
 
-        // Проверка существования профиля
         var profile = await _profileRepository.GetByIdAsync(profileId);
         if (profile == null)
             throw new ArgumentException("Профиль не найден");
 
-        // Чтение файла
         using var memoryStream = new MemoryStream();
         await file.CopyToAsync(memoryStream);
         var fileBytes = memoryStream.ToArray();
 
-        // Создание записи
         var video = new PortfolioVideo
         {
             Id = Guid.NewGuid(),
@@ -55,7 +51,7 @@ public class VideoUploadService : IVideoUploadService
             Description = description,
             FileData = fileBytes,
             MimeType = file.ContentType,
-            Duration = 0 // TODO: получить через FFmpeg
+            Duration = 0 //TODO:Получить продолжительность
         };
 
         await _videoRepository.AddAsync(video);

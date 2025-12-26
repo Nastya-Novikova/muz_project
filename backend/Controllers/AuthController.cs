@@ -38,17 +38,3 @@ public class AuthController : ControllerBase
         return result != null ? Ok(result) : BadRequest();
     }
 }
-
-/*[HttpPost("request-code")]
-public async Task<IActionResult> RequestCode([FromBody] JsonDocument jsonDocument)
-{
-    var result = await _service.RequestCode(jsonDocument);
-    return result != null ? Ok(result) : BadRequest();
-}
-
-[HttpPost("verify-code")]
-public async Task<IActionResult> VerifyCode([FromBody] JsonDocument jsonDocument)
-{
-    var result = await _service.VerifyCode(jsonDocument);
-    return result != null ? Ok(result) : BadRequest();
-}*/

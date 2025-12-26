@@ -37,21 +37,6 @@ public class CityRepository : ICityRepository
         return await Cities.FindAsync(id);
     }
 
-    public async Task AddAsync(City city)
-    {
-        if (string.IsNullOrWhiteSpace(city.Name))
-            throw new ApiException(400, "Название города обязательно", "MISSING_CITY_NAME");
-
-        await Cities.AddAsync(city);
-        await _context.SaveChangesAsync();
-    }
-
-    public async Task UpdateAsync(City city)
-    {
-        Cities.Update(city);
-        await _context.SaveChangesAsync();
-    }
-
     private static IQueryable<City> ApplySorting(IQueryable<City> query, string? sortBy, bool sortDesc)
     {
         return sortBy?.ToLower() switch

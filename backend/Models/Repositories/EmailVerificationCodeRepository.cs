@@ -1,4 +1,3 @@
-// Без фильтрации — только базовые операции
 using Microsoft.EntityFrameworkCore;
 using backend.Data;
 using backend.Models.Classes;

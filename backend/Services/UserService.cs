@@ -31,23 +31,6 @@ public class UserService : IUserService
         }
     }
 
-    public async Task<bool> UpdateAvatarAsync(Guid userId, byte[] avatarBytes)
-    {
-        try
-        {
-            var user = await _userRepository.GetByIdAsync(userId);
-            if (user == null) return false;
-
-            //user.Avatar = avatarBytes;
-            await _userRepository.UpdateAsync(user);
-            return true;
-        }
-        catch
-        {
-            return false;
-        }
-    }
-
     public async Task<JsonDocument?> UpdateProfileAsync(Guid userId, JsonDocument profileJson)
     {
         try
@@ -56,10 +39,7 @@ public class UserService : IUserService
             if (user == null) return null;
 
             var root = profileJson.RootElement;
-            //user.FullName = root.TryGetProperty("fullName", out var fn) ? fn.GetString() ?? user.FullName : user.FullName;
-            //user.ProfileCompleted = true; // После первого обновления профиль считается завершённым
 
-            // Обновление избранных профилей (если передано)
             if (root.TryGetProperty("favoriteProfileIds", out var favIds))
             {
                 user.FavoriteProfileIds = favIds.EnumerateArray().Select(x => Guid.Parse(x.GetString()!)).ToList();

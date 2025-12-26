@@ -81,10 +81,7 @@ public class MusicianProfile : ISoftDeletable
     /// </summary>
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
-    /*// === Навигационные свойства ===
-    [ForeignKey("UserId")]
-    public User User { get; set; } = null!;*/
-
+    // === Навигационные свойства ===
     [ForeignKey("CityId")]
     public City City { get; set; } = null!;
 
@@ -94,10 +91,6 @@ public class MusicianProfile : ISoftDeletable
     public List<CollaborationGoal> CollaborationGoals { get; set; } = new();
 
     // === Портфолио ===
-    /*/// <summary>
-    /// Портфолио пользователя (аудио, видео, фото)
-    /// </summary>
-    public Portfolio Portfolio { get; set; } = new();*/
     /// <summary>
     /// Аудиозаписи в портфолио
     /// </summary>

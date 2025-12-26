@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
 using backend.Models.Classes;
@@ -20,7 +21,9 @@ public class ProfileService : IProfileService
     private readonly IGenreRepository _genreRepository;
     private readonly IMusicalSpecialtyRepository _specialtyRepository;
     private readonly ICollaborationGoalRepository _goalRepository;
-    private readonly ICollaborationSuggestionRepository _suggestionRepository;
+    private readonly IPortfolioPhotoRepository _portfolioPhotoRepository;
+    private readonly IPortfolioAudioRepository _portfolioAudioRepository;
+    private readonly IPortfolioVideoRepository _portfolioVideoRepository;
     private readonly JsonSerializerOptions _options = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
     public ProfileService(
@@ -30,7 +33,9 @@ public class ProfileService : IProfileService
         IGenreRepository genreRepository,
         IMusicalSpecialtyRepository specialtyRepository,
         ICollaborationGoalRepository goalRepository,
-        ICollaborationSuggestionRepository suggestionRepository)
+        IPortfolioPhotoRepository portfolioPhotoRepository,
+        IPortfolioVideoRepository portfolioVideoRepository,
+        IPortfolioAudioRepository portfolioAudioRepository)
     {
         _profileRepository = profileRepository;
         _userRepository = userRepository;
@@ -38,7 +43,9 @@ public class ProfileService : IProfileService
         _genreRepository = genreRepository;
         _specialtyRepository = specialtyRepository;
         _goalRepository = goalRepository;
-        _suggestionRepository = suggestionRepository;
+        _portfolioAudioRepository = portfolioAudioRepository;
+        _portfolioPhotoRepository = portfolioPhotoRepository;
+        _portfolioVideoRepository = portfolioVideoRepository;
     }
 
     public async Task<JsonDocument?> SearchAsync(JsonDocument searchParams)
@@ -55,7 +62,6 @@ public class ProfileService : IProfileService
             var sortBy = root.TryGetProperty("sortBy", out var sb) ? sb.GetString() : "createdAt";
             var sortDesc = root.TryGetProperty("sortDesc", out var sd) ? sd.GetBoolean() : true;
 
-            // Извлечение списков
             var genreIds = root.TryGetProperty("genreIds", out var genres)
                 ? genres.EnumerateArray().Select(x => x.GetInt32()).ToList()
                 : null;
@@ -117,7 +123,13 @@ public class ProfileService : IProfileService
             var profile = await _profileRepository.GetByIdAsync(id);
             if (profile == null) return null;
 
-            profile.City = await _cityRepository.GetByIdAsync(profile.CityId);
+            var city = await _cityRepository.GetByIdAsync(profile.CityId);
+            if (city == null) return null;
+            profile.City = city;
+
+            var photos = await _portfolioPhotoRepository.GetByProfileIdAsync(profile.Id);
+            var videos = await _portfolioVideoRepository.GetByProfileIdAsync(profile.Id);
+            var audios = await _portfolioAudioRepository.GetByProfileIdAsync(profile.Id);
 
             var result = new
             {
@@ -133,9 +145,9 @@ public class ProfileService : IProfileService
                 Genres = profile.Genres.Select(g => LookupItemUtil.ToLookupItem(g)),
                 Specialties = profile.Specialties.Select(s => LookupItemUtil.ToLookupItem(s)),
                 CollaborationGoals = profile.CollaborationGoals.Select(g => LookupItemUtil.ToLookupItem(g)),
-                profile.Photos,
-                profile.VideoFiles,
-                profile.AudioFiles
+                photos,
+                videos,
+                audios
             };
             return JsonDocument.Parse(JsonSerializer.Serialize(result, _options));
         }
@@ -150,7 +162,9 @@ public class ProfileService : IProfileService
         try
         {
             var user = await _userRepository.GetByIdAsync(userId);
+            if (user == null || user.MusicianProfile == null) return null;
             var profile = user.MusicianProfile;
+            if (profile == null) return null;
             return await GetByIdAsync(profile.Id);
         }
         catch (Exception ex)
@@ -169,7 +183,6 @@ public class ProfileService : IProfileService
             if (string.IsNullOrWhiteSpace(root.GetProperty("fullName").GetString()))
                 return null;
 
-            // Валидация связей
             var cityId = root.GetProperty("cityId").GetInt32();
             if (await _cityRepository.GetByIdAsync(cityId) == null) return null;
 
@@ -188,11 +201,11 @@ public class ProfileService : IProfileService
             await _profileRepository.AddAsync(profile);
 
             var user = await _userRepository.GetByIdAsync(userId);
+            if (user == null) return null;
             user.MusicianProfile = profile;
             user.ProfileCreated = true;
             await _userRepository.UpdateAsync(user);
 
-            // Загрузка связей
             if (root.TryGetProperty("genreIds", out var genreIdsElem))
             {
                 var genreIds = genreIdsElem.EnumerateArray().Select(x => x.GetInt32()).ToList();
@@ -247,7 +260,6 @@ public class ProfileService : IProfileService
 
             var root = profileJson.RootElement;
 
-            // Обновляем только указанные поля
             if (root.TryGetProperty("fullName", out var fullNameElem) && !string.IsNullOrWhiteSpace(fullNameElem.GetString()))
                 existing.FullName = fullNameElem.GetString()!;
 
@@ -263,10 +275,6 @@ public class ProfileService : IProfileService
             if (root.TryGetProperty("age", out var ageElem))
                 existing.Age = ageElem.GetInt32();
 
-            /*if (root.TryGetProperty("avatar", out var avatarElem))
-                existing.Avatar = Encoding.Default.GetBytes(avatarElem.GetString());*/
-
-            // Обновление города с валидацией
             if (root.TryGetProperty("cityId", out var cityIdElem))
             {
                 var cityId = cityIdElem.GetInt32();
@@ -278,7 +286,6 @@ public class ProfileService : IProfileService
             if (root.TryGetProperty("experience", out var expElem))
                 existing.Experience = expElem.GetInt32();
 
-            // Обновление связей: Genres
             if (root.TryGetProperty("genreIds", out var genreIdsElem))
             {
                 var genreIds = genreIdsElem.EnumerateArray().Select(x => x.GetInt32()).ToList();
@@ -288,7 +295,6 @@ public class ProfileService : IProfileService
                     .ToListAsync();
             }
 
-            // Обновление связей: Specialties
             if (root.TryGetProperty("specialtyIds", out var specialtyIdsElem))
             {
                 var specialtyIds = specialtyIdsElem.EnumerateArray().Select(x => x.GetInt32()).ToList();
@@ -298,7 +304,6 @@ public class ProfileService : IProfileService
                     .ToListAsync();
             }
 
-            // Обновление связей: CollaborationGoals
             if (root.TryGetProperty("goalIds", out var goalIdsElem))
             {
                 var goalIds = goalIdsElem.EnumerateArray().Select(x => x.GetInt32()).ToList();
@@ -308,7 +313,6 @@ public class ProfileService : IProfileService
                     .ToListAsync();
             }
 
-            // Обновляем дату изменения
             existing.UpdatedAt = DateTime.UtcNow;
 
             await _profileRepository.UpdateAsync(existing);
@@ -354,167 +358,22 @@ public class ProfileService : IProfileService
         }
     }
 
-    
-
-
-
-    public async Task<JsonDocument> TestSeedData()
-    {
-        try
-        {
-            JsonDocument profileJson1 = JsonDocument.Parse("{\r\n  \"fullName\": \"Алексей Иванов\",\r\n  \"age\": 28,\r\n  \"description\": \"Профессиональный гитарист, ищу группу для выступлений.\",\r\n  \"phone\": \"+79999999999\",\r\n  \"telegram\": \"null\",\r\n  \"experience\": 7,\r\n  \"cityId\": 1,\r\n  \"specialtyIds\": [1]\r\n,\r\n  \"genreIds\": [1, 2]\r\n,\r\n  \"goalIds\": [1]\r\n}");
-            var profile1 = await CreateAsync(profileJson1, Guid.Parse("11111111 - 1111 - 1111 - 1111 - 111111111111"));
-            JsonDocument profileJson2 = JsonDocument.Parse("{\r\n  \"fullName\": \"Иван Иванов\",\r\n  \"age\": 18,\r\n  \"description\": \"Профессиональный гитарист, ищу группу для выступлений.\",\r\n  \"phone\": \"+79999999999\",\r\n  \"telegram\": \"null\",\r\n  \"experience\": 7,\r\n  \"cityId\": 3,\r\n  \"specialtyIds\": [2, 3]\r\n,\r\n  \"genreIds\": [3, 4]\r\n,\r\n  \"goalIds\": [2, 3]\r\n}");
-            var profile2 = await CreateAsync(profileJson2, Guid.Parse("22222222-2222-2222-2222-222222222222"));
-            return profile2;
-        }
-        catch
-        {
-            return null;
-        }
-    }
-
-   /* public async Task<JsonDocument> GetFullProfileAsync(Guid userId)
+    public async Task<bool> UpdateAvatarAsync(Guid userId, byte[] avatarBytes)
     {
         try
         {
             var user = await _userRepository.GetByIdAsync(userId);
+            if (user == null || user.MusicianProfile == null) return false;
             var profile = await _profileRepository.GetByIdAsync(user.MusicianProfile.Id);
-            if (profile == null) return null;
+            if (profile == null) return false;
 
-            // Загружаем избранные профили
-            var favoriteUsers = new List<User>();
-            if (user?.FavoriteProfileIds != null)
-            {
-                favoriteUsers = await _userRepository.GetUsersByIdsAsync(user.FavoriteProfileIds);
-            }
-
-            // Получаем предложения
-            var received = await _suggestionRepository.GetReceivedAsync(userId);
-            var sent = await _suggestionRepository.GetSentAsync(userId);
-
-            var extendedProfile = new
-            {
-                profile = new
-                {
-                    profile.Id,
-                    profile.FullName,
-                    profile.Avatar,
-                    profile.Age,
-                    profile.Description,
-                    profile.Phone,
-                    profile.Telegram,
-                    profile.Experience,
-                    profile.CreatedAt,
-                    profile.UpdatedAt,
-                    City = new { profile.City.Id, profile.City.Name, profile.City.LocalizedName },
-                    Genres = profile.Genres.Select(g => new { g.Id, g.Name, g.LocalizedName }),
-                    Specialties = profile.Specialties.Select(s => new { s.Id, s.Name, s.LocalizedName }),
-                    CollaborationGoals = profile.CollaborationGoals.Select(g => new { g.Id, g.Name, g.LocalizedName }),
-                    Media = new
-                    {
-                        Audio = profile.AudioFiles.Select(a => new { a.Id, a.Title, a.Description, a.MimeType, a.Duration, a.CreatedAt }),
-                        Video = profile.VideoFiles.Select(v => new { v.Id, v.Title, v.Description, v.MimeType, v.Duration, v.CreatedAt }),
-                        Photos = profile.Photos.Select(p => new { p.Id, p.Title, p.Description, p.MimeType, p.CreatedAt })
-                    },
-                    Favorites = favoriteUsers.Select(u => new
-                    {
-                        u.Id,
-                        *//*u.FullName,
-                        u.Avatar*//*
-                    })
-                },
-                collaborations = new
-                {
-                    received = received ?? new List<CollaborationSuggestion>(),
-                    sent = sent ?? new List<CollaborationSuggestion>()
-                },
-                favorites = favoriteUsers.Select(u => new
-                {
-                    u.Id,
-                    u.Email,
-                    u.CreatedAt,
-                    u.FavoriteProfileIds,
-                    u.MusicianProfile,
-                    u.IsDeleted,
-                    u.DeletedAt
-                })
-            };
-
-            return JsonDocument.Parse(JsonSerializer.Serialize(extendedProfile, _options));
+            profile.Avatar = avatarBytes;
+            await _userRepository.UpdateAsync(user);
+            return true;
         }
         catch
         {
-            return null;
+            return false;
         }
-    }*/
-
-    /*public async Task<JsonDocument?> GetFullProfileAsync(Guid userId)
-    {
-        try
-        {
-            var profile = await _profileRepository.GetByUserIdAsync(userId);
-            if (profile == null) return null;
-
-            // Загружаем избранные профили
-            var favoriteUsers = new List<User>();
-            if (profile.User?.FavoriteProfileIds != null)
-            {
-                favoriteUsers = await _userRepository.GetUsersByIdsAsync(profile.User.FavoriteProfileIds);
-            }
-
-            var received = await _suggestionRepository.GetReceivedAsync(userId);
-            var sent = await _suggestionRepository.GetSentAsync(userId);
-
-            // Формируем расширенный профиль
-            var extendedProfile = new
-            {
-                profile.Id,
-                profile.UserId,
-                profile.FullName,
-                profile.Avatar,
-                profile.Age,
-                profile.Description,
-                profile.Phone,
-                profile.Telegram,
-                profile.Experience,
-                profile.CreatedAt,
-                profile.UpdatedAt,
-                City = new { profile.City.Id, profile.City.Name, profile.City.LocalizedName },
-                Genres = profile.Genres.Select(g => new { g.Id, g.Name, g.LocalizedName }),
-                Specialties = profile.Specialties.Select(s => new { s.Id, s.Name, s.LocalizedName }),
-                CollaborationGoals = profile.CollaborationGoals.Select(g => new { g.Id, g.Name, g.LocalizedName }),
-                Media = new
-                {
-                    Audio = profile.AudioFiles.Select(a => new { a.Id, a.Title, a.Description, a.MimeType, a.Duration, a.CreatedAt }),
-                    Video = profile.VideoFiles.Select(v => new { v.Id, v.Title, v.Description, v.MimeType, v.Duration, v.CreatedAt }),
-                    Photos = profile.Photos.Select(p => new { p.Id, p.Title, p.Description, p.MimeType, p.CreatedAt })
-                },
-                Collaborations = new
-                {
-                    received,
-                    sent
-                },
-                Favorites = favoriteUsers.Select(u => new
-                {
-                    u.Id,
-                    u.Email,
-                    u.FullName,
-                    u.Avatar,
-                    u.ProfileCompleted,
-                    u.CreatedAt,
-                    u.FavoriteProfileIds,
-                    u.MusicianProfile,
-                    u.IsDeleted,
-                    u.DeletedAt
-                })
-            };
-
-            return JsonDocument.Parse(JsonSerializer.Serialize(extendedProfile, _options));
-        }
-        catch
-        {
-            return null;
-        }
-    }*/
+    }
 }

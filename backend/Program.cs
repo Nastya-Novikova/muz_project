@@ -74,14 +74,14 @@ namespace backend
                     Title = "MusicianFinder API",
                     Version = "v1",
                     Description = @"
-API для музыкального сервиса поиска музыкантов.
+                    API для музыкального сервиса поиска музыкантов.
 
-## Авторизация
-1. Получите код: `POST /api/auth/request-code`
-2. Авторизуйтесь: `POST /api/auth/login`
-3. Используйте токен в заголовке: `Authorization: Bearer <token>`
+                    ## Авторизация
+                    1. Получите код: `POST /api/auth/request-code`
+                    2. Авторизуйтесь: `POST /api/auth/login`
+                    3. Используйте токен в заголовке: `Authorization: Bearer <token>`
 
-Все эндпоинты с тегом 'Profile', 'Collaborations', 'Favorites', 'Portfolio' требуют авторизации.
+                    Все эндпоинты с тегом 'Profile', 'Collaborations', 'Favorites', 'Portfolio' требуют авторизации.
 "
                 });
                 c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
@@ -159,18 +159,6 @@ API для музыкального сервиса поиска музыкант
             var app = builder.Build();
             app.UseMiddleware<ExceptionMiddleware>();
 
-            /*app.Use(async (context, next) =>
-            {
-                var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
-                logger.LogInformation("Request: {Method} {Path}",
-                    context.Request.Method, context.Request.Path);
-
-                await next();
-
-                logger.LogInformation("Response: {StatusCode}", context.Response.StatusCode);
-            });*/
-
-
             app.UseCors("AllowAll");
             app.UseHttpsRedirection();
             app.UseAuthentication();
@@ -186,45 +174,7 @@ API для музыкального сервиса поиска музыкант
                 app.UseSwaggerUI(Theme.UniversalDark);
             }
 
-            /*if (app.Environment.IsDevelopment())
-            {
-                using var scope = app.Services.CreateScope();
-                var context = scope.ServiceProvider.GetRequiredService<MusicianFinderDbContext>();
-                context.Database.MigrateAsync();
-            }*/
-
             app.Run();
-        }
-        public class AuthorizeCheckOperationFilter : IOperationFilter
-        {
-            public void Apply(OpenApiOperation operation, OperationFilterContext context)
-            {
-                var hasAuthorize = context.MethodInfo.DeclaringType.GetCustomAttributes(true)
-                    .Union(context.MethodInfo.GetCustomAttributes(true))
-                    .OfType<AuthorizeAttribute>()
-                    .Any();
-
-                if (hasAuthorize)
-                {
-                    operation.Security = new List<OpenApiSecurityRequirement>
-            {
-                new OpenApiSecurityRequirement
-                {
-                    {
-                        new OpenApiSecurityScheme
-                        {
-                            Reference = new OpenApiReference
-                            {
-                                Type = ReferenceType.SecurityScheme,
-                                Id = "Bearer"
-                            }
-                        },
-                        Array.Empty<string>()
-                    }
-                }
-            };
-                }
-            }
         }
     }
 }

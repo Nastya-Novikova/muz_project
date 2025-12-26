@@ -56,9 +56,4 @@ public class UserRepository : IUserRepository
         Users.Update(user);
         await _context.SaveChangesAsync();
     }
-
-    public async Task<List<User>> GetUsersByIdsAsync(List<Guid> ids)
-    {
-        return await Users.Where(u => ids.Contains(u.Id) && !u.IsDeleted).ToListAsync();
-    }
 }

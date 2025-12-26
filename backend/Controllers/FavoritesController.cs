@@ -67,7 +67,6 @@ public class FavoritesController : ControllerBase
         return Ok(new { isFavorite });
     }
 
-
     private Guid GetUserId()
     {
         var userIdStr = User.FindFirst("userId")?.Value;

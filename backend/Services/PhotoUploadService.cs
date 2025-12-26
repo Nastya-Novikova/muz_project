@@ -1,5 +1,6 @@
 ﻿using backend.Models.Repositories.Interfaces;
 using backend.Services.Interfaces;
+using backend.Models.Classes;
 
 namespace backend.Services
 {
@@ -22,7 +23,7 @@ namespace backend.Services
             if (!IsImage(file.ContentType))
                 throw new ArgumentException("Разрешены только изображения");
 
-            if (file.Length > 5 * 1024 * 1024) // 5 МБ
+            if (file.Length > 5 * 1024 * 1024)
                 throw new ArgumentException("Файл слишком большой");
 
             var profile = await _profileRepository.GetByIdAsync(profileId);

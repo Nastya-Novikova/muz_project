@@ -13,11 +13,6 @@ public interface IUserService
     Task<JsonDocument?> GetByIdAsync(Guid id);
 
     /// <summary>
-    /// Обновить аватар пользователя
-    /// </summary>
-    Task<bool> UpdateAvatarAsync(Guid userId, byte[] avatarBytes);
-
-    /// <summary>
     /// Обновить профиль пользователя
     /// </summary>
     Task<JsonDocument?> UpdateProfileAsync(Guid userId, JsonDocument profileJson);

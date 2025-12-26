@@ -1,5 +1,4 @@
-﻿// Аналогично CityRepository
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using backend.Data;
 using backend.Models.Classes;
 using backend.Models.Repositories.Interfaces;
@@ -36,21 +35,6 @@ public class GenreRepository : IGenreRepository
     public async Task<Genre?> GetByIdAsync(int id)
     {
         return await Genres.FindAsync(id);
-    }
-
-    public async Task AddAsync(Genre genre)
-    {
-        if (string.IsNullOrWhiteSpace(genre.Name))
-            throw new ApiException(400, "Название жанра обязательно", "MISSING_GENRE_NAME");
-
-        await Genres.AddAsync(genre);
-        await _context.SaveChangesAsync();
-    }
-
-    public async Task UpdateAsync(Genre genre)
-    {
-        Genres.Update(genre);
-        await _context.SaveChangesAsync();
     }
 
     private static IQueryable<Genre> ApplySorting(IQueryable<Genre> query, string? sortBy, bool sortDesc)

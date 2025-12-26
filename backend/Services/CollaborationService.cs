@@ -28,6 +28,7 @@ public class CollaborationService : ICollaborationService
         try
         {
             var user = await _userRepository.GetByIdAsync(userId);
+            if (user == null || user.MusicianProfile == null) return null;
             var fromProfile = await _profileRepository.GetByIdAsync(user.MusicianProfile.Id);
             var toProfile = await _profileRepository.GetByIdAsync(toProfileId);
             if (fromProfile == null || toProfile == null) return null;
@@ -60,7 +61,10 @@ public class CollaborationService : ICollaborationService
             var sortDesc = root.TryGetProperty("sortDesc", out var sd) ? sd.GetBoolean() : true;
 
             var user = await _userRepository.GetByIdAsync(userId);
-            var suggestions = await _suggestionRepository.GetReceivedAsync(user.MusicianProfile.Id, page, limit, sortBy, sortDesc);
+            if (user == null || user.MusicianProfile == null) return null;
+            var profile = await _profileRepository.GetByIdAsync(user.MusicianProfile.Id);
+            if (profile == null) return null;
+            var suggestions = await _suggestionRepository.GetReceivedAsync(profile.Id, page, limit, sortBy, sortDesc);
             var result = new { suggestions };
             return JsonDocument.Parse(JsonSerializer.Serialize(result, _options));
         }
@@ -81,7 +85,10 @@ public class CollaborationService : ICollaborationService
             var sortDesc = root.TryGetProperty("sortDesc", out var sd) ? sd.GetBoolean() : true;
 
             var user = await _userRepository.GetByIdAsync(userId);
-            var suggestions = await _suggestionRepository.GetSentAsync(user.MusicianProfile.Id, page, limit, sortBy, sortDesc);
+            if (user == null || user.MusicianProfile == null) return null;
+            var profile = await _profileRepository.GetByIdAsync(user.MusicianProfile.Id);
+            if (profile == null) return null;
+            var suggestions = await _suggestionRepository.GetSentAsync(profile.Id, page, limit, sortBy, sortDesc);
             var result = new { suggestions };
             return JsonDocument.Parse(JsonSerializer.Serialize(result, _options));
         }
