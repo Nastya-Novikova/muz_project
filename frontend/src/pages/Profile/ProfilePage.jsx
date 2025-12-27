@@ -29,10 +29,8 @@ const { userId } = useParams();
           const data = await api.getProfile(token);
           setProfileData(data);
         } else {
-          // TODO: Загружаем чужой профиль
-          // const data = await api.getProfileById(userId, token);
-          // setProfileData(data);
-          setError('Просмотр чужого профиля пока не реализован');
+          const data = await api.getProfileById(userId, token);
+          setProfileData(data);
         }
       } catch (err) {
         console.error('Ошибка загрузки профиля:', err);
@@ -169,20 +167,17 @@ const { userId } = useParams();
               ) : (
                 <div className="profile-actions-btn">
                   <button
-                    onClick={handleToggleFavorite}
-                    className={`favorite-profile-btn ${isFavorite ? 'active' : ''}`}
+                    className={`favorite-profile-btn`}
                   >
-                    {isFavorite ? 'В избранном' : 'В избранное'}
+                    {'В избранное'}
                   </button>
                   <button onClick={handleBack} className="back-btn">
                     Назад
                   </button>
                   <button
-                    onClick={handleCollaboration}
-                    className={`collaboration-btn ${isCollaborationSent ? 'sent' : ''}`}
-                    disabled={isCollaborationSent}
+                    className={`collaboration-btn`}
                   >
-                    {isCollaborationSent ? 'Предложение направлено' : 'Предложить сотрудничество'}
+                    {'Предложить сотрудничество'}
                   </button>
                 </div>
               )}

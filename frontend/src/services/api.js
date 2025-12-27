@@ -172,5 +172,37 @@ export const api = {
     }
 
     return response.json();
+  },
+
+  //Поиск музыкантов
+  async searchMusicians(searchParams) {
+    const response = await fetch(`${API_URL}/Profiles/search`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(searchParams),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ message: 'HTTP error!' }));
+      throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+    }
+
+    return response.json();
+  },
+
+  //Поиск пользователя по ID
+  async getProfileById(userId) {
+    const response = await fetch(`${API_URL}/Profiles/${userId}`, {
+      method: 'GET'
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ message: 'HTTP error!' }));
+      throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+    }
+
+    return response.json();
   }
 };
