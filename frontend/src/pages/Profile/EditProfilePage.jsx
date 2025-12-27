@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../context/AuthContext'; // Только для токена
 import { useFilters } from '../../context/useFilters';
 import { api } from '../../services/api';
 import Header from '../../components/Header/Header';
 import './EditProfilePage.css';
 
 function EditProfilePage() {
-  const { user, updateProfile: updateAuthContext, getToken } = useAuth();
+  const { getToken, getUserEmail } = useAuth(); // Только токен
   const navigate = useNavigate();
   const { activities, genres, cities } = useFilters();
   
@@ -21,47 +21,70 @@ function EditProfilePage() {
     telegram: '',
     genres: [],
     experience: '',
-    description: '',
-    portfolio: {
-      audio: [],
-      photos: [],
-    }
+    description: ''
   });
 
   const [avatarFile, setAvatarFile] = useState(null);
-  const [avatarPreview, setAvatarPreview] = useState(user?.avatar || '');
+  const [avatarPreview, setAvatarPreview] = useState('');
   const [audioFiles, setAudioFiles] = useState([]);
   const [photoFiles, setPhotoFiles] = useState([]);
-  const [loading, setLoading] = useState(false); // Состояние загрузки
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [isCreating, setIsCreating] = useState(true); // Создаём или редактируем?
+  const [userEmail, setUserEmail] = useState('');
 
   useEffect(() => {
-    if (user && activities.length > 0 && genres.length > 0 && cities.length > 0) { // Убедитесь, что списки загружены
-      // Найти id по label
-      const activityId = activities.find(a => a.label === user.activityType)?.id || '';
-      const parsedActivityId = activityId !== undefined ? Number(activityId) : null;
-      const cityId = cities.find(c => c.label === user.city)?.id || '';
-      const parsedCityId = cityId !== undefined ? Number(cityId) : null;
-      const genreIds = Array.isArray(user.genres) ? user.genres
-        .map(genreLabel => genres.find(g => g.label === genreLabel)?.id)
-        .filter(id => id !== undefined) : [];// Убираем null, если были несовпадения
+    const loadExistingProfile = async () => {
+      try {
+        const token = getToken();
+        const email = getUserEmail();
+        setUserEmail(email);
+        // Пробуем загрузить существующий профиль
+        const existingProfile = await api.getProfile(token);
+        
+        if (existingProfile) {
+          setIsCreating(false); // Режим редактирования
+          
+          // Преобразуем данные с сервера в форму
+          setFormData({
+            fullName: existingProfile.fullName || '',
+            age: existingProfile.age || '',
+            activityType: existingProfile.specialties?.[0]?.id || '',
+            city: existingProfile.city?.id || '',
+            contact: email || '',
+            phone: existingProfile.phone || '',
+            telegram: existingProfile.telegram || '',
+            genres: existingProfile.genres?.map(g => g.id) || [],
+            experience: existingProfile.experience || '',
+            description: existingProfile.description || ''
+          });
+          
+          // Устанавливаем аватар если есть - аватар не содержится в возвращаемом объекте?
+          /*if (existingProfile.avatarUrl) {
+            setAvatarPreview(existingProfile.avatarUrl);
+          }*/
+        } else {
+          setFormData(prev => ({
+            ...prev,
+            contact: email || ''
+          }));
+        }
+      } catch (error) {
+        // Профиля нет - остаёмся в режиме создания
+        console.log('Профиль не найден, создаём новый');
+        setIsCreating(true);
 
-      setFormData({
-        fullName: user.fullName || '',
-        age: user.age || '',
-        activityType: parsedActivityId, // Сохраняем id
-        city: parsedCityId,           // Сохраняем id
-        contact: user.contact || user.email || '',
-        phone: user.phone || '',
-        telegram: user.telegram || '',
-        genres: genreIds,       // Сохраняем массив id
-        experience: user.experience || '',
-        description: user.description || '',
-        portfolio: user.portfolio || { audio: [], photos: []}
-      });
-      setAvatarPreview(user.avatar);
-    }
-  }, [user, activities, genres, cities]);
+        const email = getUserEmail();
+        setUserEmail(email || '');
+        setFormData(prev => ({
+          ...prev,
+          contact: email || ''
+        }));
+      }
+    };
+
+    loadExistingProfile();
+  }, [getToken, getUserEmail, navigate]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -117,76 +140,63 @@ function EditProfilePage() {
     
     try {
       const token = getToken();
-
-      const cityId= formData.city !== null && formData.city !== '' ? Number(formData.city) : null;
-      // specialtyIds - массив, даже если один элемент
-      const specialtyIds = formData.activityType !== null && formData.activityType !== '' ? [Number(formData.activityType)] : [];
-      // 1. Подготовка данных для профиля (без файлов)
+      
+      // Подготовка данных для отправки на сервер
       const profileData = {
         fullName: formData.fullName,
-        age: parseInt(formData.age, 10) || null,
+        age: formData.age ? parseInt(formData.age, 10) : null,
         description: formData.description,
-        phone: formData.phone,
+        phone: formData.phone || null,
         telegram: formData.telegram || null,
-        experience: parseInt(formData.experience, 10) || null,
-        cityId: cityId, // Уже id
-        specialtyIds: specialtyIds, // Массив id
-        genreIds: formData.genres, // Уже массив id
+        experience: formData.experience ? parseInt(formData.experience, 10) : null,
+        cityId: formData.city ? parseInt(formData.city, 10) : null,
+        specialtyIds: formData.activityType ? [parseInt(formData.activityType, 10)] : [],
+        genreIds: formData.genres.map(id => parseInt(id, 10))
       };
 
-      // 2. Вызов ручки создания/обновления профиля (всегда первым)
+      // Сохраняем профиль
       let profileResponse;
-      if (!user.profileCreated) { // profileCreated === false
+      if (isCreating) {
         profileResponse = await api.createProfile(profileData, token);
-      } else { // profileCreated === true
+      } else {
         profileResponse = await api.updateProfile(profileData, token);
       }
 
-      // 3. Загрузка аватарки (если выбрана)
-      if (avatarFile) {
+      // Загружаем файлы если есть
+      /*if (avatarFile) {
         await api.uploadAvatar(avatarFile, token);
-      }
-
-      // 4. Загрузка аудио (если есть)
+      }*/
+      
       if (audioFiles.length > 0) {
         for (const file of audioFiles) {
-          await api.uploadAudio(file, file.name, token); // Можно улучшить: передавать реальное имя или title из интерфейса
+          await api.uploadAudio(file, file.name, token);
+        }
+      }
+      
+      if (photoFiles.length > 0) {
+        for (const file of photoFiles) {
+          await api.uploadPhoto(file, file.name, token);
         }
       }
 
-      // 5. Загрузка фото (если есть) - не работает
-      /*if (photoFiles.length > 0) {
-      for (const file of photoFiles) {
-        await api.uploadPhoto(file, file.name, token);
-      }
-    }*/
-      // получение обновленного профиля
-      //const updatedProfile = await api.getProfile(token);
-
-      // 6. Обновление состояния в AuthContext
-      // Нужно получить обновлённый профиль с бэкенда, чтобы получить новые данные (например, id профиля, обновлённые списки и т.д.)
-      // const updatedProfileFromServer = await api.getProfile(); // Если бэкенд возвращает обновлённый профиль после создания/обновления
-      // updateAuthContext(updatedProfileFromServer, user.token); // Передаём обновлённый профиль и токен
-
-      // Пока обновляем локально, так как бэкенд возвращает обновлённый объект после create/update
-      //updateAuthContext(updatedProfile, user.token); 
-
-      // 7. Переход
+      // Всё успешно - переходим на страницу профиля
       navigate('/profile');
+      
     } catch (err) {
       setError(err.message || 'Не удалось сохранить профиль');
+      console.error('Ошибка сохранения:', err);
     } finally {
       setLoading(false);
     }
   };
 
-  if (!user) {
+  if (loading) {
     return (
       <>
         <Header />
         <div className="edit-profile-page">
           <div className="edit-profile-container">
-            <p>Пожалуйста, войдите в систему</p>
+            <p>Загрузка...</p>
           </div>
         </div>
       </>
@@ -198,14 +208,16 @@ function EditProfilePage() {
       <Header />
       <div className="edit-profile-page">
         <div className="edit-profile-container">
-          <h2>Редактировать профиль</h2>
+          <h2>{isCreating ? 'Создать профиль' : 'Редактировать профиль'}</h2>
+          
+          {error && <div className="error-message">{error}</div>}
           
           <form onSubmit={handleSubmit} className="profile-form">
             {/* Аватар */}
             <div className="form-section">
               <div className="avatar-upload">
                 <div className="avatar-preview">
-                    <img src={avatarPreview} alt="Аватар" />
+                  <img src={avatarPreview || '/default-avatar.png'} alt="Аватар" />
                   <label className="upload-btn">
                     <input
                       type="file"
@@ -267,25 +279,26 @@ function EditProfilePage() {
                     ))}
                   </select>
                 </div>
-                
+
                 <div className="form-group">
                   <label>Почта</label>
                   <input
                     type="email"
-                    value={user.email}
+                    value={userEmail}
                     disabled
                     className="disabled-input"
                   />
                 </div>
                 
                 <div className="form-group">
-                  <label>Телефон</label>
+                  <label>Телефон *</label>
                   <input
                     type="tel"
                     name="phone"
                     autoComplete='off'
                     value={formData.phone}
                     onChange={handleInputChange}
+                    required
                     placeholder="+7 (999) 123-45-67"
                   />
                 </div>
@@ -447,9 +460,10 @@ function EditProfilePage() {
               </button>
               <button
                 type="submit"
+                disabled={loading}
                 className="submit-btn"
               >
-                Сохранить
+                {loading ? 'Сохранение...' : 'Сохранить'}
               </button>
             </div>
           </form>

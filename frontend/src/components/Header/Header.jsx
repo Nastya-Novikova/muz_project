@@ -1,4 +1,3 @@
-// src/components/Header/Header.jsx
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
@@ -7,7 +6,7 @@ import './Header.css';
 function Header() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
-  const { user, logout } = useAuth();
+  const { isAuthenticated, logout, getUserEmail } = useAuth(); // Меняем user на isAuthenticated
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -48,6 +47,9 @@ function Header() {
     navigate('/login');
   };
 
+  // Получаем email пользователя
+  const userEmail = getUserEmail();
+
   return (
     <header className="header">
       <div className="header-content">
@@ -57,7 +59,7 @@ function Header() {
           </Link>
         </div>
         <div className="header-right">
-          {user ? (
+          {isAuthenticated ? ( // Проверяем isAuthenticated вместо user
             <div className="user-menu" ref={dropdownRef}>
               <button 
                 className="user-avatar-btn" 
@@ -65,8 +67,8 @@ function Header() {
                 aria-label="Меню пользователя"
               >
                 <img 
-                  src={user.avatar} 
-                  alt={user.name} 
+                  src={'/default-avatar.png'} 
+                  alt="Аватар пользователя" 
                   className="user-avatar"
                 />
               </button>
@@ -74,8 +76,7 @@ function Header() {
               {dropdownOpen && (
                 <div className="dropdown-menu">
                   <div className="user-info">
-                    <span className="user-name">{user.name}</span>
-                    <span className="user-email">{user.email}</span>
+                    <span className="user-email">{userEmail || ''}</span>
                   </div>
                   
                   <div className="dropdown-divider"></div>

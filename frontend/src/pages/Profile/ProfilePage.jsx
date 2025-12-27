@@ -7,64 +7,54 @@ import Header from '../../components/Header/Header';
 import './ProfilePage.css';
 
 function ProfilePage() {
-  const { userId } = useParams(); // userId - для просмотра чужого профиля
-  const { user: currentUser, getToken } = useAuth(); // currentUser - данные текущего пользователя из AuthContext
+const { userId } = useParams();
+  const { getToken, logout, getUserEmail } = useAuth(); // logout для случая ошибки 401
   const navigate = useNavigate();
+  
   const [activeTab, setActiveTab] = useState('info');
-  const [isFavorite, setIsFavorite] = useState(false);
-  const [profileUser, setProfileUser] = useState(null); // Данные профиля для отображения
-  const [isCollaborationSent, setIsCollaborationSent] = useState(false);
-  const [loading, setLoading] = useState(true); // Состояние загрузки
-  const [error, setError] = useState(''); // Состояние ошибки
+  const [profileData, setProfileData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     const loadProfile = async () => {
       setLoading(true);
       setError('');
+      
       try {
+        const token = getToken();
+        
         if (!userId) {
-          // Просмотр своего профиля - используем данные из AuthContext
-          setProfileUser(currentUser);
-          // Состояния для своего профиля можно сбросить или не отображать
-          setIsFavorite(false);
-          setIsCollaborationSent(false);
+          // Загружаем свой профиль
+          const data = await api.getProfile(token);
+          setProfileData(data);
         } else {
-          // Просмотр чужого профиля - загружаем с бэкенда
-          const token = getToken();
-          // TODO: Вызовите метод API для получения профиля по userId
-          // const otherUserProfile = await api.getProfileById(userId, token); // Пример метода
-          // setProfileUser(otherUserProfile);
-
-          // Заглушка: пока нет метода getProfileById
+          // TODO: Загружаем чужой профиль
+          // const data = await api.getProfileById(userId, token);
+          // setProfileData(data);
           setError('Просмотр чужого профиля пока не реализован');
-          setProfileUser(null);
         }
       } catch (err) {
-        console.error('Ошибка при загрузке профиля:', err);
-        setError(err.message || 'Не удалось загрузить профиль');
-        setProfileUser(null);
+        console.error('Ошибка загрузки профиля:', err);
+        
+        if (err.message.includes('401') || err.message.includes('Unauthorized')) {
+          // Неавторизован - выходим
+          logout();
+          navigate('/login');
+          return;
+        }
+        
+        setError('Не удалось загрузить профиль. Пожалуйста, попробуйте позже.');
       } finally {
         setLoading(false);
       }
     };
 
     loadProfile();
-  }, [userId, currentUser, getToken]); // Зависимости
+  }, [userId, getToken, navigate, logout]);
 
   const isOwnProfile = !userId;
-
-  if (!currentUser && !userId) {
-    return (
-      <>
-        <Header />
-        <div className="profile-page">
-          <div className="profile-container">
-            <p>Пожалуйста, войдите в систему</p>
-          </div>
-        </div>
-      </>
-    );
-  }
+  const userEmail = getUserEmail();
 
   const handleEditProfile = () => {
     navigate('/profile/edit');
@@ -74,7 +64,7 @@ function ProfilePage() {
     navigate(-1);
   };
 
-  const handleToggleFavorite = () => {
+  /*const handleToggleFavorite = () => {
     // TODO: Реализовать логику добавления/удаления из избранного
     // const token = getToken();
     // if (isFavorite) {
@@ -83,14 +73,14 @@ function ProfilePage() {
     //   await api.addToFavorites(userId, token);
     // }
     setIsFavorite(!isFavorite);
-  };
+  };*/
 
-  const handleCollaboration = () => {
+  /*const handleCollaboration = () => {
     // TODO: Реализовать логику отправки предложения сотрудничества
     // const token = getToken();
     // await api.sendCollaborationRequest(userId, token);
     setIsCollaborationSent(true);
-  };
+  };*/
 
   if (loading) {
     return (
@@ -98,7 +88,7 @@ function ProfilePage() {
         <Header />
         <div className="profile-page">
           <div className="profile-container">
-            <p>Загрузка...</p>
+            <div className="loading-spinner">Загрузка...</div>
           </div>
         </div>
       </>
@@ -119,7 +109,7 @@ function ProfilePage() {
     );
   }
 
-  if (!profileUser) {
+  if (!profileData) {
     return (
       <>
         <Header />
@@ -141,25 +131,32 @@ function ProfilePage() {
           {/* Шапка профиля */}
           <div className="profile-header">
             <div className="profile-main-info">
-              <img src={profileUser.avatar} alt={profileUser.fullName} className="profile-avatar" />
+              <img 
+                src={'/default-avatar.png'} //profileData.avatarUrl || 
+                alt={profileData.fullName}
+                className="profile-avatar" 
+              />
               <div className="profile-info">
-                <h1>{profileUser.fullName || 'Не указано'}</h1>
-                <p className="profile-email">{profileUser.email}</p>
+                <h1>{profileData.fullName || 'Не указано'}</h1>
+                {isOwnProfile && userEmail && (
+                  <p className="profile-email">{userEmail}</p>
+                )}
                 <p className="profile-activity">
-                  {profileUser.age && `${profileUser.age} лет`}
-                  {profileUser.activityType && ` • ${profileUser.activityType}`}
-                  {profileUser.experience && ` • Стаж: ${profileUser.experience}`}
-                  {profileUser.city && ` • ${profileUser.city}`}
+                  {profileData.age && `${profileData.age} лет`}
+                  {profileData.specialties?.[0]?.localizedName && ` • ${profileData.specialties[0].localizedName}`}
+                  {profileData.experience && ` • Стаж: ${profileData.experience}`}
+                  {profileData.city?.localizedName && ` • ${profileData.city.localizedName}`}
                 </p>
                 <div className="profile-genres">
-                  {profileUser.genres?.map(genre => (
-                    <span key={genre} className="genre-tag">{genre}</span>
+                  {profileData.genres?.map(genre => (
+                    <span key={genre.id} className="genre-tag">
+                      {genre.localizedName || genre.name}
+                    </span>
                   ))}
                 </div>
               </div>
             </div>
 
-            {/* Кнопки действий */}
             <div className="profile-actions">
               {isOwnProfile ? (
                 <button onClick={handleEditProfile} className="edit-profile-btn">
@@ -221,33 +218,35 @@ function ProfilePage() {
                 <div className="info-section">
                   <h3>О себе</h3>
                   <p className="profile-description">
-                    {profileUser.description || 'Пользователь не добавил информацию о себе'}
+                    {profileData.description || 'Пользователь не добавил информацию о себе'}
                   </p>
                 </div>
 
                 <div className="info-grid">
                   <div className="info-item">
                     <span className="info-label">Возраст:</span>
-                    <span className="info-value">{profileUser.age || 'Не указан'}</span>
+                    <span className="info-value">{profileData.age || 'Не указан'}</span>
                   </div>
                   <div className="info-item">
                     <span className="info-label">Город:</span>
-                    <span className="info-value">{profileUser.city || 'Не указан'}</span>
+                    <span className="info-value">{profileData.city?.localizedName || 'Не указан'}</span>
                   </div>
                   <div className="info-item">
                     <span className="info-label">Вид деятельности:</span>
-                    <span className="info-value">{profileUser.activityType || 'Не указан'}</span>
+                    <span className="info-value">
+                      {profileData.specialties?.map(s => s.localizedName).join(', ') || 'Не указан'}
+                    </span>
                   </div>
                   <div className="info-item">
                     <span className="info-label">Стаж:</span>
                     <span className="info-value">
-                      {profileUser.experience ? `${profileUser.experience} лет` : 'Не указан'}
+                      {profileData.experience ? `${profileData.experience} лет` : 'Не указан'}
                     </span>
                   </div>
                   <div className="info-item">
                     <span className="info-label">Жанры:</span>
                     <span className="info-value">
-                      {profileUser.genres?.length > 0 ? profileUser.genres.join(', ') : 'Не указаны'}
+                      {profileData.genres?.map(g => g.localizedName).join(', ') || 'Не указаны'}
                     </span>
                   </div>
                 </div>
@@ -258,16 +257,14 @@ function ProfilePage() {
               <div className="tab-content">
                 <div className="portfolio-section">
                   <h3>Аудиозаписи</h3>
-                  {profileUser.portfolio?.audio?.length > 0 ? (
+                  {profileData.portfolio?.audio?.length > 0 ? (
                     <div className="audio-list">
-                      {profileUser.portfolio.audio.map((audio, index) => (
+                      {profileData.portfolio.audio.map((audio, index) => (
                         <div key={index} className="audio-item">
-                          <span>Аудиозапись {index + 1}</span>
-                          {/* Для воспроизведения аудио с бэкенда нужно будет получить URL */}
-                          {/* <audio controls src={audio.url}> */}
-                          {/*   Ваш браузер не поддерживает аудио элемент. */}
-                          {/* </audio> */}
-                          <p>Файл: {audio.filename || `audio_${index + 1}`}</p>
+                          <audio controls src={audio.url}>
+                            Ваш браузер не поддерживает аудио элемент.
+                          </audio>
+                          <p>{audio.title || `Аудиозапись ${index + 1}`}</p>
                         </div>
                       ))}
                     </div>
@@ -278,26 +275,20 @@ function ProfilePage() {
 
                 <div className="portfolio-section">
                   <h3>Фотографии и сертификаты</h3>
-                  {profileUser.portfolio?.photos?.length > 0 ? (
+                  {profileData.portfolio?.photos?.length > 0 ? (
                     <div className="photos-grid">
-                      {profileUser.portfolio.photos.map((photo, index) => (
-                        // Для отображения фото с бэкенда нужно будет получить URL
-                        // <img key={index} src={photo.url} alt={`Фото ${index + 1}`} />
-                        <div key={index} className="photo-item">
-                          <p>Фото: {photo.filename || `photo_${index + 1}`}</p>
-                        </div>
+                      {profileData.portfolio.photos.map((photo, index) => (
+                        <img 
+                          key={index} 
+                          src={photo.url} 
+                          alt={photo.title || `Фото ${index + 1}`}
+                          className="portfolio-photo"
+                        />
                       ))}
                     </div>
                   ) : (
                     <p className="no-content">Фотографии не загружены</p>
                   )}
-                </div>
-
-                <div className="portfolio-section">
-                  <h3>Дополнительная информация</h3>
-                  <p className="portfolio-other">
-                    {profileUser.portfolio?.other || 'Дополнительная информация не добавлена'}
-                  </p>
                 </div>
               </div>
             )}
@@ -306,16 +297,12 @@ function ProfilePage() {
               <div className="tab-content">
                 <div className="contacts-grid">
                   <div className="contact-item">
-                    <span className="contact-label">Email:</span>
-                    <span className="contact-value">{profileUser.email}</span>
-                  </div>
-                  <div className="contact-item">
                     <span className="contact-label">Телефон:</span>
-                    <span className="contact-value">{profileUser.phone || 'Не указан'}</span>
+                    <span className="contact-value">{profileData.phone || 'Не указан'}</span>
                   </div>
                   <div className="contact-item">
                     <span className="contact-label">Telegram:</span>
-                    <span className="contact-value">{profileUser.telegram || 'Не указан'}</span>
+                    <span className="contact-value">{profileData.telegram || 'Не указан'}</span>
                   </div>
                 </div>
               </div>
