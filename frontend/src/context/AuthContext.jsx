@@ -39,7 +39,7 @@ export const AuthProvider = ({ children }) => {
 
     const userWithToken = { ...userToStore, token }; 
     setUser(userWithToken);
-    setIsNewUser(!userToStore.profileCompleted); 
+    setIsNewUser(!userToStore.profileCreated); 
     localStorage.setItem('musicianFinder_user', JSON.stringify(userToStore));
     localStorage.setItem('musicianFinder_token', token);
   };
@@ -59,8 +59,7 @@ export const AuthProvider = ({ children }) => {
     const updatedUser = {
       ...user,
       ...updatedData,
-      avatar: newAvatar,
-      profileCompleted: true
+      avatar: newAvatar
     };
     setUser(updatedUser);
     setIsNewUser(false);

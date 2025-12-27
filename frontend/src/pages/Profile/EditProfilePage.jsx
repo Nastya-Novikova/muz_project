@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { useFilters } from '../../context/useFilters';
+import { api } from '../../services/api';
 import Header from '../../components/Header/Header';
 import './EditProfilePage.css';
 
 function EditProfilePage() {
-  const { user, updateProfile } = useAuth();
+  const { user, updateProfile: updateAuthContext, getToken } = useAuth();
   const navigate = useNavigate();
+  const { activities, genres, cities } = useFilters();
   
   const [formData, setFormData] = useState({
     fullName: '',
@@ -22,7 +25,6 @@ function EditProfilePage() {
     portfolio: {
       audio: [],
       photos: [],
-      other: ''
     }
   });
 
@@ -30,45 +32,36 @@ function EditProfilePage() {
   const [avatarPreview, setAvatarPreview] = useState(user?.avatar || '');
   const [audioFiles, setAudioFiles] = useState([]);
   const [photoFiles, setPhotoFiles] = useState([]);
+  const [loading, setLoading] = useState(false); // Состояние загрузки
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    if (user) {
+    if (user && activities.length > 0 && genres.length > 0 && cities.length > 0) { // Убедитесь, что списки загружены
+      // Найти id по label
+      const activityId = activities.find(a => a.label === user.activityType)?.id || '';
+      const parsedActivityId = activityId !== undefined ? Number(activityId) : null;
+      const cityId = cities.find(c => c.label === user.city)?.id || '';
+      const parsedCityId = cityId !== undefined ? Number(cityId) : null;
+      const genreIds = Array.isArray(user.genres) ? user.genres
+        .map(genreLabel => genres.find(g => g.label === genreLabel)?.id)
+        .filter(id => id !== undefined) : [];// Убираем null, если были несовпадения
+
       setFormData({
         fullName: user.fullName || '',
         age: user.age || '',
-        activityType: user.activityType || '',
-        city: user.city || '',
+        activityType: parsedActivityId, // Сохраняем id
+        city: parsedCityId,           // Сохраняем id
         contact: user.contact || user.email || '',
         phone: user.phone || '',
         telegram: user.telegram || '',
-        genres: user.genres || [],
+        genres: genreIds,       // Сохраняем массив id
         experience: user.experience || '',
         description: user.description || '',
-        portfolio: user.portfolio || { audio: [], photos: [], other: '' }
+        portfolio: user.portfolio || { audio: [], photos: []}
       });
       setAvatarPreview(user.avatar);
     }
-  }, [user]);
-
-  const activityOptions = [
-    'Вокал', 'Гитара', 'Бас-гитара', 'Ударные', 
-    'Клавишные', 'Скрипка', 'Виолончель', 'Флейта',
-    'Саксофон', 'Труба', 'Композитор', 'Аранжировщик'
-  ];
-
-  const genreOptions = [
-    'Рок', 'Джаз', 'Поп', 'Хип-хоп', 'Блюз', 'Классика',
-    'Метал', 'Кантри', 'Электроника', 'R&B'
-  ];
-
-  const cityOptions = [
-    'Москва',
-    'Санкт-Петербург',
-    'Новосибирск',
-    'Екатеринбург',
-    'Казань',
-    'Нижний Новгород',
-  ];
+  }, [user, activities, genres, cities]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -78,12 +71,12 @@ function EditProfilePage() {
     }));
   };
 
-  const handleGenreToggle = (genre) => {
+  const handleGenreToggle = (genreId) => {
     setFormData(prev => ({
       ...prev,
-      genres: prev.genres.includes(genre)
-        ? prev.genres.filter(g => g !== genre)
-        : [...prev.genres, genre]
+      genres: prev.genres.includes(genreId)
+        ? prev.genres.filter(g => g !== genreId)
+        : [...prev.genres, genreId]
     }));
   };
 
@@ -117,22 +110,74 @@ function EditProfilePage() {
     setPhotoFiles(prev => prev.filter((_, i) => i !== index));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setError('');
     
-    const updatedUser = {
-      ...user,
-      ...formData,
-      avatar: avatarPreview,
-      profileCompleted: true
-    };
+    try {
+      const token = getToken();
 
-    const allUsers = JSON.parse(localStorage.getItem('musicianFinder_users') || '{}');
-    allUsers[user.email] = updatedUser;
-    localStorage.setItem('musicianFinder_users', JSON.stringify(allUsers));
+      const cityId= formData.city !== null && formData.city !== '' ? Number(formData.city) : null;
+      // specialtyIds - массив, даже если один элемент
+      const specialtyIds = formData.activityType !== null && formData.activityType !== '' ? [Number(formData.activityType)] : [];
+      // 1. Подготовка данных для профиля (без файлов)
+      const profileData = {
+        fullName: formData.fullName,
+        age: parseInt(formData.age, 10) || null,
+        description: formData.description,
+        phone: formData.phone,
+        telegram: formData.telegram || null,
+        experience: parseInt(formData.experience, 10) || null,
+        cityId: cityId, // Уже id
+        specialtyIds: specialtyIds, // Массив id
+        genreIds: formData.genres, // Уже массив id
+      };
 
-    updateProfile(updatedUser);
-    navigate('/profile');
+      // 2. Вызов ручки создания/обновления профиля (всегда первым)
+      let profileResponse;
+      if (!user.profileCreated) { // profileCreated === false
+        profileResponse = await api.createProfile(profileData, token);
+      } else { // profileCreated === true
+        profileResponse = await api.updateProfile(profileData, token);
+      }
+
+      // 3. Загрузка аватарки (если выбрана)
+      if (avatarFile) {
+        await api.uploadAvatar(avatarFile, token);
+      }
+
+      // 4. Загрузка аудио (если есть)
+      if (audioFiles.length > 0) {
+        for (const file of audioFiles) {
+          await api.uploadAudio(file, file.name, token); // Можно улучшить: передавать реальное имя или title из интерфейса
+        }
+      }
+
+      // 5. Загрузка фото (если есть) - не работает
+      /*if (photoFiles.length > 0) {
+      for (const file of photoFiles) {
+        await api.uploadPhoto(file, file.name, token);
+      }
+    }*/
+      // получение обновленного профиля
+      //const updatedProfile = await api.getProfile(token);
+
+      // 6. Обновление состояния в AuthContext
+      // Нужно получить обновлённый профиль с бэкенда, чтобы получить новые данные (например, id профиля, обновлённые списки и т.д.)
+      // const updatedProfileFromServer = await api.getProfile(); // Если бэкенд возвращает обновлённый профиль после создания/обновления
+      // updateAuthContext(updatedProfileFromServer, user.token); // Передаём обновлённый профиль и токен
+
+      // Пока обновляем локально, так как бэкенд возвращает обновлённый объект после create/update
+      //updateAuthContext(updatedProfile, user.token); 
+
+      // 7. Переход
+      navigate('/profile');
+    } catch (err) {
+      setError(err.message || 'Не удалось сохранить профиль');
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (!user) {
@@ -215,8 +260,10 @@ function EditProfilePage() {
                     className="city-select"
                   >
                     <option value="">Выберите город</option>
-                    {cityOptions.map(city => (
-                      <option key={city} value={city}>{city}</option>
+                    {cities.map(city => (
+                      <option key={city.id} value={city.id}>
+                        {city.name}
+                      </option>
                     ))}
                   </select>
                 </div>
@@ -269,8 +316,10 @@ function EditProfilePage() {
                   required
                 >
                   <option value="">Выберите вид деятельности</option>
-                  {activityOptions.map(activity => (
-                    <option key={activity} value={activity}>{activity}</option>
+                  {activities.map(activity => (
+                    <option key={activity.id} value={activity.id}>
+                      {activity.name}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -278,14 +327,14 @@ function EditProfilePage() {
               <div className="form-group mb">
                 <label>Жанры</label>
                 <div className="genre-tags">
-                  {genreOptions.map(genre => (
+                  {genres.map(genre => (
                     <button
-                      key={genre}
+                      key={genre.id}
                       type="button"
-                      className={`genre-tag ${formData.genres.includes(genre) ? 'selected' : ''}`}
-                      onClick={() => handleGenreToggle(genre)}
+                      className={`genre-tag ${formData.genres.includes(genre.id) ? 'selected' : ''}`}
+                      onClick={() => handleGenreToggle(genre.id)}
                     >
-                      {genre}
+                      {genre.name}
                     </button>
                   ))}
                 </div>
@@ -385,20 +434,6 @@ function EditProfilePage() {
                     </div>
                   )}
                 </div>
-              </div>
-              
-              <div className="form-group">
-                <label>Дополнительная информация</label>
-                <textarea
-                  name="portfolio.other"
-                  value={formData.portfolio.other}
-                  onChange={(e) => setFormData(prev => ({
-                    ...prev,
-                    portfolio: { ...prev.portfolio, other: e.target.value }
-                  }))}
-                  rows="3"
-                  placeholder="Ссылки на соцсети, дополнительные проекты..."
-                />
               </div>
             </div>
 

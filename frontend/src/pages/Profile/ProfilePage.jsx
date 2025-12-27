@@ -1,58 +1,59 @@
+// src/pages/Profile/ProfilePage.jsx
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { api } from '../../services/api'; // Импортируем api
 import Header from '../../components/Header/Header';
 import './ProfilePage.css';
 
 function ProfilePage() {
-  const { userId } = useParams();
-  const { user, logout } = useAuth();
+  const { userId } = useParams(); // userId - для просмотра чужого профиля
+  const { user: currentUser, getToken } = useAuth(); // currentUser - данные текущего пользователя из AuthContext
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('info');
   const [isFavorite, setIsFavorite] = useState(false);
-  const [profileUser, setProfileUser] = useState(null);
+  const [profileUser, setProfileUser] = useState(null); // Данные профиля для отображения
   const [isCollaborationSent, setIsCollaborationSent] = useState(false);
-
-  const mockOtherUsers = {
-    '2': {
-      id: '2',
-      fullName: 'Смирнова Анна Дмитриевна',
-      age: 26,
-      city: 'Москва',
-      avatar: 'https://ui-avatars.com/api/?name=Анна+Смирнова&background=f56565',
-      activityType: 'Вокал',
-      genres: ['Поп', 'Джаз', 'Соул'],
-      experience: 4,
-      description: 'Джазовая вокалистка, выпускница музыкального колледжа. Ищу бэнд для выступлений в клубах и на мероприятиях.',
-      email: 'anna.smirnova@example.com',
-      phone: '+7 (999) 987-65-43',
-      telegram: '@anna_vocal',
-      portfolio: {
-        audio: ['vocal_demo.mp3'],
-        photos: [],
-        other: 'Участвовала в джазовых фестивалях Москвы'
-      }
-    }
-  };
+  const [loading, setLoading] = useState(true); // Состояние загрузки
+  const [error, setError] = useState(''); // Состояние ошибки
 
   useEffect(() => {
-    if (userId) {
-      const otherUser = mockOtherUsers[userId] || mockOtherUsers['2'];
-      setProfileUser(otherUser);
-    
-      const favorites = JSON.parse(localStorage.getItem('musicianFinder_favorites') || '[]');
-      setIsFavorite(favorites.includes(userId));
-      
-      const collaborations = JSON.parse(localStorage.getItem('musicianFinder_collaborations') || '[]');
-      setIsCollaborationSent(collaborations.includes(userId));
-    } else {
-      setProfileUser(user);
-    }
-  }, [userId, user]);
+    const loadProfile = async () => {
+      setLoading(true);
+      setError('');
+      try {
+        if (!userId) {
+          // Просмотр своего профиля - используем данные из AuthContext
+          setProfileUser(currentUser);
+          // Состояния для своего профиля можно сбросить или не отображать
+          setIsFavorite(false);
+          setIsCollaborationSent(false);
+        } else {
+          // Просмотр чужого профиля - загружаем с бэкенда
+          const token = getToken();
+          // TODO: Вызовите метод API для получения профиля по userId
+          // const otherUserProfile = await api.getProfileById(userId, token); // Пример метода
+          // setProfileUser(otherUserProfile);
+
+          // Заглушка: пока нет метода getProfileById
+          setError('Просмотр чужого профиля пока не реализован');
+          setProfileUser(null);
+        }
+      } catch (err) {
+        console.error('Ошибка при загрузке профиля:', err);
+        setError(err.message || 'Не удалось загрузить профиль');
+        setProfileUser(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadProfile();
+  }, [userId, currentUser, getToken]); // Зависимости
 
   const isOwnProfile = !userId;
 
-  if (!user && !userId) {
+  if (!currentUser && !userId) {
     return (
       <>
         <Header />
@@ -74,34 +75,49 @@ function ProfilePage() {
   };
 
   const handleToggleFavorite = () => {
-    if (!userId) return;
-    
-    const favorites = JSON.parse(localStorage.getItem('musicianFinder_favorites') || '[]');
-    
-    if (isFavorite) {
-
-      const newFavorites = favorites.filter(id => id !== userId);
-      localStorage.setItem('musicianFinder_favorites', JSON.stringify(newFavorites));
-      setIsFavorite(false);
-    } else {
-
-      favorites.push(userId);
-      localStorage.setItem('musicianFinder_favorites', JSON.stringify(favorites));
-      setIsFavorite(true);
-    }
+    // TODO: Реализовать логику добавления/удаления из избранного
+    // const token = getToken();
+    // if (isFavorite) {
+    //   await api.removeFromFavorites(userId, token);
+    // } else {
+    //   await api.addToFavorites(userId, token);
+    // }
+    setIsFavorite(!isFavorite);
   };
 
   const handleCollaboration = () => {
-  if (!userId || isCollaborationSent) return;
+    // TODO: Реализовать логику отправки предложения сотрудничества
+    // const token = getToken();
+    // await api.sendCollaborationRequest(userId, token);
+    setIsCollaborationSent(true);
+  };
 
-  const collaborations = JSON.parse(localStorage.getItem('musicianFinder_collaborations') || '[]');
-  collaborations.push(userId);
-  localStorage.setItem('musicianFinder_collaborations', JSON.stringify(collaborations));
-  
-  setIsCollaborationSent(true);
+  if (loading) {
+    return (
+      <>
+        <Header />
+        <div className="profile-page">
+          <div className="profile-container">
+            <p>Загрузка...</p>
+          </div>
+        </div>
+      </>
+    );
+  }
 
-  console.log('Предложение сотрудничества отправлено пользователю:', userId);
-};
+  if (error) {
+    return (
+      <>
+        <Header />
+        <div className="profile-page">
+          <div className="profile-container">
+            <p>Ошибка: {error}</p>
+            <button onClick={handleBack} className="back-btn">Назад</button>
+          </div>
+        </div>
+      </>
+    );
+  }
 
   if (!profileUser) {
     return (
@@ -110,6 +126,7 @@ function ProfilePage() {
         <div className="profile-page">
           <div className="profile-container">
             <p>Пользователь не найден</p>
+            <button onClick={handleBack} className="back-btn">Назад</button>
           </div>
         </div>
       </>
@@ -146,7 +163,7 @@ function ProfilePage() {
             <div className="profile-actions">
               {isOwnProfile ? (
                 <button onClick={handleEditProfile} className="edit-profile-btn">
-                  <img 
+                  <img
                     src='/pencil.png'
                     alt='Редактировать профиль'
                     className='edit-profile-btn-img'
@@ -154,22 +171,22 @@ function ProfilePage() {
                 </button>
               ) : (
                 <div className="profile-actions-btn">
-                <button 
-                  onClick={handleToggleFavorite}
-                  className={`favorite-profile-btn ${isFavorite ? 'active' : ''}`}
-                >
-                  {isFavorite ? 'В избранном' : 'В избранное'}
-                </button>
-                <button onClick={handleBack} className="back-btn">
-                  Назад
-                </button>
-                <button 
-                  onClick={handleCollaboration}
-                  className={`collaboration-btn ${isCollaborationSent ? 'sent' : ''}`}
-                  disabled={isCollaborationSent}
-                >
-                  {isCollaborationSent ? 'Предложение направлено' : 'Предложить сотрудничество'}
-                </button>
+                  <button
+                    onClick={handleToggleFavorite}
+                    className={`favorite-profile-btn ${isFavorite ? 'active' : ''}`}
+                  >
+                    {isFavorite ? 'В избранном' : 'В избранное'}
+                  </button>
+                  <button onClick={handleBack} className="back-btn">
+                    Назад
+                  </button>
+                  <button
+                    onClick={handleCollaboration}
+                    className={`collaboration-btn ${isCollaborationSent ? 'sent' : ''}`}
+                    disabled={isCollaborationSent}
+                  >
+                    {isCollaborationSent ? 'Предложение направлено' : 'Предложить сотрудничество'}
+                  </button>
                 </div>
               )}
             </div>
@@ -177,19 +194,19 @@ function ProfilePage() {
 
           {/* Табы */}
           <div className="profile-tabs">
-            <button 
+            <button
               className={`tab-btn ${activeTab === 'info' ? 'active' : ''}`}
               onClick={() => setActiveTab('info')}
             >
               Основная информация
             </button>
-            <button 
+            <button
               className={`tab-btn ${activeTab === 'portfolio' ? 'active' : ''}`}
               onClick={() => setActiveTab('portfolio')}
             >
               Портфолио
             </button>
-            <button 
+            <button
               className={`tab-btn ${activeTab === 'contacts' ? 'active' : ''}`}
               onClick={() => setActiveTab('contacts')}
             >
@@ -207,7 +224,7 @@ function ProfilePage() {
                     {profileUser.description || 'Пользователь не добавил информацию о себе'}
                   </p>
                 </div>
-                
+
                 <div className="info-grid">
                   <div className="info-item">
                     <span className="info-label">Возраст:</span>
@@ -246,9 +263,11 @@ function ProfilePage() {
                       {profileUser.portfolio.audio.map((audio, index) => (
                         <div key={index} className="audio-item">
                           <span>Аудиозапись {index + 1}</span>
-                          <audio controls src={audio} className="audio-player">
-                            Ваш браузер не поддерживает аудио элемент.
-                          </audio>
+                          {/* Для воспроизведения аудио с бэкенда нужно будет получить URL */}
+                          {/* <audio controls src={audio.url}> */}
+                          {/*   Ваш браузер не поддерживает аудио элемент. */}
+                          {/* </audio> */}
+                          <p>Файл: {audio.filename || `audio_${index + 1}`}</p>
                         </div>
                       ))}
                     </div>
@@ -256,14 +275,16 @@ function ProfilePage() {
                     <p className="no-content">Аудиозаписи не загружены</p>
                   )}
                 </div>
-                
+
                 <div className="portfolio-section">
                   <h3>Фотографии и сертификаты</h3>
                   {profileUser.portfolio?.photos?.length > 0 ? (
                     <div className="photos-grid">
                       {profileUser.portfolio.photos.map((photo, index) => (
+                        // Для отображения фото с бэкенда нужно будет получить URL
+                        // <img key={index} src={photo.url} alt={`Фото ${index + 1}`} />
                         <div key={index} className="photo-item">
-                          <img src={photo} alt={`Фото ${index + 1}`} />
+                          <p>Фото: {photo.filename || `photo_${index + 1}`}</p>
                         </div>
                       ))}
                     </div>
@@ -271,7 +292,7 @@ function ProfilePage() {
                     <p className="no-content">Фотографии не загружены</p>
                   )}
                 </div>
-                
+
                 <div className="portfolio-section">
                   <h3>Дополнительная информация</h3>
                   <p className="portfolio-other">

@@ -30,7 +30,13 @@ services:
       POSTGRES_PASSWORD: postgres
     networks:
       - musician-net
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
 
 networks:
   musician-net:
     driver: bridge
+
+volumes:
+  pgdata:

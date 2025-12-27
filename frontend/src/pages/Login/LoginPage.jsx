@@ -60,8 +60,8 @@ function LoginOTP() {
       const response = await api.loginWithCode(email, code);
       if (response.success && response.token) {
         login(response.user, response.token);
-        setIsNewUser(!response.user.profileCompleted);
-        if (!response.user.profileCompleted) {
+        setIsNewUser(!response.user.profileCreated);
+        if (!response.user.profileCreated) {
           navigate('/profile/edit'); 
         } else {
           navigate('/');
