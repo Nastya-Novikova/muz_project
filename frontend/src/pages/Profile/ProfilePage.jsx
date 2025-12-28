@@ -7,7 +7,7 @@ import Header from '../../components/Header/Header';
 import './ProfilePage.css';
 
 function ProfilePage() {
-const { userId } = useParams();
+  const { userId } = useParams();
   const { getToken, logout, getUserEmail } = useAuth(); // logout для случая ошибки 401
   const navigate = useNavigate();
   
@@ -15,7 +15,26 @@ const { userId } = useParams();
   const [profileData, setProfileData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [isCheckingFavorite, setIsCheckingFavorite] = useState(false);
+  const [isCollaborationSent, setIsCollaborationSent] = useState(false);
+  const [sendingCollaboration, setSendingCollaboration] = useState(false);
 
+  // Проверяем, добавлен ли профиль в избранное
+  const checkFavoriteStatus = async (profileId, token) => {
+    if (!profileId || isOwnProfile) return;
+    
+    setIsCheckingFavorite(true);
+    try {
+      const response = await api.checkIsFavorite(profileId, token);
+      setIsFavorite(response.isFavorite || false);
+    } catch (err) {
+      console.error('Ошибка проверки избранного:', err);
+    } finally {
+      setIsCheckingFavorite(false);
+    }
+  };
+  
   useEffect(() => {
     const loadProfile = async () => {
       setLoading(true);
@@ -31,6 +50,7 @@ const { userId } = useParams();
         } else {
           const data = await api.getProfileById(userId, token);
           setProfileData(data);
+          await checkFavoriteStatus(userId, token);
         }
       } catch (err) {
         console.error('Ошибка загрузки профиля:', err);
@@ -62,23 +82,48 @@ const { userId } = useParams();
     navigate(-1);
   };
 
-  /*const handleToggleFavorite = () => {
-    // TODO: Реализовать логику добавления/удаления из избранного
-    // const token = getToken();
-    // if (isFavorite) {
-    //   await api.removeFromFavorites(userId, token);
-    // } else {
-    //   await api.addToFavorites(userId, token);
-    // }
-    setIsFavorite(!isFavorite);
-  };*/
+// Обработка кнопки "В избранное"/"Удалить из избранного"
+  const handleToggleFavorite = async () => {
+    if (isOwnProfile || !userId) return;
+    
+    try {
+      const token = getToken();
+      
+      if (isFavorite) {
+        // Удаляем из избранного
+        await api.removeFromFavorites(userId, token);
+        setIsFavorite(false);
+      } else {
+        // Добавляем в избранное
+        await api.addToFavorites(userId, token);
+        setIsFavorite(true);
+      }
+    } catch (err) {
+      console.error('Ошибка обновления избранного:', err);
+      alert('Не удалось обновить избранное');
+    }
+  };
 
-  /*const handleCollaboration = () => {
-    // TODO: Реализовать логику отправки предложения сотрудничества
-    // const token = getToken();
-    // await api.sendCollaborationRequest(userId, token);
-    setIsCollaborationSent(true);
-  };*/
+  // Обработка кнопки "Предложить сотрудничество"
+  const handleCollaboration = async () => {
+    if (isOwnProfile || !userId || isCollaborationSent) return;
+    
+    try {
+      const token = getToken();
+      setSendingCollaboration(true);
+      let message = "Предложение";
+      // Отправляем предложение
+      await api.sendSuggestion(userId, message, token);
+      setIsCollaborationSent(true);
+      alert('Предложение успешно отправлено!');
+      
+    } catch (err) {
+      console.error('Ошибка отправки предложения:', err);
+      alert('Не удалось отправить предложение');
+    } finally {
+      setSendingCollaboration(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -167,17 +212,29 @@ const { userId } = useParams();
               ) : (
                 <div className="profile-actions-btn">
                   <button
-                    className={`favorite-profile-btn`}
+                    onClick={handleToggleFavorite}
+                    className={`favorite-profile-btn ${isFavorite ? 'active' : ''}`}
+                    disabled={isCheckingFavorite}
                   >
-                    {'В избранное'}
+                    {isCheckingFavorite 
+                      ? 'Проверка...' 
+                      : isFavorite 
+                        ? 'В избранном' 
+                        : 'В избранное'}
                   </button>
                   <button onClick={handleBack} className="back-btn">
                     Назад
                   </button>
                   <button
-                    className={`collaboration-btn`}
+                    onClick={handleCollaboration}
+                    className={`collaboration-btn ${isCollaborationSent ? 'sent' : ''}`}
+                    disabled={isCollaborationSent || sendingCollaboration}
                   >
-                    {'Предложить сотрудничество'}
+                    {sendingCollaboration 
+                      ? 'Отправка...' 
+                      : isCollaborationSent 
+                        ? 'Предложение направлено' 
+                        : 'Предложить сотрудничество'}
                   </button>
                 </div>
               )}

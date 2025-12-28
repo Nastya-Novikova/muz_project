@@ -5,10 +5,7 @@ import { useNavigate } from 'react-router-dom';
 
 const UserCard = ({ 
   user,
-  showActions = true,
-  onFavoriteClick,
-  onProfileClick,
-  isFavorite = false
+  onProfileClick
 }) => {
 
   const navigate = useNavigate();
@@ -42,12 +39,6 @@ const UserCard = ({
     }
   };
 
-  const handleFavorite = () => {
-    if (onFavoriteClick) {
-      onFavoriteClick(transformedUser.id);
-    }
-  };
-  
   return (
     <div className='user-card'>
       {/* Шапка карточки */}
