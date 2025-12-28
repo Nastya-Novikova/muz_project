@@ -285,48 +285,64 @@ async getFavorites(token, page = 1, limit = 20) {
   return response.json();
 },
 
-// Добавить в избранное
-async addToFavorites(favoriteUserId, token) {
-  const response = await fetch(`${API_URL}/Favorites/${favoriteUserId}`, {
-    method: 'POST',
-    headers: getAuthHeaders(token)
-  });
+  // Добавить в избранное
+  async addToFavorites(favoriteUserId, token) {
+    const response = await fetch(`${API_URL}/Favorites/${favoriteUserId}`, {
+      method: 'POST',
+      headers: getAuthHeaders(token)
+    });
 
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({ message: 'HTTP error!' }));
-    throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ message: 'HTTP error!' }));
+      throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+    }
+
+    return response.json();
+  },
+
+  // Удалить из избранного
+  async removeFromFavorites(favoriteUserId, token) {
+    const response = await fetch(`${API_URL}/Favorites/${favoriteUserId}`, {
+      method: 'DELETE',
+      headers: getAuthHeaders(token)
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ message: 'HTTP error!' }));
+      throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+    }
+
+    return response.json();
+  },
+
+  // Проверить, добавлен ли пользователь в избранное
+  async checkIsFavorite(favoriteUserId, token) {
+    const response = await fetch(`${API_URL}/Favorites/${favoriteUserId}`, {
+      method: 'GET',
+      headers: getAuthHeaders(token)
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ message: 'HTTP error!' }));
+      throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+    }
+
+    return response.json();
+  },
+
+  async checkCollaboration(collaboratedProfileId, token) {
+    const response = await fetch(`${API_URL}/Collaborations/${collaboratedProfileId}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return response.json();
   }
-
-  return response.json();
-},
-
-// Удалить из избранного
-async removeFromFavorites(favoriteUserId, token) {
-  const response = await fetch(`${API_URL}/Favorites/${favoriteUserId}`, {
-    method: 'DELETE',
-    headers: getAuthHeaders(token)
-  });
-
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({ message: 'HTTP error!' }));
-    throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
-  }
-
-  return response.json();
-},
-
-// Проверить, добавлен ли пользователь в избранное
-async checkIsFavorite(favoriteUserId, token) {
-  const response = await fetch(`${API_URL}/Favorites/${favoriteUserId}`, {
-    method: 'GET',
-    headers: getAuthHeaders(token)
-  });
-
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({ message: 'HTTP error!' }));
-    throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
-  }
-
-  return response.json();
-}
 };

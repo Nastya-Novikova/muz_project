@@ -17,7 +17,7 @@ function ProfilePage() {
   const [error, setError] = useState('');
   const [isFavorite, setIsFavorite] = useState(false);
   const [isCheckingFavorite, setIsCheckingFavorite] = useState(false);
-  const [isCollaborationSent, setIsCollaborationSent] = useState(false);
+  const [isCollaboration, setIsCollaboration] = useState(false);
   const [sendingCollaboration, setSendingCollaboration] = useState(false);
   const [currentUserId, setCurrentUserId] = useState(null);
 
@@ -35,7 +35,21 @@ function ProfilePage() {
       setIsCheckingFavorite(false);
     }
   };
-  
+
+  const checkCollaborationStatus = async (profileId, token) => {
+    if (!profileId || isOwnProfile) return;
+    
+    setSendingCollaboration(true);
+    try {
+      const response = await api.checkCollaboration(profileId, token);
+      setIsCollaboration(response.isCollaborated || false);
+    } catch (err) {
+      console.error('Ошибка проверки избранного:', err);
+    } finally {
+      setSendingCollaboration(false);
+    }
+  };
+
   useEffect(() => {
     const loadProfile = async () => {
       setLoading(true);
@@ -54,13 +68,13 @@ function ProfilePage() {
           const isViewingOwnProfile = userId === myProfile.id;
           if (!isViewingOwnProfile) {
             await checkFavoriteStatus(userId, token);
+            await checkCollaborationStatus(userId, token);
           }
         }
       } catch (err) {
         console.error('Ошибка загрузки профиля:', err);
         
         if (err.message.includes('401') || err.message.includes('Unauthorized')) {
-          // Неавторизован - выходим
           logout();
           navigate('/login');
           return;
@@ -110,23 +124,20 @@ function ProfilePage() {
 
   // Обработка кнопки "Предложить сотрудничество"
   const handleCollaboration = async () => {
-    if (isOwnProfile || !userId || isCollaborationSent) return;
+    if (isOwnProfile || !userId || isCollaboration) return;
     
     try {
       const token = getToken();
-      setSendingCollaboration(true);
       let message = "Предложение";
-      // Отправляем предложение
-      await api.sendSuggestion(userId, message, token);
-      setIsCollaborationSent(true);
-      alert('Предложение успешно отправлено!');
       
+      if (!isCollaboration) {
+        await api.sendSuggestion(userId, message, token);
+        setIsCollaboration(true);
+      }
     } catch (err) {
       console.error('Ошибка отправки предложения:', err);
       alert('Не удалось отправить предложение');
-    } finally {
-      setSendingCollaboration(false);
-    }
+    } 
   };
 
   if (loading) {
@@ -231,12 +242,12 @@ function ProfilePage() {
                   </button>
                   <button
                     onClick={handleCollaboration}
-                    className={`collaboration-btn ${isCollaborationSent ? 'sent' : ''}`}
-                    disabled={isCollaborationSent || sendingCollaboration}
+                    className={`collaboration-btn ${isCollaboration ? 'sent' : ''}`}
+                    disabled={isCollaboration}
                   >
                     {sendingCollaboration 
                       ? 'Отправка...' 
-                      : isCollaborationSent 
+                      : isCollaboration 
                         ? 'Предложение направлено' 
                         : 'Предложить сотрудничество'}
                   </button>
