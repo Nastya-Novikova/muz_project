@@ -13,7 +13,7 @@ using backend.Data;
 namespace backend.Migrations
 {
     [DbContext(typeof(MusicianFinderDbContext))]
-    [Migration("20251228173940_InitialCreate")]
+    [Migration("20251228173847_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />

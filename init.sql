@@ -61,6 +61,19 @@ CREATE TABLE "MusicianProfiles" (
     CONSTRAINT "FK_MusicianProfiles_Cities_CityId" FOREIGN KEY ("CityId") REFERENCES "Cities" ("Id") ON DELETE CASCADE
 );
 
+CREATE TABLE "CollaborationSuggestions" (
+    "Id" uuid NOT NULL,
+    "FromProfileId" uuid NOT NULL,
+    "ToProfileId" uuid NOT NULL,
+    "Message" character varying(500),
+    "Status" text NOT NULL,
+    "CreatedAt" timestamp with time zone NOT NULL,
+    "UpdatedAt" timestamp with time zone NOT NULL,
+    CONSTRAINT "PK_CollaborationSuggestions" PRIMARY KEY ("Id"),
+    CONSTRAINT "FK_CollaborationSuggestions_MusicianProfiles_FromProfileId" FOREIGN KEY ("FromProfileId") REFERENCES "MusicianProfiles" ("Id") ON DELETE CASCADE,
+    CONSTRAINT "FK_CollaborationSuggestions_MusicianProfiles_ToProfileId" FOREIGN KEY ("ToProfileId") REFERENCES "MusicianProfiles" ("Id") ON DELETE CASCADE
+);
+
 CREATE TABLE "PortfolioAudio" (
     "Id" uuid NOT NULL,
     "ProfileId" uuid NOT NULL,
@@ -134,21 +147,6 @@ CREATE TABLE "Users" (
     "DeletedAt" timestamp with time zone,
     CONSTRAINT "PK_Users" PRIMARY KEY ("Id"),
     CONSTRAINT "FK_Users_MusicianProfiles_MusicianProfileId" FOREIGN KEY ("MusicianProfileId") REFERENCES "MusicianProfiles" ("Id")
-);
-
-CREATE TABLE "CollaborationSuggestions" (
-    "Id" uuid NOT NULL,
-    "FromProfileId" uuid NOT NULL,
-    "ToProfileId" uuid NOT NULL,
-    "Message" character varying(500),
-    "Status" text NOT NULL,
-    "CreatedAt" timestamp with time zone NOT NULL,
-    "UpdatedAt" timestamp with time zone NOT NULL,
-    "FromUserId" uuid NOT NULL,
-    "ToUserId" uuid NOT NULL,
-    CONSTRAINT "PK_CollaborationSuggestions" PRIMARY KEY ("Id"),
-    CONSTRAINT "FK_CollaborationSuggestions_Users_FromProfileId" FOREIGN KEY ("FromProfileId") REFERENCES "Users" ("Id") ON DELETE CASCADE,
-    CONSTRAINT "FK_CollaborationSuggestions_Users_ToProfileId" FOREIGN KEY ("ToProfileId") REFERENCES "Users" ("Id") ON DELETE CASCADE
 );
 
 INSERT INTO "Cities" ("Id", "LocalizedName", "Name")
@@ -257,7 +255,7 @@ SELECT setval(
     false);
 
 INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
-VALUES ('20251227143133_InitialCreate', '8.0.22');
+VALUES ('20251228173847_InitialCreate', '8.0.22');
 
 COMMIT;
 

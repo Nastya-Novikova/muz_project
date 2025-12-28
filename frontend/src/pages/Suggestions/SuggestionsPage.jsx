@@ -60,8 +60,11 @@ function SuggestionsPage() {
           if (tabName === 'favorites' && response.favorites) {
             return response.favorites;
           }
-          if ((tabName === 'received' || tabName === 'sent') && response.suggestions) {
-            return response.suggestions;
+          if (tabName === 'received' && response.fromProfile) {
+            return response.fromProfile;
+          }
+          if (tabName === 'sent' && response.toProfile) {
+            return response.toProfile;
           }
           if (response.results) {
             return response.results;
@@ -98,57 +101,6 @@ function SuggestionsPage() {
 
     loadAllData();
   }, [getToken, navigate]); // Зависимость только от токена и navigate
-
-  // Функция для обновления данных текущей вкладки (если нужно)
-  /*const refreshCurrentTab = async () => {
-    setTabLoading(true);
-    try {
-      const token = getToken();
-      if (!token) return;
-
-      let response;
-      
-      if (activeTab === 'received') {
-        response = await api.getReceivedSuggestions(token);
-        const users = extractUsersFromResponse(response, 'received');
-        setReceivedUsers(users);
-      } else if (activeTab === 'sent') {
-        response = await api.getSentSuggestions(token);
-        const users = extractUsersFromResponse(response, 'sent');
-        setSentUsers(users);
-      } else if (activeTab === 'favorites') {
-        response = await api.getFavorites(token);
-        const users = extractUsersFromResponse(response, 'favorites');
-        setFavoriteUsers(users);
-        
-        const ids = new Set(users.map(user => user.id));
-        setFavoriteIds(ids);
-      }
-    } catch (err) {
-      console.error('Ошибка обновления вкладки:', err);
-    } finally {
-      setTabLoading(false);
-    }
-  };
-
-  // Вспомогательная функция для извлечения пользователей
-  const extractUsersFromResponse = (response, tabName) => {
-    if (!response) return [];
-    
-    if (tabName === 'favorites' && response.favorites) {
-      return response.favorites;
-    }
-    if ((tabName === 'received' || tabName === 'sent') && response.suggestions) {
-      return response.suggestions;
-    }
-    if (response.results) {
-      return response.results;
-    }
-    if (Array.isArray(response)) {
-      return response;
-    }
-    return [];
-  };*/
 
   const handleUserProfileClick = (userId) => {
     navigate(`/profile/${userId}`);
