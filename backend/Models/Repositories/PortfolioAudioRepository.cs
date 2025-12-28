@@ -28,7 +28,7 @@ public class PortfolioAudioRepository : IPortfolioAudioRepository
 
     public async Task<List<PortfolioAudio>> GetByProfileIdAsync(Guid profileId)
     {
-        return await AudioFiles.Where(a => a.ProfileId == profileId).ToListAsync();
+        return await AudioFiles.Where(a => a.ProfileId == profileId).IgnoreAutoIncludes().ToListAsync();
     }
 
     public async Task<PortfolioAudio?> GetByIdAsync(Guid id)

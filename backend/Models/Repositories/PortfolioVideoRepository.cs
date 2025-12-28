@@ -28,7 +28,7 @@ public class PortfolioVideoRepository : IPortfolioVideoRepository
 
     public async Task<List<PortfolioVideo>> GetByProfileIdAsync(Guid profileId)
     {
-        return await VideoFiles.Where(a => a.ProfileId == profileId).ToListAsync();
+        return await VideoFiles.Where(a => a.ProfileId == profileId).IgnoreAutoIncludes().ToListAsync();
     }
 
     public async Task<PortfolioVideo?> GetByIdAsync(Guid id)

@@ -79,6 +79,17 @@ public class ProfilesController : ControllerBase
     }
 
     /// <summary>
+    /// Получить медиа контент портфолио пользователя
+    /// </summary>
+    [HttpGet("{id}/media")]
+    [Authorize]
+    public async Task<IActionResult> GetMedia(Guid id)
+    {
+        var obj = await _service.GetMediaByIdAsync(id);
+        return obj != null ? Ok(obj) : BadRequest();
+    }
+
+    /// <summary>
     /// Удалить профиль (soft-delete)
     /// </summary>
     [HttpDelete("{id}")]

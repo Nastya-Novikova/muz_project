@@ -11,4 +11,5 @@ public interface IProfileService
     Task<JsonDocument?> UpdateAsync(JsonDocument profileJson, Guid userId);
     Task<JsonDocument?> DeleteAsync(Guid id);
     Task<bool> UpdateAvatarAsync(Guid userId, byte[] avatarBytes);
+    Task<JsonDocument?> GetMediaByIdAsync(Guid id);
 }

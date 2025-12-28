@@ -21,9 +21,7 @@ public class ProfileService : IProfileService
     private readonly IGenreRepository _genreRepository;
     private readonly IMusicalSpecialtyRepository _specialtyRepository;
     private readonly ICollaborationGoalRepository _goalRepository;
-    private readonly IPortfolioPhotoRepository _portfolioPhotoRepository;
     private readonly IPortfolioAudioRepository _portfolioAudioRepository;
-    private readonly IPortfolioVideoRepository _portfolioVideoRepository;
     private readonly JsonSerializerOptions _options = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
     public ProfileService(
@@ -33,8 +31,6 @@ public class ProfileService : IProfileService
         IGenreRepository genreRepository,
         IMusicalSpecialtyRepository specialtyRepository,
         ICollaborationGoalRepository goalRepository,
-        IPortfolioPhotoRepository portfolioPhotoRepository,
-        IPortfolioVideoRepository portfolioVideoRepository,
         IPortfolioAudioRepository portfolioAudioRepository)
     {
         _profileRepository = profileRepository;
@@ -44,8 +40,6 @@ public class ProfileService : IProfileService
         _specialtyRepository = specialtyRepository;
         _goalRepository = goalRepository;
         _portfolioAudioRepository = portfolioAudioRepository;
-        _portfolioPhotoRepository = portfolioPhotoRepository;
-        _portfolioVideoRepository = portfolioVideoRepository;
     }
 
     public async Task<JsonDocument?> SearchAsync(JsonDocument searchParams)
@@ -127,10 +121,6 @@ public class ProfileService : IProfileService
             if (city == null) return null;
             profile.City = city;
 
-            var photos = await _portfolioPhotoRepository.GetByProfileIdAsync(profile.Id);
-            var videos = await _portfolioVideoRepository.GetByProfileIdAsync(profile.Id);
-            var audios = await _portfolioAudioRepository.GetByProfileIdAsync(profile.Id);
-
             var result = new
             {
                 profile.Id,
@@ -144,10 +134,7 @@ public class ProfileService : IProfileService
                 profile.Avatar,
                 Genres = profile.Genres.Select(g => LookupItemUtil.ToLookupItem(g)),
                 Specialties = profile.Specialties.Select(s => LookupItemUtil.ToLookupItem(s)),
-                CollaborationGoals = profile.CollaborationGoals.Select(g => LookupItemUtil.ToLookupItem(g)),
-                //photos,
-                //videos,
-                //audios
+                CollaborationGoals = profile.CollaborationGoals.Select(g => LookupItemUtil.ToLookupItem(g))
             };
             return JsonDocument.Parse(JsonSerializer.Serialize(result, _options));
         }
@@ -371,6 +358,39 @@ public class ProfileService : IProfileService
         catch
         {
             return false;
+        }
+    }
+
+    public async Task<JsonDocument?> GetMediaByIdAsync(Guid id)
+    {
+        try
+        {
+            var profile = await _profileRepository.GetByIdAsync(id);
+            if (profile == null) return null;
+
+            var audios = await _portfolioAudioRepository.GetByProfileIdAsync(profile.Id);
+
+            var result = new
+            {
+                Audios = audios.Select(a =>
+                {
+                    return new
+                    {
+                        a.Id,
+                        a.Title,
+                        a.Description,
+                        a.MimeType,
+                        a.CreatedAt,
+                        a.Duration,
+                        a.FileData
+                    };
+                })
+            };
+            return JsonDocument.Parse(JsonSerializer.Serialize(result, _options));
+        }
+        catch
+        {
+            return null;
         }
     }
 }
