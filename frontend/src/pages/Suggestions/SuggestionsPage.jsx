@@ -60,11 +60,8 @@ function SuggestionsPage() {
           if (tabName === 'favorites' && response.favorites) {
             return response.favorites;
           }
-          if (tabName === 'received' && response.fromProfile) {
-            return response.fromProfile;
-          }
-          if (tabName === 'sent' && response.toProfile) {
-            return response.toProfile;
+          if ((tabName === 'received' || tabName === 'sent') && response.suggestions) {
+            return response.suggestions.map(suggestion => suggestion.toProfile || suggestion.fromProfile);
           }
           if (response.results) {
             return response.results;

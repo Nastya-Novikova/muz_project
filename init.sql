@@ -255,7 +255,7 @@ SELECT setval(
     false);
 
 INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
-VALUES ('20251228175918_InitialCreate', '8.0.22');
+VALUES ('20251228181813_InitialCreate', '8.0.22');
 
 COMMIT;
 
