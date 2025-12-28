@@ -171,9 +171,6 @@ function HomePage() {
 
         <div className="cards-preview">
           <h2 className="preview-title">Результаты поиска</h2>         
-          {loading ? (
-            <div className="loading-spinner">Загрузка...</div>
-          ) : (
             <div className="cards-grid">
               {/* 2. Размещаем карточки пользователей из ответа */}
               {searchResults.length > 0 ? (
@@ -187,11 +184,10 @@ function HomePage() {
                 ))
               ) : (
                 <p className="no-results">
-                  {searchError ? 'Ошибка при поиске' : 'По вашему запросу ничего не найдено. Попробуйте изменить параметры.'}
+                  {searchError ? 'Ошибка при поиске' : 'Пока ничего не нашли. \nНачните поиск или измените параметры.'}
                 </p>
               )}
             </div>
-          )}
         </div>
       </div>
     </>

@@ -75,7 +75,7 @@ const UserCard = ({
           
           <div className="info-row">
             <span className="info-label-card">Стаж:</span>
-            <span className="info-value-card">{transformedUser.experience} {transformedUser.experience ? 'лет' : ''}</span>
+            <span className="info-value-card">{transformedUser.experience} {transformedUser.experience ? '': ''}</span>
           </div>
 
           {transformedUser.description && (

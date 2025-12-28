@@ -245,6 +245,7 @@ function EditProfilePage() {
                     onChange={handleInputChange}
                     required
                     placeholder="Введите ФИО"
+                    maxLength={100}
                   />
                 </div>
                 
@@ -299,7 +300,7 @@ function EditProfilePage() {
                     value={formData.phone}
                     onChange={handleInputChange}
                     required
-                    placeholder="+7 (999) 123-45-67"
+                    placeholder="+79991234567"
                   />
                 </div>
                 
@@ -311,6 +312,7 @@ function EditProfilePage() {
                     value={formData.telegram}
                     onChange={handleInputChange}
                     placeholder="@username"
+                    maxLength={50}
                   />
                 </div>
               </div>
@@ -377,6 +379,7 @@ function EditProfilePage() {
                   onChange={handleInputChange}
                   rows="4"
                   placeholder="Расскажите о себе, своих музыкальных предпочтениях, опыте..."
+                  maxLength={90}
                 />
               </div>
             </div>
