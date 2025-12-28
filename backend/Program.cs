@@ -164,12 +164,12 @@ namespace backend
             app.UseAuthentication();
             app.UseAuthorization();
             app.MapControllers();
+            using var scope = app.Services.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<MusicianFinderDbContext>();
+            db.Database.MigrateAsync();
 
             if (app.Environment.IsDevelopment())
             {
-                using var scope = app.Services.CreateScope();
-                var db = scope.ServiceProvider.GetRequiredService<MusicianFinderDbContext>();
-                db.Database.MigrateAsync();
                 app.UseSwagger();
                 app.UseSwaggerUI(Theme.UniversalDark);
             }

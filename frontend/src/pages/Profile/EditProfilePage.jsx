@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../context/AuthContext'; // Только для токена
+import { useFilters } from '../../context/useFilters';
+import { api } from '../../services/api';
 import Header from '../../components/Header/Header';
 import './EditProfilePage.css';
 
 function EditProfilePage() {
-  const { user, updateProfile } = useAuth();
+  const { getToken, getUserEmail } = useAuth(); // Только токен
   const navigate = useNavigate();
+  const { activities, genres, cities } = useFilters();
   
   const [formData, setFormData] = useState({
     fullName: '',
@@ -18,57 +21,70 @@ function EditProfilePage() {
     telegram: '',
     genres: [],
     experience: '',
-    description: '',
-    portfolio: {
-      audio: [],
-      photos: [],
-      other: ''
-    }
+    description: ''
   });
 
   const [avatarFile, setAvatarFile] = useState(null);
-  const [avatarPreview, setAvatarPreview] = useState(user?.avatar || '');
+  const [avatarPreview, setAvatarPreview] = useState('');
   const [audioFiles, setAudioFiles] = useState([]);
   const [photoFiles, setPhotoFiles] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [isCreating, setIsCreating] = useState(true); // Создаём или редактируем?
+  const [userEmail, setUserEmail] = useState('');
 
   useEffect(() => {
-    if (user) {
-      setFormData({
-        fullName: user.fullName || '',
-        age: user.age || '',
-        activityType: user.activityType || '',
-        city: user.city || '',
-        contact: user.contact || user.email || '',
-        phone: user.phone || '',
-        telegram: user.telegram || '',
-        genres: user.genres || [],
-        experience: user.experience || '',
-        description: user.description || '',
-        portfolio: user.portfolio || { audio: [], photos: [], other: '' }
-      });
-      setAvatarPreview(user.avatar);
-    }
-  }, [user]);
+    const loadExistingProfile = async () => {
+      try {
+        const token = getToken();
+        const email = getUserEmail();
+        setUserEmail(email);
+        // Пробуем загрузить существующий профиль
+        const existingProfile = await api.getProfile(token);
+        
+        if (existingProfile) {
+          setIsCreating(false); // Режим редактирования
+          
+          // Преобразуем данные с сервера в форму
+          setFormData({
+            fullName: existingProfile.fullName || '',
+            age: existingProfile.age || '',
+            activityType: existingProfile.specialties?.[0]?.id || '',
+            city: existingProfile.city?.id || '',
+            contact: email || '',
+            phone: existingProfile.phone || '',
+            telegram: existingProfile.telegram || '',
+            genres: existingProfile.genres?.map(g => g.id) || [],
+            experience: existingProfile.experience || '',
+            description: existingProfile.description || ''
+          });
+          
+          // Устанавливаем аватар если есть - аватар не содержится в возвращаемом объекте?
+          /*if (existingProfile.avatarUrl) {
+            setAvatarPreview(existingProfile.avatarUrl);
+          }*/
+        } else {
+          setFormData(prev => ({
+            ...prev,
+            contact: email || ''
+          }));
+        }
+      } catch (error) {
+        // Профиля нет - остаёмся в режиме создания
+        console.log('Профиль не найден, создаём новый');
+        setIsCreating(true);
 
-  const activityOptions = [
-    'Вокал', 'Гитара', 'Бас-гитара', 'Ударные', 
-    'Клавишные', 'Скрипка', 'Виолончель', 'Флейта',
-    'Саксофон', 'Труба', 'Композитор', 'Аранжировщик'
-  ];
+        const email = getUserEmail();
+        setUserEmail(email || '');
+        setFormData(prev => ({
+          ...prev,
+          contact: email || ''
+        }));
+      }
+    };
 
-  const genreOptions = [
-    'Рок', 'Джаз', 'Поп', 'Хип-хоп', 'Блюз', 'Классика',
-    'Метал', 'Кантри', 'Электроника', 'R&B'
-  ];
-
-  const cityOptions = [
-    'Москва',
-    'Санкт-Петербург',
-    'Новосибирск',
-    'Екатеринбург',
-    'Казань',
-    'Нижний Новгород',
-  ];
+    loadExistingProfile();
+  }, [getToken, getUserEmail, navigate]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -78,12 +94,12 @@ function EditProfilePage() {
     }));
   };
 
-  const handleGenreToggle = (genre) => {
+  const handleGenreToggle = (genreId) => {
     setFormData(prev => ({
       ...prev,
-      genres: prev.genres.includes(genre)
-        ? prev.genres.filter(g => g !== genre)
-        : [...prev.genres, genre]
+      genres: prev.genres.includes(genreId)
+        ? prev.genres.filter(g => g !== genreId)
+        : [...prev.genres, genreId]
     }));
   };
 
@@ -117,31 +133,70 @@ function EditProfilePage() {
     setPhotoFiles(prev => prev.filter((_, i) => i !== index));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setError('');
     
-    const updatedUser = {
-      ...user,
-      ...formData,
-      avatar: avatarPreview,
-      profileCompleted: true
-    };
+    try {
+      const token = getToken();
+      
+      // Подготовка данных для отправки на сервер
+      const profileData = {
+        fullName: formData.fullName,
+        age: formData.age ? parseInt(formData.age, 10) : null,
+        description: formData.description,
+        phone: formData.phone || null,
+        telegram: formData.telegram || null,
+        experience: formData.experience ? parseInt(formData.experience, 10) : null,
+        cityId: formData.city ? parseInt(formData.city, 10) : null,
+        specialtyIds: formData.activityType ? [parseInt(formData.activityType, 10)] : [],
+        genreIds: formData.genres.map(id => parseInt(id, 10))
+      };
 
-    const allUsers = JSON.parse(localStorage.getItem('musicianFinder_users') || '{}');
-    allUsers[user.email] = updatedUser;
-    localStorage.setItem('musicianFinder_users', JSON.stringify(allUsers));
+      // Сохраняем профиль
+      let profileResponse;
+      if (isCreating) {
+        profileResponse = await api.createProfile(profileData, token);
+      } else {
+        profileResponse = await api.updateProfile(profileData, token);
+      }
 
-    updateProfile(updatedUser);
-    navigate('/profile');
+      // Загружаем файлы если есть
+      /*if (avatarFile) {
+        await api.uploadAvatar(avatarFile, token);
+      }*/
+      
+      if (audioFiles.length > 0) {
+        for (const file of audioFiles) {
+          await api.uploadAudio(file, file.name, token);
+        }
+      }
+      
+      if (photoFiles.length > 0) {
+        for (const file of photoFiles) {
+          await api.uploadPhoto(file, file.name, token);
+        }
+      }
+
+      // Всё успешно - переходим на страницу профиля
+      navigate('/profile');
+      
+    } catch (err) {
+      setError(err.message || 'Не удалось сохранить профиль');
+      console.error('Ошибка сохранения:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  if (!user) {
+  if (loading) {
     return (
       <>
         <Header />
         <div className="edit-profile-page">
           <div className="edit-profile-container">
-            <p>Пожалуйста, войдите в систему</p>
+            <p>Загрузка...</p>
           </div>
         </div>
       </>
@@ -150,17 +205,19 @@ function EditProfilePage() {
 
   return (
     <>
-      <Header />
+      {isCreating ? null : <Header />}
       <div className="edit-profile-page">
         <div className="edit-profile-container">
-          <h2>Редактировать профиль</h2>
+          <h2>{isCreating ? 'Создать профиль' : 'Редактировать профиль'}</h2>
+          
+          {error && <div className="error-message">{error}</div>}
           
           <form onSubmit={handleSubmit} className="profile-form">
             {/* Аватар */}
             <div className="form-section">
               <div className="avatar-upload">
                 <div className="avatar-preview">
-                    <img src={avatarPreview} alt="Аватар" />
+                  <img src={avatarPreview || '/default-avatar.png'} alt="Аватар" />
                   <label className="upload-btn">
                     <input
                       type="file"
@@ -188,6 +245,7 @@ function EditProfilePage() {
                     onChange={handleInputChange}
                     required
                     placeholder="Введите ФИО"
+                    maxLength={100}
                   />
                 </div>
                 
@@ -215,31 +273,34 @@ function EditProfilePage() {
                     className="city-select"
                   >
                     <option value="">Выберите город</option>
-                    {cityOptions.map(city => (
-                      <option key={city} value={city}>{city}</option>
+                    {cities.map(city => (
+                      <option key={city.id} value={city.id}>
+                        {city.name}
+                      </option>
                     ))}
                   </select>
                 </div>
-                
+
                 <div className="form-group">
                   <label>Почта</label>
                   <input
                     type="email"
-                    value={user.email}
+                    value={userEmail}
                     disabled
                     className="disabled-input"
                   />
                 </div>
                 
                 <div className="form-group">
-                  <label>Телефон</label>
+                  <label>Телефон *</label>
                   <input
                     type="tel"
                     name="phone"
                     autoComplete='off'
                     value={formData.phone}
                     onChange={handleInputChange}
-                    placeholder="+7 (999) 123-45-67"
+                    required
+                    placeholder="+79991234567"
                   />
                 </div>
                 
@@ -251,6 +312,7 @@ function EditProfilePage() {
                     value={formData.telegram}
                     onChange={handleInputChange}
                     placeholder="@username"
+                    maxLength={50}
                   />
                 </div>
               </div>
@@ -269,8 +331,10 @@ function EditProfilePage() {
                   required
                 >
                   <option value="">Выберите вид деятельности</option>
-                  {activityOptions.map(activity => (
-                    <option key={activity} value={activity}>{activity}</option>
+                  {activities.map(activity => (
+                    <option key={activity.id} value={activity.id}>
+                      {activity.name}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -278,14 +342,14 @@ function EditProfilePage() {
               <div className="form-group mb">
                 <label>Жанры</label>
                 <div className="genre-tags">
-                  {genreOptions.map(genre => (
+                  {genres.map(genre => (
                     <button
-                      key={genre}
+                      key={genre.id}
                       type="button"
-                      className={`genre-tag ${formData.genres.includes(genre) ? 'selected' : ''}`}
-                      onClick={() => handleGenreToggle(genre)}
+                      className={`genre-tag ${formData.genres.includes(genre.id) ? 'selected' : ''}`}
+                      onClick={() => handleGenreToggle(genre.id)}
                     >
-                      {genre}
+                      {genre.name}
                     </button>
                   ))}
                 </div>
@@ -315,6 +379,7 @@ function EditProfilePage() {
                   onChange={handleInputChange}
                   rows="4"
                   placeholder="Расскажите о себе, своих музыкальных предпочтениях, опыте..."
+                  maxLength={90}
                 />
               </div>
             </div>
@@ -386,35 +451,22 @@ function EditProfilePage() {
                   )}
                 </div>
               </div>
-              
-              <div className="form-group">
-                <label>Дополнительная информация</label>
-                <textarea
-                  name="portfolio.other"
-                  value={formData.portfolio.other}
-                  onChange={(e) => setFormData(prev => ({
-                    ...prev,
-                    portfolio: { ...prev.portfolio, other: e.target.value }
-                  }))}
-                  rows="3"
-                  placeholder="Ссылки на соцсети, дополнительные проекты..."
-                />
-              </div>
             </div>
 
             <div className="form-actions">
-              <button
+              {isCreating ? null : (<button
                 type="button"
                 onClick={() => navigate('/profile')}
                 className="cancel-btn"
               >
                 Отмена
-              </button>
+              </button>)}
               <button
                 type="submit"
+                disabled={loading}
                 className="submit-btn"
               >
-                Сохранить
+                {loading ? 'Сохранение...' : 'Сохранить'}
               </button>
             </div>
           </form>

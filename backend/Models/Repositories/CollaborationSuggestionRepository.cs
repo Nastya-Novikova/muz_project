@@ -11,13 +11,13 @@ public class CollaborationSuggestionRepository : ICollaborationSuggestionReposit
     private readonly MusicianFinderDbContext _context;
     public DbSet<CollaborationSuggestion> Suggestions { get; set; }
 
-    private readonly IUserRepository _userRepository;
+    private readonly IProfileRepository _profileRepository;
 
-    public CollaborationSuggestionRepository(MusicianFinderDbContext context, IUserRepository userRepository)
+    public CollaborationSuggestionRepository(MusicianFinderDbContext context, IProfileRepository profileRepository)
     {
         _context = context;
         Suggestions = _context.Set<CollaborationSuggestion>();
-        _userRepository = userRepository;
+        _profileRepository = profileRepository;
     }
 
     public async Task AddAsync(CollaborationSuggestion suggestion)
@@ -28,8 +28,8 @@ public class CollaborationSuggestionRepository : ICollaborationSuggestionReposit
         if (suggestion.FromProfileId == suggestion.ToProfileId)
             throw new ApiException(400, "Нельзя отправить предложение самому себе", "SELF_SUGGESTION");
 
-        var fromUser = await _userRepository.GetByIdAsync(suggestion.FromProfileId);
-        var toUser = await _userRepository.GetByIdAsync(suggestion.ToProfileId);
+        var fromUser = await _profileRepository.GetByIdAsync(suggestion.FromProfileId);
+        var toUser = await _profileRepository.GetByIdAsync(suggestion.ToProfileId);
 
         if (fromUser == null)
             throw new ApiException(404, "Отправитель не найден", "FROM_USER_NOT_FOUND");
@@ -43,7 +43,7 @@ public class CollaborationSuggestionRepository : ICollaborationSuggestionReposit
     public async Task<List<CollaborationSuggestion>> GetReceivedAsync(Guid userId, int page = 1, int limit = 20, string? sortBy = "createdAt", bool sortDesc = true)
     {
         var query = Suggestions
-            .Include(s => s.FromUser)
+            .Include(s => s.FromProfile)
             .Where(s => s.ToProfileId == userId);
 
         query = ApplySorting(query, sortBy, sortDesc);
@@ -56,7 +56,7 @@ public class CollaborationSuggestionRepository : ICollaborationSuggestionReposit
     public async Task<List<CollaborationSuggestion>> GetSentAsync(Guid userId, int page = 1, int limit = 20, string? sortBy = "createdAt", bool sortDesc = true)
     {
         var query = Suggestions
-            .Include(s => s.ToUser)
+            .Include(s => s.ToProfile)
             .Where(s => s.FromProfileId == userId);
 
         query = ApplySorting(query, sortBy, sortDesc);

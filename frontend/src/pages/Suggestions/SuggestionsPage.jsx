@@ -1,100 +1,122 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
+import { api } from '../../services/api';
 import Header from '../../components/Header/Header';
 import UserCard from '../../components/UserCard/UserCard';
 import './SuggestionsPage.css';
 
 function SuggestionsPage() {
   const navigate = useNavigate();
+  const { getToken } = useAuth();
   const [activeTab, setActiveTab] = useState('received');
-  const [favorites, setFavorites] = useState(['1', '3']); 
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  
+  // Данные для всех вкладок
+  const [receivedUsers, setReceivedUsers] = useState([]);
+  const [sentUsers, setSentUsers] = useState([]);
+  const [favoriteUsers, setFavoriteUsers] = useState([]);
+  const [favoriteIds, setFavoriteIds] = useState(new Set());
+  
+  // Отдельное состояние для загрузки текущей вкладки
+  const [tabLoading, setTabLoading] = useState(false);
 
-const mockUsers = [
-  {
-    id: '1',
-    fullName: 'Петров Алексей Сергеевич',
-    age: 32,
-    avatar: 'https://ui-avatars.com/api/?name=Алексей+Петров&background=667eea',
-    activityType: 'Ударные',
-    genres: ['Рок', 'Метал', 'Хард-рок'],
-    experience: 8,
-    description: 'Профессиональный барабанщик с опытом выступлений на крупных площадках.',
-    city: 'Санкт-Петербург'
-  },
-  {
-    id: '2',
-    fullName: 'Смирнова Анна Дмитриевна',
-    age: 26,
-    avatar: 'https://ui-avatars.com/api/?name=Анна+Смирнова&background=f56565',
-    activityType: 'Вокал',
-    genres: ['Поп', 'Джаз', 'Соул'],
-    experience: 4,
-    description: 'Джазовая вокалистка, выпускница музыкального колледжа.',
-    city: 'Москва'
-  },
-  {
-    id: '3',
-    fullName: 'Козлов Денис Игоревич',
-    age: 35,
-    avatar: 'https://ui-avatars.com/api/?name=Денис+Козлов&background=48bb78',
-    activityType: 'Гитара, Композитор',
-    genres: ['Блюз', 'Рок', 'Фолк'],
-    experience: 12,
-    description: 'Гитарист-композитор. Пишу музыку в стиле блюз-рок.',
-    city: 'Екатеринбург'
-  },
-  {
-    id: '4',
-    fullName: 'Николаева Мария Павловна',
-    age: 29,
-    avatar: 'https://ui-avatars.com/api/?name=Мария+Николаева&background=ed8936',
-    activityType: 'Клавишные',
-    genres: ['Электроника', 'Эмбиент', 'Синт-поп'],
-    experience: 6,
-    description: 'Электронный музыкант, работаю с синтезаторами.',
-    city: 'Новосибирск'
-  },
-  {
-    id: '5',
-    fullName: 'Волков Игорь Александрович',
-    age: 40,
-    avatar: 'https://ui-avatars.com/api/?name=Игорь+Волков&background=4299e1',
-    activityType: 'Бас-гитара',
-    genres: ['Фанк', 'Диско', 'Соул'],
-    experience: 15,
-    description: 'Опытный бас-гитарист, специализируюсь на фанке и диско.',
-    city: 'Краснодар'
-  },
-  {
-    id: '6',
-    fullName: 'Федорова Екатерина Викторовна',
-    age: 24,
-    avatar: 'https://ui-avatars.com/api/?name=Екатерина+Федорова&background=9f7aea',
-    activityType: 'Скрипка',
-    genres: ['Классика', 'Неоклассика', 'Пост-рок'],
-    experience: 3,
-    description: 'Скрипачка, играю как классическую, так и современную музыку.',
-    city: 'Казань'
-  }
-];
+  // Загружаем ВСЕ данные при первом рендере
+  useEffect(() => {
+    const loadAllData = async () => {
+      setLoading(true);
+      setError('');
+      
+      try {
+        const token = getToken();
+        if (!token) {
+          navigate('/login');
+          return;
+        }
 
-  const mockSuggestions = {
-    received: mockUsers.slice(0, 3), 
-    sent: mockUsers.slice(3, 5), 
-    favorites: mockUsers.filter(user => favorites.includes(user.id)) 
-  };
+        console.log('=== Начало загрузки всех данных ===');
+        
+        // Загружаем все данные параллельно
+        const [receivedResponse, sentResponse, favoritesResponse] = await Promise.all([
+          api.getReceivedSuggestions(token).catch(err => {
+            console.error('Ошибка загрузки полученных предложений:', err);
+            return null;
+          }),
+          api.getSentSuggestions(token).catch(err => {
+            console.error('Ошибка загрузки отправленных предложений:', err);
+            return null;
+          }),
+          api.getFavorites(token).catch(err => {
+            console.error('Ошибка загрузки избранного:', err);
+            return null;
+          })
+        ]);
 
-  const handleFavoriteClick = (userId) => {
-    setFavorites(prev => 
-      prev.includes(userId) 
-        ? prev.filter(id => id !== userId)
-        : [...prev, userId]
-    );
-  };
+        // Извлекаем данные из ответов
+        const extractUsers = (response, tabName) => {
+          if (!response) return [];
+          
+          if (tabName === 'favorites' && response.favorites) {
+            return response.favorites;
+          }
+          if ((tabName === 'received' || tabName === 'sent') && response.suggestions) {
+            return response.suggestions.map(suggestion => suggestion.toProfile || suggestion.fromProfile);
+          }
+          if (response.results) {
+            return response.results;
+          }
+          if (Array.isArray(response)) {
+            return response;
+          }
+          return [];
+        };
 
-  const handleProfileClick = (userId) => {
+        const received = extractUsers(receivedResponse, 'received');
+        const sent = extractUsers(sentResponse, 'sent');
+        const favorites = extractUsers(favoritesResponse, 'favorites');
+
+        console.log('Загружено полученных предложений:', received.length);
+        console.log('Загружено отправленных предложений:', sent.length);
+        console.log('Загружено избранных:', favorites.length);
+
+        setReceivedUsers(received);
+        setSentUsers(sent);
+        setFavoriteUsers(favorites);
+        
+        // Сохраняем ID избранных пользователей
+        const ids = new Set(favorites.map(user => user.id));
+        setFavoriteIds(ids);
+
+      } catch (err) {
+        console.error('Общая ошибка загрузки данных:', err);
+        setError('Не удалось загрузить данные. Пожалуйста, обновите страницу.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadAllData();
+  }, [getToken, navigate]); // Зависимость только от токена и navigate
+
+  const handleUserProfileClick = (userId) => {
     navigate(`/profile/${userId}`);
   };
+
+  // Получаем данные для текущей вкладки
+  const getCurrentUsers = () => {
+    if (activeTab === 'received') return receivedUsers;
+    if (activeTab === 'sent') return sentUsers;
+    return favoriteUsers;
+  };
+
+  const currentUsers = getCurrentUsers();
+  const currentUsersCount = currentUsers.length;
+
+  // Счетчики для всех вкладок (для отображения в табах)
+  const receivedCount = receivedUsers.length;
+  const sentCount = sentUsers.length;
+  const favoritesCount = favoriteUsers.length;
 
   return (
     <>
@@ -103,15 +125,16 @@ const mockUsers = [
         <div className="suggestions-container">
           <h1 className="page-title">Предложения</h1>
           
-          {/* Табы */}
+          {/* Табы с счетчиками на ВСЕХ вкладках */}
           <div className="suggestions-tabs">
             <button 
               className={`tab ${activeTab === 'received' ? 'active' : ''}`}
               onClick={() => setActiveTab('received')}
             >
               Предложения мне
-              {mockSuggestions.received.length > 0 && (
-                <span className="tab-badge">{mockSuggestions.received.length}</span>
+              {/* Счетчик показывается всегда, даже если вкладка не активна */}
+              {receivedCount > 0 && (
+                <span className="tab-badge">{receivedCount}</span>
               )}
             </button>
             
@@ -120,6 +143,9 @@ const mockUsers = [
               onClick={() => setActiveTab('sent')}
             >
               Мои предложения
+              {sentCount > 0 && (
+                <span className="tab-badge">{sentCount}</span>
+              )}
             </button>
             
             <button 
@@ -127,79 +153,61 @@ const mockUsers = [
               onClick={() => setActiveTab('favorites')}
             >
               Избранное
-              <span className="tab-badge">{mockSuggestions.favorites.length}</span>
+              {favoritesCount > 0 && (
+                <span className="tab-badge">{favoritesCount}</span>
+              )}
             </button>
           </div>
 
           {/* Контент табов */}
           <div className="tab-content">
-            {activeTab === 'received' && (
-              <div className="suggestions-list">              
-                {mockSuggestions.received.length > 0 ? (
-                  <div className="cards-grid">
-                    {mockSuggestions.received.map(user => (
-                      <UserCard
-                        key={user.id}
-                        user={user}
-                        isFavorite={favorites.includes(user.id)}
-                        onFavoriteClick={handleFavoriteClick}
-                      />
-                    ))}
-                  </div>
-                ) : (
-                  <div className="empty-state">
-                    <div className="empty-icon">📭</div>
-                    <h3>Пока нет предложений</h3>
-                    <p>Обновите свой профиль, чтобы привлечь больше внимания</p>
+            {loading ? (
+              <div className="loading-spinner" style={{ textAlign: 'center', padding: '40px' }}>
+                Загрузка всех данных...
+              </div>
+            ) : error ? (
+              <div className="error-message" style={{ color: 'red', padding: '20px', textAlign: 'center' }}>
+                {error}
+              </div>
+            ) : (
+              <>
+                {tabLoading && (
+                  <div style={{ textAlign: 'center', padding: '10px', color: '#666' }}>
+                    Обновление данных...
                   </div>
                 )}
-              </div>
-            )}
-
-            {activeTab === 'sent' && (
-              <div className="suggestions-list">               
-                {mockSuggestions.sent.length > 0 ? (
-                  <div className="cards-grid">
-                    {mockSuggestions.sent.map(user => (
-                      <UserCard
-                        key={user.id}
-                        user={user}
-                        isFavorite={favorites.includes(user.id)}
-                        onFavoriteClick={handleFavoriteClick}
-                      />
-                    ))}
-                  </div>
-                ) : (
-                  <div className="empty-state">
-                    <div className="empty-icon">📤</div>
-                    <h3>Вы еще не отправили предложений</h3>
-                    <p>Найдите интересных музыкантов и предложите им сотрудничество</p>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {activeTab === 'favorites' && (
-              <div className="suggestions-list">               
-                {mockSuggestions.favorites.length > 0 ? (
-                  <div className="cards-grid">
-                    {mockSuggestions.favorites.map(user => (
-                      <UserCard
-                        key={user.id}
-                        user={user}
-                        isFavorite={favorites.includes(user.id)}
-                        onFavoriteClick={handleFavoriteClick}
-                      />
-                    ))}
-                  </div>
-                ) : (
-                  <div className="empty-state">
-                    <div className="empty-icon">⭐</div>
-                    <h3>Избранное пусто</h3>
-                    <p>Добавляйте понравившихся музыкантов в избранное</p>
-                  </div>
-                )}
-              </div>
+                
+                <div className="suggestions-list">              
+                  {currentUsersCount > 0 ? (
+                    <div className="cards-grid">
+                      {currentUsers.map((user) => (
+                        <UserCard
+                          key={user.id}
+                          user={user}
+                          onProfileClick={handleUserProfileClick}
+                        />
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="empty-state">
+                      <div className="empty-icon">
+                        {activeTab === 'received' ? '📭' : 
+                         activeTab === 'sent' ? '📤' : '⭐'}
+                      </div>
+                      <h3>
+                        {activeTab === 'received' ? 'Пока нет предложений' :
+                         activeTab === 'sent' ? 'Вы еще не отправили предложений' :
+                         'Избранное пусто'}
+                      </h3>
+                      <p>
+                        {activeTab === 'received' ? 'Обновите свой профиль, чтобы привлечь больше внимания' :
+                         activeTab === 'sent' ? 'Найдите интересных музыкантов и предложите им сотрудничество' :
+                         'Добавляйте понравившихся музыкантов в избранное'}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </>
             )}
           </div>
         </div>

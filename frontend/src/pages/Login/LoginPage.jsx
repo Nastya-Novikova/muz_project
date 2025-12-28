@@ -12,7 +12,7 @@ function LoginOTP() {
   const [timer, setTimer] = useState(60);
   const [error, setError] = useState('');
   const navigate = useNavigate();
-  const { login, setIsNewUser } = useAuth();
+  const { login } = useAuth();
 
   useEffect(() => {
     let interval = null;
@@ -59,9 +59,11 @@ function LoginOTP() {
     try {
       const response = await api.loginWithCode(email, code);
       if (response.success && response.token) {
+        // Логинимся - передаем user и token
         login(response.user, response.token);
-        setIsNewUser(!response.user.profileCompleted);
-        if (!response.user.profileCompleted) {
+        
+        // Проверяем, создан ли профиль
+        if (!response.user.profileCreated) {
           navigate('/profile/edit'); 
         } else {
           navigate('/');

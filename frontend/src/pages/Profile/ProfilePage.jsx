@@ -1,69 +1,82 @@
+// src/pages/Profile/ProfilePage.jsx
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { api } from '../../services/api'; // Импортируем api
 import Header from '../../components/Header/Header';
 import './ProfilePage.css';
 
 function ProfilePage() {
   const { userId } = useParams();
-  const { user, logout } = useAuth();
+  const { getToken, logout, getUserEmail } = useAuth(); // logout для случая ошибки 401
   const navigate = useNavigate();
+  
   const [activeTab, setActiveTab] = useState('info');
+  const [profileData, setProfileData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const [isFavorite, setIsFavorite] = useState(false);
-  const [profileUser, setProfileUser] = useState(null);
+  const [isCheckingFavorite, setIsCheckingFavorite] = useState(false);
   const [isCollaborationSent, setIsCollaborationSent] = useState(false);
+  const [sendingCollaboration, setSendingCollaboration] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState(null);
 
-  const mockOtherUsers = {
-    '2': {
-      id: '2',
-      fullName: 'Смирнова Анна Дмитриевна',
-      age: 26,
-      city: 'Москва',
-      avatar: 'https://ui-avatars.com/api/?name=Анна+Смирнова&background=f56565',
-      activityType: 'Вокал',
-      genres: ['Поп', 'Джаз', 'Соул'],
-      experience: 4,
-      description: 'Джазовая вокалистка, выпускница музыкального колледжа. Ищу бэнд для выступлений в клубах и на мероприятиях.',
-      email: 'anna.smirnova@example.com',
-      phone: '+7 (999) 987-65-43',
-      telegram: '@anna_vocal',
-      portfolio: {
-        audio: ['vocal_demo.mp3'],
-        photos: [],
-        other: 'Участвовала в джазовых фестивалях Москвы'
-      }
+  // Проверяем, добавлен ли профиль в избранное
+  const checkFavoriteStatus = async (profileId, token) => {
+    if (!profileId || isOwnProfile) return;
+    
+    setIsCheckingFavorite(true);
+    try {
+      const response = await api.checkIsFavorite(profileId, token);
+      setIsFavorite(response.isFavorite || false);
+    } catch (err) {
+      console.error('Ошибка проверки избранного:', err);
+    } finally {
+      setIsCheckingFavorite(false);
     }
   };
-
+  
   useEffect(() => {
-    if (userId) {
-      const otherUser = mockOtherUsers[userId] || mockOtherUsers['2'];
-      setProfileUser(otherUser);
-    
-      const favorites = JSON.parse(localStorage.getItem('musicianFinder_favorites') || '[]');
-      setIsFavorite(favorites.includes(userId));
+    const loadProfile = async () => {
+      setLoading(true);
+      setError('');
       
-      const collaborations = JSON.parse(localStorage.getItem('musicianFinder_collaborations') || '[]');
-      setIsCollaborationSent(collaborations.includes(userId));
-    } else {
-      setProfileUser(user);
-    }
-  }, [userId, user]);
+      try {
+        const token = getToken();
+        const myProfile = await api.getProfile(token);
+        setCurrentUserId(myProfile.id);
+        
+        if (!userId) {
+          setProfileData(myProfile);
+        } else {
+          const data = await api.getProfileById(userId, token);
+          setProfileData(data);
+          const isViewingOwnProfile = userId === myProfile.id;
+          if (!isViewingOwnProfile) {
+            await checkFavoriteStatus(userId, token);
+          }
+        }
+      } catch (err) {
+        console.error('Ошибка загрузки профиля:', err);
+        
+        if (err.message.includes('401') || err.message.includes('Unauthorized')) {
+          // Неавторизован - выходим
+          logout();
+          navigate('/login');
+          return;
+        }
+        
+        setError('Не удалось загрузить профиль. Пожалуйста, попробуйте позже.');
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const isOwnProfile = !userId;
+    loadProfile();
+  }, [userId, getToken, navigate, logout]);
 
-  if (!user && !userId) {
-    return (
-      <>
-        <Header />
-        <div className="profile-page">
-          <div className="profile-container">
-            <p>Пожалуйста, войдите в систему</p>
-          </div>
-        </div>
-      </>
-    );
-  }
+  const isOwnProfile = !userId || (userId && currentUserId && userId === currentUserId);
+  const userEmail = getUserEmail();
 
   const handleEditProfile = () => {
     navigate('/profile/edit');
@@ -73,43 +86,84 @@ function ProfilePage() {
     navigate(-1);
   };
 
-  const handleToggleFavorite = () => {
-    if (!userId) return;
+// Обработка кнопки "В избранное"/"Удалить из избранного"
+  const handleToggleFavorite = async () => {
+    if (isOwnProfile || !userId) return;
     
-    const favorites = JSON.parse(localStorage.getItem('musicianFinder_favorites') || '[]');
-    
-    if (isFavorite) {
-
-      const newFavorites = favorites.filter(id => id !== userId);
-      localStorage.setItem('musicianFinder_favorites', JSON.stringify(newFavorites));
-      setIsFavorite(false);
-    } else {
-
-      favorites.push(userId);
-      localStorage.setItem('musicianFinder_favorites', JSON.stringify(favorites));
-      setIsFavorite(true);
+    try {
+      const token = getToken();
+      
+      if (isFavorite) {
+        // Удаляем из избранного
+        await api.removeFromFavorites(userId, token);
+        setIsFavorite(false);
+      } else {
+        // Добавляем в избранное
+        await api.addToFavorites(userId, token);
+        setIsFavorite(true);
+      }
+    } catch (err) {
+      console.error('Ошибка обновления избранного:', err);
+      alert('Не удалось обновить избранное');
     }
   };
 
-  const handleCollaboration = () => {
-  if (!userId || isCollaborationSent) return;
+  // Обработка кнопки "Предложить сотрудничество"
+  const handleCollaboration = async () => {
+    if (isOwnProfile || !userId || isCollaborationSent) return;
+    
+    try {
+      const token = getToken();
+      setSendingCollaboration(true);
+      let message = "Предложение";
+      // Отправляем предложение
+      await api.sendSuggestion(userId, message, token);
+      setIsCollaborationSent(true);
+      alert('Предложение успешно отправлено!');
+      
+    } catch (err) {
+      console.error('Ошибка отправки предложения:', err);
+      alert('Не удалось отправить предложение');
+    } finally {
+      setSendingCollaboration(false);
+    }
+  };
 
-  const collaborations = JSON.parse(localStorage.getItem('musicianFinder_collaborations') || '[]');
-  collaborations.push(userId);
-  localStorage.setItem('musicianFinder_collaborations', JSON.stringify(collaborations));
-  
-  setIsCollaborationSent(true);
+  if (loading) {
+    return (
+      <>
+        <Header />
+        <div className="profile-page">
+          <div className="profile-container">
+            <div className="loading-spinner">Загрузка...</div>
+          </div>
+        </div>
+      </>
+    );
+  }
 
-  console.log('Предложение сотрудничества отправлено пользователю:', userId);
-};
+  if (error) {
+    return (
+      <>
+        <Header />
+        <div className="profile-page">
+          <div className="profile-container">
+            <p>Ошибка: {error}</p>
+            <button onClick={handleBack} className="back-btn">Назад</button>
+          </div>
+        </div>
+      </>
+    );
+  }
 
-  if (!profileUser) {
+  if (!profileData) {
     return (
       <>
         <Header />
         <div className="profile-page">
           <div className="profile-container">
             <p>Пользователь не найден</p>
+            <button onClick={handleBack} className="back-btn">Назад</button>
           </div>
         </div>
       </>
@@ -124,29 +178,36 @@ function ProfilePage() {
           {/* Шапка профиля */}
           <div className="profile-header">
             <div className="profile-main-info">
-              <img src={profileUser.avatar} alt={profileUser.fullName} className="profile-avatar" />
+              <img 
+                src={'/default-avatar.png'} //profileData.avatarUrl || 
+                alt={profileData.fullName}
+                className="profile-avatar" 
+              />
               <div className="profile-info">
-                <h1>{profileUser.fullName || 'Не указано'}</h1>
-                <p className="profile-email">{profileUser.email}</p>
+                <h1>{profileData.fullName || 'Не указано'}</h1>
+                {isOwnProfile && userEmail && (
+                  <p className="profile-email">{userEmail}</p>
+                )}
                 <p className="profile-activity">
-                  {profileUser.age && `${profileUser.age} лет`}
-                  {profileUser.activityType && ` • ${profileUser.activityType}`}
-                  {profileUser.experience && ` • Стаж: ${profileUser.experience}`}
-                  {profileUser.city && ` • ${profileUser.city}`}
+                  {profileData.age && `${profileData.age} лет`}
+                  {profileData.specialties?.[0]?.localizedName && ` • ${profileData.specialties[0].localizedName}`}
+                  {profileData.experience && ` • Стаж: ${profileData.experience}`}
+                  {profileData.city?.localizedName && ` • ${profileData.city.localizedName}`}
                 </p>
                 <div className="profile-genres">
-                  {profileUser.genres?.map(genre => (
-                    <span key={genre} className="genre-tag">{genre}</span>
+                  {profileData.genres?.map(genre => (
+                    <span key={genre.id} className="genre-tag">
+                      {genre.localizedName || genre.name}
+                    </span>
                   ))}
                 </div>
               </div>
             </div>
 
-            {/* Кнопки действий */}
             <div className="profile-actions">
               {isOwnProfile ? (
                 <button onClick={handleEditProfile} className="edit-profile-btn">
-                  <img 
+                  <img
                     src='/pencil.png'
                     alt='Редактировать профиль'
                     className='edit-profile-btn-img'
@@ -154,22 +215,31 @@ function ProfilePage() {
                 </button>
               ) : (
                 <div className="profile-actions-btn">
-                <button 
-                  onClick={handleToggleFavorite}
-                  className={`favorite-profile-btn ${isFavorite ? 'active' : ''}`}
-                >
-                  {isFavorite ? 'В избранном' : 'В избранное'}
-                </button>
-                <button onClick={handleBack} className="back-btn">
-                  Назад
-                </button>
-                <button 
-                  onClick={handleCollaboration}
-                  className={`collaboration-btn ${isCollaborationSent ? 'sent' : ''}`}
-                  disabled={isCollaborationSent}
-                >
-                  {isCollaborationSent ? 'Предложение направлено' : 'Предложить сотрудничество'}
-                </button>
+                  <button
+                    onClick={handleToggleFavorite}
+                    className={`favorite-profile-btn ${isFavorite ? 'active' : ''}`}
+                    disabled={isCheckingFavorite}
+                  >
+                    {isCheckingFavorite 
+                      ? 'Проверка...' 
+                      : isFavorite 
+                        ? 'В избранном' 
+                        : 'В избранное'}
+                  </button>
+                  <button onClick={handleBack} className="back-btn">
+                    Назад
+                  </button>
+                  <button
+                    onClick={handleCollaboration}
+                    className={`collaboration-btn ${isCollaborationSent ? 'sent' : ''}`}
+                    disabled={isCollaborationSent || sendingCollaboration}
+                  >
+                    {sendingCollaboration 
+                      ? 'Отправка...' 
+                      : isCollaborationSent 
+                        ? 'Предложение направлено' 
+                        : 'Предложить сотрудничество'}
+                  </button>
                 </div>
               )}
             </div>
@@ -177,19 +247,19 @@ function ProfilePage() {
 
           {/* Табы */}
           <div className="profile-tabs">
-            <button 
+            <button
               className={`tab-btn ${activeTab === 'info' ? 'active' : ''}`}
               onClick={() => setActiveTab('info')}
             >
               Основная информация
             </button>
-            <button 
+            <button
               className={`tab-btn ${activeTab === 'portfolio' ? 'active' : ''}`}
               onClick={() => setActiveTab('portfolio')}
             >
               Портфолио
             </button>
-            <button 
+            <button
               className={`tab-btn ${activeTab === 'contacts' ? 'active' : ''}`}
               onClick={() => setActiveTab('contacts')}
             >
@@ -204,33 +274,35 @@ function ProfilePage() {
                 <div className="info-section">
                   <h3>О себе</h3>
                   <p className="profile-description">
-                    {profileUser.description || 'Пользователь не добавил информацию о себе'}
+                    {profileData.description || 'Пользователь не добавил информацию о себе'}
                   </p>
                 </div>
-                
+
                 <div className="info-grid">
                   <div className="info-item">
                     <span className="info-label">Возраст:</span>
-                    <span className="info-value">{profileUser.age || 'Не указан'}</span>
+                    <span className="info-value">{profileData.age || 'Не указан'}</span>
                   </div>
                   <div className="info-item">
                     <span className="info-label">Город:</span>
-                    <span className="info-value">{profileUser.city || 'Не указан'}</span>
+                    <span className="info-value">{profileData.city?.localizedName || 'Не указан'}</span>
                   </div>
                   <div className="info-item">
                     <span className="info-label">Вид деятельности:</span>
-                    <span className="info-value">{profileUser.activityType || 'Не указан'}</span>
+                    <span className="info-value">
+                      {profileData.specialties?.map(s => s.localizedName).join(', ') || 'Не указан'}
+                    </span>
                   </div>
                   <div className="info-item">
                     <span className="info-label">Стаж:</span>
                     <span className="info-value">
-                      {profileUser.experience ? `${profileUser.experience} лет` : 'Не указан'}
+                      {profileData.experience ? `${profileData.experience} лет` : 'Не указан'}
                     </span>
                   </div>
                   <div className="info-item">
                     <span className="info-label">Жанры:</span>
                     <span className="info-value">
-                      {profileUser.genres?.length > 0 ? profileUser.genres.join(', ') : 'Не указаны'}
+                      {profileData.genres?.map(g => g.localizedName).join(', ') || 'Не указаны'}
                     </span>
                   </div>
                 </div>
@@ -241,14 +313,14 @@ function ProfilePage() {
               <div className="tab-content">
                 <div className="portfolio-section">
                   <h3>Аудиозаписи</h3>
-                  {profileUser.portfolio?.audio?.length > 0 ? (
+                  {profileData.portfolio?.audio?.length > 0 ? (
                     <div className="audio-list">
-                      {profileUser.portfolio.audio.map((audio, index) => (
+                      {profileData.portfolio.audio.map((audio, index) => (
                         <div key={index} className="audio-item">
-                          <span>Аудиозапись {index + 1}</span>
-                          <audio controls src={audio} className="audio-player">
+                          <audio controls src={audio.url}>
                             Ваш браузер не поддерживает аудио элемент.
                           </audio>
+                          <p>{audio.title || `Аудиозапись ${index + 1}`}</p>
                         </div>
                       ))}
                     </div>
@@ -256,27 +328,23 @@ function ProfilePage() {
                     <p className="no-content">Аудиозаписи не загружены</p>
                   )}
                 </div>
-                
+
                 <div className="portfolio-section">
                   <h3>Фотографии и сертификаты</h3>
-                  {profileUser.portfolio?.photos?.length > 0 ? (
+                  {profileData.portfolio?.photos?.length > 0 ? (
                     <div className="photos-grid">
-                      {profileUser.portfolio.photos.map((photo, index) => (
-                        <div key={index} className="photo-item">
-                          <img src={photo} alt={`Фото ${index + 1}`} />
-                        </div>
+                      {profileData.portfolio.photos.map((photo, index) => (
+                        <img 
+                          key={index} 
+                          src={photo.url} 
+                          alt={photo.title || `Фото ${index + 1}`}
+                          className="portfolio-photo"
+                        />
                       ))}
                     </div>
                   ) : (
                     <p className="no-content">Фотографии не загружены</p>
                   )}
-                </div>
-                
-                <div className="portfolio-section">
-                  <h3>Дополнительная информация</h3>
-                  <p className="portfolio-other">
-                    {profileUser.portfolio?.other || 'Дополнительная информация не добавлена'}
-                  </p>
                 </div>
               </div>
             )}
@@ -285,16 +353,12 @@ function ProfilePage() {
               <div className="tab-content">
                 <div className="contacts-grid">
                   <div className="contact-item">
-                    <span className="contact-label">Email:</span>
-                    <span className="contact-value">{profileUser.email}</span>
-                  </div>
-                  <div className="contact-item">
                     <span className="contact-label">Телефон:</span>
-                    <span className="contact-value">{profileUser.phone || 'Не указан'}</span>
+                    <span className="contact-value">{profileData.phone || 'Не указан'}</span>
                   </div>
                   <div className="contact-item">
                     <span className="contact-label">Telegram:</span>
-                    <span className="contact-value">{profileUser.telegram || 'Не указан'}</span>
+                    <span className="contact-value">{profileData.telegram || 'Не указан'}</span>
                   </div>
                 </div>
               </div>

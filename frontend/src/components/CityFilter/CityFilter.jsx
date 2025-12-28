@@ -27,13 +27,34 @@ const CityFilter = ({
   const toggleDropdown = () => setIsOpen(!isOpen);
 
   const handleCitySelect = (city) => {
-    onCityChange(city === allCitiesText ? '' : city);
+    // Если city - это специальный вариант "Все города" или null/undefined
+    if (city === allCitiesText || !city) {
+      onCityChange('');
+    } else {
+      // city теперь объект {id: number, name: string, localizedName: string}
+      // Передаем ID города
+      onCityChange(city.id); // или просто city.id, если хотите число
+    }
     setIsOpen(false);
   };
 
   const clearCity = () => {
     onCityChange('');
     setIsOpen(false);
+  };
+
+  // Находим выбранный город для отображения названия
+  const getSelectedCityName = () => {
+    if (!selectedCity) return placeholder;
+    
+    // Ищем город по ID
+    const foundCity = cities.find(city => 
+      city.id.toString() === selectedCity.toString()
+    );
+    
+    return foundCity 
+      ? (foundCity.localizedName || foundCity.name)
+      : placeholder;
   };
 
   return (
@@ -46,7 +67,7 @@ const CityFilter = ({
           onClick={toggleDropdown}
         >
           <span className="city-filter-placeholder">
-            {selectedCity || placeholder}
+            {getSelectedCityName()}
           </span>
           <span className={`city-filter-arrow ${isOpen ? 'open' : ''}`}>
             ▼
@@ -68,27 +89,28 @@ const CityFilter = ({
         {isOpen && (
           <div className="city-filter-dropdown">
             <div className="city-filter-options">
+              {/* Вариант "Все города" */}
               <button
                 type="button"
                 className={`city-option ${!selectedCity ? 'selected' : ''}`}
-                onClick={() => handleCitySelect(allCitiesText)}
+                onClick={() => handleCitySelect(null)}
               >
                 {allCitiesText}
               </button>
               
-              {cities.map((city, index) => {
-                const cityName = typeof city === 'string' ? city : city.localizedName || city.name;
-                return (
-                  <button
-                    key={index}
-                    type="button"
-                    className={`city-option ${selectedCity === cityName ? 'selected' : ''}`}
-                    onClick={() => handleCitySelect(cityName)}
-                  >
-                    {cityName}
-                  </button>
-                );
-              })}
+              {/* Список городов с объектами */}
+              {cities.map((city) => (
+                <button
+                  key={city.id}
+                  type="button"
+                  className={`city-option ${
+                    selectedCity === city.id.toString() ? 'selected' : ''
+                  }`}
+                  onClick={() => handleCitySelect(city)} // Передаем объект города
+                >
+                  {city.localizedName || city.name}
+                </button>
+              ))}
             </div>
           </div>
         )}

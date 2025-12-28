@@ -50,9 +50,9 @@ public class CollaborationSuggestion
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
     // === Навигационные свойства ===
-    [ForeignKey("FromUserId")]
-    public User FromUser { get; set; } = null!;
+    [ForeignKey("FromProfileId")]
+    public MusicianProfile FromProfile { get; set; } = null!;
 
-    [ForeignKey("ToUserId")]
-    public User ToUser { get; set; } = null!;
+    [ForeignKey("ToProfileId")]
+    public MusicianProfile ToProfile { get; set; } = null!;
 }

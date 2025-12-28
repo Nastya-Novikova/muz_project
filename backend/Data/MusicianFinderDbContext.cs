@@ -79,15 +79,15 @@ namespace backend.Data
                 .HasForeignKey(p => p.ProfileId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // === CollaborationSuggestion → User ===
+            // === CollaborationSuggestion → MusicianProfile ===
             modelBuilder.Entity<CollaborationSuggestion>()
-                .HasOne(s => s.FromUser)
+                .HasOne(s => s.FromProfile)
                 .WithMany()
                 .HasForeignKey(s => s.FromProfileId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<CollaborationSuggestion>()
-                .HasOne(s => s.ToUser)
+                .HasOne(s => s.ToProfile)
                 .WithMany()
                 .HasForeignKey(s => s.ToProfileId)
                 .OnDelete(DeleteBehavior.Cascade);

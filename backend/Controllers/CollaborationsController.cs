@@ -25,11 +25,11 @@ public class CollaborationsController : ControllerBase
     /// Отправить предложение о сотрудничестве
     /// </summary>
     [HttpPost("{userId}")]
-    public async Task<IActionResult> SendSuggestion(Guid profileId, [FromBody] JsonDocument objJson)
+    public async Task<IActionResult> SendSuggestion(Guid userId, [FromBody] JsonDocument objJson)
     {
         var fromUserId = GetUserId();
         var message = objJson.RootElement.TryGetProperty("message", out var m) ? m.GetString() : null;
-        var result = await _service.SendSuggestionAsync(fromUserId, profileId, message);
+        var result = await _service.SendSuggestionAsync(fromUserId, userId, message);
         return result != null ? Ok(result) : BadRequest();
     }
 
@@ -55,6 +55,17 @@ public class CollaborationsController : ControllerBase
         var userId = GetUserId();
         var result = await _service.GetSentAsync(userId, queryParams);
         return result != null ? Ok(result) : BadRequest();
+    }
+
+    /// <summary>
+    /// Проверить, отправлено ли пользователю предложение
+    /// </summary>
+    [HttpGet("{collaboratedProfileId}")]
+    public async Task<IActionResult> IsCollaborated(Guid collaboratedProfileId)
+    {
+        var userId = GetUserId();
+        var isCollaborated = await _service.IsCollaboratedAsync(userId, collaboratedProfileId);
+        return Ok(new { isCollaborated });
     }
 
     private Guid GetUserId()

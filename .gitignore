@@ -435,9 +435,12 @@ bin/
 obj/
 Debug/
 Release/
+/backend/Migrations/
+backend/Migrations/
 *.sln
 *.suo
 *.user
 *.userosscache
 *.vs/
 *.vscode/
+/init.sql

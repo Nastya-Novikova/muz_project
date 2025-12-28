@@ -2,6 +2,7 @@
 using backend.Models.Classes;
 using backend.Models.Repositories.Interfaces;
 using backend.Services.Interfaces;
+using backend.Services.Utils;
 
 namespace backend.Services;
 
@@ -10,17 +11,22 @@ public class CollaborationService : ICollaborationService
     private readonly ICollaborationSuggestionRepository _suggestionRepository;
     private readonly IUserRepository _userRepository;
     private readonly IProfileRepository _profileRepository;
+    private readonly ICityRepository _cityRepository;
+    /*private readonly IGenreRepository _genreRepository;
+    private readonly IMusicalSpecialtyRepository _specialtyRepository;
+    private readonly ICollaborationGoalRepository _goalRepository;*/
 
     private readonly JsonSerializerOptions _options = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
     public CollaborationService(
         ICollaborationSuggestionRepository suggestionRepository,
         IUserRepository userRepository,
-        IProfileRepository profileRepository)
+        IProfileRepository profileRepository, ICityRepository cityRepository)
     {
         _suggestionRepository = suggestionRepository;
         _userRepository = userRepository;
         _profileRepository = profileRepository;
+        _cityRepository = cityRepository;
     }
 
     public async Task<JsonDocument?> SendSuggestionAsync(Guid userId, Guid toProfileId, string? message)
@@ -38,7 +44,7 @@ public class CollaborationService : ICollaborationService
                 Id = Guid.NewGuid(),
                 FromProfileId = fromProfile.Id,
                 ToProfileId = toProfile.Id,
-                Message = message
+                Message = message ?? string.Empty
             };
 
             await _suggestionRepository.AddAsync(suggestion);
@@ -64,9 +70,34 @@ public class CollaborationService : ICollaborationService
             if (user == null || user.MusicianProfile == null) return null;
             var profile = await _profileRepository.GetByIdAsync(user.MusicianProfile.Id);
             if (profile == null) return null;
-            var suggestions = await _suggestionRepository.GetReceivedAsync(profile.Id, page, limit, sortBy, sortDesc);
-            var result = new { suggestions };
-            return JsonDocument.Parse(JsonSerializer.Serialize(result, _options));
+            var result = await _suggestionRepository.GetReceivedAsync(profile.Id, page, limit, sortBy, sortDesc);
+            var suggestions = result.Select(suggestion =>
+            {
+                if (suggestion == null) return null;
+                var profile = _profileRepository.GetByIdAsync(suggestion.FromProfileId).Result;
+                if (profile == null) return null;
+                return new
+                {
+                    FromProfile = new {
+                    profile.Id,
+                    profile.FullName,
+                    profile.Description,
+                    profile.Phone,
+                    profile.Telegram,
+                    profile.City,
+                    profile.Experience,
+                    profile.Age,
+                    profile.Avatar,
+                    Genres = profile.Genres.Select(g => LookupItemUtil.ToLookupItem(g)),
+                    Specialties = profile.Specialties.Select(s => LookupItemUtil.ToLookupItem(s)),
+                    CollaborationGoals = profile.CollaborationGoals.Select(g => LookupItemUtil.ToLookupItem(g))
+                    },
+                    suggestion.Message,
+                    suggestion.Status,
+                    suggestion.CreatedAt
+                };
+            });
+            return JsonDocument.Parse(JsonSerializer.Serialize(new { suggestions }, _options));
         }
         catch
         {
@@ -88,13 +119,57 @@ public class CollaborationService : ICollaborationService
             if (user == null || user.MusicianProfile == null) return null;
             var profile = await _profileRepository.GetByIdAsync(user.MusicianProfile.Id);
             if (profile == null) return null;
-            var suggestions = await _suggestionRepository.GetSentAsync(profile.Id, page, limit, sortBy, sortDesc);
-            var result = new { suggestions };
-            return JsonDocument.Parse(JsonSerializer.Serialize(result, _options));
+            var result = await _suggestionRepository.GetSentAsync(profile.Id, page, limit, sortBy, sortDesc);
+            var suggestions = result.Select(suggestion =>
+            {
+                if (suggestion == null) return null;
+                var profile = _profileRepository.GetByIdAsync(suggestion.ToProfileId).Result;
+                if (profile == null) return null;
+                return new
+                {
+                    ToProfile = new
+                    {
+                        profile.Id,
+                        profile.FullName,
+                        profile.Description,
+                        profile.Phone,
+                        profile.Telegram,
+                        profile.City,
+                        profile.Experience,
+                        profile.Age,
+                        profile.Avatar,
+                        Genres = profile.Genres.Select(g => LookupItemUtil.ToLookupItem(g)),
+                        Specialties = profile.Specialties.Select(s => LookupItemUtil.ToLookupItem(s)),
+                        CollaborationGoals = profile.CollaborationGoals.Select(g => LookupItemUtil.ToLookupItem(g))
+                    },
+                    suggestion.Message,
+                    suggestion.Status,
+                    suggestion.CreatedAt
+                };
+            });
+            return JsonDocument.Parse(JsonSerializer.Serialize(new { suggestions }, _options));
         }
         catch
         {
             return null;
+        }
+    }
+
+    public async Task<bool> IsCollaboratedAsync(Guid userId, Guid collaboratedProfileId)
+    {
+        try
+        {
+            var user = await _userRepository.GetByIdAsync(userId);
+            if (user == null || user.MusicianProfile == null) return false;
+            var profile = await _profileRepository.GetByIdAsync(user.MusicianProfile.Id);
+            var profileCollaborated = await _profileRepository.GetByIdAsync(collaboratedProfileId);
+            if (profileCollaborated == null || profile == null) return false;
+
+            return (await _suggestionRepository.GetSentAsync(profile.Id)).Select(o => o.ToProfile).Contains(profileCollaborated) == true;
+        }
+        catch
+        {
+            return false;
         }
     }
 }

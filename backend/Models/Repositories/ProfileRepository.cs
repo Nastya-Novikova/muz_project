@@ -183,6 +183,6 @@ public class ProfileRepository : IProfileRepository
 
     public async Task<List<MusicianProfile>> GetProfilesByIdsAsync(List<Guid> ids)
     {
-        return await MusicianProfiles.Where(u => ids.Contains(u.Id) && !u.IsDeleted).ToListAsync();
+        return await MusicianProfiles.Where(u => ids.Contains(u.Id) && !u.IsDeleted).Include(o => o.City).Include(o => o.Genres).Include(o => o.CollaborationGoals).Include(o => o.Specialties).Include(o => o.Genres).ToListAsync();
     }
 }

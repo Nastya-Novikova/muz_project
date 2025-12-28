@@ -327,13 +327,13 @@ public class ProfileService : IProfileService
                 existing.City,
                 existing.Experience,
                 existing.Age,
-                existing.Avatar,
+                //existing.Avatar,
                 Genres = existing.Genres.Select(g => LookupItemUtil.ToLookupItem(g)),
                 Specialties = existing.Specialties.Select(s => LookupItemUtil.ToLookupItem(s)),
                 CollaborationGoals = existing.CollaborationGoals.Select(g => LookupItemUtil.ToLookupItem(g)),
-                existing.Photos,
-                existing.VideoFiles,
-                existing.AudioFiles
+                //existing.Photos,
+                //existing.VideoFiles,
+                //existing.AudioFiles
             };
             return JsonDocument.Parse(JsonSerializer.Serialize(result, _options));
         }
