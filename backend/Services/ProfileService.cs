@@ -145,9 +145,9 @@ public class ProfileService : IProfileService
                 Genres = profile.Genres.Select(g => LookupItemUtil.ToLookupItem(g)),
                 Specialties = profile.Specialties.Select(s => LookupItemUtil.ToLookupItem(s)),
                 CollaborationGoals = profile.CollaborationGoals.Select(g => LookupItemUtil.ToLookupItem(g)),
-                photos,
-                videos,
-                audios
+                //photos,
+                //videos,
+                //audios
             };
             return JsonDocument.Parse(JsonSerializer.Serialize(result, _options));
         }
@@ -327,13 +327,10 @@ public class ProfileService : IProfileService
                 existing.City,
                 existing.Experience,
                 existing.Age,
-                //existing.Avatar,
+                existing.Avatar,
                 Genres = existing.Genres.Select(g => LookupItemUtil.ToLookupItem(g)),
                 Specialties = existing.Specialties.Select(s => LookupItemUtil.ToLookupItem(s)),
                 CollaborationGoals = existing.CollaborationGoals.Select(g => LookupItemUtil.ToLookupItem(g)),
-                //existing.Photos,
-                //existing.VideoFiles,
-                //existing.AudioFiles
             };
             return JsonDocument.Parse(JsonSerializer.Serialize(result, _options));
         }
