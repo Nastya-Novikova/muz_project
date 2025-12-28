@@ -66,7 +66,7 @@ public class FavoriteService : IFavoriteService
             var favoriteIds = allFavoriteIds.Skip((page - 1) * limit).Take(limit).ToList();
             var result = await _profileRepository.GetProfilesByIdsAsync(favoriteIds);
 
-            var favorites = result.Select(async profile =>
+            var favorites = result.Select(profile =>
             {
                 return new
                 {
