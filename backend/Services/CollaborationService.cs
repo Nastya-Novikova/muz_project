@@ -66,10 +66,10 @@ public class CollaborationService : ICollaborationService
             var profile = await _profileRepository.GetByIdAsync(user.MusicianProfile.Id);
             if (profile == null) return null;
             var result = await _suggestionRepository.GetReceivedAsync(profile.Id, page, limit, sortBy, sortDesc);
-            var suggestions = result.Select(async suggestion =>
+            var suggestions = result.Select(suggestion =>
             {
                 if (suggestion == null) return null;
-                var profile = await _profileRepository.GetByIdAsync(suggestion.FromProfileId);
+                var profile = _profileRepository.GetByIdAsync(suggestion.FromProfileId).Result;
                 if (profile == null) return null;
                 return new
                 {
@@ -115,10 +115,10 @@ public class CollaborationService : ICollaborationService
             var profile = await _profileRepository.GetByIdAsync(user.MusicianProfile.Id);
             if (profile == null) return null;
             var result = await _suggestionRepository.GetSentAsync(profile.Id, page, limit, sortBy, sortDesc);
-            var suggestions = result.Select(async suggestion =>
+            var suggestions = result.Select(suggestion =>
             {
                 if (suggestion == null) return null;
-                var profile = await _profileRepository.GetByIdAsync(suggestion.ToProfileId);
+                var profile = _profileRepository.GetByIdAsync(suggestion.ToProfileId).Result;
                 if (profile == null) return null;
                 return new
                 {
