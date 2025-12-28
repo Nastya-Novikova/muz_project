@@ -205,7 +205,7 @@ function EditProfilePage() {
 
   return (
     <>
-      <Header />
+      {isCreating ? null : <Header />}
       <div className="edit-profile-page">
         <div className="edit-profile-container">
           <h2>{isCreating ? 'Создать профиль' : 'Редактировать профиль'}</h2>
@@ -454,13 +454,13 @@ function EditProfilePage() {
             </div>
 
             <div className="form-actions">
-              <button
+              {isCreating ? null : (<button
                 type="button"
                 onClick={() => navigate('/profile')}
                 className="cancel-btn"
               >
                 Отмена
-              </button>
+              </button>)}
               <button
                 type="submit"
                 disabled={loading}

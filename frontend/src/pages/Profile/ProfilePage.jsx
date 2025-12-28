@@ -19,6 +19,7 @@ function ProfilePage() {
   const [isCheckingFavorite, setIsCheckingFavorite] = useState(false);
   const [isCollaborationSent, setIsCollaborationSent] = useState(false);
   const [sendingCollaboration, setSendingCollaboration] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState(null);
 
   // Проверяем, добавлен ли профиль в избранное
   const checkFavoriteStatus = async (profileId, token) => {
@@ -42,15 +43,18 @@ function ProfilePage() {
       
       try {
         const token = getToken();
+        const myProfile = await api.getProfile(token);
+        setCurrentUserId(myProfile.id);
         
         if (!userId) {
-          // Загружаем свой профиль
-          const data = await api.getProfile(token);
-          setProfileData(data);
+          setProfileData(myProfile);
         } else {
           const data = await api.getProfileById(userId, token);
           setProfileData(data);
-          await checkFavoriteStatus(userId, token);
+          const isViewingOwnProfile = userId === myProfile.id;
+          if (!isViewingOwnProfile) {
+            await checkFavoriteStatus(userId, token);
+          }
         }
       } catch (err) {
         console.error('Ошибка загрузки профиля:', err);
@@ -71,7 +75,7 @@ function ProfilePage() {
     loadProfile();
   }, [userId, getToken, navigate, logout]);
 
-  const isOwnProfile = !userId;
+  const isOwnProfile = !userId || (userId && currentUserId && userId === currentUserId);
   const userEmail = getUserEmail();
 
   const handleEditProfile = () => {
