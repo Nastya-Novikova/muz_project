@@ -443,3 +443,4 @@ backend/Migrations/
 *.userosscache
 *.vs/
 *.vscode/
+/init.sql
