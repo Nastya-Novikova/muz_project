@@ -255,11 +255,7 @@ SELECT setval(
     false);
 
 INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
-<<<<<<< HEAD
-VALUES ('20251228173847_InitialCreate', '8.0.22');
-=======
-VALUES ('20251228174122_InitialCreate', '8.0.22');
->>>>>>> 3cad9560afa3b0fa73d47d66f714ee78e739eb5f
+VALUES ('20251228175918_InitialCreate', '8.0.22');
 
 COMMIT;
 
