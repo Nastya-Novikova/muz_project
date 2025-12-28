@@ -43,7 +43,7 @@ public class CollaborationSuggestionRepository : ICollaborationSuggestionReposit
     public async Task<List<CollaborationSuggestion>> GetReceivedAsync(Guid userId, int page = 1, int limit = 20, string? sortBy = "createdAt", bool sortDesc = true)
     {
         var query = Suggestions
-            .Include(s => s.FromUser)
+            .Include(s => s.FromProfile)
             .Where(s => s.ToProfileId == userId);
 
         query = ApplySorting(query, sortBy, sortDesc);
@@ -56,7 +56,7 @@ public class CollaborationSuggestionRepository : ICollaborationSuggestionReposit
     public async Task<List<CollaborationSuggestion>> GetSentAsync(Guid userId, int page = 1, int limit = 20, string? sortBy = "createdAt", bool sortDesc = true)
     {
         var query = Suggestions
-            .Include(s => s.ToUser)
+            .Include(s => s.ToProfile)
             .Where(s => s.FromProfileId == userId);
 
         query = ApplySorting(query, sortBy, sortDesc);

@@ -13,7 +13,7 @@ using backend.Data;
 namespace backend.Migrations
 {
     [DbContext(typeof(MusicianFinderDbContext))]
-    [Migration("20251227143133_InitialCreate")]
+    [Migration("20251228173940_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -193,9 +193,6 @@ namespace backend.Migrations
                     b.Property<Guid>("FromProfileId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("FromUserId")
-                        .HasColumnType("uuid");
-
                     b.Property<string>("Message")
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
@@ -205,9 +202,6 @@ namespace backend.Migrations
                         .HasColumnType("text");
 
                     b.Property<Guid>("ToProfileId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("ToUserId")
                         .HasColumnType("uuid");
 
                     b.Property<DateTime>("UpdatedAt")
@@ -659,21 +653,21 @@ namespace backend.Migrations
 
             modelBuilder.Entity("backend.Models.Classes.CollaborationSuggestion", b =>
                 {
-                    b.HasOne("backend.Models.Classes.User", "FromUser")
+                    b.HasOne("backend.Models.Classes.MusicianProfile", "FromProfile")
                         .WithMany()
                         .HasForeignKey("FromProfileId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("backend.Models.Classes.User", "ToUser")
+                    b.HasOne("backend.Models.Classes.MusicianProfile", "ToProfile")
                         .WithMany()
                         .HasForeignKey("ToProfileId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("FromUser");
+                    b.Navigation("FromProfile");
 
-                    b.Navigation("ToUser");
+                    b.Navigation("ToProfile");
                 });
 
             modelBuilder.Entity("backend.Models.Classes.MusicianProfile", b =>

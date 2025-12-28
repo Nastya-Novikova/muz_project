@@ -116,6 +116,35 @@ namespace backend.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "CollaborationSuggestions",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    FromProfileId = table.Column<Guid>(type: "uuid", nullable: false),
+                    ToProfileId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Message = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    Status = table.Column<string>(type: "text", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CollaborationSuggestions", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_CollaborationSuggestions_MusicianProfiles_FromProfileId",
+                        column: x => x.FromProfileId,
+                        principalTable: "MusicianProfiles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_CollaborationSuggestions_MusicianProfiles_ToProfileId",
+                        column: x => x.ToProfileId,
+                        principalTable: "MusicianProfiles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "PortfolioAudio",
                 columns: table => new
                 {
@@ -279,37 +308,6 @@ namespace backend.Migrations
                         column: x => x.MusicianProfileId,
                         principalTable: "MusicianProfiles",
                         principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "CollaborationSuggestions",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    FromProfileId = table.Column<Guid>(type: "uuid", nullable: false),
-                    ToProfileId = table.Column<Guid>(type: "uuid", nullable: false),
-                    Message = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
-                    Status = table.Column<string>(type: "text", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    FromUserId = table.Column<Guid>(type: "uuid", nullable: false),
-                    ToUserId = table.Column<Guid>(type: "uuid", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_CollaborationSuggestions", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_CollaborationSuggestions_Users_FromProfileId",
-                        column: x => x.FromProfileId,
-                        principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_CollaborationSuggestions_Users_ToProfileId",
-                        column: x => x.ToProfileId,
-                        principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.InsertData(
