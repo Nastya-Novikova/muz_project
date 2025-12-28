@@ -25,11 +25,11 @@ public class CollaborationsController : ControllerBase
     /// Отправить предложение о сотрудничестве
     /// </summary>
     [HttpPost("{userId}")]
-    public async Task<IActionResult> SendSuggestion(Guid profileId, [FromBody] JsonDocument objJson)
+    public async Task<IActionResult> SendSuggestion(Guid userId, [FromBody] JsonDocument objJson)
     {
         var fromUserId = GetUserId();
         var message = objJson.RootElement.TryGetProperty("message", out var m) ? m.GetString() : null;
-        var result = await _service.SendSuggestionAsync(fromUserId, profileId, message);
+        var result = await _service.SendSuggestionAsync(fromUserId, userId, message);
         return result != null ? Ok(result) : BadRequest();
     }
 

@@ -11,6 +11,10 @@ public class CollaborationService : ICollaborationService
     private readonly ICollaborationSuggestionRepository _suggestionRepository;
     private readonly IUserRepository _userRepository;
     private readonly IProfileRepository _profileRepository;
+    private readonly ICityRepository _cityRepository;
+    private readonly IGenreRepository _genreRepository;
+    private readonly IMusicalSpecialtyRepository _specialtyRepository;
+    private readonly ICollaborationGoalRepository _goalRepository;
 
     private readonly JsonSerializerOptions _options = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
@@ -66,7 +70,7 @@ public class CollaborationService : ICollaborationService
             var profile = await _profileRepository.GetByIdAsync(user.MusicianProfile.Id);
             if (profile == null) return null;
             var result = await _suggestionRepository.GetReceivedAsync(profile.Id, page, limit, sortBy, sortDesc);
-            var suggestions = result.Select(suggestion =>
+            var suggestions = result.Select(async suggestion =>
             {
                 if (suggestion == null) return null;
                 var profile = _profileRepository.GetByIdAsync(suggestion.FromProfileId).Result;
@@ -79,6 +83,7 @@ public class CollaborationService : ICollaborationService
                     profile.Description,
                     profile.Phone,
                     profile.Telegram,
+                    //City = await  profile.City.Id,
                     profile.City,
                     profile.Experience,
                     profile.Age,
