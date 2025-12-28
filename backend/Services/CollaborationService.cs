@@ -12,20 +12,21 @@ public class CollaborationService : ICollaborationService
     private readonly IUserRepository _userRepository;
     private readonly IProfileRepository _profileRepository;
     private readonly ICityRepository _cityRepository;
-    private readonly IGenreRepository _genreRepository;
+    /*private readonly IGenreRepository _genreRepository;
     private readonly IMusicalSpecialtyRepository _specialtyRepository;
-    private readonly ICollaborationGoalRepository _goalRepository;
+    private readonly ICollaborationGoalRepository _goalRepository;*/
 
     private readonly JsonSerializerOptions _options = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
     public CollaborationService(
         ICollaborationSuggestionRepository suggestionRepository,
         IUserRepository userRepository,
-        IProfileRepository profileRepository)
+        IProfileRepository profileRepository, ICityRepository cityRepository)
     {
         _suggestionRepository = suggestionRepository;
         _userRepository = userRepository;
         _profileRepository = profileRepository;
+        _cityRepository = cityRepository;
     }
 
     public async Task<JsonDocument?> SendSuggestionAsync(Guid userId, Guid toProfileId, string? message)
@@ -70,7 +71,6 @@ public class CollaborationService : ICollaborationService
             var profile = await _profileRepository.GetByIdAsync(user.MusicianProfile.Id);
             if (profile == null) return null;
             var result = await _suggestionRepository.GetReceivedAsync(profile.Id, page, limit, sortBy, sortDesc);
-            var city = await _cityRepository.GetByIdAsync(profile.City.Id)
             var suggestions = result.Select(async suggestion =>
             {
                 if (suggestion == null) return null;
@@ -134,7 +134,7 @@ public class CollaborationService : ICollaborationService
                         profile.Description,
                         profile.Phone,
                         profile.Telegram,
-                        profile.City,
+                        City = _cityRepository.GetByIdAsync(profile.City.Id),
                         profile.Experience,
                         profile.Age,
                         profile.Avatar,
