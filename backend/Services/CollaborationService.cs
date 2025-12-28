@@ -70,6 +70,7 @@ public class CollaborationService : ICollaborationService
             var profile = await _profileRepository.GetByIdAsync(user.MusicianProfile.Id);
             if (profile == null) return null;
             var result = await _suggestionRepository.GetReceivedAsync(profile.Id, page, limit, sortBy, sortDesc);
+            var city = await _cityRepository.GetByIdAsync(profile.City.Id)
             var suggestions = result.Select(async suggestion =>
             {
                 if (suggestion == null) return null;
@@ -83,8 +84,7 @@ public class CollaborationService : ICollaborationService
                     profile.Description,
                     profile.Phone,
                     profile.Telegram,
-                    //City = await  profile.City.Id,
-                    profile.City,
+                    City = await _cityRepository.GetByIdAsync(profile.City.Id),
                     profile.Experience,
                     profile.Age,
                     profile.Avatar,
