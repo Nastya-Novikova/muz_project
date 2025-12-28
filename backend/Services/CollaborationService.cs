@@ -65,8 +65,8 @@ public class CollaborationService : ICollaborationService
             if (user == null || user.MusicianProfile == null) return null;
             var profile = await _profileRepository.GetByIdAsync(user.MusicianProfile.Id);
             if (profile == null) return null;
-            var suggestions = await _suggestionRepository.GetReceivedAsync(profile.Id, page, limit, sortBy, sortDesc);
-            var results = suggestions.Select(async suggestion =>
+            var result = await _suggestionRepository.GetReceivedAsync(profile.Id, page, limit, sortBy, sortDesc);
+            var suggestions = result.Select(async suggestion =>
             {
                 if (suggestion == null) return null;
                 var profile = await _profileRepository.GetByIdAsync(suggestion.FromProfileId);
@@ -92,7 +92,7 @@ public class CollaborationService : ICollaborationService
                     suggestion.CreatedAt
                 };
             });
-            return JsonDocument.Parse(JsonSerializer.Serialize(results, _options));
+            return JsonDocument.Parse(JsonSerializer.Serialize(suggestions, _options));
         }
         catch
         {
@@ -114,8 +114,8 @@ public class CollaborationService : ICollaborationService
             if (user == null || user.MusicianProfile == null) return null;
             var profile = await _profileRepository.GetByIdAsync(user.MusicianProfile.Id);
             if (profile == null) return null;
-            var suggestions = await _suggestionRepository.GetSentAsync(profile.Id, page, limit, sortBy, sortDesc);
-            var results = suggestions.Select(async suggestion =>
+            var result = await _suggestionRepository.GetSentAsync(profile.Id, page, limit, sortBy, sortDesc);
+            var suggestions = result.Select(async suggestion =>
             {
                 if (suggestion == null) return null;
                 var profile = await _profileRepository.GetByIdAsync(suggestion.ToProfileId);
@@ -142,7 +142,7 @@ public class CollaborationService : ICollaborationService
                     suggestion.CreatedAt
                 };
             });
-            return JsonDocument.Parse(JsonSerializer.Serialize(results, _options));
+            return JsonDocument.Parse(JsonSerializer.Serialize(suggestions, _options));
         }
         catch
         {

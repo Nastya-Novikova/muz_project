@@ -64,9 +64,9 @@ public class FavoriteService : IFavoriteService
 
             var allFavoriteIds = user.FavoriteProfileIds;
             var favoriteIds = allFavoriteIds.Skip((page - 1) * limit).Take(limit).ToList();
-            var favorites = await _profileRepository.GetProfilesByIdsAsync(favoriteIds);
+            var result = await _profileRepository.GetProfilesByIdsAsync(favoriteIds);
 
-            var results = favorites.Select(async profile =>
+            var favorites = result.Select(async profile =>
             {
                 return new
                 {
@@ -85,7 +85,7 @@ public class FavoriteService : IFavoriteService
                 };
             });
 
-            return JsonDocument.Parse(JsonSerializer.Serialize(results, _options));
+            return JsonDocument.Parse(JsonSerializer.Serialize(favorites, _options));
         }
         catch
         {
