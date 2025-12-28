@@ -37,33 +37,33 @@ public class FavoritesController : ControllerBase
     /// <summary>
     /// Добавить в избранное
     /// </summary>
-    [HttpPost("{favoriteUserId}")]
-    public async Task<IActionResult> Add(Guid favoriteUserId)
+    [HttpPost("{favoriteProfileId}")]
+    public async Task<IActionResult> Add(Guid favoriteProfileId)
     {
         var userId = GetUserId();
-        var result = await _service.AddAsync(userId, favoriteUserId);
+        var result = await _service.AddAsync(userId, favoriteProfileId);
         return result != null ? Ok(result) : BadRequest();
     }
 
     /// <summary>
     /// Удалить из избранного
     /// </summary>
-    [HttpDelete("{favoriteUserId}")]
-    public async Task<IActionResult> Remove(Guid favoriteUserId)
+    [HttpDelete("{favoriteProfileId}")]
+    public async Task<IActionResult> Remove(Guid favoriteProfileId)
     {
         var userId = GetUserId();
-        var result = await _service.RemoveAsync(userId, favoriteUserId);
+        var result = await _service.RemoveAsync(userId, favoriteProfileId);
         return result != null ? Ok(result) : BadRequest();
     }
 
     /// <summary>
     /// Проверить, добавлен ли пользователь в избранное
     /// </summary>
-    [HttpGet("{favoriteUserId}")]
-    public async Task<IActionResult> IsFavorite(Guid favoriteUserId)
+    [HttpGet("{favoriteProfileId}")]
+    public async Task<IActionResult> IsFavorite(Guid favoriteProfileId)
     {
         var userId = GetUserId();
-        var isFavorite = await _service.IsFavoriteAsync(userId, favoriteUserId);
+        var isFavorite = await _service.IsFavoriteAsync(userId, favoriteProfileId);
         return Ok(new { isFavorite });
     }
 

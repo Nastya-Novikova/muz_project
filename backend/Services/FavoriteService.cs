@@ -1,6 +1,7 @@
 ﻿using System.Text.Json;
 using backend.Models.Repositories.Interfaces;
 using backend.Services.Interfaces;
+using backend.Services.Utils;
 
 namespace backend.Services;
 
@@ -65,8 +66,26 @@ public class FavoriteService : IFavoriteService
             var favoriteIds = allFavoriteIds.Skip((page - 1) * limit).Take(limit).ToList();
             var favorites = await _profileRepository.GetProfilesByIdsAsync(favoriteIds);
 
-            var result = new { favorites };
-            return JsonDocument.Parse(JsonSerializer.Serialize(result, _options));
+            var results = favorites.Select(async profile =>
+            {
+                return new
+                {
+                    profile.Id,
+                    profile.FullName,
+                    profile.Description,
+                    profile.Phone,
+                    profile.Telegram,
+                    profile.City,
+                    profile.Experience,
+                    profile.Age,
+                    profile.Avatar,
+                    Genres = profile.Genres.Select(g => LookupItemUtil.ToLookupItem(g)),
+                    Specialties = profile.Specialties.Select(s => LookupItemUtil.ToLookupItem(s)),
+                    CollaborationGoals = profile.CollaborationGoals.Select(g => LookupItemUtil.ToLookupItem(g)),
+                };
+            });
+
+            return JsonDocument.Parse(JsonSerializer.Serialize(results, _options));
         }
         catch
         {

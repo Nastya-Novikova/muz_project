@@ -2,6 +2,7 @@
 using backend.Models.Classes;
 using backend.Models.Repositories.Interfaces;
 using backend.Services.Interfaces;
+using backend.Services.Utils;
 
 namespace backend.Services;
 
@@ -65,8 +66,33 @@ public class CollaborationService : ICollaborationService
             var profile = await _profileRepository.GetByIdAsync(user.MusicianProfile.Id);
             if (profile == null) return null;
             var suggestions = await _suggestionRepository.GetReceivedAsync(profile.Id, page, limit, sortBy, sortDesc);
-            var result = new { suggestions };
-            return JsonDocument.Parse(JsonSerializer.Serialize(result, _options));
+            var results = suggestions.Select(async suggestion =>
+            {
+                if (suggestion == null) return null;
+                var profile = await _profileRepository.GetByIdAsync(suggestion.FromProfileId);
+                if (profile == null) return null;
+                return new
+                {
+                    FromProfile = new {
+                    profile.Id,
+                    profile.FullName,
+                    profile.Description,
+                    profile.Phone,
+                    profile.Telegram,
+                    profile.City,
+                    profile.Experience,
+                    profile.Age,
+                    profile.Avatar,
+                    Genres = profile.Genres.Select(g => LookupItemUtil.ToLookupItem(g)),
+                    Specialties = profile.Specialties.Select(s => LookupItemUtil.ToLookupItem(s)),
+                    CollaborationGoals = profile.CollaborationGoals.Select(g => LookupItemUtil.ToLookupItem(g))
+                    },
+                    suggestion.Message,
+                    suggestion.Status,
+                    suggestion.CreatedAt
+                };
+            });
+            return JsonDocument.Parse(JsonSerializer.Serialize(results, _options));
         }
         catch
         {
@@ -89,8 +115,34 @@ public class CollaborationService : ICollaborationService
             var profile = await _profileRepository.GetByIdAsync(user.MusicianProfile.Id);
             if (profile == null) return null;
             var suggestions = await _suggestionRepository.GetSentAsync(profile.Id, page, limit, sortBy, sortDesc);
-            var result = new { suggestions };
-            return JsonDocument.Parse(JsonSerializer.Serialize(result, _options));
+            var results = suggestions.Select(async suggestion =>
+            {
+                if (suggestion == null) return null;
+                var profile = await _profileRepository.GetByIdAsync(suggestion.ToProfileId);
+                if (profile == null) return null;
+                return new
+                {
+                    ToProfile = new
+                    {
+                        profile.Id,
+                        profile.FullName,
+                        profile.Description,
+                        profile.Phone,
+                        profile.Telegram,
+                        profile.City,
+                        profile.Experience,
+                        profile.Age,
+                        profile.Avatar,
+                        Genres = profile.Genres.Select(g => LookupItemUtil.ToLookupItem(g)),
+                        Specialties = profile.Specialties.Select(s => LookupItemUtil.ToLookupItem(s)),
+                        CollaborationGoals = profile.CollaborationGoals.Select(g => LookupItemUtil.ToLookupItem(g))
+                    },
+                    suggestion.Message,
+                    suggestion.Status,
+                    suggestion.CreatedAt
+                };
+            });
+            return JsonDocument.Parse(JsonSerializer.Serialize(results, _options));
         }
         catch
         {
