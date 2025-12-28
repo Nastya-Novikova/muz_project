@@ -97,7 +97,7 @@ public class CollaborationService : ICollaborationService
                     suggestion.CreatedAt
                 };
             });
-            return JsonDocument.Parse(JsonSerializer.Serialize(suggestions, _options));
+            return JsonDocument.Parse(JsonSerializer.Serialize(new { suggestions }, _options));
         }
         catch
         {
@@ -147,7 +147,7 @@ public class CollaborationService : ICollaborationService
                     suggestion.CreatedAt
                 };
             });
-            return JsonDocument.Parse(JsonSerializer.Serialize(suggestions, _options));
+            return JsonDocument.Parse(JsonSerializer.Serialize(new { suggestions }, _options));
         }
         catch
         {
