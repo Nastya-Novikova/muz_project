@@ -85,7 +85,7 @@ public class FavoriteService : IFavoriteService
                 };
             });
 
-            return JsonDocument.Parse(JsonSerializer.Serialize(favorites, _options));
+            return JsonDocument.Parse(JsonSerializer.Serialize(new { favorites }, _options));
         }
         catch
         {
