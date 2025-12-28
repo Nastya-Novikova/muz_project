@@ -44,7 +44,7 @@ public class CollaborationService : ICollaborationService
                 Id = Guid.NewGuid(),
                 FromProfileId = fromProfile.Id,
                 ToProfileId = toProfile.Id,
-                Message = message
+                Message = message ?? string.Empty
             };
 
             await _suggestionRepository.AddAsync(suggestion);
