@@ -1,5 +1,6 @@
 // UserCard.jsx
 import React from 'react';
+import { api } from '../../services/api'; 
 import './UserCard.css';
 import { useNavigate } from 'react-router-dom';
 
@@ -19,7 +20,7 @@ const UserCard = ({
       fullName: userData.fullName || 'Не указано',
       age: userData.age || '',
       city: userData.city?.localizedName || userData.city?.name || 'Не указан',
-      avatar: userData.avatar || `/default-avatar.png`,
+      avatar: api.convertAvatarBytesToUrl(userData.avatar) || `/default-avatar.png`,
       // Преобразуем specialties в строку
       activityType: userData.specialties?.map(s => s.localizedName || s.name).join(', ') || 'Не указано',
       // Преобразуем genres в массив строк

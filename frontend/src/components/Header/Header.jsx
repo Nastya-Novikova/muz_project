@@ -49,6 +49,7 @@ function Header() {
 
   // Получаем email пользователя
   const userEmail = getUserEmail();
+  const userEmailLogo = userEmail.split('@')[0];
 
   return (
     <header className="header">
@@ -62,15 +63,11 @@ function Header() {
           {isAuthenticated ? ( // Проверяем isAuthenticated вместо user
             <div className="user-menu" ref={dropdownRef}>
               <button 
-                className="user-avatar-btn" 
+                className="user-email-logo" 
                 onClick={toggleDropdown}
                 aria-label="Меню пользователя"
               >
-                <img 
-                  src={'/default-avatar.png'} 
-                  alt="Аватар пользователя" 
-                  className="user-avatar"
-                />
+                <span className="user-email-logo">{userEmailLogo || ''}</span>
               </button>
               
               {dropdownOpen && (

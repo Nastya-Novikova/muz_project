@@ -108,14 +108,14 @@ export const api = {
   },
 
   // Загрузить аватар
-  async uploadAvatar(file, token) { // Принимаем токен
+  async uploadAvatar(file, token) {
     const formData = new FormData();
     formData.append('avatar', file);
 
     const response = await fetch(`${API_URL}/Uploads/avatar`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${token}` // <-- Только авторизация, без Content-Type
+        'Authorization': `Bearer ${token}`
       },
       body: formData,
     });
@@ -126,6 +126,24 @@ export const api = {
     }
 
     return response.json();
+  },
+
+  //Конвертировать аватар в необходимый формат
+  convertAvatarBytesToUrl(avatarBytes) {
+    if (!avatarBytes || !avatarBytes.length) return null;
+    
+    try {
+      if (typeof avatarBytes === 'string') {
+        if (avatarBytes.startsWith('data:image')) {
+          return avatarBytes;
+        }
+        return `data:image/jpeg;base64,${avatarBytes}`;
+      }
+      return `data:image/jpeg;base64,${base64String}`;
+    } catch (error) {
+      console.error('Error converting avatar bytes:', error);
+      return null;
+    }
   },
 
   // Загрузить аудио

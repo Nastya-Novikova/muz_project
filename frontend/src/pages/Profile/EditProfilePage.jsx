@@ -26,6 +26,7 @@ function EditProfilePage() {
 
   const [avatarFile, setAvatarFile] = useState(null);
   const [avatarPreview, setAvatarPreview] = useState('');
+  const [existingAvatarUrl, setExistingAvatarUrl] = useState('');
   const [audioFiles, setAudioFiles] = useState([]);
   const [photoFiles, setPhotoFiles] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -43,7 +44,13 @@ function EditProfilePage() {
         const existingProfile = await api.getProfile(token);
         
         if (existingProfile) {
-          setIsCreating(false); // Режим редактирования
+          setIsCreating(false);
+          
+          if (existingProfile.avatar) {
+            const avatarUrl = api.convertAvatarBytesToUrl(existingProfile.avatar);
+            setAvatarPreview(avatarUrl);
+            setExistingAvatarUrl(avatarUrl);
+          }
           
           // Преобразуем данные с сервера в форму
           setFormData({
@@ -105,13 +112,39 @@ function EditProfilePage() {
 
   const handleAvatarChange = (e) => {
     const file = e.target.files[0];
-    if (file) {
-      setAvatarFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setAvatarPreview(reader.result);
-      };
-      reader.readAsDataURL(file);
+    if (!file) return;
+
+    // Валидация
+    if (!file.type.startsWith('image/')) {
+      alert('Пожалуйста, выберите изображение');
+      return;
+    }
+
+    if (file.size > 2 * 1024 * 1024) { // 2MB
+      alert('Изображение слишком большое. Максимальный размер: 2MB');
+      return;
+    }
+
+    setAvatarFile(file);
+    
+    // Предпросмотр
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setAvatarPreview(reader.result);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  // Загрузка аватара на сервер
+  const uploadAvatarToServer = async (token) => {
+    if (!avatarFile) return false;
+
+    try {
+      await api.uploadAvatar(avatarFile, token);
+      return true;
+    } catch (error) {
+      console.error('Ошибка загрузки аватара:', error);
+      throw new Error(`Не удалось загрузить аватар: ${error.message}`);
     }
   };
 
@@ -163,9 +196,9 @@ function EditProfilePage() {
       }
 
       // Загружаем файлы если есть
-      /*if (avatarFile) {
-        await api.uploadAvatar(avatarFile, token);
-      }*/
+      if (avatarFile) {
+        await uploadAvatarToServer(token);
+      }
       
       if (audioFiles.length > 0) {
         for (const file of audioFiles) {
@@ -217,7 +250,13 @@ function EditProfilePage() {
             <div className="form-section">
               <div className="avatar-upload">
                 <div className="avatar-preview">
-                  <img src={avatarPreview || '/default-avatar.png'} alt="Аватар" />
+                  <img 
+                    src={avatarPreview || '/default-avatar.png'} 
+                    alt="Аватар" 
+                    onError={(e) => {
+                      e.target.src = '/default-avatar.png';
+                    }}
+                  />
                   <label className="upload-btn">
                     <input
                       type="file"

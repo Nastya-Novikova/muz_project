@@ -20,6 +20,7 @@ function ProfilePage() {
   const [isCollaboration, setIsCollaboration] = useState(false);
   const [sendingCollaboration, setSendingCollaboration] = useState(false);
   const [currentUserId, setCurrentUserId] = useState(null);
+  const [avatarUrl, setAvatarUrl] = useState('/default-avatar.png');
 
   // Проверяем, добавлен ли профиль в избранное
   const checkFavoriteStatus = async (profileId, token) => {
@@ -59,12 +60,21 @@ function ProfilePage() {
         const token = getToken();
         const myProfile = await api.getProfile(token);
         setCurrentUserId(myProfile.id);
+
+        if (myProfile.avatar) {
+          const url = api.convertAvatarBytesToUrl(myProfile.avatar);
+          setAvatarUrl(url || '/default-avatar.png');
+        }
         
         if (!userId) {
           setProfileData(myProfile);
         } else {
           const data = await api.getProfileById(userId, token);
           setProfileData(data);
+          if (myProfile.avatar) {
+            const url = api.convertAvatarBytesToUrl(myProfile.avatar);
+            setAvatarUrl(url || '/default-avatar.png');
+          }
           const isViewingOwnProfile = userId === myProfile.id;
           if (!isViewingOwnProfile) {
             await checkFavoriteStatus(userId, token);
@@ -190,7 +200,7 @@ function ProfilePage() {
           <div className="profile-header">
             <div className="profile-main-info">
               <img 
-                src={'/default-avatar.png'} //profileData.avatarUrl || 
+                src={avatarUrl}
                 alt={profileData.fullName}
                 className="profile-avatar" 
               />
