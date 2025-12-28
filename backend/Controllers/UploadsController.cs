@@ -68,11 +68,8 @@ public class UploadsController : ControllerBase
         try
         {
             var userId = GetUserId();
-            var profile = await _profileService.GetByUserIdAsync(userId);
-            if (profile == null) return BadRequest("Профиль не найден");
-            var profileId = Guid.Parse(profile.RootElement.GetProperty("id").GetString()!);
 
-            var result = await _audioService.UploadAudioAsync(profileId, audio, title, description);
+            var result = await _audioService.UploadAudioAsync(userId, audio, title, description);
             return Ok(result);
         }
         catch (ArgumentException ex)

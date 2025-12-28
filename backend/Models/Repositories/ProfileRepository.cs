@@ -3,6 +3,7 @@ using backend.Data;
 using backend.Models.Classes;
 using backend.Models.Repositories.Interfaces;
 using backend.Exceptions;
+using System.Collections.Immutable;
 
 namespace backend.Models.Repositories;
 
@@ -40,10 +41,6 @@ public class ProfileRepository : IProfileRepository
         bool sortDesc = true)
     {
         var queryable = MusicianProfiles
-            /*.Include(p => p.City)
-            .Include(p => p.Genres)
-            .Include(p => p.Specialties)
-            .Include(p => p.CollaborationGoals)*/
             .Where(p => !p.IsDeleted);
 
         if (!string.IsNullOrWhiteSpace(query))
@@ -90,6 +87,9 @@ public class ProfileRepository : IProfileRepository
             .Include(p => p.Specialties)
             .Include(p => p.CollaborationGoals)
             .Include(p => p.City)
+            .Include(p => p.AudioFiles)
+            .Include(p => p.VideoFiles)
+            .Include(p => p.Photos)
             .Take(limit)
             .ToListAsync();
 

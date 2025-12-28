@@ -11,22 +11,17 @@ public class CollaborationService : ICollaborationService
     private readonly ICollaborationSuggestionRepository _suggestionRepository;
     private readonly IUserRepository _userRepository;
     private readonly IProfileRepository _profileRepository;
-    private readonly ICityRepository _cityRepository;
-    /*private readonly IGenreRepository _genreRepository;
-    private readonly IMusicalSpecialtyRepository _specialtyRepository;
-    private readonly ICollaborationGoalRepository _goalRepository;*/
 
     private readonly JsonSerializerOptions _options = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
     public CollaborationService(
         ICollaborationSuggestionRepository suggestionRepository,
         IUserRepository userRepository,
-        IProfileRepository profileRepository, ICityRepository cityRepository)
+        IProfileRepository profileRepository)
     {
         _suggestionRepository = suggestionRepository;
         _userRepository = userRepository;
         _profileRepository = profileRepository;
-        _cityRepository = cityRepository;
     }
 
     public async Task<JsonDocument?> SendSuggestionAsync(Guid userId, Guid toProfileId, string? message)

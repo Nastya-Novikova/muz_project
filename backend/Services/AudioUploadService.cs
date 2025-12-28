@@ -1,7 +1,6 @@
 ﻿using backend.Models.Classes;
 using backend.Models.Repositories.Interfaces;
 using backend.Services.Interfaces;
-
 namespace backend.Services;
 
 /// <summary>
@@ -11,21 +10,29 @@ public class AudioUploadService : IAudioUploadService
 {
     private readonly IProfileRepository _profileRepository;
     private readonly IPortfolioAudioRepository _audioRepository;
+    private readonly IUserRepository _userRepository;
 
     public AudioUploadService(
         IProfileRepository profileRepository,
-        IPortfolioAudioRepository audioRepository)
+        IPortfolioAudioRepository audioRepository, IUserRepository userRepository)
     {
         _profileRepository = profileRepository;
         _audioRepository = audioRepository;
+        _userRepository = userRepository;
     }
 
     public async Task<object> UploadAudioAsync(
-        Guid profileId,
+        Guid userId,
         IFormFile file,
         string title,
         string? description = null)
     {
+        var user = await _userRepository.GetByIdAsync(userId);
+        if (user == null || user.MusicianProfile == null) return null;
+        var profile = await _profileRepository.GetByIdAsync(user.MusicianProfile.Id);
+        if (profile == null) return null;
+
+
         if (file == null || file.Length == 0)
             throw new ArgumentException("Файл не выбран");
 
@@ -35,7 +42,6 @@ public class AudioUploadService : IAudioUploadService
         if (file.Length > 10 * 1024 * 1024)
             throw new ArgumentException("Файл слишком большой");
 
-        var profile = await _profileRepository.GetByIdAsync(profileId);
         if (profile == null)
             throw new ArgumentException("Профиль не найден");
 
@@ -46,7 +52,7 @@ public class AudioUploadService : IAudioUploadService
         var audio = new PortfolioAudio
         {
             Id = Guid.NewGuid(),
-            ProfileId = profileId,
+            ProfileId = profile.Id,
             Title = title,
             Description = description,
             FileData = fileBytes,

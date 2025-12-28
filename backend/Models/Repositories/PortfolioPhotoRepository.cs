@@ -28,7 +28,7 @@ public class PortfolioPhotoRepository : IPortfolioPhotoRepository
 
     public async Task<List<PortfolioPhoto>> GetByProfileIdAsync(Guid profileId)
     {
-        return await Photos.Where(p => p.ProfileId == profileId).ToListAsync();
+        return await Photos.Where(p => p.ProfileId == profileId).IgnoreAutoIncludes().ToListAsync();
     }
 
     public async Task<PortfolioPhoto?> GetByIdAsync(Guid id)
