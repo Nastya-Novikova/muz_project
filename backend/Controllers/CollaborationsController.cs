@@ -57,6 +57,17 @@ public class CollaborationsController : ControllerBase
         return result != null ? Ok(result) : BadRequest();
     }
 
+    /// <summary>
+    /// Проверить, отправлено ли пользователю предложение
+    /// </summary>
+    [HttpGet("{collaboratedProfileId}")]
+    public async Task<IActionResult> IsCollaborated(Guid collaboratedProfileId)
+    {
+        var userId = GetUserId();
+        var isCollaborated = await _service.IsCollaboratedAsync(userId, collaboratedProfileId);
+        return Ok(new { isCollaborated });
+    }
+
     private Guid GetUserId()
     {
         var userIdStr = User.FindFirst("userId")?.Value;

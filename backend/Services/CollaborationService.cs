@@ -154,4 +154,22 @@ public class CollaborationService : ICollaborationService
             return null;
         }
     }
+
+    public async Task<bool> IsCollaboratedAsync(Guid userId, Guid collaboratedProfileId)
+    {
+        try
+        {
+            var user = await _userRepository.GetByIdAsync(userId);
+            if (user == null || user.MusicianProfile == null) return false;
+            var profile = await _profileRepository.GetByIdAsync(user.MusicianProfile.Id);
+            var profileCollaborated = await _profileRepository.GetByIdAsync(collaboratedProfileId);
+            if (profileCollaborated == null || profile == null) return false;
+
+            return (await _suggestionRepository.GetSentAsync(profile.Id)).Select(o => o.ToProfile).Contains(profileCollaborated) == true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
 }
