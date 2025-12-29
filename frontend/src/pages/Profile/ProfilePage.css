@@ -317,3 +317,13 @@
   font-size: 1.1rem;
   word-break: break-all;
 }
+
+.audio-title {
+  color: var(--dark-blue);
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+}
+
+.audio-element {
+  width: 100%;
+}

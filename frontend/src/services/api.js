@@ -146,8 +146,8 @@ export const api = {
     }
   },
 
-  // Загрузить аудио
-  async uploadAudio(file, title, token, description = '') { // Принимаем токен
+  //Загрузить аудио
+  async uploadAudio(file, title, token, description = '') {
     const formData = new FormData();
     formData.append('audio', file);
     formData.append('title', title);
@@ -156,7 +156,7 @@ export const api = {
     const response = await fetch(`${API_URL}/Uploads/portfolio/audio`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${token}` // <-- Только авторизация, без Content-Type
+        'Authorization': `Bearer ${token}`
       },
       body: formData,
     });
@@ -169,27 +169,38 @@ export const api = {
     return response.json();
   },
 
-  // Загрузить фото
-  async uploadPhoto(file, title, token, description = '') { // Принимаем токен
-    const formData = new FormData();
-    formData.append('photo', file);
-    formData.append('title', title);
-    if (description) formData.append('description', description);
-
-    const response = await fetch(`${API_URL}/Uploads/portfolio/photo`, {
-      method: 'POST',
+  async getMedia(profileId, token) {
+    const response = await fetch(`${API_URL}/Profiles/${profileId}/media`, {
+      method: 'GET',
       headers: {
-        'Authorization': `Bearer ${token}` // <-- Только авторизация, без Content-Type
-      },
-      body: formData,
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
     });
 
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ message: 'HTTP error!' }));
-      throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
 
     return response.json();
+  },
+
+  convertAudioBytesToUrl(audioBytes) {
+    if (!audioBytes || !audioBytes.length) return null;
+    
+    try {
+      if (typeof audioBytes === 'string') {
+        if (audioBytes.startsWith('data:audio')) {
+          return audioBytes;
+        }
+        return `data:audio/mpeg;base64,${audioBytes}`;
+      }
+      
+      return `data:audio/mpeg;base64,${base64String}`;
+    } catch (error) {
+      console.error('Error converting audio bytes:', error);
+      return null;
+    }
   },
 
   //Поиск музыкантов
@@ -224,6 +235,7 @@ export const api = {
     return response.json();
   },
   
+  //Направить предложение о сотрудничестве
   async sendSuggestion(profileId, message=" ", token) {
     const response = await fetch(`${API_URL}/Collaborations/${profileId}`, {
       method: 'POST',
@@ -348,6 +360,7 @@ async getFavorites(token, page = 1, limit = 20) {
     return response.json();
   },
 
+  // Проверить наличие предложения пользователю
   async checkCollaboration(collaboratedProfileId, token) {
     const response = await fetch(`${API_URL}/Collaborations/${collaboratedProfileId}`, {
       method: 'GET',

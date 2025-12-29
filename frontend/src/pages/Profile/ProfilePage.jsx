@@ -20,6 +20,7 @@ function ProfilePage() {
   const [isCollaboration, setIsCollaboration] = useState(false);
   const [sendingCollaboration, setSendingCollaboration] = useState(false);
   const [currentUserId, setCurrentUserId] = useState(null);
+  const [mediaData, setMediaData] = useState(null);
   const [avatarUrl, setAvatarUrl] = useState('/default-avatar.png');
 
   // Проверяем, добавлен ли профиль в избранное
@@ -68,6 +69,8 @@ function ProfilePage() {
         
         if (!userId) {
           setProfileData(myProfile);
+          const media = await api.getMedia(myProfile.id, token);
+          setMediaData(media);
         } else {
           const data = await api.getProfileById(userId, token);
           setProfileData(data);
@@ -75,6 +78,8 @@ function ProfilePage() {
             const url = api.convertAvatarBytesToUrl(myProfile.avatar);
             setAvatarUrl(url || '/default-avatar.png');
           }
+          const media = await api.getMedia(userId, token);
+          setMediaData(media);
           const isViewingOwnProfile = userId === myProfile.id;
           if (!isViewingOwnProfile) {
             await checkFavoriteStatus(userId, token);
@@ -334,37 +339,23 @@ function ProfilePage() {
               <div className="tab-content">
                 <div className="portfolio-section">
                   <h3>Аудиозаписи</h3>
-                  {profileData.portfolio?.audio?.length > 0 ? (
+                  {mediaData?.audios?.length > 0 ? (
                     <div className="audio-list">
-                      {profileData.portfolio.audio.map((audio, index) => (
-                        <div key={index} className="audio-item">
-                          <audio controls src={audio.url}>
-                            Ваш браузер не поддерживает аудио элемент.
-                          </audio>
-                          <p>{audio.title || `Аудиозапись ${index + 1}`}</p>
-                        </div>
-                      ))}
+                      {mediaData.audios.map((audio, index) => {
+                        // Конвертируем байты в Data URL
+                        const audioUrl = api.convertAudioBytesToUrl(audio.fileData);
+                        return (
+                          <div key={audio.id} className="audio-item">
+                            <p className='audio-title'>{audio.title || `Аудиозапись ${index + 1}`}</p>
+                            <audio className='audio-element' controls src={audioUrl}>
+                              Ваш браузер не поддерживает аудио элемент.
+                            </audio>
+                          </div>
+                        );
+                      })}
                     </div>
                   ) : (
                     <p className="no-content">Аудиозаписи не загружены</p>
-                  )}
-                </div>
-
-                <div className="portfolio-section">
-                  <h3>Фотографии и сертификаты</h3>
-                  {profileData.portfolio?.photos?.length > 0 ? (
-                    <div className="photos-grid">
-                      {profileData.portfolio.photos.map((photo, index) => (
-                        <img 
-                          key={index} 
-                          src={photo.url} 
-                          alt={photo.title || `Фото ${index + 1}`}
-                          className="portfolio-photo"
-                        />
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="no-content">Фотографии не загружены</p>
                   )}
                 </div>
               </div>

@@ -28,7 +28,8 @@ function EditProfilePage() {
   const [avatarPreview, setAvatarPreview] = useState('');
   const [existingAvatarUrl, setExistingAvatarUrl] = useState('');
   const [audioFiles, setAudioFiles] = useState([]);
-  const [photoFiles, setPhotoFiles] = useState([]);
+  const [audioTitles, setAudioTitles] = useState({});
+  const [uploadingAudios, setUploadingAudios] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [isCreating, setIsCreating] = useState(true); // Создаём или редактируем?
@@ -150,20 +151,40 @@ function EditProfilePage() {
 
   const handleAudioUpload = (e) => {
     const files = Array.from(e.target.files);
-    setAudioFiles(prev => [...prev, ...files]);
+    
+    const validFiles = files.filter(file => {
+      const validTypes = ['audio/mpeg', 'audio/wav', 'audio/x-wav', 'audio/mp3', 'audio/x-m4a'];
+      const isValidType = validTypes.includes(file.type);
+      const isValidSize = file.size <= 50 * 1024 * 1024; // 50MB
+      
+      if (!isValidType) {
+        alert(`${file.name}: Допустимы только MP3, WAV файлы`);
+        return false;
+      }
+      if (!isValidSize) {
+        alert(`${file.name}: Файл слишком большой. Максимум: 50MB`);
+        return false;
+      }
+      
+      return true;
+    });
+
+    // Автоматически устанавливаем название из имени файла
+    const newTitles = { ...audioTitles };
+    validFiles.forEach(file => {
+      const title = file.name.replace(/\.[^/.]+$/, ""); // Убираем расширение
+      newTitles[file.name] = title;
+    });
+    setAudioTitles(newTitles);
+    
+    setAudioFiles(prev => [...prev, ...validFiles]);
   };
 
-  const handlePhotoUpload = (e) => {
-    const files = Array.from(e.target.files);
-    setPhotoFiles(prev => [...prev, ...files]);
-  };
-
-  const removeAudio = (index) => {
-    setAudioFiles(prev => prev.filter((_, i) => i !== index));
-  };
-
-  const removePhoto = (index) => {
-    setPhotoFiles(prev => prev.filter((_, i) => i !== index));
+  const handleAudioTitleChange = (fileName, title) => {
+    setAudioTitles(prev => ({
+      ...prev,
+      [fileName]: title
+    }));
   };
 
   const handleSubmit = async (e) => {
@@ -200,16 +221,21 @@ function EditProfilePage() {
         await uploadAvatarToServer(token);
       }
       
+      // Загрузка аудио файлов
       if (audioFiles.length > 0) {
+        setUploadingAudios(true);
+        
         for (const file of audioFiles) {
-          await api.uploadAudio(file, file.name, token);
+          try {
+            const title = audioTitles[file.name] || file.name.replace(/\.[^/.]+$/, "");
+            await api.uploadAudio(file, title, token, '');
+            console.log(`Аудио "${title}" загружено`);
+          } catch (audioError) {
+            console.error('Ошибка загрузки аудио:', audioError);
+          }
         }
-      }
-      
-      if (photoFiles.length > 0) {
-        for (const file of photoFiles) {
-          await api.uploadPhoto(file, file.name, token);
-        }
+        
+        setUploadingAudios(false);
       }
 
       // Всё успешно - переходим на страницу профиля
@@ -395,14 +421,15 @@ function EditProfilePage() {
               </div>
               
               <div className="form-group">
-                <label>Стаж (лет)</label>
+                <label>Стаж (лет) *</label>
                 <input
                   type="number"
                   name="experience"
                   value={formData.experience}
                   onChange={handleInputChange}
-                  min="0"
+                  min="1"
                   placeholder="5"
+                  required
                 />
               </div>
             </div>
@@ -445,45 +472,6 @@ function EditProfilePage() {
                       {audioFiles.map((file, index) => (
                         <div key={index} className="file-item">
                           <span>{file.name}</span>
-                          <button
-                            type="button"
-                            onClick={() => removeAudio(index)}
-                            className="remove-btn"
-                          >
-                            ✕
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-              
-              <div className="form-group mb">
-                <label>Фото (сертификаты, награды)</label>
-                <div className="file-upload-area">
-                  <label className="upload-area">
-                    <span>Загрузить фото (JPG, PNG)</span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      multiple
-                      onChange={handlePhotoUpload}
-                      className="file-input"
-                    />
-                  </label>
-                  {photoFiles.length > 0 && (
-                    <div className="uploaded-files">
-                      {photoFiles.map((file, index) => (
-                        <div key={index} className="file-item">
-                          <span>{file.name}</span>
-                          <button
-                            type="button"
-                            onClick={() => removePhoto(index)}
-                            className="remove-btn"
-                          >
-                            ✕
-                          </button>
                         </div>
                       ))}
                     </div>
