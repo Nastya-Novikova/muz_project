@@ -1,6 +1,11 @@
-﻿Write-Host "Сборка и запуск" -ForegroundColor Cyan
 
 Set-Location -Path $PSScriptRoot
+
+docker-compose down
+
+docker-compose down -v
+
+Write-Host "Сборка и запуск" -ForegroundColor Cyan
 
 docker-compose up --build
 
