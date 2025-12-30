@@ -1,4 +1,3 @@
-// UserCard.jsx
 import React from 'react';
 import { api } from '../../services/api'; 
 import './UserCard.css';
@@ -11,7 +10,7 @@ const UserCard = ({
 
   const navigate = useNavigate();
 
-  // Преобразуем данные из API в формат для карточки
+  // Преобразовывает данные из API в формат для карточки
   const transformUserData = (userData) => {
     if (!userData) return null;
     
@@ -21,9 +20,7 @@ const UserCard = ({
       age: userData.age || '',
       city: userData.city?.localizedName || userData.city?.name || 'Не указан',
       avatar: api.convertAvatarBytesToUrl(userData.avatar) || `/default-avatar.png`,
-      // Преобразуем specialties в строку
       activityType: userData.specialties?.map(s => s.localizedName || s.name).join(', ') || 'Не указано',
-      // Преобразуем genres в массив строк
       genres: userData.genres?.map(g => g.localizedName || g.name) || [],
       experience: userData.experience || 0,
       description: userData.description || 'Нет описания'

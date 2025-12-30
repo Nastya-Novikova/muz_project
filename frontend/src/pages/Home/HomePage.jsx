@@ -30,11 +30,8 @@ function HomePage() {
     setSearchError('');
 
     try {
-      // 1. Формируем объект параметров для запроса
-    // 1. Формируем объект параметров для запроса
     const searchParams = {};
     
-    // Добавляем только те параметры, которые есть
     if (searchQuery.trim()) {
       searchParams.query = searchQuery.trim();
     }
@@ -62,10 +59,7 @@ function HomePage() {
       searchParams.experienceMax = parseInt(experienceMax, 10);
     }
 
-      // 2. Отправляем запрос на сервер
       const response = await api.searchMusicians(Object.keys(searchParams).length > 0 ? searchParams : {}, );
-
-      // 3. Сохраняем результаты
       console.log('Получены результаты поиска:', response);
       const users = response.results || [];
       setSearchResults(users);
@@ -73,7 +67,7 @@ function HomePage() {
     } catch (err) {
       console.error('Ошибка при поиске:', err);
       setSearchError('Не удалось выполнить поиск. Пожалуйста, попробуйте позже.');
-      setSearchResults([]); // Очищаем результаты при ошибке
+      setSearchResults([]);
     } finally {
       setLoading(false);
     }
@@ -172,13 +166,11 @@ function HomePage() {
         <div className="cards-preview">
           <h2 className="preview-title">Результаты поиска</h2>         
             <div className="cards-grid">
-              {/* 2. Размещаем карточки пользователей из ответа */}
               {searchResults.length > 0 ? (
                 searchResults.map((user) => (
                   <UserCard
                     key={user.id}
                     user={user}
-                    // 3. Передаем функцию для обработки клика по карточке
                     onProfileClick={handleUserProfileClick}
                   />
                 ))

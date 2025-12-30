@@ -6,7 +6,7 @@ import './Header.css';
 function Header() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
-  const { isAuthenticated, logout, getUserEmail } = useAuth(); // Меняем user на isAuthenticated
+  const { isAuthenticated, logout, getUserEmail } = useAuth(); 
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -47,7 +47,6 @@ function Header() {
     navigate('/login');
   };
 
-  // Получаем email пользователя
   const userEmail = getUserEmail();
   let userEmailLogo = 'User';
 
@@ -66,7 +65,7 @@ function Header() {
           </Link>
         </div>
         <div className="header-right">
-          {isAuthenticated ? ( // Проверяем isAuthenticated вместо user
+          {isAuthenticated ? ( 
             <div className="user-menu" ref={dropdownRef}>
               <button 
                 className="user-email-logo" 

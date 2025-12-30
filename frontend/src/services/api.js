@@ -76,10 +76,10 @@ export const api = {
   },
 
   // Создать профиль
-  async createProfile(profileData, token) { // Принимаем токен
+  async createProfile(profileData, token) { 
     const response = await fetch(`${API_URL}/Profiles`, {
       method: 'POST',
-      headers: getAuthHeaders(token), // Используем токен
+      headers: getAuthHeaders(token),
       body: JSON.stringify(profileData),
     });
 
@@ -92,10 +92,10 @@ export const api = {
   },
 
   // Обновить профиль
-  async updateProfile(profileData, token) { // Принимаем токен
+  async updateProfile(profileData, token) {
     const response = await fetch(`${API_URL}/Profiles`, {
       method: 'PUT',
-      headers: getAuthHeaders(token), // Используем токен
+      headers: getAuthHeaders(token),
       body: JSON.stringify(profileData),
     });
 
@@ -169,6 +169,7 @@ export const api = {
     return response.json();
   },
 
+  // Получить медиа-файлы
   async getMedia(profileId, token) {
     const response = await fetch(`${API_URL}/Profiles/${profileId}/media`, {
       method: 'GET',
@@ -185,6 +186,7 @@ export const api = {
     return response.json();
   },
 
+  // Преобразовать аудио
   convertAudioBytesToUrl(audioBytes) {
     if (!audioBytes || !audioBytes.length) return null;
     

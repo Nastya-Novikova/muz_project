@@ -27,14 +27,8 @@ const CityFilter = ({
   const toggleDropdown = () => setIsOpen(!isOpen);
 
   const handleCitySelect = (city) => {
-    // Если city - это специальный вариант "Все города" или null/undefined
-    if (city === allCitiesText || !city) {
-      onCityChange('');
-    } else {
-      // city теперь объект {id: number, name: string, localizedName: string}
-      // Передаем ID города
-      onCityChange(city.id); // или просто city.id, если хотите число
-    }
+    if (city === allCitiesText || !city) {onCityChange('');} 
+    else {onCityChange(city.id);}
     setIsOpen(false);
   };
 
@@ -43,11 +37,9 @@ const CityFilter = ({
     setIsOpen(false);
   };
 
-  // Находим выбранный город для отображения названия
   const getSelectedCityName = () => {
     if (!selectedCity) return placeholder;
     
-    // Ищем город по ID
     const foundCity = cities.find(city => 
       city.id.toString() === selectedCity.toString()
     );
@@ -89,7 +81,6 @@ const CityFilter = ({
         {isOpen && (
           <div className="city-filter-dropdown">
             <div className="city-filter-options">
-              {/* Вариант "Все города" */}
               <button
                 type="button"
                 className={`city-option ${!selectedCity ? 'selected' : ''}`}
@@ -98,7 +89,6 @@ const CityFilter = ({
                 {allCitiesText}
               </button>
               
-              {/* Список городов с объектами */}
               {cities.map((city) => (
                 <button
                   key={city.id}
@@ -106,7 +96,7 @@ const CityFilter = ({
                   className={`city-option ${
                     selectedCity === city.id.toString() ? 'selected' : ''
                   }`}
-                  onClick={() => handleCitySelect(city)} // Передаем объект города
+                  onClick={() => handleCitySelect(city)} 
                 >
                   {city.localizedName || city.name}
                 </button>

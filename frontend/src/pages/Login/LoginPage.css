@@ -161,10 +161,3 @@
   transition: background-color 0.2s;
   cursor:not-allowed
 }
-
-.login-footer {
-  margin-top: 2rem;
-  font-size: 0.85rem;
-  color: var(--focus-grey);
-  text-align: center;
-}

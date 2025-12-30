@@ -59,10 +59,8 @@ function LoginOTP() {
     try {
       const response = await api.loginWithCode(email, code);
       if (response.success && response.token) {
-        // Логинимся - передаем user и token
         login(response.user, response.token);
         
-        // Проверяем, создан ли профиль
         if (!response.user.profileCreated) {
           navigate('/profile/edit'); 
         } else {

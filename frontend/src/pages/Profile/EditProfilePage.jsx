@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext'; // Только для токена
+import { useAuth } from '../../context/AuthContext';
 import { useFilters } from '../../context/useFilters';
 import { api } from '../../services/api';
 import Header from '../../components/Header/Header';
 import './EditProfilePage.css';
 
 function EditProfilePage() {
-  const { getToken, getUserEmail } = useAuth(); // Только токен
+  const { getToken, getUserEmail } = useAuth();
   const navigate = useNavigate();
   const { activities, genres, cities } = useFilters();
   
@@ -32,7 +32,7 @@ function EditProfilePage() {
   const [uploadingAudios, setUploadingAudios] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [isCreating, setIsCreating] = useState(true); // Создаём или редактируем?
+  const [isCreating, setIsCreating] = useState(true);
   const [userEmail, setUserEmail] = useState('');
 
   useEffect(() => {
@@ -41,7 +41,6 @@ function EditProfilePage() {
         const token = getToken();
         const email = getUserEmail();
         setUserEmail(email);
-        // Пробуем загрузить существующий профиль
         const existingProfile = await api.getProfile(token);
         
         if (existingProfile) {
@@ -53,7 +52,6 @@ function EditProfilePage() {
             setExistingAvatarUrl(avatarUrl);
           }
           
-          // Преобразуем данные с сервера в форму
           setFormData({
             fullName: existingProfile.fullName || '',
             age: existingProfile.age || '',
@@ -66,11 +64,7 @@ function EditProfilePage() {
             experience: existingProfile.experience || '',
             description: existingProfile.description || ''
           });
-          
-          // Устанавливаем аватар если есть - аватар не содержится в возвращаемом объекте?
-          /*if (existingProfile.avatarUrl) {
-            setAvatarPreview(existingProfile.avatarUrl);
-          }*/
+
         } else {
           setFormData(prev => ({
             ...prev,
@@ -78,7 +72,6 @@ function EditProfilePage() {
           }));
         }
       } catch (error) {
-        // Профиля нет - остаёмся в режиме создания
         console.log('Профиль не найден, создаём новый');
         setIsCreating(true);
 
@@ -115,20 +108,17 @@ function EditProfilePage() {
     const file = e.target.files[0];
     if (!file) return;
 
-    // Валидация
     if (!file.type.startsWith('image/')) {
       alert('Пожалуйста, выберите изображение');
       return;
     }
 
-    if (file.size > 2 * 1024 * 1024) { // 2MB
+    if (file.size > 2 * 1024 * 1024) { 
       alert('Изображение слишком большое. Максимальный размер: 2MB');
       return;
     }
 
     setAvatarFile(file);
-    
-    // Предпросмотр
     const reader = new FileReader();
     reader.onloadend = () => {
       setAvatarPreview(reader.result);
@@ -136,7 +126,6 @@ function EditProfilePage() {
     reader.readAsDataURL(file);
   };
 
-  // Загрузка аватара на сервер
   const uploadAvatarToServer = async (token) => {
     if (!avatarFile) return false;
 
@@ -169,10 +158,9 @@ function EditProfilePage() {
       return true;
     });
 
-    // Автоматически устанавливаем название из имени файла
     const newTitles = { ...audioTitles };
     validFiles.forEach(file => {
-      const title = file.name.replace(/\.[^/.]+$/, ""); // Убираем расширение
+      const title = file.name.replace(/\.[^/.]+$/, "");
       newTitles[file.name] = title;
     });
     setAudioTitles(newTitles);
@@ -194,8 +182,6 @@ function EditProfilePage() {
     
     try {
       const token = getToken();
-      
-      // Подготовка данных для отправки на сервер
       const profileData = {
         fullName: formData.fullName,
         age: formData.age ? parseInt(formData.age, 10) : null,
@@ -208,7 +194,6 @@ function EditProfilePage() {
         genreIds: formData.genres.map(id => parseInt(id, 10))
       };
 
-      // Сохраняем профиль
       let profileResponse;
       if (isCreating) {
         profileResponse = await api.createProfile(profileData, token);
@@ -216,12 +201,10 @@ function EditProfilePage() {
         profileResponse = await api.updateProfile(profileData, token);
       }
 
-      // Загружаем файлы если есть
       if (avatarFile) {
         await uploadAvatarToServer(token);
       }
       
-      // Загрузка аудио файлов
       if (audioFiles.length > 0) {
         setUploadingAudios(true);
         
@@ -237,8 +220,6 @@ function EditProfilePage() {
         
         setUploadingAudios(false);
       }
-
-      // Всё успешно - переходим на страницу профиля
       navigate('/profile');
       
     } catch (err) {

@@ -1,14 +1,13 @@
-// src/pages/Profile/ProfilePage.jsx
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { api } from '../../services/api'; // Импортируем api
+import { api } from '../../services/api';
 import Header from '../../components/Header/Header';
 import './ProfilePage.css';
 
 function ProfilePage() {
   const { userId } = useParams();
-  const { getToken, logout, getUserEmail } = useAuth(); // logout для случая ошибки 401
+  const { getToken, logout, getUserEmail } = useAuth(); 
   const navigate = useNavigate();
   
   const [activeTab, setActiveTab] = useState('info');
@@ -23,7 +22,6 @@ function ProfilePage() {
   const [mediaData, setMediaData] = useState(null);
   const [avatarUrl, setAvatarUrl] = useState('/default-avatar.png');
 
-  // Проверяем, добавлен ли профиль в избранное
   const checkFavoriteStatus = async (profileId, token) => {
     if (!profileId || isOwnProfile) return;
     
@@ -52,6 +50,11 @@ function ProfilePage() {
     }
   };
 
+  const getAvatarUrl = (profile) => {
+    if (!profile?.avatar) return '/default-avatar.png';
+      return api.convertAvatarBytesToUrl(profile.avatar);
+  };
+
   useEffect(() => {
     const loadProfile = async () => {
       setLoading(true);
@@ -61,25 +64,33 @@ function ProfilePage() {
         const token = getToken();
         const myProfile = await api.getProfile(token);
         setCurrentUserId(myProfile.id);
-
-        if (myProfile.avatar) {
-          const url = api.convertAvatarBytesToUrl(myProfile.avatar);
-          setAvatarUrl(url || '/default-avatar.png');
-        }
         
         if (!userId) {
           setProfileData(myProfile);
-          const media = await api.getMedia(myProfile.id, token);
-          setMediaData(media);
-        } else {
-          const data = await api.getProfileById(userId, token);
-          setProfileData(data);
+
           if (myProfile.avatar) {
             const url = api.convertAvatarBytesToUrl(myProfile.avatar);
             setAvatarUrl(url || '/default-avatar.png');
+          } else {
+            setAvatarUrl('/default-avatar.png');
           }
+
+          const media = await api.getMedia(myProfile.id, token);
+          setMediaData(media);
+        } else {
+          const otherProfileData = await api.getProfileById(userId, token);
+          if (otherProfileData.avatar) { 
+            const url = api.convertAvatarBytesToUrl(otherProfileData.avatar);
+            setAvatarUrl(url || '/default-avatar.png');
+          } else {
+            setAvatarUrl('/default-avatar.png');
+          }
+
+          setProfileData(otherProfileData);
+
           const media = await api.getMedia(userId, token);
           setMediaData(media);
+
           const isViewingOwnProfile = userId === myProfile.id;
           if (!isViewingOwnProfile) {
             await checkFavoriteStatus(userId, token);
@@ -90,7 +101,7 @@ function ProfilePage() {
         console.error('Ошибка загрузки профиля:', err);
         alert('Для просмотра карточки необходимо зарегистрироваться.')
         navigate('/login');
-        
+
         if (err.message.includes('401') || err.message.includes('Unauthorized')) {
           logout();
           navigate('/login');
@@ -117,7 +128,6 @@ function ProfilePage() {
     navigate(-1);
   };
 
-// Обработка кнопки "В избранное"/"Удалить из избранного"
   const handleToggleFavorite = async () => {
     if (isOwnProfile || !userId) return;
     
@@ -125,11 +135,9 @@ function ProfilePage() {
       const token = getToken();
       
       if (isFavorite) {
-        // Удаляем из избранного
         await api.removeFromFavorites(userId, token);
         setIsFavorite(false);
       } else {
-        // Добавляем в избранное
         await api.addToFavorites(userId, token);
         setIsFavorite(true);
       }
@@ -139,7 +147,6 @@ function ProfilePage() {
     }
   };
 
-  // Обработка кнопки "Предложить сотрудничество"
   const handleCollaboration = async () => {
     if (isOwnProfile || !userId || isCollaboration) return;
     
@@ -344,7 +351,6 @@ function ProfilePage() {
                   {mediaData?.audios?.length > 0 ? (
                     <div className="audio-list">
                       {mediaData.audios.map((audio, index) => {
-                        // Конвертируем байты в Data URL
                         const audioUrl = api.convertAudioBytesToUrl(audio.fileData);
                         return (
                           <div key={audio.id} className="audio-item">

@@ -7,10 +7,10 @@ export const AuthProvider = ({ children }) => {
     return localStorage.getItem('musicianFinder_token');
   });
 
+  // Сохраняет данные для локального использования
   const login = (userData, authToken) => {
     setToken(authToken);
     localStorage.setItem('musicianFinder_token', authToken);
-    // Сохраняем только email для отображения в интерфейсе
     localStorage.setItem('user_email', userData.email);
   };
 

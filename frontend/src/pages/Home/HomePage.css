@@ -108,12 +108,6 @@
   border-color: var(--focus-grey);
 }
 
-.status-checkboxes {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
 .cards-preview {
   padding: 1.5rem;
   background: white;
