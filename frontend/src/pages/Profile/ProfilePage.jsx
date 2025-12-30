@@ -88,6 +88,8 @@ function ProfilePage() {
         }
       } catch (err) {
         console.error('Ошибка загрузки профиля:', err);
+        alert('Для просмотра карточки необходимо зарегистрироваться.')
+        navigate('/login');
         
         if (err.message.includes('401') || err.message.includes('Unauthorized')) {
           logout();

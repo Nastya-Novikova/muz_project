@@ -49,7 +49,13 @@ function Header() {
 
   // Получаем email пользователя
   const userEmail = getUserEmail();
-  const userEmailLogo = userEmail.split('@')[0];
+  let userEmailLogo = 'User';
+
+  if (userEmail && typeof userEmail === 'string' && userEmail.includes('@')) {
+    userEmailLogo = userEmail.split('@')[0];
+  } else {
+    console.warn('userEmail is null, undefined, or invalid format');
+  }
 
   return (
     <header className="header">
