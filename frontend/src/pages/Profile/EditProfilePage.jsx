@@ -29,7 +29,12 @@ function EditProfilePage() {
   const [existingAvatarUrl, setExistingAvatarUrl] = useState('');
   const [audioFiles, setAudioFiles] = useState([]);
   const [audioTitles, setAudioTitles] = useState({});
-  const [uploadingAudios, setUploadingAudios] = useState(false);
+  const [photoFiles, setPhotoFiles] = useState([]);
+  const [videoFiles, setVideoFiles] = useState([]);
+  const [uploadingAudios, setUploadingAudios] = useState(false);  
+  const [existingAudios, setExistingAudios] = useState([]); 
+  const [audiosToDelete, setAudiosToDelete] = useState([]); 
+  const [profileId, setProfileId] = useState(null); 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [isCreating, setIsCreating] = useState(true);
@@ -45,6 +50,12 @@ function EditProfilePage() {
         
         if (existingProfile) {
           setIsCreating(false);
+          setProfileId(existingProfile.id); 
+        
+          const media = await api.getMedia(existingProfile.id, token);
+          if (media?.audios) {
+            setExistingAudios(media.audios);
+          }
           
           if (existingProfile.avatar) {
             const avatarUrl = api.convertAvatarBytesToUrl(existingProfile.avatar);
@@ -144,7 +155,7 @@ function EditProfilePage() {
     const validFiles = files.filter(file => {
       const validTypes = ['audio/mpeg', 'audio/wav', 'audio/x-wav', 'audio/mp3', 'audio/x-m4a'];
       const isValidType = validTypes.includes(file.type);
-      const isValidSize = file.size <= 50 * 1024 * 1024; // 50MB
+      const isValidSize = file.size <= 50 * 1024 * 1024; 
       
       if (!isValidType) {
         alert(`${file.name}: Допустимы только MP3, WAV файлы`);
@@ -168,11 +179,59 @@ function EditProfilePage() {
     setAudioFiles(prev => [...prev, ...validFiles]);
   };
 
-  const handleAudioTitleChange = (fileName, title) => {
-    setAudioTitles(prev => ({
-      ...prev,
-      [fileName]: title
-    }));
+  const removeExistingAudio = (audioId) => {
+    setExistingAudios(prev => prev.filter(audio => audio.id !== audioId));
+    setAudiosToDelete(prev => [...prev, audioId]);
+  };
+
+  const handlePhotoUpload = (e) => {
+    const files = Array.from(e.target.files);
+    const validFiles = files.filter(file => {
+      const isValidType = file.type.startsWith('image/');
+      const isValidSize = file.size <= 5 * 1024 * 1024;
+      
+      if (!isValidType) {
+        alert(`${file.name}: Допустимы только изображения`);
+        return false;
+      }
+      if (!isValidSize) {
+        alert(`${file.name}: Файл слишком большой. Максимум: 5MB`);
+        return false;
+      }
+      return true;
+    });
+    setPhotoFiles(prev => [...prev, ...validFiles]);
+  };
+
+  const handleVideoUpload = (e) => {
+    const files = Array.from(e.target.files);
+    const validFiles = files.filter(file => {
+      const isValidType = file.type.startsWith('video/');
+      const isValidSize = file.size <= 500 * 1024 * 1024;
+      
+      if (!isValidType) {
+        alert(`${file.name}: Допустимы только видеофайлы`);
+        return false;
+      }
+      if (!isValidSize) {
+        alert(`${file.name}: Файл слишком большой. Максимум: 500MB`);
+        return false;
+      }
+      return true;
+    });
+    setVideoFiles(prev => [...prev, ...validFiles]);
+  };
+
+  const removePhotoFile = (index) => {
+    setPhotoFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const removeAudioFile = (index) => {
+    setAudioFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const removeVideoFile = (index) => {
+    setVideoFiles(prev => prev.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (e) => {
@@ -204,6 +263,9 @@ function EditProfilePage() {
       if (avatarFile) {
         await uploadAvatarToServer(token);
       }
+
+      /* Здесь потом будет логика удаления аудио с сервера
+      console.log('Аудио для удаления:', audiosToDelete); */
       
       if (audioFiles.length > 0) {
         setUploadingAudios(true);
@@ -435,6 +497,42 @@ function EditProfilePage() {
             <div className="form-section">
               <h2>Портфолио</h2>
               
+              {/* Фото */}
+              <div className="form-group mb">
+                <label>Фотографии</label>
+                <div className="file-upload-area">
+                  <label className="upload-area">
+                    <span>Загрузить фото (JPEG, PNG)</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      onChange={handlePhotoUpload} 
+                      className="file-input"
+                    />
+                  </label>
+                  {photoFiles.length > 0 && ( 
+                    <div className="uploaded-files">
+                      <div className="photos-preview-grid">
+                        {photoFiles.map((file, index) => (
+                          <div key={index} className="photo-preview-item">
+                            <img src={URL.createObjectURL(file)} alt="preview" className="photo-preview" />
+                            <button
+                              type="button"
+                              onClick={() => removePhotoFile(index)} 
+                              className="remove-file-btn"
+                            >
+                              ×
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Аудио */}
               <div className="form-group mb">
                 <label>Аудиозаписи</label>
                 <div className="file-upload-area">
@@ -448,13 +546,75 @@ function EditProfilePage() {
                       className="file-input"
                     />
                   </label>
-                  {audioFiles.length > 0 && (
+                  
+                  {/* Объединенный список всех аудио */}
+                  {(existingAudios.length > 0 || audioFiles.length > 0) && (
                     <div className="uploaded-files">
-                      {audioFiles.map((file, index) => (
-                        <div key={index} className="file-item">
-                          <span>{file.name}</span>
-                        </div>
-                      ))}
+                      <div className="audio-list">
+                        {/* Существующие аудио */}
+                        {existingAudios.map((audio) => (
+                          <div key={audio.id} className="file-item existing">
+                            <span>{audio.title || 'Аудиозапись'}</span>
+                            <button
+                              type="button"
+                              onClick={() => removeExistingAudio(audio.id)}
+                              className="remove-audio-btn"
+                              title="Удалить аудио"
+                            >
+                              ×
+                            </button>
+                          </div>
+                        ))}
+                        
+                        {/* Новые аудио для загрузки */}
+                        {audioFiles.map((file, index) => (
+                          <div key={`new-${index}`} className="file-item new">
+                            <span>{file.name}</span>
+                            <button
+                              type="button"
+                              onClick={() => removeAudioFile(index)}
+                              className="remove-audio-btn"
+                            >
+                              ×
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Видео */}
+              <div className="form-group mb">
+                <label>Видеозаписи</label>
+                <div className="file-upload-area">
+                  <label className="upload-area">
+                    <span>Загрузить видео (MP4, AVI)</span>
+                    <input
+                      type="file"
+                      accept="video/*"
+                      multiple
+                      onChange={handleVideoUpload} 
+                      className="file-input"
+                    />
+                  </label>
+                  {videoFiles.length > 0 && ( 
+                    <div className="uploaded-files">
+                      <div className="videos-preview-grid">
+                        {videoFiles.map((file, index) => (
+                          <div key={index} className="video-preview-item">
+                            <video src={URL.createObjectURL(file)} controls className="video-preview" />
+                            <button
+                              type="button"
+                              onClick={() => removeVideoFile(index)}
+                              className="remove-file-btn"
+                            >
+                              ×
+                            </button>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   )}
                 </div>

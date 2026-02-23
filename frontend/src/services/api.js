@@ -107,6 +107,21 @@ export const api = {
     return response.json();
   },
 
+  // Удалить профиль
+  async deleteProfile(profileId, token) {
+    const response = await fetch(`${API_URL}/Profiles/${profileId}`, {
+      method: 'DELETE',
+      headers: getAuthHeaders(token),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ message: 'HTTP error!' }));
+      throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+    }
+
+    return response.json();
+  },
+
   // Загрузить аватар
   async uploadAvatar(file, token) {
     const formData = new FormData();

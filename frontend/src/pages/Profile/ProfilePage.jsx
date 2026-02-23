@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { api } from '../../services/api';
 import Header from '../../components/Header/Header';
+import ConfirmDeleteModal from '../../components/ConfirmDeleteModal/ConfirmDeleteModal';
 import './ProfilePage.css';
 
 function ProfilePage() {
@@ -21,6 +22,9 @@ function ProfilePage() {
   const [currentUserId, setCurrentUserId] = useState(null);
   const [mediaData, setMediaData] = useState(null);
   const [avatarUrl, setAvatarUrl] = useState('/default-avatar.png');
+
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const checkFavoriteStatus = async (profileId, token) => {
     if (!profileId || isOwnProfile) return;
@@ -50,10 +54,10 @@ function ProfilePage() {
     }
   };
 
-  const getAvatarUrl = (profile) => {
+  /*const getAvatarUrl = (profile) => {
     if (!profile?.avatar) return '/default-avatar.png';
       return api.convertAvatarBytesToUrl(profile.avatar);
-  };
+  };*/
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -122,6 +126,26 @@ function ProfilePage() {
 
   const handleEditProfile = () => {
     navigate('/profile/edit');
+  };
+
+  const handleOpenDeleteModal = () => {
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    setIsDeleting(true);
+    try {
+      const token = getToken();
+      await api.deleteProfile(profileData.id, token);
+      logout(); 
+      navigate('/');
+    } catch (err) {
+      console.error('Ошибка при удалении профиля:', err);
+      alert('Не удалось удалить профиль. Пожалуйста, попробуйте позже.');
+    } finally {
+      setIsDeleting(false);
+      setIsDeleteModalOpen(false);
+    }
   };
 
   const handleBack = () => {
@@ -239,15 +263,25 @@ function ProfilePage() {
               </div>
             </div>
 
-            <div className="profile-actions">
+            <div className="profile-actions-container">
               {isOwnProfile ? (
-                <button onClick={handleEditProfile} className="edit-profile-btn">
-                  <img
-                    src='/pencil.png'
-                    alt='Редактировать профиль'
-                    className='edit-profile-btn-img'
-                  />
-                </button>
+                <div className="profile-actions"> 
+                  <button onClick={handleEditProfile} className="edit-profile-btn">
+                    <img
+                      src='/pencil.png'
+                      alt='Редактировать профиль'
+                      className='edit-profile-btn-img'
+                    />
+                  </button>
+                  {/* Кнопка удаления */}
+                  <button onClick={handleOpenDeleteModal} className="delete-profile-btn">
+                    <img
+                      src='/delete.png' 
+                      alt='Удалить профиль'
+                      style={{ height: '24px', width: '24px' }}
+                    />
+                  </button>
+                </div>
               ) : (
                 <div className="profile-actions-btn">
                   <button
@@ -346,6 +380,27 @@ function ProfilePage() {
 
             {activeTab === 'portfolio' && (
               <div className="tab-content">
+                {/* Секция фото */}
+                <div className="portfolio-section">
+                  <h3>Фотографии</h3>
+                  {mediaData?.photos?.length > 0 ? (
+                    <div className="photos-grid">
+                      {mediaData.photos.map((photo) => {
+                        const photoUrl = api.convertAvatarBytesToUrl(photo.fileData);
+                        return (
+                          <div key={photo.id} className="photo-item">
+                            <img src={photoUrl} alt={photo.title || 'Фото'} className="portfolio-photo" />
+                            {photo.title && <p className="photo-title">{photo.title}</p>}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <p className="no-content">Фотографии не загружены</p>
+                  )}
+                </div>
+
+                {/* Секция аудио */}
                 <div className="portfolio-section">
                   <h3>Аудиозаписи</h3>
                   {mediaData?.audios?.length > 0 ? (
@@ -364,6 +419,26 @@ function ProfilePage() {
                     </div>
                   ) : (
                     <p className="no-content">Аудиозаписи не загружены</p>
+                  )}
+                </div>
+
+                {/* Секция видео */}
+                <div className="portfolio-section">
+                  <h3>Видеозаписи</h3>
+                  {mediaData?.videos?.length > 0 ? (
+                    <div className="videos-grid">
+                      {mediaData.videos.map((video) => {
+                        const videoUrl = api.convertAudioBytesToUrl(video.fileData); 
+                        return (
+                          <div key={video.id} className="video-item">
+                            <video controls src={videoUrl} className="portfolio-video" />
+                            {video.title && <p className="video-title">{video.title}</p>}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <p className="no-content">Видеозаписи не загружены</p>
                   )}
                 </div>
               </div>
@@ -386,6 +461,12 @@ function ProfilePage() {
           </div>
         </div>
       </div>
+      <ConfirmDeleteModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={handleConfirmDelete}
+        userName={profileData?.fullName || 'Профиль'}
+      />
     </>
   );
 }
