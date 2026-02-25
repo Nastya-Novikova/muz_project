@@ -5,7 +5,8 @@ namespace backend.Models.Repositories.Interfaces;
 
 public interface ICollaborationGoalRepository
 {
-    DbSet<CollaborationGoal> CollaborationGoals { get; }
+    //DbSet<CollaborationGoal> CollaborationGoals { get; }
     Task<List<CollaborationGoal>> GetAllAsync(string? query = null, string? sortBy = null, bool sortDesc = false);
     Task<CollaborationGoal?> GetByIdAsync(int id);
+    Task<List<CollaborationGoal>> GetByIdsAsync(List<int> ids);
 }

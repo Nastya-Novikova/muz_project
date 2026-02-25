@@ -1,42 +1,42 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿//using System.ComponentModel.DataAnnotations;
+//using System.ComponentModel.DataAnnotations.Schema;
 
 namespace backend.Models.Classes;
 
 /// <summary>
 /// Предложение о сотрудничестве
 /// </summary>
-[Table("CollaborationSuggestions")]
+//[Table("CollaborationSuggestions")]
 public class CollaborationSuggestion
 {
     /// <summary>
     /// Идентификатор предложения
     /// </summary>
-    [Key]
+    //[Key]
     public Guid Id { get; set; }
 
     /// <summary>
     /// ID отправителя
     /// </summary>
-    [Required]
+    //[Required]
     public Guid FromProfileId { get; set; }
 
     /// <summary>
     /// ID получателя
     /// </summary>
-    [Required]
+    //[Required]
     public Guid ToProfileId { get; set; }
 
     /// <summary>
     /// Сообщение
     /// </summary>
-    [MaxLength(500)]
+    //[MaxLength(500)]
     public string? Message { get; set; }
 
     /// <summary>
     /// Статус: pending, accepted, rejected, withdrawn
     /// </summary>
-    [Required]
+    //[Required]
     public string Status { get; set; } = "pending";
 
     /// <summary>
@@ -50,9 +50,9 @@ public class CollaborationSuggestion
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
     // === Навигационные свойства ===
-    [ForeignKey("FromProfileId")]
+    //[ForeignKey("FromProfileId")]
     public MusicianProfile FromProfile { get; set; } = null!;
 
-    [ForeignKey("ToProfileId")]
+    //[ForeignKey("ToProfileId")]
     public MusicianProfile ToProfile { get; set; } = null!;
 }

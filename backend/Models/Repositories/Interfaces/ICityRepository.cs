@@ -5,7 +5,7 @@ namespace backend.Models.Repositories.Interfaces;
 
 public interface ICityRepository
 {
-    DbSet<City> Cities { get; }
+    //DbSet<City> Cities { get; }
     Task<List<City>> GetAllAsync(string? query = null, string? sortBy = null, bool sortDesc = false);
     Task<City?> GetByIdAsync(int id);
 }

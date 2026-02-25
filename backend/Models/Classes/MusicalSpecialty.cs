@@ -1,35 +1,38 @@
 using backend.Models.DTOs;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+//using System.ComponentModel.DataAnnotations;
+//using System.ComponentModel.DataAnnotations.Schema;
 
 namespace backend.Models.Classes;
 
 /// <summary>
 /// Музыкальная специальность: вокалист, гитарист, композитор и т.д.
 /// </summary>
-[Table("MusicalSpecializations")]
+//[Table("MusicalSpecializations")]
 public class MusicalSpecialty : ILookupItem
 {
     /// <summary>
     /// Идентификатор
     /// </summary>
-    [Key]
+    //[Key]
     public int Id { get; set; }
 
     /// <summary>
     /// Английское название специальности
     /// </summary>
-    [Required, MaxLength(50)]
+    //[Required, MaxLength(50)]
     public string Name { get; set; } = string.Empty;
 
     /// <summary>
     /// Русское название специальности
     /// </summary>
-    [Required, MaxLength(50)]
+    //[Required, MaxLength(50)]
     public string LocalizedName { get; set; } = string.Empty;
 
     /// <summary>
     /// Связанные профили
     /// </summary>
     public List<MusicianProfile> Profiles { get; set; } = new();
+
+    // Профили, которые ищут эту специализацию
+    public List<MusicianProfile> ProfilesLookingForThisSpecialty { get; set; } = new();
 }

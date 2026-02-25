@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 using backend.Services.Interfaces;
+using backend.Models.DTOs;
 
 namespace backend.Controllers;
 
@@ -32,43 +33,47 @@ public class MetadataController : ControllerBase
     /// Получить список городов
     /// </summary>
     [HttpGet("cities")]
-    public async Task<IActionResult> GetCities([FromQuery] string? query = null, [FromQuery] string? sortBy = null, [FromQuery] bool sortDesc = false)
+    public async Task<ActionResult<List<LookupItemDto>>> GetCities([FromQuery] string? query = null, [FromQuery] string? sortBy = null, [FromQuery] bool sortDesc = false)
     {
-        var queryParams = JsonDocument.Parse(JsonSerializer.Serialize(new { query, sortBy, sortDesc }));
-        var result = await _cityService.GetAllAsync(queryParams);
-        return result != null ? Ok(result) : BadRequest();
+        var result = await _cityService.GetAllAsync(query, sortBy, sortDesc);
+        if (!result.IsSuccess)
+            return BadRequest(new { error = result.Error });
+        return Ok(result.Value);
     }
 
     /// <summary>
     /// Получить виды деятельности (музыкальные специальности)
     /// </summary>
     [HttpGet("activities")]
-    public async Task<IActionResult> GetActivities([FromQuery] string? query = null, [FromQuery] string? sortBy = null, [FromQuery] bool sortDesc = false)
+    public async Task<ActionResult<List<LookupItemDto>>> GetActivities([FromQuery] string? query = null, [FromQuery] string? sortBy = null, [FromQuery] bool sortDesc = false)
     {
-        var queryParams = JsonDocument.Parse(JsonSerializer.Serialize(new { query, sortBy, sortDesc }));
-        var result = await _specialtyService.GetAllAsync(queryParams);
-        return result != null ? Ok(result) : BadRequest();
+        var result = await _specialtyService.GetAllAsync(query, sortBy, sortDesc);
+        if (!result.IsSuccess)
+            return BadRequest(new { error = result.Error });
+        return Ok(result.Value);
     }
 
     /// <summary>
     /// Получить музыкальные жанры
     /// </summary>
     [HttpGet("genres")]
-    public async Task<IActionResult> GetGenres([FromQuery] string? query = null, [FromQuery] string? sortBy = null, [FromQuery] bool sortDesc = false)
+    public async Task<ActionResult<List<LookupItemDto>>> GetGenres([FromQuery] string? query = null, [FromQuery] string? sortBy = null, [FromQuery] bool sortDesc = false)
     {
-        var queryParams = JsonDocument.Parse(JsonSerializer.Serialize(new { query, sortBy, sortDesc }));
-        var result = await _genreService.GetAllAsync(queryParams);
-        return result != null ? Ok(result) : BadRequest();
+        var result = await _genreService.GetAllAsync(query, sortBy, sortDesc);
+        if (!result.IsSuccess)
+            return BadRequest(new { error = result.Error });
+        return Ok(result.Value);
     }
 
     /// <summary>
     /// Получить статусы поиска (цели сотрудничества)
     /// </summary>
     [HttpGet("statuses")]
-    public async Task<IActionResult> GetStatuses([FromQuery] string? query = null, [FromQuery] string? sortBy = null, [FromQuery] bool sortDesc = false)
+    public async Task<ActionResult<List<LookupItemDto>>> GetStatuses([FromQuery] string? query = null, [FromQuery] string? sortBy = null, [FromQuery] bool sortDesc = false)
     {
-        var queryParams = JsonDocument.Parse(JsonSerializer.Serialize(new { query, sortBy, sortDesc }));
-        var result = await _goalService.GetAllAsync(queryParams);
-        return result != null ? Ok(result) : BadRequest();
+        var result = await _goalService.GetAllAsync(query, sortBy, sortDesc);
+        if (!result.IsSuccess)
+            return BadRequest(new { error = result.Error });
+        return Ok(result.Value);
     }
 }

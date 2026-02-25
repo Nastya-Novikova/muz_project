@@ -1,4 +1,7 @@
-﻿namespace backend.Services.Interfaces;
+﻿using backend.Models.Common;
+using backend.Models.DTOs.Uploads;
+
+namespace backend.Services.Interfaces;
 
 /// <summary>
 /// Сервис загрузки видеофайлов
@@ -8,9 +11,5 @@ public interface IVideoUploadService
     /// <summary>
     /// Загрузить видеофайл в портфолио
     /// </summary>
-    Task<object> UploadVideoAsync(
-        Guid profileId,
-        IFormFile file,
-        string title,
-        string? description = null);
+    Task<Result<UploadResultDto>> UploadVideoAsync(Guid userId, Stream fileStream, string fileName, string contentType, string title, string? description);
 }

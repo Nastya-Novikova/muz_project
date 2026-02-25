@@ -4,6 +4,7 @@ using backend.Models.Repositories;
 using backend.Models.Repositories.Interfaces;
 using backend.Services;
 using backend.Services.Interfaces;
+using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
@@ -11,6 +12,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using SwaggerThemes;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using AutoMapper;
 using System.Reflection;
 using System.Text;
 
@@ -35,6 +37,7 @@ namespace backend
             // Repositories
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<IProfileRepository, ProfileRepository>();
+            builder.Services.AddScoped<IFavoriteRepository, FavoriteRepository>();
             builder.Services.AddScoped<ICityRepository, CityRepository>();
             builder.Services.AddScoped<IGenreRepository, GenreRepository>();
             builder.Services.AddScoped<IMusicalSpecialtyRepository, MusicalSpecialtyRepository>();
@@ -45,9 +48,14 @@ namespace backend
             builder.Services.AddScoped<IPortfolioVideoRepository, PortfolioVideoRepository>();
             builder.Services.AddScoped<IPortfolioPhotoRepository, PortfolioPhotoRepository>();
 
+
+            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+
             // Services
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<IProfileService, ProfileService>();
+            builder.Services.AddScoped<IFavoriteService, FavoriteService>();
             builder.Services.AddScoped<ICityService, CityService>();
             builder.Services.AddScoped<IGenreService, GenreService>();
             builder.Services.AddScoped<IMusicalSpecialtyService, MusicalSpecialtyService>();
@@ -55,13 +63,25 @@ namespace backend
             builder.Services.AddScoped<IEmailService, EmailService>();
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<ICollaborationService, CollaborationService>();
-            builder.Services.AddScoped<IFavoriteService, FavoriteService>();
             builder.Services.AddScoped<IAudioUploadService, AudioUploadService>();
             builder.Services.AddScoped<IVideoUploadService, VideoUploadService>();
             builder.Services.AddScoped<IPhotoUploadService, PhotoUploadService>();
 
+
+            builder.Services.AddScoped<IFileStorage, LocalFileStorage>();
+
+            builder.Services.AddAutoMapper(cfg => cfg.AddMaps(typeof(Program).Assembly));
+
+            builder.Services.AddValidatorsFromAssemblyContaining<Program>();
+
+
+
             // MVC + Swagger
-            builder.Services.AddControllers();
+            builder.Services.AddControllers()
+                .AddJsonOptions(options =>
+                {
+                    options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
+                });
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(c =>
             {
@@ -95,20 +115,20 @@ namespace backend
                 });
 
                 c.AddSecurityRequirement(new OpenApiSecurityRequirement
-{
-    {
-        new OpenApiSecurityScheme
-        {
-            Reference = new OpenApiReference
-            {
-                Type = ReferenceType.SecurityScheme,
-                Id = "Bearer"
-            }
-        },
-        Array.Empty<string>()
-    }
-});
-            });
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            }
+                        },
+                        Array.Empty<string>()
+                    }
+                });
+            }); 
 
             // CORS
             builder.Services.AddCors(options =>

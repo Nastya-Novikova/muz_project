@@ -1,32 +1,30 @@
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+//using System.ComponentModel.DataAnnotations;
+//using System.ComponentModel.DataAnnotations.Schema;
 
 namespace backend.Models.Classes;
-
-using System.ComponentModel.DataAnnotations;
 
 /// <summary>
 /// Код подтверждения email
 /// </summary>
-[Table("EmailVerificationCodes")]
+//[Table("EmailVerificationCodes")]
 public class EmailVerificationCode
 {
     /// <summary>
     /// Идентификатор
     /// </summary>
-    [Key]
+    //[Key]
     public Guid Id { get; set; } = Guid.NewGuid();
 
     /// <summary>
     /// Email
     /// </summary>
-    [Required, EmailAddress]
+    //[Required, EmailAddress]
     public string Email { get; set; } = string.Empty;
 
     /// <summary>
     /// 6-значный код
     /// </summary>
-    [Required, StringLength(6)]
+    //[Required, StringLength(6)]
     public string Code { get; set; } = string.Empty;
 
     /// <summary>

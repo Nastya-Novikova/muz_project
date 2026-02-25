@@ -5,6 +5,8 @@ using System.Text.Json;
 using backend.Services.Interfaces;
 using backend.Services;
 using backend.Models.Classes;
+using backend.Models.DTOs.Common;
+using backend.Models.DTOs.Profiles;
 
 namespace backend.Controllers;
 
@@ -26,10 +28,12 @@ public class ProfilesController : ControllerBase
     /// Поиск музыкантов
     /// </summary>
     [HttpPost("search")]
-    public async Task<IActionResult> Search([FromBody] JsonDocument? searchParams)
+    public async Task<ActionResult<PagedResult<ProfileDto>>> Search([FromBody] SearchRequest request)
     {
-        var result = await _service.SearchAsync(searchParams ?? JsonDocument.Parse("{}"));
-        return result != null ? Ok(result) : BadRequest();
+        var result = await _service.SearchAsync(request);
+        if (!result.IsSuccess)
+            return BadRequest(new { error = result.Error });
+        return Ok(result.Value);
     }
 
     /// <summary>
@@ -37,21 +41,25 @@ public class ProfilesController : ControllerBase
     /// </summary>
     [HttpGet]
     [Authorize]
-    public async Task<IActionResult> GetMyProfile()
+    public async Task<ActionResult<ProfileDto>> GetMyProfile()
     {
         var userId = GetUserId();
-        var obj = await _service.GetByUserIdAsync(userId);
-        return obj != null ? Ok(obj) : BadRequest();
+        var result = await _service.GetByUserIdAsync(userId);
+        if (!result.IsSuccess)
+            return BadRequest(new { error = result.Error });
+        return Ok(result.Value);
     }
 
     /// <summary>
     /// Получить профиль по ID
     /// </summary>
     [HttpGet("{id}")]
-    public async Task<IActionResult> Get(Guid id)
+    public async Task<ActionResult<ProfileDto>> Get(Guid id)
     {
-        var obj = await _service.GetByIdAsync(id);
-        return obj != null ? Ok(obj) : BadRequest();
+        var result = await _service.GetByIdAsync(id);
+        if (!result.IsSuccess)
+            return BadRequest(new { error = result.Error });
+        return Ok(result.Value);
     }
 
     /// <summary>
@@ -59,11 +67,13 @@ public class ProfilesController : ControllerBase
     /// </summary>
     [HttpPost]
     [Authorize]
-    public async Task<IActionResult> Create([FromBody] JsonDocument objJson)
+    public async Task<ActionResult<ProfileDto>> Create([FromBody] CreateProfileRequest request)
     {
         var userId = GetUserId();
-        var obj = await _service.CreateAsync(objJson, userId);
-        return obj != null ? Ok(obj) : BadRequest();
+        var result = await _service.CreateAsync(userId, request);
+        if (!result.IsSuccess)
+            return BadRequest(new { error = result.Error });
+        return Ok(result.Value);
     }
 
     /// <summary>
@@ -71,11 +81,13 @@ public class ProfilesController : ControllerBase
     /// </summary>
     [HttpPut]
     [Authorize]
-    public async Task<IActionResult> Update([FromBody] JsonDocument objJson)
+    public async Task<ActionResult<ProfileDto>> Update([FromBody] UpdateProfileRequest request)
     {
         var userId = GetUserId();
-        var obj = await _service.UpdateAsync(objJson, userId);
-        return obj != null ? Ok(obj) : BadRequest();
+        var result = await _service.UpdateAsync(userId, request);
+        if (!result.IsSuccess)
+            return BadRequest(new { error = result.Error });
+        return Ok(result.Value);
     }
 
     /// <summary>
@@ -83,10 +95,12 @@ public class ProfilesController : ControllerBase
     /// </summary>
     [HttpGet("{id}/media")]
     [Authorize]
-    public async Task<IActionResult> GetMedia(Guid id)
+    public async Task<ActionResult<object>> GetMedia(Guid id)
     {
-        var obj = await _service.GetMediaByIdAsync(id);
-        return obj != null ? Ok(obj) : BadRequest();
+        var result = await _service.GetMediaAsync(id);
+        if (!result.IsSuccess)
+            return BadRequest(new { error = result.Error });
+        return Ok(result.Value);
     }
 
     /// <summary>
@@ -96,8 +110,10 @@ public class ProfilesController : ControllerBase
     [Authorize]
     public async Task<IActionResult> Delete(Guid id)
     {
-        var obj = await _service.DeleteAsync(id);
-        return obj != null ? Ok(obj) : BadRequest();
+        var result = await _service.DeleteAsync(id);
+        if (!result.IsSuccess)
+            return BadRequest(new { error = result.Error });
+        return Ok(new { success = true });
     }
 
     private Guid GetUserId()

@@ -1,21 +1,19 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿//using System.ComponentModel.DataAnnotations;
+//using System.ComponentModel.DataAnnotations.Schema;
+using backend.Models.Enums;
 
 namespace backend.Models.Classes;
-
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 /// <summary>
 /// Профиль музыканта
 /// </summary>
-[Table("MusicianProfiles")]
+//[Table("MusicianProfiles")]
 public class MusicianProfile : ISoftDeletable
 {
     /// <summary>
     /// Идентификатор профиля
     /// </summary>
-    [Key]
+    //[Key]
     public Guid Id { get; set; }
 
     /*/// <summary>
@@ -24,10 +22,12 @@ public class MusicianProfile : ISoftDeletable
     [Required]
     public Guid UserId { get; set; }*/
 
+    public ProfileType ProfileType { get; set; } = ProfileType.Individual;
+
     /// <summary>
     /// Полное имя
     /// </summary>
-    [Required, MaxLength(100)]
+    //[Required, MaxLength(100)]
     public string FullName { get; set; } = string.Empty;
 
     /// <summary>
@@ -38,38 +38,40 @@ public class MusicianProfile : ISoftDeletable
     /// <summary>
     /// Возраст (0-100)
     /// </summary>
-    [Range(0, 100)]
+    //[Range(0, 100)]
     public int? Age { get; set; }
 
     /// <summary>
     /// Описание
     /// </summary>
-    [MaxLength(500)]
+    //[MaxLength(500)]
     public string? Description { get; set; }
 
     /// <summary>
     /// Телефон
     /// </summary>
-    [Phone]
+    //[Phone]
     public string? Phone { get; set; }
 
     /// <summary>
     /// Telegram
     /// </summary>
-    [MaxLength(50)]
+    //[MaxLength(50)]
     public string? Telegram { get; set; }
 
     /// <summary>
     /// ID города
     /// </summary>
-    [Required]
+    //[Required]
     public int CityId { get; set; }
 
     /// <summary>
     /// Опыт (в годах)
     /// </summary>
-    [Range(0, int.MaxValue)]
+    //[Range(0, int.MaxValue)]
     public int Experience { get; set; } = 0;
+
+    public LookingFor LookingFor { get; set; } = LookingFor.NotLooking;
 
     /// <summary>
     /// Дата создания
@@ -82,13 +84,16 @@ public class MusicianProfile : ISoftDeletable
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
     // === Навигационные свойства ===
-    [ForeignKey("CityId")]
+    //[ForeignKey("CityId")]
     public City City { get; set; } = null!;
 
     // === Коллекции ===
     public List<Genre> Genres { get; set; } = new();
     public List<MusicalSpecialty> Specialties { get; set; } = new();
     public List<CollaborationGoal> CollaborationGoals { get; set; } = new();
+
+    public List<Genre> DesiredGenres { get; set; } = new();
+    public List<MusicalSpecialty> DesiredSpecialties { get; set; } = new();
 
     // === Портфолио ===
     /// <summary>

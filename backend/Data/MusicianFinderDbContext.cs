@@ -5,6 +5,7 @@ using backend.Models.Classes;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
+using backend.Models.Enums;
 
 namespace backend.Data
 {
@@ -15,31 +16,261 @@ namespace backend.Data
         {
         }
 
+        public DbSet<User> Users => Set<User>();
+        public DbSet<MusicianProfile> MusicianProfiles => Set<MusicianProfile>();
+        public DbSet<City> Cities => Set<City>();
+        public DbSet<Genre> Genres => Set<Genre>();
+        public DbSet<MusicalSpecialty> MusicalSpecialties => Set<MusicalSpecialty>();
+        public DbSet<CollaborationGoal> CollaborationGoals => Set<CollaborationGoal>();
+        public DbSet<EmailVerificationCode> EmailVerificationCodes => Set<EmailVerificationCode>();
+        public DbSet<CollaborationSuggestion> CollaborationSuggestions => Set<CollaborationSuggestion>();
+        public DbSet<PortfolioAudio> PortfolioAudio => Set<PortfolioAudio>();
+        public DbSet<PortfolioVideo> PortfolioVideo => Set<PortfolioVideo>();
+        public DbSet<PortfolioPhoto> PortfolioPhotos => Set<PortfolioPhoto>();
+        public DbSet<Favorite> Favorites => Set<Favorite>();
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<User>();
-            modelBuilder.Entity<MusicianProfile>();
-            modelBuilder.Entity<City>();
-            modelBuilder.Entity<Genre>();
-            modelBuilder.Entity<MusicalSpecialty>();
-            modelBuilder.Entity<CollaborationGoal>();
-            modelBuilder.Entity<EmailVerificationCode>();
-            modelBuilder.Entity<CollaborationSuggestion>();
-            modelBuilder.Entity<PortfolioAudio>();
-            modelBuilder.Entity<PortfolioVideo>();
-            modelBuilder.Entity<PortfolioPhoto>();
+            // === Конфигурация User ===
+            modelBuilder.Entity<User>(entity =>
+            {
+                entity.ToTable("Users");
+                entity.HasKey(u => u.Id);
+                entity.Property(u => u.Email).IsRequired().HasMaxLength(256);
+                entity.HasIndex(u => u.Email).IsUnique();
+                entity.Property(u => u.Role).HasConversion<string>().HasDefaultValue(UserRole.User);
+                entity.Property(u => u.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
 
-            modelBuilder.Entity<User>().HasQueryFilter(u => !u.IsDeleted);
+                entity.HasQueryFilter(u => !u.IsDeleted);
+
+                // Связь один-к-одному с MusicianProfile
+                entity.HasOne(u => u.MusicianProfile)
+                    .WithOne()
+                    .HasForeignKey<MusicianProfile>(p => p.Id);
+            });
+
+            // === Конфигурация Favorite ===
+            modelBuilder.Entity<Favorite>(entity =>
+            {
+                entity.ToTable("Favorites");
+                entity.HasKey(f => new { f.UserId, f.ProfileId });
+
+                entity.HasOne(f => f.User)
+                    .WithMany(u => u.Favorites)
+                    .HasForeignKey(f => f.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(f => f.Profile)
+                    .WithMany()
+                    .HasForeignKey(f => f.ProfileId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.Property(f => f.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+            });
+
+            // === Конфигурация MusicianProfile ===
+            modelBuilder.Entity<MusicianProfile>(entity =>
+            {
+                entity.ToTable("MusicianProfiles");
+                entity.HasKey(p => p.Id);
+                entity.Property(p => p.FullName).IsRequired().HasMaxLength(100);
+                entity.Property(p => p.Avatar).HasColumnType("bytea");
+                entity.Property(p => p.Phone).HasMaxLength(20);
+                entity.Property(p => p.Telegram).HasMaxLength(50);
+                entity.Property(p => p.Experience).HasDefaultValue(0);
+                entity.Property(p => p.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+                entity.Property(p => p.UpdatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+                entity.Property(p => p.ProfileType).HasConversion<string>();
+                entity.Property(p => p.LookingFor).HasConversion<string>();
+
+                entity.HasQueryFilter(p => !p.IsDeleted);
+
+                // Связь с городом
+                entity.HasOne(p => p.City)
+                    .WithMany(/*c => c.Profiles*/)
+                    .HasForeignKey(p => p.CityId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                // === Many-to-many для предлагаемых жанров ===
+                entity.HasMany(p => p.Genres)
+                    .WithMany(g => g.Profiles)
+                    .UsingEntity(j => j.ToTable("ProfileGenres"));
+
+                // === Many-to-many для предлагаемых специализаций ===
+                entity.HasMany(p => p.Specialties)
+                    .WithMany(s => s.Profiles)
+                    .UsingEntity(j => j.ToTable("ProfileSpecialties"));
+
+                // === Many-to-many для целей сотрудничества ===
+                entity.HasMany(p => p.CollaborationGoals)
+                    .WithMany(cg => cg.Profiles)
+                    .UsingEntity(j => j.ToTable("ProfileCollaborationGoals"));
+
+                // === Many-to-many для искомых жанров ===
+                entity.HasMany(p => p.DesiredGenres)
+                    .WithMany(g => g.ProfilesLookingForThisGenre)
+                    .UsingEntity(j => j.ToTable("ProfileDesiredGenres"));
+
+                // === Many-to-many для искомых специализаций ===
+                entity.HasMany(p => p.DesiredSpecialties)
+                    .WithMany(s => s.ProfilesLookingForThisSpecialty)
+                    .UsingEntity(j => j.ToTable("ProfileDesiredSpecialties"));
+
+                // === Портфолио ===
+                entity.HasMany(p => p.AudioFiles)
+                    .WithOne(a => a.Profile)
+                    .HasForeignKey(a => a.ProfileId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasMany(p => p.VideoFiles)
+                    .WithOne(v => v.Profile)
+                    .HasForeignKey(v => v.ProfileId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasMany(p => p.Photos)
+                    .WithOne(ph => ph.Profile)
+                    .HasForeignKey(ph => ph.ProfileId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // === Конфигурация City ===
+            modelBuilder.Entity<City>(entity =>
+            {
+                entity.ToTable("Cities");
+                entity.HasKey(c => c.Id);
+                entity.Property(c => c.Name).IsRequired().HasMaxLength(50);
+                entity.Property(c => c.LocalizedName).IsRequired().HasMaxLength(50);
+            });
+
+            // === Конфигурация Genre ===
+            modelBuilder.Entity<Genre>(entity =>
+            {
+                entity.ToTable("Genres");
+                entity.HasKey(g => g.Id);
+                entity.Property(g => g.Name).IsRequired().HasMaxLength(50);
+                entity.Property(g => g.LocalizedName).IsRequired().HasMaxLength(50);
+            });
+
+            // === Конфигурация MusicalSpecialty ===
+            modelBuilder.Entity<MusicalSpecialty>(entity =>
+            {
+                entity.ToTable("MusicalSpecialties");
+                entity.HasKey(ms => ms.Id);
+                entity.Property(ms => ms.Name).IsRequired().HasMaxLength(50);
+                entity.Property(ms => ms.LocalizedName).IsRequired().HasMaxLength(50);
+            });
+
+            // === Конфигурация CollaborationGoal ===
+            modelBuilder.Entity<CollaborationGoal>(entity =>
+            {
+                entity.ToTable("CollaborationGoals");
+                entity.HasKey(cg => cg.Id);
+                entity.Property(cg => cg.Name).IsRequired().HasMaxLength(50);
+                entity.Property(cg => cg.LocalizedName).IsRequired().HasMaxLength(50);
+            });
+
+            // === Конфигурация EmailVerificationCode ===
+            modelBuilder.Entity<EmailVerificationCode>(entity =>
+            {
+                entity.ToTable("EmailVerificationCodes");
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Email).IsRequired().HasMaxLength(256);
+                entity.Property(e => e.Code).IsRequired().HasMaxLength(6);
+                entity.Property(e => e.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+                entity.HasIndex(e => new { e.Email, e.Code, e.IsUsed });
+            });
+
+            // === Конфигурация CollaborationSuggestion ===
+            modelBuilder.Entity<CollaborationSuggestion>(entity =>
+            {
+                entity.ToTable("CollaborationSuggestions");
+                entity.HasKey(cs => cs.Id);
+                entity.Property(cs => cs.Message).HasMaxLength(500);
+                entity.Property(cs => cs.Status).IsRequired().HasMaxLength(20);
+                entity.Property(cs => cs.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+                entity.Property(cs => cs.UpdatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                entity.HasOne(cs => cs.FromProfile)
+                    .WithMany()
+                    .HasForeignKey(cs => cs.FromProfileId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(cs => cs.ToProfile)
+                    .WithMany()
+                    .HasForeignKey(cs => cs.ToProfileId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // === Конфигурация PortfolioAudio ===
+            modelBuilder.Entity<PortfolioAudio>(entity =>
+            {
+                entity.ToTable("PortfolioAudio");
+                entity.HasKey(pa => pa.Id);
+                entity.Property(pa => pa.Title).HasMaxLength(100);
+                entity.Property(pa => pa.Description).HasMaxLength(500);
+                entity.Property(pa => pa.FileData).HasColumnType("bytea");
+                entity.Property(pa => pa.MimeType).HasMaxLength(50);
+                entity.Property(pa => pa.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+            });
+
+            // === Конфигурация PortfolioVideo ===
+            modelBuilder.Entity<PortfolioVideo>(entity =>
+            {
+                entity.ToTable("PortfolioVideo");
+                entity.HasKey(pv => pv.Id);
+                entity.Property(pv => pv.Title).HasMaxLength(100);
+                entity.Property(pv => pv.Description).HasMaxLength(500);
+                entity.Property(pv => pv.FileData).HasColumnType("bytea");
+                entity.Property(pv => pv.MimeType).HasMaxLength(50);
+                entity.Property(pv => pv.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+            });
+
+            // === Конфигурация PortfolioPhoto ===
+            modelBuilder.Entity<PortfolioPhoto>(entity =>
+            {
+                entity.ToTable("PortfolioPhotos");
+                entity.HasKey(pp => pp.Id);
+                entity.Property(pp => pp.Title).HasMaxLength(100);
+                entity.Property(pp => pp.Description).HasMaxLength(500);
+                entity.Property(pp => pp.FileData).HasColumnType("bytea");
+                entity.Property(pp => pp.MimeType).HasMaxLength(50);
+                entity.Property(pp => pp.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+            });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            /*modelBuilder.Entity<User>().HasQueryFilter(u => !u.IsDeleted);
             modelBuilder.Entity<MusicianProfile>().HasQueryFilter(p => !p.IsDeleted);
 
             modelBuilder.Entity<MusicianProfile>().Property(p => p.Avatar).HasColumnType("bytea");
             modelBuilder.Entity<PortfolioPhoto>().Property(p => p.FileData).HasColumnType("bytea");
             modelBuilder.Entity<PortfolioAudio>().Property(a => a.FileData).HasColumnType("bytea");
-            modelBuilder.Entity<PortfolioVideo>().Property(v => v.FileData).HasColumnType("bytea");
+            modelBuilder.Entity<PortfolioVideo>().Property(v => v.FileData).HasColumnType("bytea");*/
 
-            // === Many-to-many ===
+            /*// === Many-to-many ===
             modelBuilder.Entity<MusicianProfile>()
                 .HasMany(p => p.Genres)
                 .WithMany(g => g.Profiles)
@@ -90,7 +321,7 @@ namespace backend.Data
                 .HasOne(s => s.ToProfile)
                 .WithMany()
                 .HasForeignKey(s => s.ToProfileId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Cascade);*/
 
 
 
@@ -140,10 +371,10 @@ namespace backend.Data
                 new CollaborationGoal { Id = 5, Name = "artist", LocalizedName = "Ищу исполнителя для песен" }
             );
 
-            this.SaveChangesAsync();
+            //this.SaveChangesAsync();
         }
 
-        public static void EnsureDatabaseCreated(MusicianFinderDbContext context)
+        /*public static void EnsureDatabaseCreated(MusicianFinderDbContext context)
         {
             try
             {
@@ -166,6 +397,6 @@ namespace backend.Data
                     }
                 }
             }
-        }
+        }*/
     }
 }

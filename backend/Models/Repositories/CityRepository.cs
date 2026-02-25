@@ -9,17 +9,17 @@ namespace backend.Models.Repositories;
 public class CityRepository : ICityRepository
 {
     private readonly MusicianFinderDbContext _context;
-    public DbSet<City> Cities { get; set; }
+    //public DbSet<City> Cities { get; set; }
 
     public CityRepository(MusicianFinderDbContext context)
     {
         _context = context;
-        Cities = _context.Set<City>();
+        //Cities = _context.Set<City>();
     }
 
     public async Task<List<City>> GetAllAsync(string? query = null, string? sortBy = null, bool sortDesc = false)
     {
-        var queryable = Cities.AsQueryable();
+        var queryable = _context.Cities.AsQueryable();
 
         if (!string.IsNullOrWhiteSpace(query))
         {
@@ -34,7 +34,7 @@ public class CityRepository : ICityRepository
 
     public async Task<City?> GetByIdAsync(int id)
     {
-        return await Cities.FindAsync(id);
+        return await _context.Cities.FindAsync(id);
     }
 
     private static IQueryable<City> ApplySorting(IQueryable<City> query, string? sortBy, bool sortDesc)

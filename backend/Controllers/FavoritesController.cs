@@ -4,6 +4,9 @@ using System.Security.Claims;
 using System.Text.Json;
 using backend.Services.Interfaces;
 using backend.Services;
+using backend.Models.DTOs.Common;
+using backend.Models.DTOs.Favorites;
+using AutoMapper;
 
 namespace backend.Controllers;
 
@@ -26,45 +29,58 @@ public class FavoritesController : ControllerBase
     /// Получить избранные профили
     /// </summary>
     [HttpGet]
-    public async Task<IActionResult> GetFavorites([FromQuery] int page = 1, [FromQuery] int limit = 20)
+    public async Task<ActionResult<PagedResult<FavoriteProfileDto>>> GetFavorites(
+        [FromQuery] int page = 1,
+        [FromQuery] int limit = 20)
     {
-        var queryParams = JsonDocument.Parse(JsonSerializer.Serialize(new { page, limit }));
         var userId = GetUserId();
-        var result = await _service.GetFavoritesAsync(userId, queryParams);
-        return result != null ? Ok(result) : BadRequest();
+        var result = await _service.GetFavoritesAsync(userId, page, limit);
+        if (!result.IsSuccess)
+            return BadRequest(new { error = result.Error });
+
+        return Ok(result.Value);
     }
 
     /// <summary>
     /// Добавить в избранное
     /// </summary>
-    [HttpPost("{favoriteUserId}")]
-    public async Task<IActionResult> Add(Guid favoriteUserId)
+    [HttpPost("{profileId}")]
+    public async Task<IActionResult> Add(Guid profileId)
     {
         var userId = GetUserId();
-        var result = await _service.AddAsync(userId, favoriteUserId);
-        return result != null ? Ok(result) : BadRequest();
+        var result = await _service.AddFavoriteAsync(userId, profileId);
+        if (!result.IsSuccess)
+            return BadRequest(new { error = result.Error });
+
+        return Ok(new { success = true });
     }
 
     /// <summary>
     /// Удалить из избранного
     /// </summary>
-    [HttpDelete("{favoriteUserId}")]
-    public async Task<IActionResult> Remove(Guid favoriteUserId)
+    [HttpDelete("{profileId}")]
+    public async Task<IActionResult> Remove(Guid profileId)
     {
         var userId = GetUserId();
-        var result = await _service.RemoveAsync(userId, favoriteUserId);
-        return result != null ? Ok(result) : BadRequest();
+        var result = await _service.RemoveFavoriteAsync(userId, profileId);
+        if (!result.IsSuccess)
+            return BadRequest(new { error = result.Error });
+
+        return Ok(new { success = true });
     }
 
     /// <summary>
     /// Проверить, добавлен ли пользователь в избранное
     /// </summary>
-    [HttpGet("{favoriteUserId}")]
-    public async Task<IActionResult> IsFavorite(Guid favoriteUserId)
+    [HttpGet("{profileId}/is-favorite")]
+    public async Task<ActionResult<bool>> IsFavorite(Guid profileId)
     {
         var userId = GetUserId();
-        var isFavorite = await _service.IsFavoriteAsync(userId, favoriteUserId);
-        return Ok(new { isFavorite });
+        var result = await _service.IsFavoriteAsync(userId, profileId);
+        if (!result.IsSuccess)
+            return BadRequest(new { error = result.Error });
+
+        return Ok(new { isFavorite = result.Value });
     }
 
     private Guid GetUserId()

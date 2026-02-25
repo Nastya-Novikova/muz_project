@@ -8,17 +8,17 @@ namespace backend.Models.Repositories;
 public class MusicalSpecialtyRepository : IMusicalSpecialtyRepository
 {
     private readonly MusicianFinderDbContext _context;
-    public DbSet<MusicalSpecialty> MusicalSpecialties { get; set; }
+    //public DbSet<MusicalSpecialty> MusicalSpecialties { get; set; }
 
     public MusicalSpecialtyRepository(MusicianFinderDbContext context)
     {
         _context = context;
-        MusicalSpecialties = _context.Set<MusicalSpecialty>();
+        //MusicalSpecialties = _context.Set<MusicalSpecialty>();
     }
 
     public async Task<List<MusicalSpecialty>> GetAllAsync(string? query = null, string? sortBy = null, bool sortDesc = false)
     {
-        var queryable = MusicalSpecialties.AsQueryable();
+        var queryable = _context.MusicalSpecialties.AsQueryable();
 
         if (!string.IsNullOrWhiteSpace(query))
         {
@@ -33,7 +33,15 @@ public class MusicalSpecialtyRepository : IMusicalSpecialtyRepository
 
     public async Task<MusicalSpecialty?> GetByIdAsync(int id)
     {
-        return await MusicalSpecialties.FindAsync(id);
+        return await _context.MusicalSpecialties.FindAsync(id);
+    }
+
+    public async Task<List<MusicalSpecialty>> GetByIdsAsync(List<int> ids)
+    {
+        if (ids == null || ids.Count == 0)
+            return new List<MusicalSpecialty>();
+
+        return await _context.MusicalSpecialties.Where(s => ids.Contains(s.Id)).ToListAsync();
     }
 
     private static IQueryable<MusicalSpecialty> ApplySorting(IQueryable<MusicalSpecialty> query, string? sortBy, bool sortDesc)

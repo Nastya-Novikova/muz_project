@@ -9,17 +9,17 @@ namespace backend.Models.Repositories;
 public class GenreRepository : IGenreRepository
 {
     private readonly MusicianFinderDbContext _context;
-    public DbSet<Genre> Genres { get; set; }
+    //public DbSet<Genre> Genres { get; set; }
 
     public GenreRepository(MusicianFinderDbContext context)
     {
         _context = context;
-        Genres = _context.Set<Genre>();
+        //Genres = _context.Set<Genre>();
     }
 
     public async Task<List<Genre>> GetAllAsync(string? query = null, string? sortBy = null, bool sortDesc = false)
     {
-        var queryable = Genres.AsQueryable();
+        var queryable = _context.Genres.AsQueryable();
 
         if (!string.IsNullOrWhiteSpace(query))
         {
@@ -34,7 +34,15 @@ public class GenreRepository : IGenreRepository
 
     public async Task<Genre?> GetByIdAsync(int id)
     {
-        return await Genres.FindAsync(id);
+        return await _context.Genres.FindAsync(id);
+    }
+
+    public async Task<List<Genre>> GetByIdsAsync(List<int> ids)
+    {
+        if (ids == null || ids.Count == 0)
+            return new List<Genre>();
+
+        return await _context.Genres.Where(g => ids.Contains(g.Id)).ToListAsync();
     }
 
     private static IQueryable<Genre> ApplySorting(IQueryable<Genre> query, string? sortBy, bool sortDesc)

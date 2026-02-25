@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using System.Text.Json;
 using backend.Services.Interfaces;
+using backend.Models.DTOs.Collaborations;
+using backend.Models.DTOs.Common;
 
 namespace backend.Controllers;
 
@@ -24,48 +26,68 @@ public class CollaborationsController : ControllerBase
     /// <summary>
     /// Отправить предложение о сотрудничестве
     /// </summary>
-    [HttpPost("{userId}")]
-    public async Task<IActionResult> SendSuggestion(Guid userId, [FromBody] JsonDocument objJson)
+    [HttpPost("{profileId}")]
+    public async Task<IActionResult> SendSuggestion(Guid profileId, [FromBody] SendSuggestionRequest request)
     {
-        var fromUserId = GetUserId();
-        var message = objJson.RootElement.TryGetProperty("message", out var m) ? m.GetString() : null;
-        var result = await _service.SendSuggestionAsync(fromUserId, userId, message);
-        return result != null ? Ok(result) : BadRequest();
+        if (profileId != request.ToProfileId)
+            return BadRequest(new { error = "Profile ID mismatch" });
+
+        var userId = GetUserId();
+        var result = await _service.SendSuggestionAsync(userId, request.ToProfileId, request.Message);
+        if (!result.IsSuccess)
+            return BadRequest(new { error = result.Error });
+
+        return Ok(new { success = true });
     }
 
     /// <summary>
     /// Получить предложения мне
     /// </summary>
     [HttpGet("received")]
-    public async Task<IActionResult> GetReceived([FromQuery] int page = 1, [FromQuery] int limit = 20, [FromQuery] string? sortBy = "createdAt", [FromQuery] bool sortDesc = true)
+    public async Task<ActionResult<PagedResult<SuggestionDto>>> GetReceived(
+        [FromQuery] int page = 1,
+        [FromQuery] int limit = 20,
+        [FromQuery] string? sortBy = "createdAt",
+        [FromQuery] bool sortDesc = true)
     {
-        var queryParams = JsonDocument.Parse(JsonSerializer.Serialize(new { page, limit, sortBy, sortDesc }));
         var userId = GetUserId();
-        var result = await _service.GetReceivedAsync(userId, queryParams);
-        return result != null ? Ok(result) : BadRequest();
+        var result = await _service.GetReceivedAsync(userId, page, limit, sortBy, sortDesc);
+        if (!result.IsSuccess)
+            return BadRequest(new { error = result.Error });
+
+        return Ok(result.Value);
     }
 
     /// <summary>
     /// Получить мои предложения
     /// </summary>
     [HttpGet("sent")]
-    public async Task<IActionResult> GetSent([FromQuery] int page = 1, [FromQuery] int limit = 20, [FromQuery] string? sortBy = "createdAt", [FromQuery] bool sortDesc = true)
+    public async Task<ActionResult<PagedResult<SuggestionDto>>> GetSent(
+        [FromQuery] int page = 1,
+        [FromQuery] int limit = 20,
+        [FromQuery] string? sortBy = "createdAt",
+        [FromQuery] bool sortDesc = true)
     {
-        var queryParams = JsonDocument.Parse(JsonSerializer.Serialize(new { page, limit, sortBy, sortDesc }));
         var userId = GetUserId();
-        var result = await _service.GetSentAsync(userId, queryParams);
-        return result != null ? Ok(result) : BadRequest();
+        var result = await _service.GetSentAsync(userId, page, limit, sortBy, sortDesc);
+        if (!result.IsSuccess)
+            return BadRequest(new { error = result.Error });
+
+        return Ok(result.Value);
     }
 
     /// <summary>
     /// Проверить, отправлено ли пользователю предложение
     /// </summary>
     [HttpGet("{collaboratedProfileId}")]
-    public async Task<IActionResult> IsCollaborated(Guid collaboratedProfileId)
+    public async Task<ActionResult<bool>> IsCollaborated(Guid collaboratedProfileId)
     {
         var userId = GetUserId();
-        var isCollaborated = await _service.IsCollaboratedAsync(userId, collaboratedProfileId);
-        return Ok(new { isCollaborated });
+        var result = await _service.IsCollaboratedAsync(userId, collaboratedProfileId);
+        if (!result.IsSuccess)
+            return BadRequest(new { error = result.Error });
+
+        return Ok(new { isCollaborated = result.Value });
     }
 
     private Guid GetUserId()

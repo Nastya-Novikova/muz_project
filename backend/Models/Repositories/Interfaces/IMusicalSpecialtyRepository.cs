@@ -5,7 +5,8 @@ namespace backend.Models.Repositories.Interfaces;
 
 public interface IMusicalSpecialtyRepository
 {
-    DbSet<MusicalSpecialty> MusicalSpecialties { get; }
+    //DbSet<MusicalSpecialty> MusicalSpecialties { get; }
     Task<List<MusicalSpecialty>> GetAllAsync(string? query = null, string? sortBy = null, bool sortDesc = false);
     Task<MusicalSpecialty?> GetByIdAsync(int id);
+    Task<List<MusicalSpecialty>> GetByIdsAsync(List<int> ids);
 }
