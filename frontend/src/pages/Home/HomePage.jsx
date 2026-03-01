@@ -15,6 +15,8 @@ function HomePage() {
   const [city, setCity] = useState(''); 
   const [experienceMin, setExperienceMin] = useState('');
   const [experienceMax, setExperienceMax] = useState('');
+  const [lookingForBand, setLookingForBand] = useState(false);
+  const [lookingForMusician, setLookingForMusician] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
 
   const [searchResults, setSearchResults] = useState([]);
@@ -59,9 +61,15 @@ function HomePage() {
       searchParams.experienceMax = parseInt(experienceMax, 10);
     }
 
+    if (lookingForBand && !lookingForMusician) {
+        searchParams.lookingFor = 'LookingForBand';
+      } else if (lookingForMusician && !lookingForBand) {
+        searchParams.lookingFor = 'LookingForMusician';
+      }
+
       const response = await api.searchMusicians(Object.keys(searchParams).length > 0 ? searchParams : {}, );
       console.log('Получены результаты поиска:', response);
-      const users = response.results || [];
+      const users = response.items || [];
       setSearchResults(users);
 
     } catch (err) {
@@ -157,6 +165,34 @@ function HomePage() {
                     className="experience-input"
                     min="0"
                   />
+                </div>
+              </div>
+
+              <div className="filter-group">
+                <label className="filter-group-label">Ищут:</label>
+                <div className="looking-checkboxes">
+                  <label className="filter-checkbox">
+                    <input
+                      type="checkbox"
+                      checked={lookingForBand}
+                      onChange={(e) => {
+                        setLookingForBand(e.target.checked);
+                        if (e.target.checked) setLookingForMusician(false);
+                      }}
+                    />
+                    <span>Ищут коллектив</span>
+                  </label>
+                  <label className="filter-checkbox">
+                    <input
+                      type="checkbox"
+                      checked={lookingForMusician}
+                      onChange={(e) => {
+                        setLookingForMusician(e.target.checked);
+                        if (e.target.checked) setLookingForBand(false);
+                      }}
+                    />
+                    <span>Ищут музыкантов</span>
+                  </label>
                 </div>
               </div>
             </div>

@@ -147,9 +147,10 @@
   color: var(--dark-blue);
 }
 
-.edit-profile-btn-img {
-  height: 24px;
-  width: 24px;
+.edit-profile-btn-img,
+.delete-profile-btn-img {
+  height: 24px !important;
+  width: 24px !important;
 }
 
 .edit-profile-btn:hover {
@@ -356,4 +357,53 @@
 
 .audio-element {
   width: 100%;
+}
+
+.profile-title-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.profile-role-badge {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 0.3rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  white-space: nowrap;
+}
+
+.profile-looking-badge {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.15);
+  padding: 0.3rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+}
+
+.looking-for-title {
+  color: var(--dark-blue);
+  font-weight: 500;
+  margin: 1rem 0 0.5rem 0;
+  font-size: 0.95rem;
+}
+
+.looking-genres,
+.looking-specialties {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.looking-tag {
+  background: var(--light-grey);
+  color: var(--dark-blue);
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  border: 1px solid var(--border-grey);
 }

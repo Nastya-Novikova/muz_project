@@ -8,7 +8,7 @@ import './ProfilePage.css';
 
 function ProfilePage() {
   const { userId } = useParams();
-  const { getToken, logout, getUserEmail } = useAuth(); 
+  const { getToken, logout, getUserEmail, getUserRole } = useAuth(); 
   const navigate = useNavigate();
   
   const [activeTab, setActiveTab] = useState('info');
@@ -48,16 +48,11 @@ function ProfilePage() {
       const response = await api.checkCollaboration(profileId, token);
       setIsCollaboration(response.isCollaborated || false);
     } catch (err) {
-      console.error('Ошибка проверки избранного:', err);
+      console.error('Ошибка проверки предложения:', err);
     } finally {
       setSendingCollaboration(false);
     }
   };
-
-  /*const getAvatarUrl = (profile) => {
-    if (!profile?.avatar) return '/default-avatar.png';
-      return api.convertAvatarBytesToUrl(profile.avatar);
-  };*/
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -70,24 +65,22 @@ function ProfilePage() {
         setCurrentUserId(myProfile.id);
         
         if (!userId) {
+          // Свой профиль
           setProfileData(myProfile);
 
           if (myProfile.avatar) {
             const url = api.convertAvatarBytesToUrl(myProfile.avatar);
             setAvatarUrl(url || '/default-avatar.png');
-          } else {
-            setAvatarUrl('/default-avatar.png');
           }
 
           const media = await api.getMedia(myProfile.id, token);
           setMediaData(media);
         } else {
-          const otherProfileData = await api.getProfileById(userId, token);
+          // Чужой профиль
+          const otherProfileData = await api.getProfileById(userId);
           if (otherProfileData.avatar) { 
             const url = api.convertAvatarBytesToUrl(otherProfileData.avatar);
             setAvatarUrl(url || '/default-avatar.png');
-          } else {
-            setAvatarUrl('/default-avatar.png');
           }
 
           setProfileData(otherProfileData);
@@ -103,15 +96,11 @@ function ProfilePage() {
         }
       } catch (err) {
         console.error('Ошибка загрузки профиля:', err);
-        alert('Для просмотра карточки необходимо зарегистрироваться.')
-        navigate('/login');
-
         if (err.message.includes('401') || err.message.includes('Unauthorized')) {
           logout();
           navigate('/login');
           return;
         }
-        
         setError('Не удалось загрузить профиль. Пожалуйста, попробуйте позже.');
       } finally {
         setLoading(false);
@@ -123,6 +112,7 @@ function ProfilePage() {
 
   const isOwnProfile = !userId || (userId && currentUserId && userId === currentUserId);
   const userEmail = getUserEmail();
+  const userRole = getUserRole();
 
   const handleEditProfile = () => {
     navigate('/profile/edit');
@@ -188,6 +178,20 @@ function ProfilePage() {
     } 
   };
 
+  const getLookingForText = () => {
+    if (!profileData) return '';
+    switch(profileData.lookingFor) {
+      case 'LookingForBand': return 'Ищет коллектив';
+      case 'LookingForMusician': return 'Ищет музыкантов';
+      default: return '';
+    }
+  };
+
+  const getRoleText = () => {
+    if (!profileData) return '';
+    return profileData.profileType === 'Band' ? 'Коллектив' : 'Музыкант';
+  };
+
   if (loading) {
     return (
       <>
@@ -243,43 +247,34 @@ function ProfilePage() {
                 className="profile-avatar" 
               />
               <div className="profile-info">
-                <h1>{profileData.fullName || 'Не указано'}</h1>
+                <div className="profile-title-row">
+                  <h1>{profileData.fullName || 'Не указано'}</h1>
+                  <span className="profile-role-badge">{getRoleText()}</span>
+                </div>
                 {isOwnProfile && userEmail && (
                   <p className="profile-email">{userEmail}</p>
                 )}
                 <p className="profile-activity">
-                  {profileData.age && `${profileData.age} лет`}
-                  {profileData.specialties?.[0]?.localizedName && ` • ${profileData.specialties[0].localizedName}`}
-                  {profileData.experience && ` • Стаж: ${profileData.experience}`}
-                  {profileData.city?.localizedName && ` • ${profileData.city.localizedName}`}
+                  {profileData.age && `${profileData.age} ${profileData.profileType === 'Band' ? 'г.' : 'лет'}`}
+                  {profileData.experience && ` • Стаж: ${profileData.experience} лет`}
+                  {profileData.cityName && ` • ${profileData.cityName}`}
                 </p>
-                <div className="profile-genres">
-                  {profileData.genres?.map(genre => (
-                    <span key={genre.id} className="genre-tag">
-                      {genre.localizedName || genre.name}
-                    </span>
-                  ))}
-                </div>
+                {profileData.lookingFor !== 'NotLooking' && (
+                  <div className="profile-looking-badge">
+                    {getLookingForText()}
+                  </div>
+                )}
               </div>
             </div>
 
             <div className="profile-actions-container">
               {isOwnProfile ? (
                 <div className="profile-actions"> 
-                  <button onClick={handleEditProfile} className="edit-profile-btn">
-                    <img
-                      src='/pencil.png'
-                      alt='Редактировать профиль'
-                      className='edit-profile-btn-img'
-                    />
+                  <button onClick={handleEditProfile} className="edit-profile-btn" title="Редактировать">
+                    <img src='/pencil.png' alt='Редактировать' className="edit-profile-btn-img"/>
                   </button>
-                  {/* Кнопка удаления */}
-                  <button onClick={handleOpenDeleteModal} className="delete-profile-btn">
-                    <img
-                      src='/delete.png' 
-                      alt='Удалить профиль'
-                      style={{ height: '24px', width: '24px' }}
-                    />
+                  <button onClick={handleOpenDeleteModal} className="delete-profile-btn" title="Удалить">
+                    <img src='/delete.png' alt='Удалить' className="delete-profile-btn-img"/>
                   </button>
                 </div>
               ) : (
@@ -295,9 +290,7 @@ function ProfilePage() {
                         ? 'В избранном' 
                         : 'В избранное'}
                   </button>
-                  <button onClick={handleBack} className="back-btn">
-                    Назад
-                  </button>
+                  <button onClick={handleBack} className="back-btn">Назад</button>
                   <button
                     onClick={handleCollaboration}
                     className={`collaboration-btn ${isCollaboration ? 'sent' : ''}`}
@@ -321,6 +314,12 @@ function ProfilePage() {
               onClick={() => setActiveTab('info')}
             >
               Основная информация
+            </button>
+            <button
+              className={`tab-btn ${activeTab === 'looking' ? 'active' : ''}`}
+              onClick={() => setActiveTab('looking')}
+            >
+              Поиск
             </button>
             <button
               className={`tab-btn ${activeTab === 'portfolio' ? 'active' : ''}`}
@@ -349,18 +348,12 @@ function ProfilePage() {
 
                 <div className="info-grid">
                   <div className="info-item">
-                    <span className="info-label">Возраст:</span>
+                    <span className="info-label">{profileData.profileType === 'Band' ? 'Год основания:' : 'Возраст:'}</span>
                     <span className="info-value">{profileData.age || 'Не указан'}</span>
                   </div>
                   <div className="info-item">
                     <span className="info-label">Город:</span>
-                    <span className="info-value">{profileData.city?.localizedName || 'Не указан'}</span>
-                  </div>
-                  <div className="info-item">
-                    <span className="info-label">Вид деятельности:</span>
-                    <span className="info-value">
-                      {profileData.specialties?.map(s => s.localizedName).join(', ') || 'Не указан'}
-                    </span>
+                    <span className="info-value">{profileData.cityName || 'Не указан'}</span>
                   </div>
                   <div className="info-item">
                     <span className="info-label">Стаж:</span>
@@ -369,11 +362,61 @@ function ProfilePage() {
                     </span>
                   </div>
                   <div className="info-item">
-                    <span className="info-label">Жанры:</span>
-                    <span className="info-value">
-                      {profileData.genres?.map(g => g.localizedName).join(', ') || 'Не указаны'}
-                    </span>
+                      <span className="info-label">{profileData.profileType === 'Band' ? 'Деятельность участников коллектива:' : 'Вид деятельности:'}</span>
+                      <span className="info-value">
+                        {profileData.specialties?.map(s => s.localizedName).join(', ') || 'Не указан'}
+                      </span>
                   </div>
+                  <div className="info-item">
+                      <span className="info-label">Жанры:</span>
+                      <span className="info-value">
+                        {profileData.genres?.map(g => g.localizedName).join(', ') || 'Не указаны'}
+                      </span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'looking' && (
+              <div className="tab-content">
+                <div className="info-section">
+                  <h3>Поиск</h3>
+                  
+                  {profileData.lookingFor === 'NotLooking' ? (
+                    <p className="profile-description">
+                      {profileData.profileType === 'Band' 
+                        ? 'Коллектив не ищет музыкантов' 
+                        : 'Музыкант не ищет коллектив'}
+                    </p>
+                  ) : (
+                    <>
+                      <p className="looking-for-title">
+                        {profileData.lookingFor === 'LookingForBand' 
+                          ? 'Ищет коллектив с жанрами:' 
+                          : 'Ищет музыкантов с жанрами:'}
+                      </p>
+                      <div className="looking-genres">
+                        {profileData.desiredGenres?.map(genre => (
+                          <span key={genre.id} className="looking-tag">
+                            {genre.localizedName}
+                          </span>
+                        ))}
+                      </div>
+
+                      {profileData.profileType === 'Band' && profileData.desiredSpecialties?.length > 0 && (
+                        <>
+                          <p className="looking-for-title">Направления деятельности:</p>
+                          <div className="looking-specialties">
+                            {profileData.desiredSpecialties.map(spec => (
+                              <span key={spec.id} className="looking-tag">
+                                {spec.localizedName}
+                              </span>
+                            ))}
+                          </div>
+                        </>
+                      )}
+                    </>
+                  )}
                 </div>
               </div>
             )}

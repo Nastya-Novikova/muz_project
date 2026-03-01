@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
-import RoleSelector from '../../components/RoleSelector/RoleSelector'
+import RoleSelector from '../../components/RoleSelector/RoleSelector';
 import './LoginPage.css';
 
 function LoginOTP() {
@@ -12,11 +12,10 @@ function LoginOTP() {
   const [isCodeResendAvailable, setIsCodeResendAvailable] = useState(false);
   const [timer, setTimer] = useState(60);
   const [error, setError] = useState('');
-  const navigate = useNavigate();
-  const { login } = useAuth();
-
   const [showRoleSelector, setShowRoleSelector] = useState(false);
   const [tempUserData, setTempUserData] = useState(null);
+  const navigate = useNavigate();
+  const { login } = useAuth();
 
   useEffect(() => {
     let interval = null;
@@ -168,7 +167,6 @@ function LoginOTP() {
       {showRoleSelector && (
         <RoleSelector onRoleSelect={handleRoleSelect} />
       )}
-
     </div>
   );
 }

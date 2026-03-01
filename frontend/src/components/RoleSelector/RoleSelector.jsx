@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import './RoleSelector.css';
 
 function RoleSelector({ onRoleSelect }) {
   const [selectedRole, setSelectedRole] = useState('');
+  const { setRole } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = () => {
@@ -11,8 +13,7 @@ function RoleSelector({ onRoleSelect }) {
       alert('Пожалуйста, выберите роль');
       return;
     }
-    // Заглушка
-    localStorage.setItem('userRole', selectedRole);
+    setRole(selectedRole);
     onRoleSelect(selectedRole);
     navigate('/profile/edit');
   };
@@ -20,30 +21,30 @@ function RoleSelector({ onRoleSelect }) {
   return (
     <div className="role-selector-overlay">
       <div className="role-selector-container">
-        <h2>Кем вы являетесь?</h2>
+        <h2>Я регистрируюсь в качестве:</h2>
         <p>Выберите один вариант</p>
         
         <div className="role-options">
-          <label className={`role-option ${selectedRole === 'musician' ? 'selected' : ''}`}>
+          <label className={`role-option ${selectedRole === 'Individual' ? 'selected' : ''}`}>
             <input
               type="radio"
               name="role"
-              value="musician"
-              checked={selectedRole === 'musician'}
+              value="Individual"
+              checked={selectedRole === 'Individual'}
               onChange={(e) => setSelectedRole(e.target.value)}
             />
-            <span className="role-label">🎸 Музыкант</span>
+            <span className="role-label">Музыканта</span>
           </label>
           
-          <label className={`role-option ${selectedRole === 'band' ? 'selected' : ''}`}>
+          <label className={`role-option ${selectedRole === 'Band' ? 'selected' : ''}`}>
             <input
               type="radio"
               name="role"
-              value="band"
-              checked={selectedRole === 'band'}
+              value="Band"
+              checked={selectedRole === 'Band'}
               onChange={(e) => setSelectedRole(e.target.value)}
             />
-            <span className="role-label">🎤 Коллектив</span>
+            <span className="role-label">Коллектива</span>
           </label>
         </div>
 

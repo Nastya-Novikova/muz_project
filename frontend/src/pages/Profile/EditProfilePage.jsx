@@ -4,25 +4,37 @@ import { useAuth } from '../../context/AuthContext';
 import { useFilters } from '../../context/useFilters';
 import { api } from '../../services/api';
 import Header from '../../components/Header/Header';
+import MultiSelectDropdown from '../../components/MultiSelectDropDown/MultiSelectDropDown';
 import './EditProfilePage.css';
 
 function EditProfilePage() {
-  const { getToken, getUserEmail } = useAuth();
+  const { getToken, getUserEmail, getUserRole } = useAuth();
   const navigate = useNavigate();
   const { activities, genres, cities } = useFilters();
   
   const [formData, setFormData] = useState({
     fullName: '',
     age: '',
-    activityType: '',
     city: '',
-    contact: '',
     phone: '',
     telegram: '',
-    genres: [],
     experience: '',
-    description: ''
+    description: '',
+    genreIds: [],
+    specialtyIds: [],
+    collaborationGoalIds: [],
+    lookingFor: 'NotLooking', // NotLooking, LookingForMusician, LookingForBand
+    desiredGenreIds: [],
+    desiredSpecialtyIds: []
   });
+
+  const [userRole, setUserRole] = useState(() => {
+    return getUserRole() || 'Individual';
+  });
+
+  const [lookingForChecked, setLookingForChecked] = useState(false);
+  const [desiredGenres, setDesiredGenres] = useState([]);
+  const [desiredSpecialties, setDesiredSpecialties] = useState([]);
 
   const [avatarFile, setAvatarFile] = useState(null);
   const [avatarPreview, setAvatarPreview] = useState('');
@@ -35,6 +47,7 @@ function EditProfilePage() {
   const [existingAudios, setExistingAudios] = useState([]); 
   const [audiosToDelete, setAudiosToDelete] = useState([]); 
   const [profileId, setProfileId] = useState(null); 
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [isCreating, setIsCreating] = useState(true);
@@ -66,17 +79,32 @@ function EditProfilePage() {
           setFormData({
             fullName: existingProfile.fullName || '',
             age: existingProfile.age || '',
-            activityType: existingProfile.specialties?.[0]?.id || '',
-            city: existingProfile.city?.id || '',
-            contact: email || '',
+            city: existingProfile.cityName || existingProfile.city?.id || '',
             phone: existingProfile.phone || '',
             telegram: existingProfile.telegram || '',
-            genres: existingProfile.genres?.map(g => g.id) || [],
             experience: existingProfile.experience || '',
-            description: existingProfile.description || ''
+            description: existingProfile.description || '',
+            genreIds: existingProfile.genres?.map(g => g.id) || [],
+            specialtyIds: existingProfile.specialties?.map(s => s.id) || [],
+            collaborationGoalIds: existingProfile.collaborationGoals?.map(g => g.id) || [],
+            lookingFor: existingProfile.lookingFor || 'NotLooking',
+            desiredGenreIds: existingProfile.desiredGenres?.map(g => g.id) || [],
+            desiredSpecialtyIds: existingProfile.desiredSpecialties?.map(s => s.id) || []
           });
 
+          setLookingForChecked(
+            existingProfile.lookingFor === 'LookingForBand' || 
+            existingProfile.lookingFor === 'LookingForMusician'
+          );
+          setDesiredGenres(existingProfile.desiredGenres?.map(g => g.id) || []);
+          setDesiredSpecialties(existingProfile.desiredSpecialties?.map(s => s.id) || []);
+
         } else {
+          const role = getUserRole();
+          if (role) {
+            setUserRole(role);
+          }
+
           setFormData(prev => ({
             ...prev,
             contact: email || ''
@@ -96,8 +124,24 @@ function EditProfilePage() {
     };
 
     loadExistingProfile();
-  }, [getToken, getUserEmail, navigate]);
+  }, [getToken, getUserEmail, navigate, getUserRole]);
 
+  const handleLookingForChange = (checked) => {
+    setLookingForChecked(checked);
+  
+    if (checked) {
+      if (userRole === 'Individual') {
+        setFormData(prev => ({ ...prev, lookingFor: 'LookingForBand' }));
+      } else {
+        setFormData(prev => ({ ...prev, lookingFor: 'LookingForMusician' }));
+      }
+    } else {
+      setFormData(prev => ({ ...prev, lookingFor: 'NotLooking' }));
+      setDesiredGenres([]);
+      setDesiredSpecialties([]);
+    }
+  };
+  
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -107,12 +151,27 @@ function EditProfilePage() {
   };
 
   const handleGenreToggle = (genreId) => {
-    setFormData(prev => ({
-      ...prev,
-      genres: prev.genres.includes(genreId)
-        ? prev.genres.filter(g => g !== genreId)
-        : [...prev.genres, genreId]
-    }));
+    const newGenres = formData.genreIds.includes(genreId)
+      ? formData.genreIds.filter(g => g !== genreId)
+      : [...formData.genreIds, genreId];
+    setFormData(prev => ({ ...prev, genreIds: newGenres }));
+  };
+
+  const handleSpecialtyToggle = (specialtyId) => {
+    const newSpecialties = formData.specialtyIds.includes(specialtyId)
+      ? formData.specialtyIds.filter(s => s !== specialtyId)
+      : [...formData.specialtyIds, specialtyId];
+    setFormData(prev => ({ ...prev, specialtyIds: newSpecialties }));
+  };
+
+  const handleDesiredGenreChange = (ids) => {
+    setDesiredGenres(ids);
+    setFormData(prev => ({ ...prev, desiredGenreIds: ids }));
+  };
+
+  const handleDesiredSpecialtyChange = (ids) => {
+    setDesiredSpecialties(ids);
+    setFormData(prev => ({ ...prev, desiredSpecialtyIds: ids }));
   };
 
   const handleAvatarChange = (e) => {
@@ -139,7 +198,6 @@ function EditProfilePage() {
 
   const uploadAvatarToServer = async (token) => {
     if (!avatarFile) return false;
-
     try {
       await api.uploadAvatar(avatarFile, token);
       return true;
@@ -149,7 +207,7 @@ function EditProfilePage() {
     }
   };
 
-   const handleAudioUpload = (e) => {
+  const handleAudioUpload = (e) => {
     const files = Array.from(e.target.files);
     
     const totalAfterAdd = existingAudios.length + audioFiles.length + files.length;
@@ -161,7 +219,7 @@ function EditProfilePage() {
     const validFiles = files.filter(file => {
       const validTypes = ['audio/mpeg', 'audio/wav', 'audio/x-wav', 'audio/mp3', 'audio/x-m4a'];
       const isValidType = validTypes.includes(file.type);
-      const isValidSize = file.size <= 50 * 1024 * 1024; // 50MB
+      const isValidSize = file.size <= 50 * 1024 * 1024;
       
       if (!isValidType) {
         alert(`${file.name}: Допустимы только MP3, WAV файлы`);
@@ -171,7 +229,6 @@ function EditProfilePage() {
         alert(`${file.name}: Файл слишком большой. Максимум: 50MB`);
         return false;
       }
-      
       return true;
     });
 
@@ -261,15 +318,20 @@ function EditProfilePage() {
     try {
       const token = getToken();
       const profileData = {
+        profileType: userRole === 'Band' ? 'Band' : 'Individual',
         fullName: formData.fullName,
         age: formData.age ? parseInt(formData.age, 10) : null,
         description: formData.description,
         phone: formData.phone || null,
         telegram: formData.telegram || null,
-        experience: formData.experience ? parseInt(formData.experience, 10) : null,
         cityId: formData.city ? parseInt(formData.city, 10) : null,
-        specialtyIds: formData.activityType ? [parseInt(formData.activityType, 10)] : [],
-        genreIds: formData.genres.map(id => parseInt(id, 10))
+        experience: formData.experience ? parseInt(formData.experience, 10) : 0,
+        lookingFor: formData.lookingFor,
+        genreIds: formData.genreIds.map(id => parseInt(id, 10)),
+        specialtyIds: formData.specialtyIds.map(id => parseInt(id, 10)),
+        collaborationGoalIds: formData.collaborationGoalIds.map(id => parseInt(id, 10)),
+        desiredGenreIds: desiredGenres.map(id => parseInt(id, 10)),
+        desiredSpecialtyIds: desiredSpecialties.map(id => parseInt(id, 10))
       };
 
       let profileResponse;
@@ -288,17 +350,14 @@ function EditProfilePage() {
       
       if (audioFiles.length > 0) {
         setUploadingAudios(true);
-        
         for (const file of audioFiles) {
           try {
             const title = audioTitles[file.name] || file.name.replace(/\.[^/.]+$/, "");
             await api.uploadAudio(file, title, token, '');
-            console.log(`Аудио "${title}" загружено`);
           } catch (audioError) {
             console.error('Ошибка загрузки аудио:', audioError);
           }
         }
-        
         setUploadingAudios(false);
       }
       navigate('/profile');
@@ -363,7 +422,7 @@ function EditProfilePage() {
               <h2>Личные данные</h2>
               <div className="form-grid">
                 <div className="form-group">
-                  <label>ФИО или название коллектива *</label>
+                  <label>{userRole === 'Band' ? 'Название коллектива *' : 'ФИО *'}</label>
                   <input
                     type="text"
                     name="fullName"
@@ -371,22 +430,22 @@ function EditProfilePage() {
                     value={formData.fullName}
                     onChange={handleInputChange}
                     required
-                    placeholder="Введите ФИО"
+                    placeholder={userRole === 'Band' ? "Введите название коллектива" : "Введите ФИО"}
                     maxLength={100}
                   />
                 </div>
                 
                 <div className="form-group">
-                  <label>Возраст *</label>
+                  <label>{userRole === 'Band' ? 'Год основания *' : 'Возраст *'}</label>
                   <input
                     type="number"
                     name="age"
                     value={formData.age}
                     onChange={handleInputChange}
                     required
-                    min="10"
-                    max="100"
-                    placeholder="25"
+                    min={userRole === 'Band' ? "10" : "10"}
+                    max={userRole === 'Band' ? "100" : "100"}
+                    placeholder={userRole === 'Band' ? "2000" : "25"}
                   />
                 </div>
 
@@ -450,21 +509,16 @@ function EditProfilePage() {
               <h2>Деятельность</h2>
               
               <div className="form-group mb">
-                <label>Вид деятельности *</label>
-                <select
-                  name="activityType"
-                  value={formData.activityType}
-                  onChange={handleInputChange}
-                  required
-                >
-                  <option value="">Выберите вид деятельности</option>
-                  {activities.map(activity => (
-                    <option key={activity.id} value={activity.id}>
-                      {activity.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
+                    <label>Деятельность участников коллектива *</label>
+                    <MultiSelectDropdown
+                      label=""
+                      options={activities}
+                      selectedIds={formData.specialtyIds}
+                      onChange={(ids) => setFormData(prev => ({ ...prev, specialtyIds: ids }))}
+                      placeholder="Выберите виды деятельности..."
+                      allText="Все виды"
+                    />
+                </div>
               
               <div className="form-group mb">
                 <label>Жанры</label>
@@ -473,7 +527,7 @@ function EditProfilePage() {
                     <button
                       key={genre.id}
                       type="button"
-                      className={`genre-tag ${formData.genres.includes(genre.id) ? 'selected' : ''}`}
+                      className={`genre-tag ${formData.genreIds.includes(genre.id) ? 'selected' : ''}`}
                       onClick={() => handleGenreToggle(genre.id)}
                     >
                       {genre.name}
@@ -496,6 +550,57 @@ function EditProfilePage() {
               </div>
             </div>
 
+            {/* Поиск */}
+            <div className="form-section">
+              <h2>Поиск</h2>
+              
+              <div className="form-group mb">
+                <label className="checkbox-label">
+                  <input
+                    type="checkbox"
+                    checked={lookingForChecked}
+                    onChange={(e) => handleLookingForChange(e.target.checked)}
+                    className="checkbox-box"
+                  />
+                  <span className="checkbox-span">
+                    {userRole === 'Individual' 
+                      ? 'Ищу коллектив' 
+                      : 'Ищем музыкантов'}
+                  </span>
+                </label>
+              </div>
+              
+              {lookingForChecked && (
+                <>
+                  <div className="form-group mb">
+                    <label>
+                      {userRole === 'Individual' 
+                        ? 'Жанры коллектива' 
+                        : 'Жанры, которые ищем'}
+                    </label>
+                    <MultiSelectDropdown
+                      options={genres}
+                      selectedIds={desiredGenres}
+                      onChange={handleDesiredGenreChange}
+                      placeholder="Выберите жанры..."
+                    />
+                  </div>
+                  
+                  {userRole === 'Band' && (
+                    <div className="form-group mb">
+                      <label>Направления деятельности, которые ищем</label>
+                      <MultiSelectDropdown
+                        options={activities}
+                        selectedIds={desiredSpecialties}
+                        onChange={handleDesiredSpecialtyChange}
+                        placeholder="Выберите направления..."
+                      />
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+
             {/* О себе */}
             <div className="form-section">
               <h2>О себе</h2>
@@ -506,8 +611,10 @@ function EditProfilePage() {
                   value={formData.description}
                   onChange={handleInputChange}
                   rows="4"
-                  placeholder="Расскажите о себе, своих музыкальных предпочтениях, опыте..."
-                  maxLength={90}
+                  placeholder={userRole === 'Band' 
+                    ? "Расскажите о коллективе, его стиле, достижениях..." 
+                    : "Расскажите о себе, своих музыкальных предпочтениях, опыте..."}
+                  maxLength={500}
                 />
               </div>
             </div>

@@ -73,7 +73,7 @@
 
 .filters-panel-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 1.5rem;
 } 
 
@@ -130,4 +130,25 @@
   font-size: 1rem;
   font-weight: 400;
   margin-top: 0 !important;
+}
+
+.looking-checkboxes {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.filter-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--dark-blue);
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+
+.filter-checkbox input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
 }

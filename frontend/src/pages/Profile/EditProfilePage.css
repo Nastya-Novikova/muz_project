@@ -314,3 +314,12 @@
 .submit-btn:hover {
   background-color: #4a5568;
 }
+
+.checkbox-box {
+  margin-left: 0;
+  margin-right: 0.5rem;
+}
+
+.checkbox-span {
+  font-weight: 400;
+}

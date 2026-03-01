@@ -364,7 +364,7 @@ async getFavorites(token, page = 1, limit = 20) {
 
   // Проверить, добавлен ли пользователь в избранное
   async checkIsFavorite(favoriteUserId, token) {
-    const response = await fetch(`${API_URL}/Favorites/${favoriteUserId}`, {
+    const response = await fetch(`${API_URL}/Favorites/${favoriteUserId}/is-favorite`, {
       method: 'GET',
       headers: getAuthHeaders(token)
     });

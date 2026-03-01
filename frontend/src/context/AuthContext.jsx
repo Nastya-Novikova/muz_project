@@ -7,17 +7,31 @@ export const AuthProvider = ({ children }) => {
     return localStorage.getItem('musicianFinder_token');
   });
 
-  // Сохраняет данные для локального использования
+  const [userRole, setUserRole] = useState(() => {
+    return localStorage.getItem('userRole') || null;
+  });
+
   const login = (userData, authToken) => {
     setToken(authToken);
     localStorage.setItem('musicianFinder_token', authToken);
     localStorage.setItem('user_email', userData.email);
+    if (userData.role) {
+      localStorage.setItem('userRole', userData.role);
+      setUserRole(userData.role);
+    }
+  };
+
+  const setRole = (role) => {
+    localStorage.setItem('userRole', role);
+    setUserRole(role);
   };
 
   const logout = () => {
     setToken(null);
+    setUserRole(null);
     localStorage.removeItem('musicianFinder_token');
     localStorage.removeItem('user_email');
+    localStorage.removeItem('userRole');
   };
 
   const getToken = () => {
@@ -28,6 +42,10 @@ export const AuthProvider = ({ children }) => {
     return localStorage.getItem('user_email');
   };
 
+  const getUserRole = () => {
+    return userRole || localStorage.getItem('userRole');
+  };
+
   const isAuthenticated = !!getToken();
 
   return (
@@ -35,8 +53,10 @@ export const AuthProvider = ({ children }) => {
       token,
       login,
       logout,
+      setRole,
       getToken,
       getUserEmail,
+      getUserRole,
       isAuthenticated
     }}>
       {children}
