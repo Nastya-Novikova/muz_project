@@ -149,13 +149,19 @@ function EditProfilePage() {
     }
   };
 
-  const handleAudioUpload = (e) => {
+   const handleAudioUpload = (e) => {
     const files = Array.from(e.target.files);
+    
+    const totalAfterAdd = existingAudios.length + audioFiles.length + files.length;
+    if (totalAfterAdd > 5) {
+      alert(`Можно загрузить не более 5 аудиозаписей. Уже есть: ${existingAudios.length + audioFiles.length}`);
+      return;
+    }
     
     const validFiles = files.filter(file => {
       const validTypes = ['audio/mpeg', 'audio/wav', 'audio/x-wav', 'audio/mp3', 'audio/x-m4a'];
       const isValidType = validTypes.includes(file.type);
-      const isValidSize = file.size <= 50 * 1024 * 1024; 
+      const isValidSize = file.size <= 50 * 1024 * 1024; // 50MB
       
       if (!isValidType) {
         alert(`${file.name}: Допустимы только MP3, WAV файлы`);
@@ -179,13 +185,14 @@ function EditProfilePage() {
     setAudioFiles(prev => [...prev, ...validFiles]);
   };
 
-  const removeExistingAudio = (audioId) => {
-    setExistingAudios(prev => prev.filter(audio => audio.id !== audioId));
-    setAudiosToDelete(prev => [...prev, audioId]);
-  };
-
   const handlePhotoUpload = (e) => {
     const files = Array.from(e.target.files);
+  
+    if (photoFiles.length + files.length > 5) {
+      alert(`Можно загрузить не более 5 фотографий. Уже выбрано: ${photoFiles.length}`);
+      return;
+    }
+    
     const validFiles = files.filter(file => {
       const isValidType = file.type.startsWith('image/');
       const isValidSize = file.size <= 5 * 1024 * 1024;
@@ -205,6 +212,13 @@ function EditProfilePage() {
 
   const handleVideoUpload = (e) => {
     const files = Array.from(e.target.files);
+    
+
+    if (videoFiles.length + files.length > 3) {
+      alert(`Можно загрузить не более 3 видео. Уже выбрано: ${videoFiles.length}`);
+      return;
+    }
+    
     const validFiles = files.filter(file => {
       const isValidType = file.type.startsWith('video/');
       const isValidSize = file.size <= 500 * 1024 * 1024;
@@ -228,6 +242,11 @@ function EditProfilePage() {
 
   const removeAudioFile = (index) => {
     setAudioFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const removeExistingAudio = (audioId) => {
+    setExistingAudios(prev => prev.filter(audio => audio.id !== audioId));
+    setAudiosToDelete(prev => [...prev, audioId]);
   };
 
   const removeVideoFile = (index) => {
