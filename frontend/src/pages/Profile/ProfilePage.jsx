@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { api } from '../../services/api';
 import Header from '../../components/Header/Header';
 import ConfirmDeleteModal from '../../components/ConfirmDeleteModal/ConfirmDeleteModal';
+import SuggestionModal from '../../components/SuggestionModal/SuggestionModal';
 import './ProfilePage.css';
 
 function ProfilePage() {
@@ -24,6 +25,7 @@ function ProfilePage() {
   const [avatarUrl, setAvatarUrl] = useState('/default-avatar.png');
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isSuggestionModalOpen, setIsSuggestionModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
   const checkFavoriteStatus = async (profileId, token) => {
@@ -161,12 +163,11 @@ function ProfilePage() {
     }
   };
 
-  const handleCollaboration = async () => {
+  const handleCollaboration = async (message) => {
     if (isOwnProfile || !userId || isCollaboration) return;
     
     try {
       const token = getToken();
-      let message = "Предложение";
       
       if (!isCollaboration) {
         await api.sendSuggestion(userId, message, token);
@@ -176,6 +177,10 @@ function ProfilePage() {
       console.error('Ошибка отправки предложения:', err);
       alert('Не удалось отправить предложение');
     } 
+  };
+
+  const handleOpenSuggestionModal = () => {
+    setIsSuggestionModalOpen(true);
   };
 
   const getLookingForText = () => {
@@ -292,7 +297,7 @@ function ProfilePage() {
                   </button>
                   <button onClick={handleBack} className="back-btn">Назад</button>
                   <button
-                    onClick={handleCollaboration}
+                    onClick={handleOpenSuggestionModal}
                     className={`collaboration-btn ${isCollaboration ? 'sent' : ''}`}
                     disabled={isCollaboration}
                   >
@@ -362,7 +367,7 @@ function ProfilePage() {
                     </span>
                   </div>
                   <div className="info-item">
-                      <span className="info-label">{profileData.profileType === 'Band' ? 'Деятельность участников коллектива:' : 'Вид деятельности:'}</span>
+                      <span className="info-label">{profileData.profileType === 'Band' ? 'Состав коллектива:' : 'Вид деятельности:'}</span>
                       <span className="info-value">
                         {profileData.specialties?.map(s => s.localizedName).join(', ') || 'Не указан'}
                       </span>
@@ -509,6 +514,12 @@ function ProfilePage() {
         onClose={() => setIsDeleteModalOpen(false)}
         onConfirm={handleConfirmDelete}
         userName={profileData?.fullName || 'Профиль'}
+      />
+      <SuggestionModal
+        isOpen={isSuggestionModalOpen}
+        onClose={() => setIsSuggestionModalOpen(false)}
+        onSend={handleCollaboration}
+        userName={profileData?.fullName || 'пользователю'}
       />
     </>
   );

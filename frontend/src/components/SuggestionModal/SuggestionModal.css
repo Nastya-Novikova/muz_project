@@ -1,0 +1,97 @@
+/* src/components/SuggestionModal/SuggestionModal.css */
+@import '../../variables.css';
+
+.suggestion-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1200;
+}
+
+.suggestion-modal-content {
+  background: white;
+  padding: 2rem;
+  border-radius: 16px;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.suggestion-modal-content h2 {
+  color: var(--dark-blue);
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+  font-size: 1.5rem;
+}
+
+.suggestion-modal-content p {
+  color: var(--text-grey);
+  margin-bottom: 1.5rem;
+}
+
+.suggestion-textarea {
+  width: 100%;
+  padding: 0.75rem;
+  background: var(--light-grey);
+  color: var(--dark-blue);
+  border: 1px solid var(--border-grey);
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 1rem;
+  resize: none;
+  margin-bottom: 1.5rem;
+  box-sizing: border-box;
+}
+
+.suggestion-textarea:focus {
+  outline: none;
+  border-color: var(--focus-grey);
+}
+
+.suggestion-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+}
+
+.suggestion-btn-cancel,
+.suggestion-btn-send {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.suggestion-btn-cancel {
+  background-color: var(--light-grey);
+  color: var(--dark-blue);
+  border: 1px solid var(--border-grey);
+}
+
+.suggestion-btn-cancel:hover:not(:disabled) {
+  background-color: var(--grey);
+}
+
+.suggestion-btn-send {
+  background-color: var(--dark-blue);
+  color: white;
+}
+
+.suggestion-btn-send:hover:not(:disabled) {
+  background-color: #4a5568;
+}
+
+.suggestion-btn-send:disabled,
+.suggestion-btn-cancel:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

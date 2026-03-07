@@ -180,7 +180,7 @@ function HomePage() {
                         if (e.target.checked) setLookingForMusician(false);
                       }}
                     />
-                    <span>Ищут коллектив</span>
+                    <span>Коллектив</span>
                   </label>
                   <label className="filter-checkbox">
                     <input
@@ -191,7 +191,7 @@ function HomePage() {
                         if (e.target.checked) setLookingForBand(false);
                       }}
                     />
-                    <span>Ищут музыкантов</span>
+                    <span>Музыканта</span>
                   </label>
                 </div>
               </div>

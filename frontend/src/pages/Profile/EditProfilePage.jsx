@@ -509,7 +509,7 @@ function EditProfilePage() {
               <h2>Деятельность</h2>
               
               <div className="form-group mb">
-                    <label>Деятельность участников коллектива *</label>
+                    <label>Состав коллектива *</label>
                     <MultiSelectDropdown
                       label=""
                       options={activities}

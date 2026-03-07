@@ -216,6 +216,9 @@
   line-height: 1.6;
   color: var(--text-grey);
   font-size: 1.05rem;
+  word-break: break-word;  
+  overflow-wrap: break-word; 
+  white-space: normal;  
 }
 
 .info-grid {

@@ -257,7 +257,10 @@ export const api = {
     const response = await fetch(`${API_URL}/Collaborations/${profileId}`, {
       method: 'POST',
       headers: getAuthHeaders(token),
-      body: JSON.stringify({ message })
+      body: JSON.stringify({ 
+        toProfileId: profileId,
+        message: message
+      })
     });
 
     if (!response.ok) {

@@ -54,7 +54,10 @@ function SuggestionsPage() {
             return response.favorites;
           }
           if ((tabName === 'received' || tabName === 'sent') && response.suggestions) {
-            return response.suggestions.map(suggestion => suggestion.toProfile || suggestion.fromProfile);
+            return response.suggestions.map(suggestion => ({
+              user: suggestion.toProfile || suggestion.fromProfile,
+              message: suggestion.message
+            }));
           }
           if (response.results) {
             return response.results;
