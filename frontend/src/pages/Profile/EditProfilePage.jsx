@@ -448,8 +448,8 @@ function EditProfilePage() {
                     value={formData.age}
                     onChange={handleInputChange}
                     required
-                    min={userRole === 'Band' ? "10" : "10"}
-                    max={userRole === 'Band' ? "100" : "100"}
+                    min={userRole === 'Band' ? "1990" : "10"}
+                    max={userRole === 'Band' ? "2026" : "100"}
                     placeholder={userRole === 'Band' ? "2000" : "25"}
                   />
                 </div>
