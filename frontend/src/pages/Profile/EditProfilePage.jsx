@@ -28,9 +28,14 @@ function EditProfilePage() {
     desiredSpecialtyIds: []
   });
 
-  const [userRole, setUserRole] = useState(() => {
-    return getUserRole() || 'Individual';
-  });
+  const [userRole, setUserRole] = useState('Individual');
+
+  useEffect(() => {
+    const role = getUserRole();
+    if (role) {
+      setUserRole(role);
+    }
+  }, [getUserRole]);
 
   const [lookingForChecked, setLookingForChecked] = useState(false);
   const [desiredGenres, setDesiredGenres] = useState([]);
@@ -509,7 +514,7 @@ function EditProfilePage() {
               <h2>Деятельность</h2>
               
               <div className="form-group mb">
-                    <label>Состав коллектива *</label>
+                    <label>{userRole === 'Band' ? "Состав коллектива" : "Вид деятельности"} *</label>
                     <MultiSelectDropdown
                       label=""
                       options={activities}
