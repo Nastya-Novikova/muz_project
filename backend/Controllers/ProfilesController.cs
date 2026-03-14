@@ -106,11 +106,12 @@ public class ProfilesController : ControllerBase
     /// <summary>
     /// Удалить профиль (soft-delete)
     /// </summary>
-    [HttpDelete("{id}")]
+    [HttpDelete]
     [Authorize]
-    public async Task<IActionResult> Delete(Guid id)
+    public async Task<IActionResult> Delete()
     {
-        var result = await _service.DeleteAsync(id);
+        var userId = GetUserId();
+        var result = await _service.DeleteAsync(userId);
         if (!result.IsSuccess)
             return BadRequest(new { error = result.Error });
         return Ok(new { success = true });

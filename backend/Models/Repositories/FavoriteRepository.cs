@@ -60,10 +60,13 @@ namespace backend.Models.Repositories
                 .OrderByDescending(f => f.CreatedAt)
                 .Skip((page - 1) * limit)
                 .Take(limit)
+                .Include(f => f.Profile)
+                    .ThenInclude(p => p.City)
+                .Include(f => f.Profile)
+                    .ThenInclude(p => p.Genres)
+                .Include(f => f.Profile)
+                    .ThenInclude(p => p.Specialties)
                 .Select(f => f.Profile)
-                .Include(p => p.City)
-                .Include(p => p.Genres)
-                .Include(p => p.Specialties)
                 .ToListAsync();
         }
 

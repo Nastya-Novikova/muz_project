@@ -61,7 +61,7 @@ public class AudioUploadService : IAudioUploadService
             ProfileId = profile.Id,
             Title = title,
             Description = description,
-            FileData = Array.Empty<byte>(), // после миграции заменим на FileUrl
+            FileUrl = fileUrl, // после миграции заменим на FileUrl
             MimeType = contentType,
             Duration = 0, // TODO: получить длительность
             CreatedAt = DateTime.UtcNow

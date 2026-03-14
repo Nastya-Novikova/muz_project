@@ -33,7 +33,7 @@ public class MusicianProfile : ISoftDeletable
     /// <summary>
     /// Аватар профиля (бинарные данные)
     /// </summary>
-    public byte[]? Avatar { get; set; }
+    public string? AvatarUrl { get; set; }
 
     /// <summary>
     /// Возраст (0-100)
@@ -86,6 +86,7 @@ public class MusicianProfile : ISoftDeletable
     // === Навигационные свойства ===
     //[ForeignKey("CityId")]
     public City City { get; set; } = null!;
+    public string Email { get; set; } = string.Empty;
 
     // === Коллекции ===
     public List<Genre> Genres { get; set; } = new();

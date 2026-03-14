@@ -19,7 +19,7 @@ public class PortfolioPhoto
     //[MaxLength(500)]
     public string? Description { get; set; }
 
-    public byte[] FileData { get; set; } = Array.Empty<byte>();
+    public string FileUrl { get; set; }
     //[MaxLength(50)]
     public string MimeType { get; set; } = "image/jpeg";
 

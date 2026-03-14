@@ -37,7 +37,7 @@ public class PortfolioVideo
     /// <summary>
     /// Видеофайл (бинарные данные)
     /// </summary>
-    public byte[] FileData { get; set; } = Array.Empty<byte>();
+    public string FileUrl { get; set; }
 
     /// <summary>
     /// MIME-тип файла
