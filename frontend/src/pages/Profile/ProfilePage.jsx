@@ -395,18 +395,30 @@ function ProfilePage() {
                     </p>
                   ) : (
                     <>
-                      <p className="looking-for-title">
-                        {profileData.lookingFor === 'LookingForBand' 
-                          ? 'Ищет коллектив с жанрами:' 
-                          : 'Ищет музыкантов с жанрами:'}
-                      </p>
-                      <div className="looking-genres">
-                        {profileData.desiredGenres?.map(genre => (
-                          <span key={genre.id} className="looking-tag">
-                            {genre.localizedName}
-                          </span>
-                        ))}
-                      </div>
+                      {profileData.desiredGenres?.length > 0 && (
+                        <>
+                          <p className="looking-for-title">
+                            {profileData.lookingFor === 'LookingForBand' 
+                              ? 'Ищет коллектив с жанрами:' 
+                              : 'Ищет музыкантов с жанрами:'}
+                          </p>
+                          <div className="looking-genres">
+                            {profileData.desiredGenres.map(genre => (
+                              <span key={genre.id} className="looking-tag">
+                                {genre.localizedName}
+                              </span>
+                            ))}
+                          </div>
+                        </>
+                      )}
+
+                      {(!profileData.desiredGenres?.length) && (
+                        <p className="looking-for-title">
+                          {profileData.lookingFor === 'LookingForBand' 
+                            ? 'Ищет коллектив' 
+                            : 'Ищет музыкантов'}
+                        </p>
+                      )}
 
                       {profileData.profileType === 'Band' && profileData.desiredSpecialties?.length > 0 && (
                         <>

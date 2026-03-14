@@ -185,7 +185,6 @@
 .tab-btn.active {
   color: var(--dark-blue);
   border-bottom-color: var(--dark-blue);
-  background-color: white;
   font-weight: 600;
 }
 
