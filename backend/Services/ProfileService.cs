@@ -14,6 +14,7 @@ using backend.Services.Interfaces;
 using backend.Services.Utils;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
+using Npgsql.TypeMapping;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace backend.Services;
@@ -125,7 +126,8 @@ public class ProfileService : IProfileService
             Telegram = request.Telegram,
             CityId = request.CityId,
             Experience = request.Experience,
-            LookingFor = request.LookingFor
+            LookingFor = request.LookingFor,
+            Email = user.Email
         };
 
         if (request.GenreIds?.Any() == true)
@@ -219,13 +221,19 @@ public class ProfileService : IProfileService
         return Result<ProfileDto>.Success(dto);
     }
 
-    public async Task<Result> DeleteAsync(Guid id)
+    public async Task<Result> DeleteAsync(Guid userId)
     {
-        var profile = await _profileRepository.GetByIdAsync(id);
+        var user = await _userRepository.GetByIdAsync(userId);
+        if (user?.MusicianProfile == null)
+            return Result<ProfileDto>.Failure("Profile not found");
+
+        var profile = await _profileRepository.GetByIdAsync(user.MusicianProfile.Id);
         if (profile == null)
             return Result.Failure("Profile not found");
 
-        await _profileRepository.SoftDeleteAsync(id);
+        await _profileRepository.SoftDeleteAsync(profile.Id);
+        user.MusicianProfile = null;
+        user.ProfileCreated = false;
         await _unitOfWork.SaveChangesAsync();
 
         return Result.Success();
@@ -241,11 +249,16 @@ public class ProfileService : IProfileService
         if (profile == null)
             return Result<string>.Failure("Profile not found");
 
+        if (profile.AvatarUrl != null && profile.AvatarUrl != string.Empty)
+        {
+            await _fileStorage.DeleteFileAsync(profile.AvatarUrl);
+        }
+
         // Сохраняем файл
         var fileUrl = await _fileStorage.SaveFileAsync(fileStream, fileName, contentType);
 
         // Здесь нужно обновить поле AvatarUrl в MusicianProfile (после добавления)
-        // profile.AvatarUrl = fileUrl;
+        profile.AvatarUrl = fileUrl;
 
         await _profileRepository.UpdateAsync(profile);
         await _unitOfWork.SaveChangesAsync();

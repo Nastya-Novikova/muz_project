@@ -15,6 +15,7 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 using AutoMapper;
 using System.Reflection;
 using System.Text;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace backend
 {
@@ -68,9 +69,13 @@ namespace backend
             builder.Services.AddScoped<IPhotoUploadService, PhotoUploadService>();
 
 
-            builder.Services.AddScoped<IFileStorage, LocalFileStorage>();
+            builder.Services.AddScoped<IFileStorage, MinioFileStorage>();
 
             builder.Services.AddAutoMapper(cfg => cfg.AddMaps(typeof(Program).Assembly));
+            /*builder.Services.AddAutoMapper(cfg =>
+            {
+                cfg.AddProfile<MappingProfile>();
+            });*/
 
             builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 

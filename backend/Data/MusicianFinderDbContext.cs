@@ -76,7 +76,7 @@ namespace backend.Data
                 entity.ToTable("MusicianProfiles");
                 entity.HasKey(p => p.Id);
                 entity.Property(p => p.FullName).IsRequired().HasMaxLength(100);
-                entity.Property(p => p.Avatar).HasColumnType("bytea");
+                //entity.Property(p => p.AvatarUrl).HasColumnType("bytea");
                 entity.Property(p => p.Phone).HasMaxLength(20);
                 entity.Property(p => p.Telegram).HasMaxLength(50);
                 entity.Property(p => p.Experience).HasDefaultValue(0);
@@ -84,6 +84,12 @@ namespace backend.Data
                 entity.Property(p => p.UpdatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
                 entity.Property(p => p.ProfileType).HasConversion<string>();
                 entity.Property(p => p.LookingFor).HasConversion<string>();
+                entity.Property(p => p.Email)
+                    .IsRequired()
+                    .HasMaxLength(256);
+
+                entity.HasIndex(p => p.Email)
+                    .IsUnique();
 
                 entity.HasQueryFilter(p => !p.IsDeleted);
 
@@ -210,7 +216,7 @@ namespace backend.Data
                 entity.HasKey(pa => pa.Id);
                 entity.Property(pa => pa.Title).HasMaxLength(100);
                 entity.Property(pa => pa.Description).HasMaxLength(500);
-                entity.Property(pa => pa.FileData).HasColumnType("bytea");
+                //entity.Property(pa => pa.FileData).HasColumnType("bytea");
                 entity.Property(pa => pa.MimeType).HasMaxLength(50);
                 entity.Property(pa => pa.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
             });
@@ -222,7 +228,7 @@ namespace backend.Data
                 entity.HasKey(pv => pv.Id);
                 entity.Property(pv => pv.Title).HasMaxLength(100);
                 entity.Property(pv => pv.Description).HasMaxLength(500);
-                entity.Property(pv => pv.FileData).HasColumnType("bytea");
+                //entity.Property(pv => pv.FileData).HasColumnType("bytea");
                 entity.Property(pv => pv.MimeType).HasMaxLength(50);
                 entity.Property(pv => pv.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
             });
@@ -234,7 +240,7 @@ namespace backend.Data
                 entity.HasKey(pp => pp.Id);
                 entity.Property(pp => pp.Title).HasMaxLength(100);
                 entity.Property(pp => pp.Description).HasMaxLength(500);
-                entity.Property(pp => pp.FileData).HasColumnType("bytea");
+                //entity.Property(pp => pp.FileData).HasColumnType("bytea");
                 entity.Property(pp => pp.MimeType).HasMaxLength(50);
                 entity.Property(pp => pp.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
             });

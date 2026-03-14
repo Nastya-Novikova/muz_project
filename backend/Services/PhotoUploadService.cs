@@ -56,7 +56,7 @@ namespace backend.Services
                 ProfileId = profile.Id,
                 Title = title,
                 Description = description,
-                FileData = Array.Empty<byte>(),
+                FileUrl = fileUrl,
                 MimeType = contentType,
                 CreatedAt = DateTime.UtcNow
             };

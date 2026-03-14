@@ -33,7 +33,7 @@ public class CollaborationsController : ControllerBase
             return BadRequest(new { error = "Profile ID mismatch" });
 
         var userId = GetUserId();
-        var result = await _service.SendSuggestionAsync(userId, request.ToProfileId, request.Message);
+        var result = await _service.SendSuggestionAsync(userId, profileId, request.Message);
         if (!result.IsSuccess)
             return BadRequest(new { error = result.Error });
 
