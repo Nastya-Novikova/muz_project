@@ -11,7 +11,7 @@ namespace backend.Models.DTOs.Profiles
         [MaxLength(100)]
         public string? FullName { get; set; } = string.Empty;
 
-        [Range(0, 100)]
+        [Range(0, 2050)]
         public int? Age { get; set; }
 
         [MaxLength(500)]
