@@ -40,8 +40,8 @@ public class VideoUploadService : IVideoUploadService
         if (!contentType.StartsWith("video/"))
             return Result<UploadResultDto>.Failure("Only video files are allowed");
 
-        if (fileStream.Length > 50 * 1024 * 1024)
-            return Result<UploadResultDto>.Failure("File too large (max 50 MB)");
+        if (fileStream.Length > 500 * 1024 * 1024)
+            return Result<UploadResultDto>.Failure("File too large (max 500 MB)");
 
         var user = await _userRepository.GetByIdAsync(userId);
         if (user?.MusicianProfile == null)

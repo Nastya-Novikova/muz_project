@@ -37,8 +37,8 @@ namespace backend.Services
             if (!contentType.StartsWith("image/"))
                 return Result<UploadResultDto>.Failure("Only image files are allowed");
 
-            if (fileStream.Length > 5 * 1024 * 1024)
-                return Result<UploadResultDto>.Failure("File too large (max 5 MB)");
+            if (fileStream.Length > 500 * 1024 * 1024)
+                return Result<UploadResultDto>.Failure("File too large (max 500 MB)");
 
             var user = await _userRepository.GetByIdAsync(userId);
             if (user?.MusicianProfile == null)
