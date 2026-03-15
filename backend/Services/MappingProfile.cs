@@ -28,6 +28,7 @@ namespace backend.Services
             CreateMap<MusicianProfile, FavoriteProfileDto>()
                 //.ForMember(dest => dest.ProfileId, opt => opt.MapFrom(src => src.Id))
                 //.ForMember(dest => dest.City, opt => opt.MapFrom(src => src.City))
+                .ForMember(dest => dest.Profile, opt => opt.MapFrom(src => src))
                 .ForMember(dest => dest.AddedAt, opt => opt.Ignore());
 
             // CollaborationSuggestion → SuggestionDto
