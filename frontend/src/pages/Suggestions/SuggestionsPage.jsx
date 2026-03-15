@@ -48,26 +48,31 @@ function SuggestionsPage() {
         ]);
 
         const extractUsers = (response, tabName) => {
-          if (!response) return [];
+          if (!response || !response.items) return [];
           
-          if (tabName === 'favorites' && response.items) {
-            return response.items;
-          }
-          if (tabName === 'received' && response.items) {
+          if (tabName === 'favorites') {
             return response.items.map(item => ({
-              user: item.fromProfile,
-              message: item.message
+              ...item.profile,
+              isFavorite: true
             }));
           }
-          if (tabName === 'sent' && response.items) {
+          
+          if (tabName === 'received') {
             return response.items.map(item => ({
-              user: item.toProfile,
-              message: item.message
+              ...item.fromProfile,
+              message: item.message,
+              isSuggestion: true
             }));
           }
-          if (Array.isArray(response)) {
-            return response;
+          
+          if (tabName === 'sent') {
+            return response.items.map(item => ({
+              ...item.toProfile,
+              message: item.message,
+              isSuggestion: true
+            }));
           }
+          
           return [];
         };
 
@@ -177,6 +182,8 @@ function SuggestionsPage() {
                           key={user.id}
                           user={user}
                           onProfileClick={handleUserProfileClick}
+                          showMessage={user.isSuggestion}
+                          message={user.message}
                         />
                       ))}
                     </div>
