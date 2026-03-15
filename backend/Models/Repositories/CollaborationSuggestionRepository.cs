@@ -45,6 +45,16 @@ public class CollaborationSuggestionRepository : ICollaborationSuggestionReposit
         var query = _context.CollaborationSuggestions
             .Include(s => s.FromProfile)
                 .ThenInclude(p => p.City)
+            .Include(s => s.FromProfile)
+                .ThenInclude(p => p.Genres)
+            .Include(s => s.FromProfile)
+                .ThenInclude(p => p.CollaborationGoals)
+            .Include(s => s.FromProfile)
+                .ThenInclude(p => p.Specialties)
+            .Include(s => s.FromProfile)
+                .ThenInclude(p => p.DesiredGenres)
+            .Include(s => s.FromProfile)
+                .ThenInclude(p => p.DesiredSpecialties)
             .Where(s => s.ToProfileId == userId);
 
         query = ApplySorting(query, sortBy, sortDesc);
@@ -59,6 +69,16 @@ public class CollaborationSuggestionRepository : ICollaborationSuggestionReposit
         var query = _context.CollaborationSuggestions
             .Include(s => s.ToProfile)
                 .ThenInclude(p => p.City)
+            .Include(s => s.ToProfile)
+                .ThenInclude(p => p.Genres)
+            .Include(s => s.ToProfile)
+                .ThenInclude(p => p.CollaborationGoals)
+            .Include(s => s.ToProfile)
+                .ThenInclude(p => p.Specialties)
+            .Include(s => s.ToProfile)
+                .ThenInclude(p => p.DesiredGenres)
+            .Include(s => s.ToProfile)
+                .ThenInclude(p => p.DesiredSpecialties)
             .Where(s => s.FromProfileId == userId);
 
         query = ApplySorting(query, sortBy, sortDesc);
