@@ -66,7 +66,7 @@ services:
         sleep 2;
       done;
       mc mb myminio/musician-files --ignore-existing;
-      mc policy set public myminio/musician-files;
+      mc anonymous set public myminio/musician-files;
       echo 'Bucket musician-files created and set to public';
       exit 0;
       "
