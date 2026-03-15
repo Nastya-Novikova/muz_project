@@ -3,7 +3,7 @@ import { api } from '../../services/api';
 import './UserCard.css';
 import { useNavigate } from 'react-router-dom';
 
-const UserCard = ({ user, onProfileClick }) => {
+const UserCard = ({ user, onProfileClick, showMessage = false, message = '' }) => {
   const navigate = useNavigate();
 
   const transformUserData = (userData) => {
@@ -46,7 +46,7 @@ const UserCard = ({ user, onProfileClick }) => {
           <h3 className="user-name">{transformedUser.fullName}</h3>
           <div className="user-meta">
             <span className="user-role">{transformedUser.profileType === "Band" ? 'Коллектив' : 'Музыкант'} • </span>
-            <span className="user-age">{transformedUser.age} {transformedUser.profileType === "Band" ? 'год' : 'лет'} • </span>
+            <span className="user-age">{transformedUser.age} • </span>
             <span className="user-location">{transformedUser.city}</span>
           </div>
         </div>
@@ -76,12 +76,18 @@ const UserCard = ({ user, onProfileClick }) => {
             <span className="info-value-card">{transformedUser.experience} {transformedUser.experience ? '': ''}</span>
           </div>
 
-          {transformedUser.description && (
+          {showMessage ? (
             <div className="description">
-              {transformedUser.description.length > 100 
-                ? transformedUser.description.substring(0, 100) + '...' 
-                : transformedUser.description}
+              {message || 'Нет сообщения'}
             </div>
+          ) : (
+            transformedUser.description && (
+              <div className="description">
+                {transformedUser.description.length > 100 
+                  ? transformedUser.description.substring(0, 100) + '...' 
+                  : transformedUser.description}
+              </div>
+            )
           )}
         </div>
       </div>
