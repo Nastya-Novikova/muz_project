@@ -108,8 +108,8 @@ export const api = {
   },
 
   // Удалить профиль
-  async deleteProfile(profileId, token) {
-    const response = await fetch(`${API_URL}/Profiles/${profileId}`, {
+  async deleteProfile(token) {
+    const response = await fetch(`${API_URL}/Profiles`, {
       method: 'DELETE',
       headers: getAuthHeaders(token),
     });
@@ -188,12 +188,11 @@ export const api = {
       }
     });
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-    return response.json(); // Бек вернет { audio: [...], video: [...], photos: [...] } с fileUrl
+    return response.json(); 
   },
   
   getAvatarUrl(avatarUrl) {
     if (!avatarUrl) return '/default-avatar.png';
-    // Если это уже полный URL (http:// или data:), возвращаем как есть
     if (typeof avatarUrl === 'string' && (avatarUrl.startsWith('http') || avatarUrl.startsWith('data:'))) {
       return avatarUrl;
     }

@@ -110,6 +110,13 @@ function ProfilePage() {
     loadProfile();
   }, [userId, getToken, navigate, logout]);
 
+  useEffect(() => {
+    if (profileData?.avatarUrl) {
+      const url = api.getAvatarUrl(profileData.avatarUrl);
+      setAvatarUrl(url);
+    }
+  }, [profileData]);
+
   const isOwnProfile = !userId || (userId && currentUserId && userId === currentUserId);
   const userEmail = getUserEmail();
   const userRole = getUserRole();
@@ -126,7 +133,7 @@ function ProfilePage() {
     setIsDeleting(true);
     try {
       const token = getToken();
-      await api.deleteProfile(profileData.id, token);
+      await api.deleteProfile(token);
       logout(); 
       navigate('/');
     } catch (err) {

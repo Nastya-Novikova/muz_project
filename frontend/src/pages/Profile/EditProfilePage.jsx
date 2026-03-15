@@ -28,109 +28,91 @@ function EditProfilePage() {
     desiredSpecialtyIds: []
   });
 
-  const [userRole, setUserRole] = useState('Individual');
-
-  useEffect(() => {
-    const role = getUserRole();
-    if (role) {
-      setUserRole(role);
-    }
-  }, [getUserRole]);
-
+  const userRole = getUserRole() || 'Individual';
+  
   const [lookingForChecked, setLookingForChecked] = useState(false);
   const [desiredGenres, setDesiredGenres] = useState([]);
   const [desiredSpecialties, setDesiredSpecialties] = useState([]);
 
   const [avatarFile, setAvatarFile] = useState(null);
   const [avatarPreview, setAvatarPreview] = useState('');
-  const [existingAvatarUrl, setExistingAvatarUrl] = useState('');
-
+  
   const [audioFiles, setAudioFiles] = useState([]);
   const [audioTitles, setAudioTitles] = useState({});
-
   const [photoFiles, setPhotoFiles] = useState([]);
   const [videoFiles, setVideoFiles] = useState([]);
 
   const [existingAudios, setExistingAudios] = useState([]); 
+  const [existingPhotos, setExistingPhotos] = useState([]);
+  const [existingVideos, setExistingVideos] = useState([]);
   const [audiosToDelete, setAudiosToDelete] = useState([]); 
 
-  const [profileId, setProfileId] = useState(null); 
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
-  const [isCreating, setIsCreating] = useState(true);
+  const [isCreating, setIsCreating] = useState(false);
   const [userEmail, setUserEmail] = useState('');
 
   useEffect(() => {
-    const loadExistingProfile = async () => {
+    const fetchProfile = async () => {
+      setLoading(true);
       try {
         const token = getToken();
         const email = getUserEmail();
         setUserEmail(email);
-        const existingProfile = await api.getProfile(token);
+
+        const profile = await api.getProfile(token);
+        console.log('Получен профиль:', profile);
         
-        if (existingProfile) {
+        if (profile) {
           setIsCreating(false);
-          setProfileId(existingProfile.id); 
-        
-          const media = await api.getMedia(existingProfile.id, token);
+          
+          const media = await api.getMedia(profile.id, token).catch(() => ({}));
           if (media?.audio) {
             setExistingAudios(media.audio);
           }
+          if (media?.photos) {
+            setExistingPhotos(media.photos);
+          }
+
+          if (media?.video) {
+            setExistingVideos(media.video);
+          }
           
-          if (existingProfile.avatarUrl) {
-            setAvatarPreview(api.getAvatarUrl(existingProfile.avatarUrl));
-            setExistingAvatarUrl(api.getAvatarUrl(existingProfile.avatarUrl));
+          if (profile.avatarUrl) {
+            setAvatarPreview(api.getAvatarUrl(profile.avatarUrl));
           }
           
           setFormData({
-            fullName: existingProfile.fullName || '',
-            age: existingProfile.age || '',
-            city: existingProfile.cityName || existingProfile.city?.id || '',
-            phone: existingProfile.phone || '',
-            telegram: existingProfile.telegram || '',
-            experience: existingProfile.experience || '',
-            description: existingProfile.description || '',
-            genreIds: existingProfile.genres?.map(g => g.id) || [],
-            specialtyIds: existingProfile.specialties?.map(s => s.id) || [],
-            collaborationGoalIds: existingProfile.collaborationGoals?.map(g => g.id) || [],
-            lookingFor: existingProfile.lookingFor || 'NotLooking',
-            desiredGenreIds: existingProfile.desiredGenres?.map(g => g.id) || [],
-            desiredSpecialtyIds: existingProfile.desiredSpecialties?.map(s => s.id) || []
+            fullName: profile.fullName || '',
+            age: profile.age || '',
+            city: profile.city?.id?.toString() || profile.cityName || '',
+            phone: profile.phone || '',
+            telegram: profile.telegram || '',
+            experience: profile.experience?.toString() || '',
+            description: profile.description || '',
+            genreIds: profile.genres?.map(g => g.id) || [],
+            specialtyIds: profile.specialties?.map(s => s.id) || [],
+            collaborationGoalIds: profile.collaborationGoals?.map(g => g.id) || [],
+            lookingFor: profile.lookingFor || 'NotLooking',
+            desiredGenreIds: profile.desiredGenres?.map(g => g.id) || [],
+            desiredSpecialtyIds: profile.desiredSpecialties?.map(s => s.id) || []
           });
 
-          setLookingForChecked(
-            existingProfile.lookingFor === 'LookingForBand' || 
-            existingProfile.lookingFor === 'LookingForMusician'
-          );
-          setDesiredGenres(existingProfile.desiredGenres?.map(g => g.id) || []);
-          setDesiredSpecialties(existingProfile.desiredSpecialties?.map(s => s.id) || []);
-
-        } else {
-          const role = getUserRole();
-          if (role) {
-            setUserRole(role);
-          }
-
-          setFormData(prev => ({
-            ...prev,
-            contact: email || ''
-          }));
+          setLookingForChecked(profile.lookingFor !== 'NotLooking');
+          setDesiredGenres(profile.desiredGenres?.map(g => g.id) || []);
+          setDesiredSpecialties(profile.desiredSpecialties?.map(s => s.id) || []);
         }
       } catch (error) {
-        console.log('Профиль не найден, создаём новый');
+        console.log('Профиль не найден, создаем новый');
         setIsCreating(true);
-
-        const email = getUserEmail();
-        setUserEmail(email || '');
-        setFormData(prev => ({
-          ...prev,
-          contact: email || ''
-        }));
+      } finally {
+        setLoading(false);
       }
     };
 
-    loadExistingProfile();
-  }, [getToken, getUserEmail, navigate, getUserRole]);
+    fetchProfile();
+  }, [getToken, getUserEmail]);
 
   const handleLookingForChange = (checked) => {
     setLookingForChecked(checked);
@@ -182,15 +164,15 @@ function EditProfilePage() {
       return;
     }
 
-    if (file.size > 2 * 1024 * 1024) { 
-      alert('Изображение слишком большое. Максимальный размер: 2MB');
+    if (file.size > 5 * 1024 * 1024) { 
+      alert('Изображение слишком большое. Максимальный размер: 5MB');
       return;
     }
 
     setAvatarFile(file);
     const reader = new FileReader();
     reader.onloadend = () => {
-      setAvatarPreview(reader.result); // Временный preview
+      setAvatarPreview(reader.result);
     };
     reader.readAsDataURL(file);
   };
@@ -199,7 +181,9 @@ function EditProfilePage() {
     if (!avatarFile) return false;
     try {
       const response = await api.uploadAvatar(avatarFile, token);
-      console.log('Аватар загружен:', response.avatarUrl);
+      if (response.avatarUrl) {
+        setAvatarPreview(response.avatarUrl);
+      }
       return true;
     } catch (error) {
       console.error('Ошибка загрузки аватара:', error);
@@ -219,10 +203,10 @@ function EditProfilePage() {
     const validFiles = files.filter(file => {
       const validTypes = ['audio/mpeg', 'audio/wav', 'audio/x-wav', 'audio/mp3'];
       const isValidType = validTypes.includes(file.type);
-      const isValidSize = file.size <= 50 * 1024 * 1024;
+      const isValidSize = file.size <= 30 * 1024 * 1024;
       
       if (!isValidType) alert(`${file.name}: Допустимы только MP3, WAV файлы`);
-      if (!isValidSize) alert(`${file.name}: Файл слишком большой. Максимум: 50MB`);
+      if (!isValidSize) alert(`${file.name}: Файл слишком большой. Максимум: 30MB`);
       
       return isValidType && isValidSize;
     });
@@ -266,17 +250,16 @@ function EditProfilePage() {
     
     const validFiles = files.filter(file => {
       const isValidType = file.type.startsWith('video/');
-      const isValidSize = file.size <= 500 * 1024 * 1024;
+      const isValidSize = file.size <= 30 * 1024 * 1024;
       
       if (!isValidType) alert(`${file.name}: Допустимы только видеофайлы`);
-      if (!isValidSize) alert(`${file.name}: Файл слишком большой. Максимум: 500MB`);
+      if (!isValidSize) alert(`${file.name}: Файл слишком большой. Максимум: 30MB`);
       
       return isValidType && isValidSize;
     });
     setVideoFiles(prev => [...prev, ...validFiles]);
   };
 
-  // Удаление файлов
   const removePhotoFile = (index) => setPhotoFiles(prev => prev.filter((_, i) => i !== index));
   const removeAudioFile = (index) => setAudioFiles(prev => prev.filter((_, i) => i !== index));
   const removeVideoFile = (index) => setVideoFiles(prev => prev.filter((_, i) => i !== index));
@@ -288,7 +271,7 @@ function EditProfilePage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
+    setSaving(true);
     setError('');
     
     try {
@@ -310,19 +293,15 @@ function EditProfilePage() {
         desiredSpecialtyIds: desiredSpecialties.map(id => parseInt(id, 10))
       };
 
-      let profileResponse;
       if (isCreating) {
-        profileResponse = await api.createProfile(profileData, token);
+        await api.createProfile(profileData, token);
       } else {
-        profileResponse = await api.updateProfile(profileData, token);
+        await api.updateProfile(profileData, token);
       }
 
       if (avatarFile) {
         await uploadAvatarToServer(token);
       }
-
-      /* Здесь потом будет логика удаления аудио с сервера
-      console.log('Аудио для удаления:', audiosToDelete); */
       
       for (const file of audioFiles) {
         const title = audioTitles[file.name] || file.name.replace(/\.[^/.]+$/, "");
@@ -345,7 +324,7 @@ function EditProfilePage() {
       setError(err.message || 'Не удалось сохранить профиль');
       console.error('Ошибка сохранения:', err);
     } finally {
-      setLoading(false);
+      setSaving(false);
     }
   };
 
@@ -355,7 +334,7 @@ function EditProfilePage() {
         <Header />
         <div className="edit-profile-page">
           <div className="edit-profile-container">
-            <p>Загрузка...</p>
+            <p>Загрузка профиля...</p>
           </div>
         </div>
       </>
@@ -364,7 +343,7 @@ function EditProfilePage() {
 
   return (
     <>
-      {isCreating ? null : <Header />}
+      {!isCreating && <Header />}
       <div className="edit-profile-page">
         <div className="edit-profile-container">
           <h2>{isCreating ? 'Создать профиль' : 'Редактировать профиль'}</h2>
@@ -422,9 +401,9 @@ function EditProfilePage() {
                     value={formData.age}
                     onChange={handleInputChange}
                     required
-                    min={userRole === 'Band' ? "1990" : "10"}
+                    min={userRole === 'Band' ? "1900" : "10"}
                     max={userRole === 'Band' ? "2026" : "100"}
-                    placeholder={userRole === 'Band' ? "2000" : "25"}
+                    placeholder={userRole === 'Band' ? "2010" : "25"}
                   />
                 </div>
 
@@ -488,16 +467,16 @@ function EditProfilePage() {
               <h2>Деятельность</h2>
               
               <div className="form-group mb">
-                    <label>{userRole === 'Band' ? "Состав коллектива" : "Вид деятельности"} *</label>
-                    <MultiSelectDropdown
-                      label=""
-                      options={activities}
-                      selectedIds={formData.specialtyIds}
-                      onChange={(ids) => setFormData(prev => ({ ...prev, specialtyIds: ids }))}
-                      placeholder="Выберите виды деятельности..."
-                      allText="Все виды"
-                    />
-                </div>
+                <label>{userRole === 'Band' ? "Состав коллектива" : "Вид деятельности"} *</label>
+                <MultiSelectDropdown
+                  label=""
+                  options={activities}
+                  selectedIds={formData.specialtyIds}
+                  onChange={(ids) => setFormData(prev => ({ ...prev, specialtyIds: ids }))}
+                  placeholder="Выберите виды деятельности..."
+                  allText="Все виды"
+                />
+              </div>
               
               <div className="form-group mb">
                 <label>Жанры</label>
@@ -616,6 +595,32 @@ function EditProfilePage() {
                       className="file-input"
                     />
                   </label>
+                  {existingPhotos.length > 0 && (
+                    <div className="uploaded-files">
+                      <div className="photos-preview-grid">
+                        {existingPhotos.map((photo) => (
+                          <div key={photo.id} className="photo-preview-item">
+                            <img 
+                              src={photo.fileUrl} 
+                              alt={photo.title || 'Фото'} 
+                              className="photo-preview"
+                              onError={(e) => { e.target.src = '/default-image.png'; }}
+                            />
+                            <button
+                              type="button"
+                              onClick={() => removeExistingPhoto(photo.id)}
+                              className="remove-file-btn"
+                              title="Удалить фото"
+                            >
+                              ×
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Новые фото */}
                   {photoFiles.length > 0 && ( 
                     <div className="uploaded-files">
                       <div className="photos-preview-grid">
@@ -652,11 +657,9 @@ function EditProfilePage() {
                     />
                   </label>
                   
-                  {/* Объединенный список всех аудио */}
                   {(existingAudios.length > 0 || audioFiles.length > 0) && (
                     <div className="uploaded-files">
                       <div className="audio-list">
-                        {/* Существующие аудио */}
                         {existingAudios.map((audio) => (
                           <div key={audio.id} className="file-item existing">
                             <span>{audio.title || 'Аудиозапись'}</span>
@@ -671,7 +674,6 @@ function EditProfilePage() {
                           </div>
                         ))}
                         
-                        {/* Новые аудио для загрузки */}
                         {audioFiles.map((file, index) => (
                           <div key={`new-${index}`} className="file-item new">
                             <span>{file.name}</span>
@@ -704,6 +706,32 @@ function EditProfilePage() {
                       className="file-input"
                     />
                   </label>
+                  {existingVideos.length > 0 && (
+                    <div className="uploaded-files">
+                      <div className="videos-preview-grid">
+                        {existingVideos.map((video) => (
+                          <div key={video.id} className="video-preview-item">
+                            <video 
+                              src={video.fileUrl} 
+                              controls 
+                              className="video-preview"
+                              style={{ width: '100%', maxHeight: '150px' }}
+                            />
+                            <button
+                              type="button"
+                              onClick={() => removeExistingVideo(video.id)}
+                              className="remove-file-btn"
+                              title="Удалить видео"
+                            >
+                              ×
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Новые видео */}
                   {videoFiles.length > 0 && ( 
                     <div className="uploaded-files">
                       <div className="videos-preview-grid">
@@ -727,19 +755,21 @@ function EditProfilePage() {
             </div>
 
             <div className="form-actions">
-              {isCreating ? null : (<button
-                type="button"
-                onClick={() => navigate('/profile')}
-                className="cancel-btn"
-              >
-                Отмена
-              </button>)}
+              {!isCreating && (
+                <button
+                  type="button"
+                  onClick={() => navigate('/profile')}
+                  className="cancel-btn"
+                >
+                  Отмена
+                </button>
+              )}
               <button
                 type="submit"
-                disabled={loading}
+                disabled={saving}
                 className="submit-btn"
               >
-                {loading ? 'Сохранение...' : 'Сохранить'}
+                {saving ? 'Сохранение...' : 'Сохранить'}
               </button>
             </div>
           </form>

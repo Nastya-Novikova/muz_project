@@ -1,4 +1,5 @@
-import React, { createContext, useState, useContext } from 'react';
+import React, { createContext, useState, useContext, useEffect } from 'react';
+import { api } from '../services/api';
 
 const AuthContext = createContext(null);
 
@@ -7,57 +8,67 @@ export const AuthProvider = ({ children }) => {
     return localStorage.getItem('musicianFinder_token');
   });
 
-  const [userRole, setUserRole] = useState(() => {
-    return localStorage.getItem('userRole') || null;
-  });
+  const [profile, setProfile] = useState(null);
+
+  useEffect(() => {
+    if (token) {
+      loadProfile();
+    }
+  }, [token]);
+
+  const loadProfile = async () => {
+    try {
+      const profileData = await api.getProfile(token);
+      setProfile(profileData);
+    } catch (error) {
+      console.log('Профиль не найден');
+      setProfile(null);
+    }
+  };
 
   const login = (userData, authToken) => {
     setToken(authToken);
     localStorage.setItem('musicianFinder_token', authToken);
     localStorage.setItem('user_email', userData.email);
-    if (userData.role) {
-      localStorage.setItem('userRole', userData.role);
-      setUserRole(userData.role);
-    }
   };
 
   const setRole = (role) => {
     localStorage.setItem('userRole', role);
-    setUserRole(role);
   };
 
   const logout = () => {
     setToken(null);
-    setUserRole(null);
+    setProfile(null);
     localStorage.removeItem('musicianFinder_token');
     localStorage.removeItem('user_email');
     localStorage.removeItem('userRole');
   };
 
-  const getToken = () => {
-    return token || localStorage.getItem('musicianFinder_token');
-  };
+  const getToken = () => token;
 
   const getUserEmail = () => {
     return localStorage.getItem('user_email');
   };
 
   const getUserRole = () => {
-    return userRole || localStorage.getItem('userRole');
+    if (profile?.profileType) {
+      return profile.profileType;
+    }
+    return localStorage.getItem('userRole');
   };
 
-  const isAuthenticated = !!getToken();
+  const isAuthenticated = !!token;
 
   return (
     <AuthContext.Provider value={{
-      token,
       login,
       logout,
       setRole,
       getToken,
       getUserEmail,
       getUserRole,
-      isAuthenticated
+      isAuthenticated,
+      profile
     }}>
       {children}
     </AuthContext.Provider>
