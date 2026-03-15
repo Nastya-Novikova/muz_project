@@ -40,9 +40,9 @@ public class AudioUploadService : IAudioUploadService
         if (!contentType.StartsWith("audio/"))
             return Result<UploadResultDto>.Failure("Only audio files are allowed");
 
-        // Проверка размера (например, 10 МБ)
-        if (fileStream.Length > 10 * 1024 * 1024)
-            return Result<UploadResultDto>.Failure("File too large (max 10 MB)");
+        // Проверка размера (например, 1000 МБ)
+        if (fileStream.Length > 1000 * 1024 * 1024)
+            return Result<UploadResultDto>.Failure("File too large (max 1000 MB)");
 
         var user = await _userRepository.GetByIdAsync(userId);
         if (user?.MusicianProfile == null)
