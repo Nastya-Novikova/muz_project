@@ -122,46 +122,19 @@ export const api = {
     return response.json();
   },
 
-  // Загрузить аватар
   async uploadAvatar(file, token) {
     const formData = new FormData();
     formData.append('avatar', file);
 
     const response = await fetch(`${API_URL}/Uploads/avatar`, {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`
-      },
+      headers: { 'Authorization': `Bearer ${token}` },
       body: formData,
     });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ message: 'HTTP error!' }));
-      throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
-    }
-
-    return response.json();
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    return response.json(); 
   },
 
-  //Конвертировать аватар в необходимый формат
-  convertAvatarBytesToUrl(avatarBytes) {
-    if (!avatarBytes || !avatarBytes.length) return null;
-    
-    try {
-      if (typeof avatarBytes === 'string') {
-        if (avatarBytes.startsWith('data:image')) {
-          return avatarBytes;
-        }
-        return `data:image/jpeg;base64,${avatarBytes}`;
-      }
-      return `data:image/jpeg;base64,${base64String}`;
-    } catch (error) {
-      console.error('Error converting avatar bytes:', error);
-      return null;
-    }
-  },
-
-  //Загрузить аудио
   async uploadAudio(file, title, token, description = '') {
     const formData = new FormData();
     formData.append('audio', file);
@@ -170,54 +143,69 @@ export const api = {
 
     const response = await fetch(`${API_URL}/Uploads/portfolio/audio`, {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`
-      },
+      headers: { 'Authorization': `Bearer ${token}` },
       body: formData,
     });
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    return response.json(); 
+  },
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ message: 'HTTP error!' }));
-      throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
-    }
+  async uploadVideo(file, title, token, description = '') {
+    const formData = new FormData();
+    formData.append('video', file);
+    formData.append('title', title);
+    if (description) formData.append('description', description);
 
+    const response = await fetch(`${API_URL}/Uploads/portfolio/video`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${token}` },
+      body: formData,
+    });
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     return response.json();
   },
 
-  // Получить медиа-файлы
+  async uploadPhoto(file, title, token, description = '') {
+    const formData = new FormData();
+    formData.append('photo', file);
+    formData.append('title', title);
+    if (description) formData.append('description', description);
+
+    const response = await fetch(`${API_URL}/Uploads/portfolio/photo`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${token}` },
+      body: formData,
+    });
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    return response.json();
+  },
+
   async getMedia(profileId, token) {
     const response = await fetch(`${API_URL}/Profiles/${profileId}/media`, {
-      method: 'GET',
-      headers: {
+      headers: { 
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'
       }
     });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    return response.json(); // Бек вернет { audio: [...], video: [...], photos: [...] } с fileUrl
+  },
+  
+  getAvatarUrl(avatarUrl) {
+    if (!avatarUrl) return '/default-avatar.png';
+    // Если это уже полный URL (http:// или data:), возвращаем как есть
+    if (typeof avatarUrl === 'string' && (avatarUrl.startsWith('http') || avatarUrl.startsWith('data:'))) {
+      return avatarUrl;
     }
-
-    return response.json();
+    return '/default-avatar.png';
   },
 
-  // Преобразовать аудио
-  convertAudioBytesToUrl(audioBytes) {
-    if (!audioBytes || !audioBytes.length) return null;
-    
-    try {
-      if (typeof audioBytes === 'string') {
-        if (audioBytes.startsWith('data:audio')) {
-          return audioBytes;
-        }
-        return `data:audio/mpeg;base64,${audioBytes}`;
-      }
-      
-      return `data:audio/mpeg;base64,${base64String}`;
-    } catch (error) {
-      console.error('Error converting audio bytes:', error);
-      return null;
+  getAudioUrl(audioUrl) {
+    if (!audioUrl) return null;
+    if (typeof audioUrl === 'string' && (audioUrl.startsWith('http') || audioUrl.startsWith('data:'))) {
+      return audioUrl;
     }
+    return null;
   },
 
   //Поиск музыкантов

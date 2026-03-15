@@ -23,7 +23,7 @@ function EditProfilePage() {
     genreIds: [],
     specialtyIds: [],
     collaborationGoalIds: [],
-    lookingFor: 'NotLooking', // NotLooking, LookingForMusician, LookingForBand
+    lookingFor: 'NotLooking',
     desiredGenreIds: [],
     desiredSpecialtyIds: []
   });
@@ -44,15 +44,17 @@ function EditProfilePage() {
   const [avatarFile, setAvatarFile] = useState(null);
   const [avatarPreview, setAvatarPreview] = useState('');
   const [existingAvatarUrl, setExistingAvatarUrl] = useState('');
+
   const [audioFiles, setAudioFiles] = useState([]);
   const [audioTitles, setAudioTitles] = useState({});
+
   const [photoFiles, setPhotoFiles] = useState([]);
   const [videoFiles, setVideoFiles] = useState([]);
-  const [uploadingAudios, setUploadingAudios] = useState(false);  
+
   const [existingAudios, setExistingAudios] = useState([]); 
   const [audiosToDelete, setAudiosToDelete] = useState([]); 
-  const [profileId, setProfileId] = useState(null); 
 
+  const [profileId, setProfileId] = useState(null); 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [isCreating, setIsCreating] = useState(true);
@@ -71,14 +73,13 @@ function EditProfilePage() {
           setProfileId(existingProfile.id); 
         
           const media = await api.getMedia(existingProfile.id, token);
-          if (media?.audios) {
-            setExistingAudios(media.audios);
+          if (media?.audio) {
+            setExistingAudios(media.audio);
           }
           
-          if (existingProfile.avatar) {
-            const avatarUrl = api.convertAvatarBytesToUrl(existingProfile.avatar);
-            setAvatarPreview(avatarUrl);
-            setExistingAvatarUrl(avatarUrl);
+          if (existingProfile.avatarUrl) {
+            setAvatarPreview(api.getAvatarUrl(existingProfile.avatarUrl));
+            setExistingAvatarUrl(api.getAvatarUrl(existingProfile.avatarUrl));
           }
           
           setFormData({
@@ -162,13 +163,6 @@ function EditProfilePage() {
     setFormData(prev => ({ ...prev, genreIds: newGenres }));
   };
 
-  const handleSpecialtyToggle = (specialtyId) => {
-    const newSpecialties = formData.specialtyIds.includes(specialtyId)
-      ? formData.specialtyIds.filter(s => s !== specialtyId)
-      : [...formData.specialtyIds, specialtyId];
-    setFormData(prev => ({ ...prev, specialtyIds: newSpecialties }));
-  };
-
   const handleDesiredGenreChange = (ids) => {
     setDesiredGenres(ids);
     setFormData(prev => ({ ...prev, desiredGenreIds: ids }));
@@ -196,7 +190,7 @@ function EditProfilePage() {
     setAvatarFile(file);
     const reader = new FileReader();
     reader.onloadend = () => {
-      setAvatarPreview(reader.result);
+      setAvatarPreview(reader.result); // Временный preview
     };
     reader.readAsDataURL(file);
   };
@@ -204,7 +198,8 @@ function EditProfilePage() {
   const uploadAvatarToServer = async (token) => {
     if (!avatarFile) return false;
     try {
-      await api.uploadAvatar(avatarFile, token);
+      const response = await api.uploadAvatar(avatarFile, token);
+      console.log('Аватар загружен:', response.avatarUrl);
       return true;
     } catch (error) {
       console.error('Ошибка загрузки аватара:', error);
@@ -222,19 +217,14 @@ function EditProfilePage() {
     }
     
     const validFiles = files.filter(file => {
-      const validTypes = ['audio/mpeg', 'audio/wav', 'audio/x-wav', 'audio/mp3', 'audio/x-m4a'];
+      const validTypes = ['audio/mpeg', 'audio/wav', 'audio/x-wav', 'audio/mp3'];
       const isValidType = validTypes.includes(file.type);
       const isValidSize = file.size <= 50 * 1024 * 1024;
       
-      if (!isValidType) {
-        alert(`${file.name}: Допустимы только MP3, WAV файлы`);
-        return false;
-      }
-      if (!isValidSize) {
-        alert(`${file.name}: Файл слишком большой. Максимум: 50MB`);
-        return false;
-      }
-      return true;
+      if (!isValidType) alert(`${file.name}: Допустимы только MP3, WAV файлы`);
+      if (!isValidSize) alert(`${file.name}: Файл слишком большой. Максимум: 50MB`);
+      
+      return isValidType && isValidSize;
     });
 
     const newTitles = { ...audioTitles };
@@ -243,7 +233,6 @@ function EditProfilePage() {
       newTitles[file.name] = title;
     });
     setAudioTitles(newTitles);
-    
     setAudioFiles(prev => [...prev, ...validFiles]);
   };
 
@@ -259,15 +248,10 @@ function EditProfilePage() {
       const isValidType = file.type.startsWith('image/');
       const isValidSize = file.size <= 5 * 1024 * 1024;
       
-      if (!isValidType) {
-        alert(`${file.name}: Допустимы только изображения`);
-        return false;
-      }
-      if (!isValidSize) {
-        alert(`${file.name}: Файл слишком большой. Максимум: 5MB`);
-        return false;
-      }
-      return true;
+      if (!isValidType) alert(`${file.name}: Допустимы только изображения`);
+      if (!isValidSize) alert(`${file.name}: Файл слишком большой. Максимум: 5MB`);
+      
+      return isValidType && isValidSize;
     });
     setPhotoFiles(prev => [...prev, ...validFiles]);
   };
@@ -275,7 +259,6 @@ function EditProfilePage() {
   const handleVideoUpload = (e) => {
     const files = Array.from(e.target.files);
     
-
     if (videoFiles.length + files.length > 3) {
       alert(`Можно загрузить не более 3 видео. Уже выбрано: ${videoFiles.length}`);
       return;
@@ -285,34 +268,22 @@ function EditProfilePage() {
       const isValidType = file.type.startsWith('video/');
       const isValidSize = file.size <= 500 * 1024 * 1024;
       
-      if (!isValidType) {
-        alert(`${file.name}: Допустимы только видеофайлы`);
-        return false;
-      }
-      if (!isValidSize) {
-        alert(`${file.name}: Файл слишком большой. Максимум: 500MB`);
-        return false;
-      }
-      return true;
+      if (!isValidType) alert(`${file.name}: Допустимы только видеофайлы`);
+      if (!isValidSize) alert(`${file.name}: Файл слишком большой. Максимум: 500MB`);
+      
+      return isValidType && isValidSize;
     });
     setVideoFiles(prev => [...prev, ...validFiles]);
   };
 
-  const removePhotoFile = (index) => {
-    setPhotoFiles(prev => prev.filter((_, i) => i !== index));
-  };
-
-  const removeAudioFile = (index) => {
-    setAudioFiles(prev => prev.filter((_, i) => i !== index));
-  };
-
+  // Удаление файлов
+  const removePhotoFile = (index) => setPhotoFiles(prev => prev.filter((_, i) => i !== index));
+  const removeAudioFile = (index) => setAudioFiles(prev => prev.filter((_, i) => i !== index));
+  const removeVideoFile = (index) => setVideoFiles(prev => prev.filter((_, i) => i !== index));
+  
   const removeExistingAudio = (audioId) => {
     setExistingAudios(prev => prev.filter(audio => audio.id !== audioId));
     setAudiosToDelete(prev => [...prev, audioId]);
-  };
-
-  const removeVideoFile = (index) => {
-    setVideoFiles(prev => prev.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (e) => {
@@ -353,18 +324,21 @@ function EditProfilePage() {
       /* Здесь потом будет логика удаления аудио с сервера
       console.log('Аудио для удаления:', audiosToDelete); */
       
-      if (audioFiles.length > 0) {
-        setUploadingAudios(true);
-        for (const file of audioFiles) {
-          try {
-            const title = audioTitles[file.name] || file.name.replace(/\.[^/.]+$/, "");
-            await api.uploadAudio(file, title, token, '');
-          } catch (audioError) {
-            console.error('Ошибка загрузки аудио:', audioError);
-          }
-        }
-        setUploadingAudios(false);
+      for (const file of audioFiles) {
+        const title = audioTitles[file.name] || file.name.replace(/\.[^/.]+$/, "");
+        await api.uploadAudio(file, title, token, '');
       }
+
+      for (const file of photoFiles) {
+        const title = file.name.replace(/\.[^/.]+$/, "");
+        await api.uploadPhoto(file, title, token, '');
+      }
+
+      for (const file of videoFiles) {
+        const title = file.name.replace(/\.[^/.]+$/, "");
+        await api.uploadVideo(file, title, token, '');
+      }
+
       navigate('/profile');
       
     } catch (err) {

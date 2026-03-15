@@ -3,12 +3,9 @@ import { api } from '../../services/api';
 import './UserCard.css';
 import { useNavigate } from 'react-router-dom';
 
-const UserCard = ({ 
-  user,
-  onProfileClick
-}) => {
-
+const UserCard = ({ user, onProfileClick }) => {
   const navigate = useNavigate();
+
   const transformUserData = (userData) => {
     if (!userData) return null;
     
@@ -16,8 +13,8 @@ const UserCard = ({
       id: userData.id,
       fullName: userData.fullName || 'Не указано',
       age: userData.age || '',
-      city: userData.city?.localizedName || userData.cityName || 'Не указан',
-      avatar: api.convertAvatarBytesToUrl(userData.avatar) || `/default-avatar.png`,
+      city: userData.city?.localizedName || 'Не указан',
+      avatar: api.getAvatarUrl(userData.avatarUrl) || `/default-avatar.png`,
       activityType: userData.specialties?.map(s => s.localizedName || s.name) || [],
       genres: userData.genres?.map(g => g.localizedName || g.name) || [],
       experience: userData.experience || 0,
