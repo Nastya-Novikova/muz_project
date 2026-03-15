@@ -71,8 +71,7 @@ function ProfilePage() {
           setProfileData(myProfile);
 
           if (myProfile.avatar) {
-            const url = api.convertAvatarBytesToUrl(myProfile.avatar);
-            setAvatarUrl(url || '/default-avatar.png');
+            setAvatarUrl(api.getAvatarUrl(myProfile.avatarUrl));
           }
 
           const media = await api.getMedia(myProfile.id, token);
@@ -81,8 +80,7 @@ function ProfilePage() {
           // Чужой профиль
           const otherProfileData = await api.getProfileById(userId);
           if (otherProfileData.avatar) { 
-            const url = api.convertAvatarBytesToUrl(otherProfileData.avatar);
-            setAvatarUrl(url || '/default-avatar.png');
+            setAvatarUrl(api.getAvatarUrl(otherProfileData.avatarUrl));
           }
 
           setProfileData(otherProfileData);
@@ -262,7 +260,7 @@ function ProfilePage() {
                 <p className="profile-activity">
                   {profileData.age && `${profileData.age} ${profileData.profileType === 'Band' ? 'г.' : 'лет'}`}
                   {profileData.experience && ` • Стаж: ${profileData.experience} лет`}
-                  {profileData.cityName && ` • ${profileData.cityName}`}
+                  {profileData.city.localizedName && ` • ${profileData.city.localizedName}`}
                 </p>
                 {profileData.lookingFor !== 'NotLooking' && (
                   <div className="profile-looking-badge">
@@ -358,7 +356,7 @@ function ProfilePage() {
                   </div>
                   <div className="info-item">
                     <span className="info-label">Город:</span>
-                    <span className="info-value">{profileData.cityName || 'Не указан'}</span>
+                    <span className="info-value">{profileData.city.localizedName || 'Не указан'}</span>
                   </div>
                   <div className="info-item">
                     <span className="info-label">Стаж:</span>
@@ -445,15 +443,16 @@ function ProfilePage() {
                   <h3>Фотографии</h3>
                   {mediaData?.photos?.length > 0 ? (
                     <div className="photos-grid">
-                      {mediaData.photos.map((photo) => {
-                        const photoUrl = api.convertAvatarBytesToUrl(photo.fileData);
-                        return (
-                          <div key={photo.id} className="photo-item">
-                            <img src={photoUrl} alt={photo.title || 'Фото'} className="portfolio-photo" />
-                            {photo.title && <p className="photo-title">{photo.title}</p>}
-                          </div>
-                        );
-                      })}
+                      {mediaData.photos.map((photo) => (
+                      <div key={photo.id} className="photo-item">
+                        <img 
+                          src={photo.fileUrl} 
+                          alt={photo.title || 'Фото'} 
+                          className="portfolio-photo" 
+                        />
+                        {photo.title && <p className="photo-title">{photo.title}</p>}
+                      </div>
+                     ))}
                     </div>
                   ) : (
                     <p className="no-content">Фотографии не загружены</p>
@@ -463,19 +462,16 @@ function ProfilePage() {
                 {/* Секция аудио */}
                 <div className="portfolio-section">
                   <h3>Аудиозаписи</h3>
-                  {mediaData?.audios?.length > 0 ? (
+                  {mediaData?.audio?.length > 0 ? (
                     <div className="audio-list">
-                      {mediaData.audios.map((audio, index) => {
-                        const audioUrl = api.convertAudioBytesToUrl(audio.fileData);
-                        return (
-                          <div key={audio.id} className="audio-item">
-                            <p className='audio-title'>{audio.title || `Аудиозапись ${index + 1}`}</p>
-                            <audio className='audio-element' controls src={audioUrl}>
-                              Ваш браузер не поддерживает аудио элемент.
-                            </audio>
-                          </div>
-                        );
-                      })}
+                      {mediaData.audio.map((audio, index) => (
+                      <div key={audio.id} className="audio-item">
+                        <p className='audio-title'>{audio.title || `Аудиозапись ${index + 1}`}</p>
+                        <audio className='audio-element' controls src={audio.fileUrl}>
+                          Ваш браузер не поддерживает аудио элемент.
+                        </audio>
+                      </div>
+                      ))}
                     </div>
                   ) : (
                     <p className="no-content">Аудиозаписи не загружены</p>
@@ -485,17 +481,14 @@ function ProfilePage() {
                 {/* Секция видео */}
                 <div className="portfolio-section">
                   <h3>Видеозаписи</h3>
-                  {mediaData?.videos?.length > 0 ? (
+                  {mediaData?.video?.length > 0 ? (
                     <div className="videos-grid">
-                      {mediaData.videos.map((video) => {
-                        const videoUrl = api.convertAudioBytesToUrl(video.fileData); 
-                        return (
-                          <div key={video.id} className="video-item">
-                            <video controls src={videoUrl} className="portfolio-video" />
-                            {video.title && <p className="video-title">{video.title}</p>}
-                          </div>
-                        );
-                      })}
+                      {mediaData.video.map((video) => (
+                      <div key={video.id} className="video-item">
+                        <video controls src={video.fileUrl} className="portfolio-video" />
+                        {video.title && <p className="video-title">{video.title}</p>}
+                      </div>
+                    ))}
                     </div>
                   ) : (
                     <p className="no-content">Видеозаписи не загружены</p>

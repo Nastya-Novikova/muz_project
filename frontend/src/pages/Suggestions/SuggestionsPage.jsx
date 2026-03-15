@@ -50,17 +50,20 @@ function SuggestionsPage() {
         const extractUsers = (response, tabName) => {
           if (!response) return [];
           
-          if (tabName === 'favorites' && response.favorites) {
-            return response.favorites;
+          if (tabName === 'favorites' && response.items) {
+            return response.items;
           }
-          if ((tabName === 'received' || tabName === 'sent') && response.suggestions) {
-            return response.suggestions.map(suggestion => ({
-              user: suggestion.toProfile || suggestion.fromProfile,
-              message: suggestion.message
+          if (tabName === 'received' && response.items) {
+            return response.items.map(item => ({
+              user: item.fromProfile,
+              message: item.message
             }));
           }
-          if (response.results) {
-            return response.results;
+          if (tabName === 'sent' && response.items) {
+            return response.items.map(item => ({
+              user: item.toProfile,
+              message: item.message
+            }));
           }
           if (Array.isArray(response)) {
             return response;
