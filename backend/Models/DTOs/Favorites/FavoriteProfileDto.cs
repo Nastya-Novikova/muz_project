@@ -8,7 +8,7 @@ namespace backend.Models.DTOs.Favorites
         public Guid ProfileId { get; set; }
         public string FullName { get; set; } = string.Empty;
         public LookupItemDto City { get; set; } = new();
-        public string? AvatarBase64 { get; set; }
+        public string? AvatarUrl { get; set; }
         public List<LookupItemDto> Genres { get; set; } = new();
         public List<LookupItemDto> Specialties { get; set; } = new();
         public DateTime AddedAt { get; set; }
