@@ -37,8 +37,7 @@ namespace backend.Services
                 .WithContentType(contentType);
 
             await _minioClient.PutObjectAsync(putObjectArgs);
-
-            // Возвращаем публичный URL. Если бакет публичный, файл будет доступен по прямой ссылке
+            
             return $"http://{_publicEndpoint}/{_bucketName}/{objectName}";
         }
 
