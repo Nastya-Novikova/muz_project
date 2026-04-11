@@ -17,19 +17,22 @@ public class CollaborationService : ICollaborationService
     private readonly IProfileRepository _profileRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
+    private readonly INotificationService _notificationService;
 
     public CollaborationService(
         ICollaborationSuggestionRepository suggestionRepository,
         IUserRepository userRepository,
         IProfileRepository profileRepository,
         IUnitOfWork unitOfWork,
-        IMapper mapper)
+        IMapper mapper,
+        INotificationService notificationService)
     {
         _suggestionRepository = suggestionRepository;
         _userRepository = userRepository;
         _profileRepository = profileRepository;
         _unitOfWork = unitOfWork;
         _mapper = mapper;
+        _notificationService = notificationService;
     }
 
     public async Task<Result> SendSuggestionAsync(Guid fromUserId, Guid toProfileId, string? message)
@@ -53,6 +56,12 @@ public class CollaborationService : ICollaborationService
 
         await _suggestionRepository.AddAsync(suggestion);
         await _unitOfWork.SaveChangesAsync();
+
+        // Отправляем уведомление профилю получателя
+        await _notificationService.CreateCollaborationReceivedAsync(
+            toProfile.Id,
+            suggestion.Id,
+            fromUser.MusicianProfile.FullName);
 
         return Result.Success();
     }

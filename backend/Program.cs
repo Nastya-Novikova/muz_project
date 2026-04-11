@@ -16,6 +16,7 @@ using AutoMapper;
 using System.Reflection;
 using System.Text;
 using Microsoft.Extensions.DependencyInjection;
+using backend.Services.BackgroundServices;
 
 namespace backend
 {
@@ -48,6 +49,9 @@ namespace backend
             builder.Services.AddScoped<IPortfolioAudioRepository, PortfolioAudioRepository>();
             builder.Services.AddScoped<IPortfolioVideoRepository, PortfolioVideoRepository>();
             builder.Services.AddScoped<IPortfolioPhotoRepository, PortfolioPhotoRepository>();
+            builder.Services.AddScoped<IRegionRepository, RegionRepository>();
+            builder.Services.AddScoped<IEventRepository, EventRepository>();
+            builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 
 
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -67,8 +71,11 @@ namespace backend
             builder.Services.AddScoped<IAudioUploadService, AudioUploadService>();
             builder.Services.AddScoped<IVideoUploadService, VideoUploadService>();
             builder.Services.AddScoped<IPhotoUploadService, PhotoUploadService>();
+            builder.Services.AddScoped<IRegionService, RegionService>();
+            builder.Services.AddScoped<IEventService, EventService>();
+            builder.Services.AddScoped<INotificationService, NotificationService>();
 
-
+            builder.Services.AddHostedService<EventReminderBackgroundService>();
             builder.Services.AddScoped<IFileStorage, MinioFileStorage>();
 
             builder.Services.AddAutoMapper(cfg => cfg.AddMaps(typeof(Program).Assembly));
@@ -133,7 +140,7 @@ namespace backend
                         Array.Empty<string>()
                     }
                 });
-            }); 
+            });
 
             // CORS
             builder.Services.AddCors(options =>

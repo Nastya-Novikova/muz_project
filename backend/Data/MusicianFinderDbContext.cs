@@ -28,10 +28,88 @@ namespace backend.Data
         public DbSet<PortfolioVideo> PortfolioVideo => Set<PortfolioVideo>();
         public DbSet<PortfolioPhoto> PortfolioPhotos => Set<PortfolioPhoto>();
         public DbSet<Favorite> Favorites => Set<Favorite>();
+        public DbSet<Region> Regions => Set<Region>();
+        public DbSet<Event> Events => Set<Event>();
+        public DbSet<EventRegistration> EventRegistrations => Set<EventRegistration>();
+        public DbSet<Notification> Notifications => Set<Notification>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            // === Конфигурация Region ===
+            modelBuilder.Entity<Region>(entity =>
+            {
+                entity.ToTable("Regions");
+                entity.HasKey(r => r.Id);
+                entity.Property(r => r.Name).IsRequired().HasMaxLength(100);
+                entity.Property(r => r.LocalizedName).IsRequired().HasMaxLength(100);
+            });
+
+            // === Конфигурация Event ===
+            modelBuilder.Entity<Event>(entity =>
+            {
+                entity.ToTable("Events");
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Title).IsRequired().HasMaxLength(200);
+                entity.Property(e => e.Address).HasMaxLength(200);
+                entity.Property(e => e.Status).HasConversion<string>().HasDefaultValue(EventStatus.Scheduled);
+                entity.Property(e => e.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+                entity.Property(e => e.UpdatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                entity.HasQueryFilter(e => !e.IsDeleted);
+
+                entity.HasOne(e => e.Region)
+                      .WithMany()
+                      .HasForeignKey(e => e.RegionId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(e => e.City)
+                      .WithMany()
+                      .HasForeignKey(e => e.CityId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(e => e.CreatorProfile)
+                      .WithMany()
+                      .HasForeignKey(e => e.CreatorProfileId)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            // === Конфигурация EventRegistration ===
+            modelBuilder.Entity<EventRegistration>(entity =>
+            {
+                entity.ToTable("EventRegistrations");
+                entity.HasKey(r => new { r.EventId, r.ProfileId });
+
+                entity.HasOne(r => r.Event)
+                      .WithMany(e => e.Registrations)
+                      .HasForeignKey(r => r.EventId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(r => r.Profile)
+                      .WithMany()
+                      .HasForeignKey(r => r.ProfileId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.Property(r => r.RegisteredAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+            });
+
+            // === Конфигурация Notification ===
+            modelBuilder.Entity<Notification>(entity =>
+            {
+                entity.ToTable("Notifications");
+                entity.HasKey(n => n.Id);
+                entity.Property(n => n.Type).HasConversion<string>();
+                entity.Property(n => n.EntityType).HasConversion<string>();
+                entity.Property(n => n.Title).IsRequired().HasMaxLength(200);
+                entity.Property(n => n.Message).HasMaxLength(500);
+                entity.Property(n => n.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                entity.HasOne(n => n.Profile)
+                      .WithMany()
+                      .HasForeignKey(n => n.ProfileId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
 
             // === Конфигурация User ===
             modelBuilder.Entity<User>(entity =>
@@ -332,6 +410,15 @@ namespace backend.Data
 
 
             // === Seed-данные ===
+
+            // === Регионы ===
+            modelBuilder.Entity<Region>().HasData(
+                new Region { Id = 1, Name = "Moscow Oblast", LocalizedName = "Московская область" },
+                new Region { Id = 2, Name = "Leningrad Oblast", LocalizedName = "Ленинградская область" },
+                new Region { Id = 3, Name = "Novosibirsk Oblast", LocalizedName = "Новосибирская область" },
+                new Region { Id = 4, Name = "Sverdlovsk Oblast", LocalizedName = "Свердловская область" },
+                new Region { Id = 5, Name = "Tatarstan", LocalizedName = "Татарстан" }
+            );
 
             // Города
             modelBuilder.Entity<City>().HasData(

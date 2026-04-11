@@ -39,4 +39,4 @@ namespace backend.Models.DTOs.Profiles
         public List<int>? SpecialtyIds { get; set; }
         public List<int>? CollaborationGoalIds { get; set; }
     }
-}   
+}
