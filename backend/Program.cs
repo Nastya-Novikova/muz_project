@@ -67,6 +67,7 @@ namespace backend
             builder.Services.AddScoped<IAudioUploadService, AudioUploadService>();
             builder.Services.AddScoped<IVideoUploadService, VideoUploadService>();
             builder.Services.AddScoped<IPhotoUploadService, PhotoUploadService>();
+            builder.Services.AddScoped<IVkAuthService, VkAuthService>();        
 
 
             builder.Services.AddScoped<IFileStorage, MinioFileStorage>();

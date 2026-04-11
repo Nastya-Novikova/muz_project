@@ -382,5 +382,20 @@ async getFavorites(token, page = 1, limit = 20) {
     }
 
     return response.json();
+  },
+
+  async connectVk(code, codeVerifier, deviceId, token) {
+    const response = await fetch(`${API_URL}/Profiles/connect-vk`, {
+      method: 'POST',
+      headers: getAuthHeaders(token),
+      body: JSON.stringify({ code, codeVerifier, deviceId }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ message: 'HTTP error!' }));
+      throw new Error(errorData.error || errorData.message || `HTTP error! status: ${response.status}`);
+    }
+
+    return response.json();
   }
 };
