@@ -79,6 +79,7 @@ namespace backend.Data
                 //entity.Property(p => p.AvatarUrl).HasColumnType("bytea");
                 entity.Property(p => p.Phone).HasMaxLength(20);
                 entity.Property(p => p.Telegram).HasMaxLength(50);
+                entity.Property(p => p.VkUserId).HasMaxLength(255);
                 entity.Property(p => p.Experience).HasDefaultValue(0);
                 entity.Property(p => p.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
                 entity.Property(p => p.UpdatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");

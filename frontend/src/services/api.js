@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:7000/api';
+const API_URL = '/api';
 
 const getAuthHeaders = (token) => ({
   'Content-Type': 'application/json',
@@ -26,7 +26,7 @@ export const api = {
 
   // Получить код
   async requestAuthCode(email) {
-    const response = await fetch(`${API_URL}/Auth/request-code`, {
+    const response = await fetch(`${API_URL}/auth/request-code`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
