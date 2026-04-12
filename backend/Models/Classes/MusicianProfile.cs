@@ -60,6 +60,12 @@ public class MusicianProfile : ISoftDeletable
     public string? Telegram { get; set; }
 
     /// <summary>
+    /// Идентификатор пользователь в Вконтакте
+    /// </summary>
+    //[MaxLength(255)]
+    public string? VkUserId { get; set; }
+
+    /// <summary>
     /// ID города
     /// </summary>
     //[Required]

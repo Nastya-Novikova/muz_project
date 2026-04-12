@@ -3,8 +3,8 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider } from './context/AuthContext';
 import HomePage from './pages/Home/HomePage';
 import LoginOTP from './pages/Login/LoginPage';
-import ProfilePage from './pages/Profile/ProfilePage';
-import EditProfilePage from './pages/Profile/EditProfilePage';
+import ProfilePage from './pages/Profile/ProfilePage/ProfilePage';
+import EditProfilePage from './pages/Profile/EditProfile/EditProfilePage';
 import SuggestionsPage from './pages/Suggestions/SuggestionsPage';
 
 function App() {

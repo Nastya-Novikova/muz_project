@@ -5,6 +5,7 @@ import { api } from '../../services/api';
 import Header from '../../components/Header/Header';
 import UserCard from '../../components/UserCard/UserCard';
 import './SuggestionsPage.css';
+import VkAuthButton from '../../components/VkAuthButton/VkAuthButton';
 
 function SuggestionsPage() {
   const navigate = useNavigate();
@@ -112,6 +113,20 @@ function SuggestionsPage() {
     return favoriteUsers;
   };
 
+  const handleVkSuccess = async (code, codeVerifier, deviceId) => {
+    console.log('Received code from VK:', code);
+    
+    try {
+      const token = getToken();
+      const data = await api.connectVk(code, codeVerifier, deviceId, token);
+      console.log('VK successfully connected', data);
+      alert('✅ VK успешно привязан!');
+    } catch (err) {
+      console.error('Error connecting VK:', err.message);
+      alert('❌ Ошибка привязки VK: ' + err.message);
+    }
+  };
+
   const currentUsers = getCurrentUsers();
   const currentUsersCount = currentUsers.length;
   const receivedCount = receivedUsers.length;
@@ -122,6 +137,10 @@ function SuggestionsPage() {
     <>
       <Header />
       <div className="suggestions-page">
+        <VkAuthButton 
+          onSuccess={handleVkSuccess}
+          onError={(err) => console.error(err)}
+        />
         <div className="suggestions-container">
           <h1 className="page-title">Предложения</h1>
           <div className="suggestions-tabs">

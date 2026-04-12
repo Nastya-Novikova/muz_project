@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:7000/api';
+const API_URL = '/api';
 
 const getAuthHeaders = (token) => ({
   'Content-Type': 'application/json',
@@ -26,7 +26,7 @@ export const api = {
 
   // Получить код
   async requestAuthCode(email) {
-    const response = await fetch(`${API_URL}/Auth/request-code`, {
+    const response = await fetch(`${API_URL}/auth/request-code`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -379,6 +379,21 @@ async getFavorites(token, page = 1, limit = 20) {
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return response.json();
+  },
+
+  async connectVk(code, codeVerifier, deviceId, token) {
+    const response = await fetch(`${API_URL}/Profiles/connect-vk`, {
+      method: 'POST',
+      headers: getAuthHeaders(token),
+      body: JSON.stringify({ code, codeVerifier, deviceId }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ message: 'HTTP error!' }));
+      throw new Error(errorData.error || errorData.message || `HTTP error! status: ${response.status}`);
     }
 
     return response.json();

@@ -6,6 +6,7 @@ using backend.Services.Interfaces;
 using backend.Services;
 using backend.Models.Classes;
 using backend.Models.DTOs.Common;
+using backend.Models.DTOs.Vk;
 using backend.Models.DTOs.Profiles;
 
 namespace backend.Controllers;
@@ -18,10 +19,12 @@ namespace backend.Controllers;
 public class ProfilesController : ControllerBase
 {
     private readonly IProfileService _service;
+    private readonly IVkAuthService _vkAuthService;
 
-    public ProfilesController(IProfileService service)
+    public ProfilesController(IProfileService service, IVkAuthService vkAuthService)
     {
         _service = service;
+        _vkAuthService = vkAuthService;
     }
 
     /// <summary>
@@ -121,5 +124,39 @@ public class ProfilesController : ControllerBase
     {
         var userIdStr = User.FindFirst("userId")?.Value;
         return Guid.TryParse(userIdStr, out var userId) ? userId : Guid.Empty;
+    }
+
+    /// <summary>
+    /// Привязать аккаунт ВКонтакте
+    /// </summary>
+    [HttpPost("connect-vk")]
+    [Authorize]
+    public async Task<IActionResult> ConnectVk([FromBody] ConnectVkRequest request)
+    {
+        var userId = GetUserId();
+        
+        var result = await _vkAuthService.ConnectVkAsync(userId, request.Code, request.CodeVerifier, request.DeviceId);
+        
+        if (!result.IsSuccess)
+            return BadRequest(new { error = result.Error });
+        
+        return Ok(new { success = true });
+    }
+
+    /// <summary>
+    /// Тестовый эндпоинт для отправки сообщения (только для отладки)
+    /// </summary>
+    [HttpPost("test-notification")]
+    [Authorize]
+    public async Task<IActionResult> TestNotification([FromBody] string message)
+    {
+        var userId = GetUserId();
+
+        var result = await _vkAuthService.SendNotificationAsync(userId, message ?? "Тестовое уведомление от MusicianFinder!");
+        
+        if (!result)
+            return BadRequest(new { error = "Failed to send message. Check logs for details." });
+        
+        return Ok(new { success = true, message = "Notification sent successfully" });
     }
 }
