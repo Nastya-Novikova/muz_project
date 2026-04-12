@@ -9,10 +9,5 @@
         public List<LookupItemDto> Genres { get; set; } = new();
         public List<LookupItemDto> Specialties { get; set; } = new();
         public string? Description { get; set; }
-
-        //Description
-        //Genres
-        //Specialities
-
     }
 }

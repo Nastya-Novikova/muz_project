@@ -9,12 +9,10 @@ namespace backend.Models.Repositories;
 public class GenreRepository : IGenreRepository
 {
     private readonly MusicianFinderDbContext _context;
-    //public DbSet<Genre> Genres { get; set; }
 
     public GenreRepository(MusicianFinderDbContext context)
     {
         _context = context;
-        //Genres = _context.Set<Genre>();
     }
 
     public async Task<List<Genre>> GetAllAsync(string? query = null, string? sortBy = null, bool sortDesc = false)

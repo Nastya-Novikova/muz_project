@@ -1,39 +1,33 @@
-using backend.Models.Classes;
+п»їusing backend.Models.Classes;
 using backend.Models.DTOs;
-//using System.ComponentModel.DataAnnotations;
-//using System.ComponentModel.DataAnnotations.Schema;
 
 namespace backend.Models.Classes;
 
 /// <summary>
-/// Музыкальный жанр
+/// РњСѓР·С‹РєР°Р»СЊРЅС‹Р№ Р¶Р°РЅСЂ
 /// </summary>
-//[Table("Genres")]
 public class Genre : ILookupItem
 {
     /// <summary>
-    /// Идентификатор
+    /// РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ
     /// </summary>
-    //[Key]
     public int Id { get; set; }
 
     /// <summary>
-    /// Английское название жанра
+    /// РђРЅРіР»РёР№СЃРєРѕРµ РЅР°Р·РІР°РЅРёРµ Р¶Р°РЅСЂР°
     /// </summary>
-    //[Required, MaxLength(50)]
     public string Name { get; set; } = string.Empty;
 
     /// <summary>
-    /// Русское название жанра
+    /// Р СѓСЃСЃРєРѕРµ РЅР°Р·РІР°РЅРёРµ Р¶Р°РЅСЂР°
     /// </summary>
-    //[Required, MaxLength(50)]
     public string LocalizedName { get; set; } = string.Empty;
 
     /// <summary>
-    /// Связанные профили
+    /// РЎРІСЏР·Р°РЅРЅС‹Рµ РїСЂРѕС„РёР»Рё
     /// </summary>
     public List<MusicianProfile> Profiles { get; set; } = new();
 
-    // Профили, которые ищут этот жанр
+    // РџСЂРѕС„РёР»Рё, РєРѕС‚РѕСЂС‹Рµ РёС‰СѓС‚ СЌС‚РѕС‚ Р¶Р°РЅСЂ
     public List<MusicianProfile> ProfilesLookingForThisGenre { get; set; } = new();
 }

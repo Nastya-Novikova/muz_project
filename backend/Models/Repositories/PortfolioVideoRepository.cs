@@ -9,12 +9,10 @@ namespace backend.Models.Repositories;
 public class PortfolioVideoRepository : IPortfolioVideoRepository
 {
     private readonly MusicianFinderDbContext _context;
-    //public DbSet<PortfolioVideo> VideoFiles { get; set; }
 
     public PortfolioVideoRepository(MusicianFinderDbContext context)
     {
         _context = context;
-        //VideoFiles = _context.Set<PortfolioVideo>();
     }
 
     public async Task AddAsync(PortfolioVideo video)
@@ -23,7 +21,6 @@ public class PortfolioVideoRepository : IPortfolioVideoRepository
             throw new ApiException(400, "ProfileID обязателен", "MISSING_PROFILE_ID");
 
         await _context.PortfolioVideo.AddAsync(video);
-        //await _context.SaveChangesAsync();
     }
 
     public async Task<List<PortfolioVideo>> GetByProfileIdAsync(Guid profileId)

@@ -9,12 +9,10 @@ namespace backend.Models.Repositories;
 public class PortfolioAudioRepository : IPortfolioAudioRepository
 {
     private readonly MusicianFinderDbContext _context;
-    //public DbSet<PortfolioAudio> AudioFiles { get; set; }
 
     public PortfolioAudioRepository(MusicianFinderDbContext context)
     {
         _context = context;
-        //AudioFiles = _context.Set<PortfolioAudio>();
     }
 
     public async Task AddAsync(PortfolioAudio audio)
@@ -23,8 +21,6 @@ public class PortfolioAudioRepository : IPortfolioAudioRepository
             throw new ApiException(400, "ProfileID обязателен", "MISSING_PROFILE_ID");
 
         await _context.PortfolioAudio.AddAsync(audio);
-
-        //await _context.SaveChangesAsync();
     }
 
     public async Task<List<PortfolioAudio>> GetByProfileIdAsync(Guid profileId)

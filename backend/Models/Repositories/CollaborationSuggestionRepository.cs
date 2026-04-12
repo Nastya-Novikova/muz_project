@@ -9,15 +9,10 @@ namespace backend.Models.Repositories;
 public class CollaborationSuggestionRepository : ICollaborationSuggestionRepository
 {
     private readonly MusicianFinderDbContext _context;
-    //public DbSet<CollaborationSuggestion> Suggestions { get; set; }
 
-    //private readonly IProfileRepository _profileRepository;
-
-    public CollaborationSuggestionRepository(MusicianFinderDbContext context, IProfileRepository profileRepository)
+    public CollaborationSuggestionRepository(MusicianFinderDbContext context)
     {
         _context = context;
-        //Suggestions = _context.Set<CollaborationSuggestion>();
-        //_profileRepository = profileRepository;
     }
 
     public async Task AddAsync(CollaborationSuggestion suggestion)
@@ -28,16 +23,7 @@ public class CollaborationSuggestionRepository : ICollaborationSuggestionReposit
         if (suggestion.FromProfileId == suggestion.ToProfileId)
             throw new ApiException(400, "Нельзя отправить предложение самому себе", "SELF_SUGGESTION");
 
-        /*var fromUser = await _profileRepository.GetByIdAsync(suggestion.FromProfileId);
-        var toUser = await _profileRepository.GetByIdAsync(suggestion.ToProfileId);
-
-        if (fromUser == null)
-            throw new ApiException(404, "Отправитель не найден", "FROM_USER_NOT_FOUND");
-        if (toUser == null)
-            throw new ApiException(404, "Получатель не найден", "TO_USER_NOT_FOUND");*/
-
         await _context.CollaborationSuggestions.AddAsync(suggestion);
-        //await _context.SaveChangesAsync();
     }
 
     public async Task<List<CollaborationSuggestion>> GetReceivedAsync(Guid userId, int page = 1, int limit = 20, string? sortBy = "createdAt", bool sortDesc = true)

@@ -9,12 +9,10 @@ namespace backend.Models.Repositories;
 public class PortfolioPhotoRepository : IPortfolioPhotoRepository
 {
     private readonly MusicianFinderDbContext _context;
-    //public DbSet<PortfolioPhoto> Photos { get; set; }
 
     public PortfolioPhotoRepository(MusicianFinderDbContext context)
     {
         _context = context;
-        //Photos = _context.Set<PortfolioPhoto>();
     }
 
     public async Task AddAsync(PortfolioPhoto photo)
@@ -23,7 +21,6 @@ public class PortfolioPhotoRepository : IPortfolioPhotoRepository
             throw new ApiException(400, "ProfileID обязателен", "MISSING_PROFILE_ID");
 
         await _context.PortfolioPhotos.AddAsync(photo);
-        //await _context.SaveChangesAsync();
     }
 
     public async Task<List<PortfolioPhoto>> GetByProfileIdAsync(Guid profileId)

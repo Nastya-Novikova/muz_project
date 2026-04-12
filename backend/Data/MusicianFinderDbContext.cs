@@ -40,7 +40,7 @@ namespace backend.Data
             // === Конфигурация Region ===
             modelBuilder.Entity<Region>(entity =>
             {
-                entity.ToTable("Regions");
+                entity.ToTable("Region");
                 entity.HasKey(r => r.Id);
                 entity.Property(r => r.Name).IsRequired().HasMaxLength(100);
                 entity.Property(r => r.LocalizedName).IsRequired().HasMaxLength(100);
@@ -49,7 +49,7 @@ namespace backend.Data
             // === Конфигурация Event ===
             modelBuilder.Entity<Event>(entity =>
             {
-                entity.ToTable("Events");
+                entity.ToTable("Event");
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.Title).IsRequired().HasMaxLength(200);
                 entity.Property(e => e.Address).HasMaxLength(200);
@@ -78,7 +78,7 @@ namespace backend.Data
             // === Конфигурация EventRegistration ===
             modelBuilder.Entity<EventRegistration>(entity =>
             {
-                entity.ToTable("EventRegistrations");
+                entity.ToTable("EventRegistration");
                 entity.HasKey(r => new { r.EventId, r.ProfileId });
 
                 entity.HasOne(r => r.Event)
@@ -97,7 +97,7 @@ namespace backend.Data
             // === Конфигурация Notification ===
             modelBuilder.Entity<Notification>(entity =>
             {
-                entity.ToTable("Notifications");
+                entity.ToTable("Notification");
                 entity.HasKey(n => n.Id);
                 entity.Property(n => n.Type).HasConversion<string>();
                 entity.Property(n => n.EntityType).HasConversion<string>();
@@ -114,7 +114,7 @@ namespace backend.Data
             // === Конфигурация User ===
             modelBuilder.Entity<User>(entity =>
             {
-                entity.ToTable("Users");
+                entity.ToTable("User");
                 entity.HasKey(u => u.Id);
                 entity.Property(u => u.Email).IsRequired().HasMaxLength(256);
                 entity.HasIndex(u => u.Email).IsUnique();
@@ -132,7 +132,7 @@ namespace backend.Data
             // === Конфигурация Favorite ===
             modelBuilder.Entity<Favorite>(entity =>
             {
-                entity.ToTable("Favorites");
+                entity.ToTable("Favorite");
                 entity.HasKey(f => new { f.UserId, f.ProfileId });
 
                 entity.HasOne(f => f.User)
@@ -151,10 +151,9 @@ namespace backend.Data
             // === Конфигурация MusicianProfile ===
             modelBuilder.Entity<MusicianProfile>(entity =>
             {
-                entity.ToTable("MusicianProfiles");
+                entity.ToTable("MusicianProfile");
                 entity.HasKey(p => p.Id);
                 entity.Property(p => p.FullName).IsRequired().HasMaxLength(100);
-                //entity.Property(p => p.AvatarUrl).HasColumnType("bytea");
                 entity.Property(p => p.Phone).HasMaxLength(20);
                 entity.Property(p => p.Telegram).HasMaxLength(50);
                 entity.Property(p => p.VkUserId).HasMaxLength(255);
@@ -176,7 +175,7 @@ namespace backend.Data
 
                 // Связь с городом
                 entity.HasOne(p => p.City)
-                    .WithMany(/*c => c.Profiles*/)
+                    .WithMany()
                     .HasForeignKey(p => p.CityId)
                     .OnDelete(DeleteBehavior.Restrict);
 
@@ -225,7 +224,7 @@ namespace backend.Data
             // === Конфигурация City ===
             modelBuilder.Entity<City>(entity =>
             {
-                entity.ToTable("Cities");
+                entity.ToTable("City");
                 entity.HasKey(c => c.Id);
                 entity.Property(c => c.Name).IsRequired().HasMaxLength(50);
                 entity.Property(c => c.LocalizedName).IsRequired().HasMaxLength(50);
@@ -234,7 +233,7 @@ namespace backend.Data
             // === Конфигурация Genre ===
             modelBuilder.Entity<Genre>(entity =>
             {
-                entity.ToTable("Genres");
+                entity.ToTable("Genre");
                 entity.HasKey(g => g.Id);
                 entity.Property(g => g.Name).IsRequired().HasMaxLength(50);
                 entity.Property(g => g.LocalizedName).IsRequired().HasMaxLength(50);
@@ -243,7 +242,7 @@ namespace backend.Data
             // === Конфигурация MusicalSpecialty ===
             modelBuilder.Entity<MusicalSpecialty>(entity =>
             {
-                entity.ToTable("MusicalSpecialties");
+                entity.ToTable("MusicalSpecialty");
                 entity.HasKey(ms => ms.Id);
                 entity.Property(ms => ms.Name).IsRequired().HasMaxLength(50);
                 entity.Property(ms => ms.LocalizedName).IsRequired().HasMaxLength(50);
@@ -252,7 +251,7 @@ namespace backend.Data
             // === Конфигурация CollaborationGoal ===
             modelBuilder.Entity<CollaborationGoal>(entity =>
             {
-                entity.ToTable("CollaborationGoals");
+                entity.ToTable("CollaborationGoal");
                 entity.HasKey(cg => cg.Id);
                 entity.Property(cg => cg.Name).IsRequired().HasMaxLength(50);
                 entity.Property(cg => cg.LocalizedName).IsRequired().HasMaxLength(50);
@@ -261,7 +260,7 @@ namespace backend.Data
             // === Конфигурация EmailVerificationCode ===
             modelBuilder.Entity<EmailVerificationCode>(entity =>
             {
-                entity.ToTable("EmailVerificationCodes");
+                entity.ToTable("EmailVerificationCode");
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.Email).IsRequired().HasMaxLength(256);
                 entity.Property(e => e.Code).IsRequired().HasMaxLength(6);
@@ -272,7 +271,7 @@ namespace backend.Data
             // === Конфигурация CollaborationSuggestion ===
             modelBuilder.Entity<CollaborationSuggestion>(entity =>
             {
-                entity.ToTable("CollaborationSuggestions");
+                entity.ToTable("CollaborationSuggestion");
                 entity.HasKey(cs => cs.Id);
                 entity.Property(cs => cs.Message).HasMaxLength(500);
                 entity.Property(cs => cs.Status).IsRequired().HasMaxLength(20);
@@ -297,7 +296,6 @@ namespace backend.Data
                 entity.HasKey(pa => pa.Id);
                 entity.Property(pa => pa.Title).HasMaxLength(100);
                 entity.Property(pa => pa.Description).HasMaxLength(500);
-                //entity.Property(pa => pa.FileData).HasColumnType("bytea");
                 entity.Property(pa => pa.MimeType).HasMaxLength(50);
                 entity.Property(pa => pa.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
             });
@@ -309,7 +307,6 @@ namespace backend.Data
                 entity.HasKey(pv => pv.Id);
                 entity.Property(pv => pv.Title).HasMaxLength(100);
                 entity.Property(pv => pv.Description).HasMaxLength(500);
-                //entity.Property(pv => pv.FileData).HasColumnType("bytea");
                 entity.Property(pv => pv.MimeType).HasMaxLength(50);
                 entity.Property(pv => pv.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
             });
@@ -317,100 +314,13 @@ namespace backend.Data
             // === Конфигурация PortfolioPhoto ===
             modelBuilder.Entity<PortfolioPhoto>(entity =>
             {
-                entity.ToTable("PortfolioPhotos");
+                entity.ToTable("PortfolioPhoto");
                 entity.HasKey(pp => pp.Id);
                 entity.Property(pp => pp.Title).HasMaxLength(100);
                 entity.Property(pp => pp.Description).HasMaxLength(500);
-                //entity.Property(pp => pp.FileData).HasColumnType("bytea");
                 entity.Property(pp => pp.MimeType).HasMaxLength(50);
                 entity.Property(pp => pp.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
             });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-            /*modelBuilder.Entity<User>().HasQueryFilter(u => !u.IsDeleted);
-            modelBuilder.Entity<MusicianProfile>().HasQueryFilter(p => !p.IsDeleted);
-
-            modelBuilder.Entity<MusicianProfile>().Property(p => p.Avatar).HasColumnType("bytea");
-            modelBuilder.Entity<PortfolioPhoto>().Property(p => p.FileData).HasColumnType("bytea");
-            modelBuilder.Entity<PortfolioAudio>().Property(a => a.FileData).HasColumnType("bytea");
-            modelBuilder.Entity<PortfolioVideo>().Property(v => v.FileData).HasColumnType("bytea");*/
-
-            /*// === Many-to-many ===
-            modelBuilder.Entity<MusicianProfile>()
-                .HasMany(p => p.Genres)
-                .WithMany(g => g.Profiles)
-                .UsingEntity("ProfileGenre");
-
-            modelBuilder.Entity<MusicianProfile>()
-                .HasMany(p => p.Specialties)
-                .WithMany(s => s.Profiles)
-                .UsingEntity("ProfileSpecialty");
-
-            modelBuilder.Entity<MusicianProfile>()
-                .HasMany(p => p.CollaborationGoals)
-                .WithMany(g => g.Profiles)
-                .UsingEntity("ProfileCollaborationGoal");
-
-            modelBuilder.Entity<MusicianProfile>()
-                .HasOne(p => p.City)
-                .WithMany()
-                .HasForeignKey(p => p.CityId);
-
-            // === One-to-many ===
-            modelBuilder.Entity<PortfolioAudio>()
-                .HasOne(a => a.Profile)
-                .WithMany(p => p.AudioFiles)
-                .HasForeignKey(a => a.ProfileId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            modelBuilder.Entity<PortfolioVideo>()
-                .HasOne(v => v.Profile)
-                .WithMany(p => p.VideoFiles)
-                .HasForeignKey(v => v.ProfileId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            modelBuilder.Entity<PortfolioPhoto>()
-                .HasOne(p => p.Profile)
-                .WithMany(p => p.Photos)
-                .HasForeignKey(p => p.ProfileId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            // === CollaborationSuggestion → MusicianProfile ===
-            modelBuilder.Entity<CollaborationSuggestion>()
-                .HasOne(s => s.FromProfile)
-                .WithMany()
-                .HasForeignKey(s => s.FromProfileId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            modelBuilder.Entity<CollaborationSuggestion>()
-                .HasOne(s => s.ToProfile)
-                .WithMany()
-                .HasForeignKey(s => s.ToProfileId)
-                .OnDelete(DeleteBehavior.Cascade);*/
-
-
 
             // === Seed-данные ===
 
@@ -466,33 +376,6 @@ namespace backend.Data
                 new CollaborationGoal { Id = 4, Name = "producer", LocalizedName = "Ищу продюсера" },
                 new CollaborationGoal { Id = 5, Name = "artist", LocalizedName = "Ищу исполнителя для песен" }
             );
-
-            //this.SaveChangesAsync();
         }
-
-        /*public static void EnsureDatabaseCreated(MusicianFinderDbContext context)
-        {
-            try
-            {
-                context.Database.Migrate();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Migration error: {ex.Message}");
-
-                var appliedMigrations = context.Database.GetAppliedMigrations();
-                var allMigrations = context.Database.GetMigrations();
-                var pendingMigrations = allMigrations.Except(appliedMigrations);
-
-                if (pendingMigrations.Any())
-                {
-                    var migrator = context.Database.GetService<IMigrator>();
-                    foreach (var migration in pendingMigrations)
-                    {
-                        migrator.Migrate(migration);
-                    }
-                }
-            }
-        }*/
     }
 }

@@ -1,33 +1,22 @@
-﻿//using System.ComponentModel.DataAnnotations;
-//using System.ComponentModel.DataAnnotations.Schema;
-using backend.Models.Enums;
+﻿using backend.Models.Enums;
 
 namespace backend.Models.Classes;
 
 /// <summary>
 /// Профиль музыканта
 /// </summary>
-//[Table("MusicianProfiles")]
 public class MusicianProfile : ISoftDeletable
 {
     /// <summary>
     /// Идентификатор профиля
     /// </summary>
-    //[Key]
     public Guid Id { get; set; }
-
-    /*/// <summary>
-    /// ID пользователя
-    /// </summary>
-    [Required]
-    public Guid UserId { get; set; }*/
 
     public ProfileType ProfileType { get; set; } = ProfileType.Individual;
 
     /// <summary>
     /// Полное имя
     /// </summary>
-    //[Required, MaxLength(100)]
     public string FullName { get; set; } = string.Empty;
 
     /// <summary>
@@ -38,31 +27,26 @@ public class MusicianProfile : ISoftDeletable
     /// <summary>
     /// Возраст (0-100)
     /// </summary>
-    //[Range(0, 100)]
     public int? Age { get; set; }
 
     /// <summary>
     /// Описание
     /// </summary>
-    //[MaxLength(500)]
     public string? Description { get; set; }
 
     /// <summary>
     /// Телефон
     /// </summary>
-    //[Phone]
     public string? Phone { get; set; }
 
     /// <summary>
     /// Telegram
     /// </summary>
-    //[MaxLength(50)]
     public string? Telegram { get; set; }
 
     /// <summary>
     /// Идентификатор пользователь в Вконтакте
     /// </summary>
-    //[MaxLength(255)]
     public string? VkUserId { get; set; }
 
     public bool NotifyByEmail { get; set; } = true;
@@ -72,13 +56,11 @@ public class MusicianProfile : ISoftDeletable
     /// <summary>
     /// ID города
     /// </summary>
-    //[Required]
     public int CityId { get; set; }
 
     /// <summary>
     /// Опыт (в годах)
     /// </summary>
-    //[Range(0, int.MaxValue)]
     public int Experience { get; set; } = 0;
 
     public LookingFor LookingFor { get; set; } = LookingFor.NotLooking;
@@ -94,7 +76,6 @@ public class MusicianProfile : ISoftDeletable
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
     // === Навигационные свойства ===
-    //[ForeignKey("CityId")]
     public City City { get; set; } = null!;
     public string Email { get; set; } = string.Empty;
 

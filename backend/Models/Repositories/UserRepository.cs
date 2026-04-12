@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+п»їusing Microsoft.EntityFrameworkCore;
 using backend.Data;
 using backend.Models.Classes;
 using backend.Models.Repositories.Interfaces;
@@ -9,30 +9,27 @@ namespace backend.Models.Repositories;
 public class UserRepository : IUserRepository
 {
     private readonly MusicianFinderDbContext _context;
-    //public DbSet<User> Users { get; set; }
 
     public UserRepository(MusicianFinderDbContext context)
     {
         _context = context;
-        //Users = _context.Set<User>();
     }
 
     public async Task AddAsync(User user)
     {
         if (user == null)
-            throw new ApiException(400, "Пользователь не может быть null", "USER_IS_NULL");
+            throw new ApiException(400, "РџРѕР»СЊР·РѕРІР°С‚РµР»СЊ РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ null", "USER_IS_NULL");
 
         if (string.IsNullOrWhiteSpace(user.Email))
-            throw new ApiException(400, "Email обязателен", "MISSING_EMAIL");
+            throw new ApiException(400, "Email РѕР±СЏР·Р°С‚РµР»РµРЅ", "MISSING_EMAIL");
 
         await _context.Users.AddAsync(user);
-        //await _context.SaveChangesAsync();
     }
 
     public async Task<User?> GetByIdAsync(Guid id)
     {
         if (id == Guid.Empty)
-            throw new ApiException(400, "ID пользователя не может быть пустым", "INVALID_USER_ID");
+            throw new ApiException(400, "ID РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РїСѓСЃС‚С‹Рј", "INVALID_USER_ID");
 
         return await _context.Users.Include(u => u.MusicianProfile).FirstOrDefaultAsync(u => u.Id == id && !u.IsDeleted);
     }
@@ -40,39 +37,45 @@ public class UserRepository : IUserRepository
     public async Task<User?> GetByEmailAsync(string email)
     {
         if (string.IsNullOrWhiteSpace(email))
-            throw new ApiException(400, "Email не может быть пустым", "MISSING_EMAIL");
+            throw new ApiException(400, "Email РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РїСѓСЃС‚С‹Рј", "MISSING_EMAIL");
 
         return await _context.Users.FirstOrDefaultAsync(u => u.Email == email && !u.IsDeleted);
+    }
+
+    public async Task<User?> GetByMusicianProfileIdAsync(Guid profileId)
+    {
+        if (profileId == Guid.Empty)
+            throw new ApiException(400, "ID РјСѓР·С‹РєР°Р»СЊРЅРѕРіРѕ РїСЂРѕС„РёР»СЏ РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РїСѓСЃС‚С‹Рј", "INVALID_MUSICIAN_PROFILE_ID");
+
+        return await _context.Users.FirstOrDefaultAsync(u => u.MusicianProfile != null && u.MusicianProfile.Id == profileId && !u.IsDeleted);
     }
 
     public async Task UpdateAsync(User user)
     {
         if (user == null)
-            throw new ApiException(400, "Пользователь не может быть null", "USER_IS_NULL");
+            throw new ApiException(400, "РџРѕР»СЊР·РѕРІР°С‚РµР»СЊ РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ null", "USER_IS_NULL");
 
         if (user.Id == Guid.Empty)
-            throw new ApiException(400, "Некорректный ID пользователя", "INVALID_USER_ID");
+            throw new ApiException(400, "РќРµРєРѕСЂСЂРµРєС‚РЅС‹Р№ ID РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ", "INVALID_USER_ID");
 
         var existing = await _context.Users.FindAsync(user.Id);
         if (existing == null)
-            throw new ApiException(404, "Пользователь не найден", "USER_NOT_FOUND");
+            throw new ApiException(404, "РџРѕР»СЊР·РѕРІР°С‚РµР»СЊ РЅРµ РЅР°Р№РґРµРЅ", "USER_NOT_FOUND");
 
         _context.Users.Update(user);
-        //await _context.SaveChangesAsync();
     }
 
     public async Task SoftDeleteAsync(Guid id)
     {
         if (id == Guid.Empty)
-            throw new ApiException(400, "ID пользователя не может быть пустым", "INVALID_USER_ID");
+            throw new ApiException(400, "ID РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РїСѓСЃС‚С‹Рј", "INVALID_USER_ID");
 
         var user = await _context.Users.FindAsync(id);
         if (user == null)
-            throw new ApiException(404, "Пользователь не найден", "USER_NOT_FOUND");
+            throw new ApiException(404, "РџРѕР»СЊР·РѕРІР°С‚РµР»СЊ РЅРµ РЅР°Р№РґРµРЅ", "USER_NOT_FOUND");
 
         user.IsDeleted = true;
         user.DeletedAt = DateTime.UtcNow;
         _context.Users.Update(user);
-        //await _context.SaveChangesAsync();
     }
 }
