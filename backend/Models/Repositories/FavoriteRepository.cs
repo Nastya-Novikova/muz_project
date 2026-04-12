@@ -14,7 +14,7 @@ namespace backend.Models.Repositories
         public FavoriteRepository(MusicianFinderDbContext context)
         {
             _context = context;
-          //Favorites = _context.Set<Favorite>();
+            //Favorites = _context.Set<Favorite>();
         }
 
         public async Task AddAsync(Favorite favorite)

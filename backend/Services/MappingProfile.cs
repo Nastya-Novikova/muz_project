@@ -3,8 +3,10 @@ using backend.Models.Classes;
 using backend.Models.DTOs;
 using backend.Models.DTOs.Auth;
 using backend.Models.DTOs.Collaborations;
+using backend.Models.DTOs.Events;
 using backend.Models.DTOs.Favorites;
 using backend.Models.DTOs.Media;
+using backend.Models.DTOs.Notifications;
 using backend.Models.DTOs.Profiles;
 using backend.Models.DTOs.Uploads;
 
@@ -19,6 +21,7 @@ namespace backend.Services
             CreateMap<MusicalSpecialty, LookupItemDto>();
             CreateMap<CollaborationGoal, LookupItemDto>();
             CreateMap<City, LookupItemDto>();
+            CreateMap<Region, LookupItemDto>();
 
             // MusicianProfile → ProfileDto
             CreateMap<MusicianProfile, ProfileDto>()
@@ -73,6 +76,16 @@ namespace backend.Services
 
             // User → UserDto
             CreateMap<User, UserDto>();
+
+            CreateMap<Event, EventDto>()
+                .ForMember(dest => dest.Region, opt => opt.MapFrom(src => src.Region))
+                .ForMember(dest => dest.City, opt => opt.MapFrom(src => src.City))
+                .ForMember(dest => dest.CurrentParticipants, opt => opt.Ignore())
+                .ForMember(dest => dest.IsRegistered, opt => opt.Ignore())
+                .ForMember(dest => dest.CreatorFullName, opt => opt.MapFrom(src => src.CreatorProfile.FullName))
+                .ForMember(dest => dest.CreatorAvatarUrl, opt => opt.MapFrom(src => src.CreatorProfile.AvatarUrl));
+
+            CreateMap<Notification, NotificationDto>();
         }
     }
 }

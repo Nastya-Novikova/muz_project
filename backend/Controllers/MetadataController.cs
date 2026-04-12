@@ -16,17 +16,20 @@ public class MetadataController : ControllerBase
     private readonly IGenreService _genreService;
     private readonly IMusicalSpecialtyService _specialtyService;
     private readonly ICollaborationGoalService _goalService;
+    private readonly IRegionService _regionService;
 
     public MetadataController(
         ICityService cityService,
         IGenreService genreService,
         IMusicalSpecialtyService specialtyService,
-        ICollaborationGoalService goalService)
+        ICollaborationGoalService goalService,
+        IRegionService regionService)
     {
         _cityService = cityService;
         _genreService = genreService;
         _specialtyService = specialtyService;
         _goalService = goalService;
+        _regionService = regionService;
     }
 
     /// <summary>
@@ -36,6 +39,21 @@ public class MetadataController : ControllerBase
     public async Task<ActionResult<List<LookupItemDto>>> GetCities([FromQuery] string? query = null, [FromQuery] string? sortBy = null, [FromQuery] bool sortDesc = false)
     {
         var result = await _cityService.GetAllAsync(query, sortBy, sortDesc);
+        if (!result.IsSuccess)
+            return BadRequest(new { error = result.Error });
+        return Ok(result.Value);
+    }
+
+    /// <summary>
+    /// Получить список регионов
+    /// </summary>
+    [HttpGet("regions")]
+    public async Task<ActionResult<List<LookupItemDto>>> GetRegions(
+        [FromQuery] string? query = null,
+        [FromQuery] string? sortBy = null,
+        [FromQuery] bool sortDesc = false)
+    {
+        var result = await _regionService.GetAllAsync(query, sortBy, sortDesc);
         if (!result.IsSuccess)
             return BadRequest(new { error = result.Error });
         return Ok(result.Value);
