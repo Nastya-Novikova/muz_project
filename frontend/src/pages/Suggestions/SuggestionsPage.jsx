@@ -19,7 +19,10 @@ function SuggestionsPage() {
   const [favoriteUsers, setFavoriteUsers] = useState([]);
   const [favoriteIds, setFavoriteIds] = useState(new Set());
   const [tabLoading, setTabLoading] = useState(false);
+
   const [bannerVisible, setBannerVisible] = useState(true);
+  const [notifyByVk, setNotifyByVk] = useState(false);
+  const [loadingSettings, setLoadingSettings] = useState(true);
 
   useEffect(() => {
     const loadAllData = async () => {
@@ -32,6 +35,8 @@ function SuggestionsPage() {
           navigate('/login');
           return;
         }
+
+        await loadNotificationSettings(token);
 
         console.log('=== Начало загрузки всех данных ===');
         const [receivedResponse, sentResponse, favoritesResponse] = await Promise.all([
@@ -104,6 +109,19 @@ function SuggestionsPage() {
     loadAllData();
   }, [getToken, navigate]); 
 
+  const loadNotificationSettings = async (token) => {
+    setLoadingSettings(true);
+    try {
+      const settings = await api.getNotificationSettings(token);
+      setNotifyByVk(settings.notifyByVk || false);
+      console.log('Настройки уведомлений:', settings);
+    } catch (err) {
+      console.error('Ошибка загрузки настроек уведомлений:', err);
+    } finally {
+      setLoadingSettings(false);
+    }
+  };
+
   const handleUserProfileClick = (userId) => {
     navigate(`/profile/${userId}`);
   };
@@ -122,6 +140,7 @@ function SuggestionsPage() {
       const data = await api.connectVk(code, codeVerifier, deviceId, token);
       console.log('VK successfully connected', data);
       alert('VK успешно привязан!');
+      setNotifyByVk(true);
     } catch (err) {
       console.error('Error connecting VK:', err.message);
       alert('Ошибка привязки VK: ' + err.message);
@@ -138,14 +157,17 @@ function SuggestionsPage() {
   const sentCount = sentUsers.length;
   const favoritesCount = favoriteUsers.length;
 
+  const showVkBanner = !loadingSettings && !notifyByVk;
+
   return (
     <>
       <Header />
       <div className="suggestions-page">
+        {showVkBanner && 
         <VkAuthButton 
           onSuccess={handleVkSuccess}
           onError={(err) => console.error(err)}
-        />
+        /> }
         <div className="suggestions-container">
           <h1 className="page-title">Предложения</h1>
           {bannerVisible && (

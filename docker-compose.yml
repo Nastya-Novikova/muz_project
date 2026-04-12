@@ -89,6 +89,7 @@ services:
     environment:
       - TOKEN=${CLOUDPUB_TOKEN}
       - HTTP=nginx:80
+      - DOMAIN=musicianfinder.cloudpub.ru
     command: run
     networks:
       - musician-net

@@ -477,30 +477,5 @@ async getFavorites(token, page = 1, limit = 20) {
     }
 
     return response.json();
-  },
-
-  // Обновить настройки уведомлений
-  async updateNotificationSettings(settings, token) {
-    // Получаем текущий профиль
-    const profile = await this.getProfile(token);
-    
-    // Обновляем только настройки уведомлений
-    const updateData = {
-      notifyByEmail: settings.notifyByEmail,
-      notifyByVk: settings.notifyByVk
-    };
-    
-    const response = await fetch(`${API_URL}/Profiles`, {
-      method: 'PUT',
-      headers: getAuthHeaders(token),
-      body: JSON.stringify(updateData)
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ message: 'HTTP error!' }));
-      throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
-    }
-
-    return response.json();
   }
 };

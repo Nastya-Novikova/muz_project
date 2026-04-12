@@ -6,6 +6,7 @@ const NotificationCard = ({ notification, onMarkAsRead }) => {
   const getIconLetter = () => {
     switch (notification.type) {
       case 'EventRegistration':
+        return 'М';
       case 'EventReminder':
         return 'М'; // Мероприятие
       case 'CollaborationReceived':
@@ -33,6 +34,22 @@ const NotificationCard = ({ notification, onMarkAsRead }) => {
   const handleClick = () => {
     if (!notification.isRead && onMarkAsRead) {
       onMarkAsRead(notification.id);
+    }
+
+    switch (notification.type) {
+      case 'CollaborationReceived':
+        navigate('/suggestions', { state: { activeTab: 'received' } });
+        break;
+      
+      /*case 'EventRegistration':
+      case 'EventReminder':
+        if (notification.entityId) {
+          navigate(`/events/${notification.entityId}`);
+        }
+        break;*/
+      
+      default:
+        break;
     }
   };
 

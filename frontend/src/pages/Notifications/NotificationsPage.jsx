@@ -28,33 +28,30 @@ function NotificationsPage() {
   }, []);
 
   const loadProfileAndNotifications = async () => {
-    setLoading(true);
-    try {
-      const token = getToken();
-      if (!token) {
-        navigate('/login');
-        return;
-      }
-
-      // Загружаем профиль, чтобы узнать настройки уведомлений
-      const profile = await api.getProfile(token);
-      setNotifyByEmail(profile.notifyByEmail || false);
-      setNotifyByVk(profile.notifyByVk || false);
-
-      // Загружаем уведомления
-      await loadNotifications(1, true);
-      
-      // Загружаем количество непрочитанных
-      const unreadResponse = await api.getUnreadNotificationsCount(token);
-      setUnreadCount(unreadResponse.unreadCount || 0);
-      
-    } catch (err) {
-      console.error('Ошибка загрузки:', err);
-      setError('Не удалось загрузить данные');
-    } finally {
-      setLoading(false);
+  setLoading(true);
+  try {
+    const token = getToken();
+    if (!token) {
+      navigate('/login');
+      return;
     }
-  };
+
+    const settings = await api.getNotificationSettings(token);
+    setNotifyByEmail(settings.notifyByEmail || false);
+    setNotifyByVk(settings.notifyByVk || false);
+
+    await loadNotifications(1, true);
+    
+    const unreadResponse = await api.getUnreadNotificationsCount(token);
+    setUnreadCount(unreadResponse.unreadCount || 0);
+    
+  } catch (err) {
+    console.error('Ошибка загрузки:', err);
+    setError('Не удалось загрузить данные');
+  } finally {
+    setLoading(false);
+  }
+};
 
   const loadNotifications = async (pageNum, reset = false) => {
     if (loadingMore && !reset) return;
