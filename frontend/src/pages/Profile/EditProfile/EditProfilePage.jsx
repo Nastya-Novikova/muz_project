@@ -25,7 +25,7 @@ function EditProfilePage() {
     lookingFor: 'NotLooking',
     desiredGenreIds: [],
     desiredSpecialtyIds: [],
-    //notifyByEmail: ''
+    notifyByEmail: true
   });
 
   const userRole = getUserRole() || 'Individual';
@@ -33,7 +33,6 @@ function EditProfilePage() {
   const [lookingForChecked, setLookingForChecked] = useState(false);
   const [desiredGenres, setDesiredGenres] = useState([]);
   const [desiredSpecialties, setDesiredSpecialties] = useState([]);
-  const [notifyByEmail, setNotifyByEmail] = useState(true);
 
   const [avatarFile, setAvatarFile] = useState(null);
   const [avatarPreview, setAvatarPreview] = useState('');
@@ -98,7 +97,7 @@ function EditProfilePage() {
             lookingFor: profile.lookingFor || 'NotLooking',
             desiredGenreIds: profile.desiredGenres?.map(g => g.id) || [],
             desiredSpecialtyIds: profile.desiredSpecialties?.map(s => s.id) || [],
-            //notifyByEmail: profile.notifyByEmail,
+            notifyByEmail: profile.notifyByEmail ?? true
           });
 
           setLookingForChecked(profile.lookingFor !== 'NotLooking');
@@ -271,6 +270,13 @@ function EditProfilePage() {
     setAudiosToDelete(prev => [...prev, audioId]);
   };
 
+  const handleNotifyByEmailChange = (checked) => {
+    setFormData(prev => ({
+      ...prev,
+      notifyByEmail: checked
+    }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSaving(true);
@@ -293,7 +299,7 @@ function EditProfilePage() {
         collaborationGoalIds: formData.collaborationGoalIds.map(id => parseInt(id, 10)),
         desiredGenreIds: desiredGenres.map(id => parseInt(id, 10)),
         desiredSpecialtyIds: desiredSpecialties.map(id => parseInt(id, 10)),
-        //notifyByEmail: formData.notifyByEmail
+        notifyByEmail: formData.notifyByEmail
       };
 
       if (isCreating) {
@@ -366,7 +372,6 @@ function EditProfilePage() {
       photoFiles={photoFiles}
       videoFiles={videoFiles}
       audioTitles={audioTitles}
-      notifyByEmail={notifyByEmail}
       onInputChange={handleInputChange}
       onAvatarChange={handleAvatarChange}
       onLookingForChange={handleLookingForChange}
@@ -381,6 +386,7 @@ function EditProfilePage() {
       onRemoveVideoFile={removeVideoFile}
       onRemoveExistingAudio={removeExistingAudio}
       onSubmit={handleSubmit}
+      onNotifyByEmailChange={handleNotifyByEmailChange}
       onCancel={() => navigate('/profile')}
     />
   );

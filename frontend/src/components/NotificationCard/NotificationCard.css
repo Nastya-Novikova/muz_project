@@ -1,0 +1,157 @@
+@import '../../variables.css';
+
+.notifications-page {
+  margin-top: 4.5rem;
+  padding: 1.5rem 1rem;
+  min-height: calc(100vh - 4.5rem);
+  background-color: var(--body-bg);
+}
+
+.notifications-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.notifications-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.notifications-header h1 {
+  margin: 0;
+  color: var(--dark-blue);
+  font-size: 1.5rem;
+}
+
+.unread-count {
+  color: var(--text-grey);
+  font-size: 0.9rem;
+}
+
+.notifications-status {
+  margin-bottom: 1rem;
+  padding: 1rem;
+  background: var(--light-grey);
+  border-radius: 8px;
+  border: 1px solid var(--border-grey);
+}
+
+.status-badge {
+  padding: 0.25rem 0;
+  color: var(--dark-blue);
+  font-size: 0.9rem;
+}
+
+.status-badge.email::before {
+  content: '📧 ';
+}
+
+.status-badge.vk::before {
+  content: '📱 ';
+}
+
+.status-message {
+  color: var(--text-grey);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.status-message a {
+  color: var(--dark-blue);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.status-message a:hover {
+  color: #4a5568;
+}
+
+.mark-all-container {
+  margin-bottom: 1rem;
+  text-align: right;
+}
+
+.mark-all-read-btn {
+  padding: 0.5rem 1rem;
+  background: none;
+  border: 1px solid var(--border-grey);
+  border-radius: 8px;
+  color: var(--dark-blue);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.mark-all-read-btn:hover {
+  background: var(--light-grey);
+  border-color: var(--focus-grey);
+}
+
+.notifications-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid var(--border-grey);
+}
+
+.empty-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.empty-state h3 {
+  color: var(--dark-blue);
+  margin: 0 0 0.5rem 0;
+  font-size: 1.1rem;
+}
+
+.empty-state p {
+  color: var(--text-grey);
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.load-more-container {
+  text-align: center;
+  padding: 1rem;
+}
+
+.load-more-btn {
+  padding: 0.5rem 1.5rem;
+  background: none;
+  border: 1px solid var(--border-grey);
+  border-radius: 8px;
+  color: var(--dark-blue);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.load-more-btn:hover:not(:disabled) {
+  background: var(--light-grey);
+  border-color: var(--focus-grey);
+}
+
+.load-more-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.loading-spinner {
+  text-align: center;
+  padding: 3rem;
+  background: white;
+  border-radius: 8px;
+  color: var(--text-grey);
+}

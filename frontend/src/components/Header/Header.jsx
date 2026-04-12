@@ -41,6 +41,11 @@ function Header() {
     navigate('/suggestions');
   };
 
+  const handleNotificationsClick = () => {
+    setDropdownOpen(false);
+    navigate('/notifications');
+  };
+
   const handleLogout = () => {
     setDropdownOpen(false);
     logout();
@@ -102,6 +107,13 @@ function Header() {
                     className="dropdown-item"
                   >
                     Предложения
+                  </button>
+
+                  <button 
+                    onClick={handleNotificationsClick} 
+                    className="dropdown-item"
+                  >
+                    Уведомления
                   </button>
                   
                   <div className="dropdown-divider"></div>

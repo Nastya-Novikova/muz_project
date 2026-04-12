@@ -397,5 +397,110 @@ async getFavorites(token, page = 1, limit = 20) {
     }
 
     return response.json();
+  },
+
+  // Получить уведомления пользователя
+  async getNotifications(token, page = 1, limit = 20) {
+    const params = new URLSearchParams({
+      page,
+      limit
+    });
+
+    const response = await fetch(`${API_URL}/Notifications?${params}`, {
+      method: 'GET',
+      headers: getAuthHeaders(token)
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ message: 'HTTP error!' }));
+      throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+    }
+
+    return response.json();
+  },
+
+  // Отметить уведомление как прочитанное
+  async markNotificationAsRead(notificationId, token) {
+    const response = await fetch(`${API_URL}/Notifications/${notificationId}/read`, {
+      method: 'PATCH',
+      headers: getAuthHeaders(token)
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ message: 'HTTP error!' }));
+      throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+    }
+
+    return response.json();
+  },
+
+  // Отметить все уведомления как прочитанные
+  async markAllNotificationsAsRead(token) {
+    const response = await fetch(`${API_URL}/Notifications/mark-all-read`, {
+      method: 'POST',
+      headers: getAuthHeaders(token)
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ message: 'HTTP error!' }));
+      throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+    }
+
+    return response.json();
+  },
+
+  // Получить количество непрочитанных уведомлений
+  async getUnreadNotificationsCount(token) {
+    const response = await fetch(`${API_URL}/Notifications/unread-count`, {
+      method: 'GET',
+      headers: getAuthHeaders(token)
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ message: 'HTTP error!' }));
+      throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+    }
+
+    return response.json();
+  },
+
+  // Получить настройки уведомлений
+  async getNotificationSettings(token) {
+    const response = await fetch(`${API_URL}/Profiles/notification-settings`, {
+      method: 'GET',
+      headers: getAuthHeaders(token)
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ message: 'HTTP error!' }));
+      throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+    }
+
+    return response.json();
+  },
+
+  // Обновить настройки уведомлений
+  async updateNotificationSettings(settings, token) {
+    // Получаем текущий профиль
+    const profile = await this.getProfile(token);
+    
+    // Обновляем только настройки уведомлений
+    const updateData = {
+      notifyByEmail: settings.notifyByEmail,
+      notifyByVk: settings.notifyByVk
+    };
+    
+    const response = await fetch(`${API_URL}/Profiles`, {
+      method: 'PUT',
+      headers: getAuthHeaders(token),
+      body: JSON.stringify(updateData)
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ message: 'HTTP error!' }));
+      throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+    }
+
+    return response.json();
   }
 };

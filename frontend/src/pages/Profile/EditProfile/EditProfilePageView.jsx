@@ -24,7 +24,6 @@ function EditProfilePageView({
   photoFiles,
   videoFiles,
   audioTitles,
-  notifyByEmail,
   onInputChange,
   onAvatarChange,
   onLookingForChange,
@@ -38,6 +37,7 @@ function EditProfilePageView({
   onRemoveAudioFile,
   onRemoveVideoFile,
   onRemoveExistingAudio,
+  onNotifyByEmailChange,
   onSubmit,
   onCancel
 }) {
@@ -461,8 +461,8 @@ function EditProfilePageView({
                 <label className="checkbox-label">
                   <input
                     type="checkbox"
-                    checked={notifyByEmail}
-                    onChange={(e) => setNotifyByEmail(e.target.checked)}
+                    checked={formData.notifyByEmail}
+                    onChange={(e) => onNotifyByEmailChange(e.target.checked)}
                     className="checkbox-box"
                   />
                   <span className="checkbox-span">
