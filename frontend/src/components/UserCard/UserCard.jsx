@@ -1,16 +1,11 @@
-// UserCard.jsx
 import React from 'react';
+import { api } from '../../services/api'; 
 import './UserCard.css';
 import { useNavigate } from 'react-router-dom';
 
-const UserCard = ({ 
-  user,
-  onProfileClick
-}) => {
-
+const UserCard = ({ user, onProfileClick, showMessage = false, message = '' }) => {
   const navigate = useNavigate();
 
-  // Преобразуем данные из API в формат для карточки
   const transformUserData = (userData) => {
     if (!userData) return null;
     
@@ -18,14 +13,14 @@ const UserCard = ({
       id: userData.id,
       fullName: userData.fullName || 'Не указано',
       age: userData.age || '',
-      city: userData.city?.localizedName || userData.city?.name || 'Не указан',
-      avatar: userData.avatar || `/default-avatar.png`,
-      // Преобразуем specialties в строку
-      activityType: userData.specialties?.map(s => s.localizedName || s.name).join(', ') || 'Не указано',
-      // Преобразуем genres в массив строк
+      city: userData.city?.localizedName || 'Не указан',
+      avatar: api.getAvatarUrl(userData.avatarUrl) || `/default-avatar.png`,
+      activityType: userData.specialties?.map(s => s.localizedName || s.name) || [],
       genres: userData.genres?.map(g => g.localizedName || g.name) || [],
       experience: userData.experience || 0,
-      description: userData.description || 'Нет описания'
+      description: userData.description || 'Нет описания',
+      profileType: userData.profileType, 
+      lookingFor: userData.lookingFor
     };
   };
 
@@ -50,8 +45,8 @@ const UserCard = ({
         <div className="user-main-info">
           <h3 className="user-name">{transformedUser.fullName}</h3>
           <div className="user-meta">
-            <span className="user-age">{transformedUser.age} {transformedUser.age ? 'лет' : ''}</span>
-            {transformedUser.age && transformedUser.city && <span className="user-divider">•</span>}
+            <span className="user-role">{transformedUser.profileType === "Band" ? 'Коллектив' : 'Музыкант'} • </span>
+            <span className="user-age">{transformedUser.age} • </span>
             <span className="user-location">{transformedUser.city}</span>
           </div>
         </div>
@@ -62,7 +57,10 @@ const UserCard = ({
         <div className="info-container">
           <div className="info-row">
             <span className="info-label-card">Деятельность:</span>
-            <span className="info-value-card">{transformedUser.activityType}</span>
+            <span className="info-value-card">
+              {transformedUser.activityType.slice(0, 2).join(', ')}
+              {transformedUser.activityType.length > 2 && '...'}
+            </span>
           </div>
           
           <div className="info-row">
@@ -78,12 +76,18 @@ const UserCard = ({
             <span className="info-value-card">{transformedUser.experience} {transformedUser.experience ? '': ''}</span>
           </div>
 
-          {transformedUser.description && (
+          {showMessage ? (
             <div className="description">
-              {transformedUser.description.length > 100 
-                ? transformedUser.description.substring(0, 100) + '...' 
-                : transformedUser.description}
+              {message || 'Нет сообщения'}
             </div>
+          ) : (
+            transformedUser.description && (
+              <div className="description">
+                {transformedUser.description.length > 100 
+                  ? transformedUser.description.substring(0, 100) + '...' 
+                  : transformedUser.description}
+              </div>
+            )
           )}
         </div>
       </div>

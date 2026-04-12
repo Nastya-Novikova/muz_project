@@ -9,15 +9,15 @@ namespace backend.Models.Repositories;
 public class CollaborationSuggestionRepository : ICollaborationSuggestionRepository
 {
     private readonly MusicianFinderDbContext _context;
-    public DbSet<CollaborationSuggestion> Suggestions { get; set; }
+    //public DbSet<CollaborationSuggestion> Suggestions { get; set; }
 
-    private readonly IProfileRepository _profileRepository;
+    //private readonly IProfileRepository _profileRepository;
 
     public CollaborationSuggestionRepository(MusicianFinderDbContext context, IProfileRepository profileRepository)
     {
         _context = context;
-        Suggestions = _context.Set<CollaborationSuggestion>();
-        _profileRepository = profileRepository;
+        //Suggestions = _context.Set<CollaborationSuggestion>();
+        //_profileRepository = profileRepository;
     }
 
     public async Task AddAsync(CollaborationSuggestion suggestion)
@@ -28,22 +28,33 @@ public class CollaborationSuggestionRepository : ICollaborationSuggestionReposit
         if (suggestion.FromProfileId == suggestion.ToProfileId)
             throw new ApiException(400, "Нельзя отправить предложение самому себе", "SELF_SUGGESTION");
 
-        var fromUser = await _profileRepository.GetByIdAsync(suggestion.FromProfileId);
+        /*var fromUser = await _profileRepository.GetByIdAsync(suggestion.FromProfileId);
         var toUser = await _profileRepository.GetByIdAsync(suggestion.ToProfileId);
 
         if (fromUser == null)
             throw new ApiException(404, "Отправитель не найден", "FROM_USER_NOT_FOUND");
         if (toUser == null)
-            throw new ApiException(404, "Получатель не найден", "TO_USER_NOT_FOUND");
+            throw new ApiException(404, "Получатель не найден", "TO_USER_NOT_FOUND");*/
 
-        await Suggestions.AddAsync(suggestion);
-        await _context.SaveChangesAsync();
+        await _context.CollaborationSuggestions.AddAsync(suggestion);
+        //await _context.SaveChangesAsync();
     }
 
     public async Task<List<CollaborationSuggestion>> GetReceivedAsync(Guid userId, int page = 1, int limit = 20, string? sortBy = "createdAt", bool sortDesc = true)
     {
-        var query = Suggestions
+        var query = _context.CollaborationSuggestions
             .Include(s => s.FromProfile)
+                .ThenInclude(p => p.City)
+            .Include(s => s.FromProfile)
+                .ThenInclude(p => p.Genres)
+            .Include(s => s.FromProfile)
+                .ThenInclude(p => p.CollaborationGoals)
+            .Include(s => s.FromProfile)
+                .ThenInclude(p => p.Specialties)
+            .Include(s => s.FromProfile)
+                .ThenInclude(p => p.DesiredGenres)
+            .Include(s => s.FromProfile)
+                .ThenInclude(p => p.DesiredSpecialties)
             .Where(s => s.ToProfileId == userId);
 
         query = ApplySorting(query, sortBy, sortDesc);
@@ -55,8 +66,19 @@ public class CollaborationSuggestionRepository : ICollaborationSuggestionReposit
 
     public async Task<List<CollaborationSuggestion>> GetSentAsync(Guid userId, int page = 1, int limit = 20, string? sortBy = "createdAt", bool sortDesc = true)
     {
-        var query = Suggestions
+        var query = _context.CollaborationSuggestions
             .Include(s => s.ToProfile)
+                .ThenInclude(p => p.City)
+            .Include(s => s.ToProfile)
+                .ThenInclude(p => p.Genres)
+            .Include(s => s.ToProfile)
+                .ThenInclude(p => p.CollaborationGoals)
+            .Include(s => s.ToProfile)
+                .ThenInclude(p => p.Specialties)
+            .Include(s => s.ToProfile)
+                .ThenInclude(p => p.DesiredGenres)
+            .Include(s => s.ToProfile)
+                .ThenInclude(p => p.DesiredSpecialties)
             .Where(s => s.FromProfileId == userId);
 
         query = ApplySorting(query, sortBy, sortDesc);
@@ -64,6 +86,26 @@ public class CollaborationSuggestionRepository : ICollaborationSuggestionReposit
             .Skip((page - 1) * limit)
             .Take(limit)
             .ToListAsync();
+    }
+
+    public async Task<CollaborationSuggestion?> GetByIdAsync(Guid id)
+    {
+        return await _context.CollaborationSuggestions
+            .Include(s => s.FromProfile)
+            .Include(s => s.ToProfile)
+            .FirstOrDefaultAsync(s => s.Id == id);
+    }
+
+    public async Task UpdateAsync(CollaborationSuggestion suggestion)
+    {
+        if (suggestion.Id == Guid.Empty)
+            throw new ApiException(400, "ID предложения не может быть пустым", "INVALID_SUGGESTION_ID");
+
+        var existing = await _context.CollaborationSuggestions.FindAsync(suggestion.Id);
+        if (existing == null)
+            throw new ApiException(404, "Предложение не найдено", "SUGGESTION_NOT_FOUND");
+
+        _context.CollaborationSuggestions.Update(suggestion);
     }
 
     private static IQueryable<CollaborationSuggestion> ApplySorting(IQueryable<CollaborationSuggestion> query, string? sortBy, bool sortDesc)

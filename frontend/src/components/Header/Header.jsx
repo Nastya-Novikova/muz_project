@@ -6,7 +6,7 @@ import './Header.css';
 function Header() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
-  const { isAuthenticated, logout, getUserEmail } = useAuth(); // Меняем user на isAuthenticated
+  const { isAuthenticated, logout, getUserEmail } = useAuth(); 
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -47,8 +47,14 @@ function Header() {
     navigate('/login');
   };
 
-  // Получаем email пользователя
   const userEmail = getUserEmail();
+  let userEmailLogo = 'User';
+
+  if (userEmail && typeof userEmail === 'string' && userEmail.includes('@')) {
+    userEmailLogo = userEmail.split('@')[0];
+  } else {
+    console.warn('userEmail is null, undefined, or invalid format');
+  }
 
   return (
     <header className="header">
@@ -59,18 +65,14 @@ function Header() {
           </Link>
         </div>
         <div className="header-right">
-          {isAuthenticated ? ( // Проверяем isAuthenticated вместо user
+          {isAuthenticated ? ( 
             <div className="user-menu" ref={dropdownRef}>
               <button 
-                className="user-avatar-btn" 
+                className="user-email-logo" 
                 onClick={toggleDropdown}
                 aria-label="Меню пользователя"
               >
-                <img 
-                  src={'/default-avatar.png'} 
-                  alt="Аватар пользователя" 
-                  className="user-avatar"
-                />
+                <span className="user-email-logo">{userEmailLogo || ''}</span>
               </button>
               
               {dropdownOpen && (

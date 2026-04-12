@@ -1,0 +1,356 @@
+﻿=== FULL USER JOURNEY TEST SUMMARY ===
+Timestamp: 2026-04-12 04:00:53
+
+CHECKS PASSED: 15
+  [OK] Alice profile full name is correct
+  [OK] Bob profile full name is correct
+  [OK] Event title is correct
+  [OK] Event max participants is correct
+  [OK] Bob has 1 favorite
+  [OK] Bob's favorite is Alice
+  [OK] Bob sent 1 suggestion
+  [OK] Bob's suggestion is to Alice
+  [OK] Suggestion message is correct
+  [OK] Alice received 2 notifications
+  [OK] Alice has event registration notification
+  [OK] Alice has collaboration received notification
+  [OK] Alice received 1 suggestion
+  [OK] Suggestion is from Bob
+  [OK] Received message is correct
+
+=== DATA SNAPSHOT ===
+
+--- Alice Profile ---
+{
+  "Id": "33b4adc3-0061-4687-b383-7bfeae8b5480",
+  "ProfileType": "Individual",
+  "FullName": "Alice Johnson",
+  "AvatarUrl": null,
+  "Age": null,
+  "Description": null,
+  "Phone": null,
+  "Telegram": null,
+  "City": {
+    "Id": 1,
+    "Name": "Moscow",
+    "LocalizedName": "\u041C\u043E\u0441\u043A\u0432\u0430"
+  },
+  "Experience": 5,
+  "LookingFor": "NotLooking",
+  "Email": "alice@example.com",
+  "DesiredGenres": [],
+  "DesiredSpecialties": [],
+  "Genres": [
+    {
+      "Id": 1,
+      "Name": "jazz",
+      "LocalizedName": "\u0414\u0436\u0430\u0437"
+    },
+    {
+      "Id": 2,
+      "Name": "rock",
+      "LocalizedName": "\u0420\u043E\u043A"
+    }
+  ],
+  "Specialties": [
+    {
+      "Id": 1,
+      "Name": "vocalist",
+      "LocalizedName": "\u0412\u043E\u043A\u0430\u043B\u0438\u0441\u0442"
+    }
+  ],
+  "CollaborationGoals": [
+    {
+      "Id": 1,
+      "Name": "band",
+      "LocalizedName": "\u0418\u0449\u0443 \u0443\u0447\u0430\u0441\u0442\u043D\u0438\u043A\u043E\u0432 \u0432 \u0433\u0440\u0443\u043F\u043F\u0443"
+    }
+  ]
+}
+
+--- Bob Profile ---
+{
+  "Id": "7a0df0e2-1924-4a83-a204-eb061dcd8fe2",
+  "ProfileType": "Individual",
+  "FullName": "Bob Smith",
+  "AvatarUrl": null,
+  "Age": null,
+  "Description": null,
+  "Phone": null,
+  "Telegram": null,
+  "City": {
+    "Id": 1,
+    "Name": "Moscow",
+    "LocalizedName": "\u041C\u043E\u0441\u043A\u0432\u0430"
+  },
+  "Experience": 3,
+  "LookingFor": "NotLooking",
+  "Email": "bob@example.com",
+  "DesiredGenres": [],
+  "DesiredSpecialties": [],
+  "Genres": [
+    {
+      "Id": 1,
+      "Name": "jazz",
+      "LocalizedName": "\u0414\u0436\u0430\u0437"
+    }
+  ],
+  "Specialties": [
+    {
+      "Id": 2,
+      "Name": "guitarist",
+      "LocalizedName": "\u0413\u0438\u0442\u0430\u0440\u0438\u0441\u0442"
+    }
+  ],
+  "CollaborationGoals": []
+}
+
+--- Bob's Favorites ---
+{
+  "Items": [
+    {
+      "Profile": {
+        "Id": "33b4adc3-0061-4687-b383-7bfeae8b5480",
+        "ProfileType": "Individual",
+        "FullName": "Alice Johnson",
+        "AvatarUrl": null,
+        "Age": null,
+        "Description": null,
+        "Phone": null,
+        "Telegram": null,
+        "City": {
+          "Id": 1,
+          "Name": "Moscow",
+          "LocalizedName": "\u041C\u043E\u0441\u043A\u0432\u0430"
+        },
+        "Experience": 5,
+        "LookingFor": "NotLooking",
+        "Email": "alice@example.com",
+        "DesiredGenres": [],
+        "DesiredSpecialties": [],
+        "Genres": [
+          {
+            "Id": 1,
+            "Name": "jazz",
+            "LocalizedName": "\u0414\u0436\u0430\u0437"
+          },
+          {
+            "Id": 2,
+            "Name": "rock",
+            "LocalizedName": "\u0420\u043E\u043A"
+          }
+        ],
+        "Specialties": [
+          {
+            "Id": 1,
+            "Name": "vocalist",
+            "LocalizedName": "\u0412\u043E\u043A\u0430\u043B\u0438\u0441\u0442"
+          }
+        ],
+        "CollaborationGoals": [
+          {
+            "Id": 1,
+            "Name": "band",
+            "LocalizedName": "\u0418\u0449\u0443 \u0443\u0447\u0430\u0441\u0442\u043D\u0438\u043A\u043E\u0432 \u0432 \u0433\u0440\u0443\u043F\u043F\u0443"
+          }
+        ]
+      },
+      "AddedAt": "0001-01-01T00:00:00"
+    }
+  ],
+  "Total": 1,
+  "Page": 1,
+  "Limit": 20,
+  "TotalPages": 1
+}
+
+--- Bob's Sent Suggestions ---
+{
+  "Items": [
+    {
+      "Id": "ab21742a-0c4a-4475-8ad0-1a88ce49eee1",
+      "FromProfile": {
+        "Id": "7a0df0e2-1924-4a83-a204-eb061dcd8fe2",
+        "ProfileType": "Individual",
+        "FullName": "Bob Smith",
+        "AvatarUrl": null,
+        "Age": null,
+        "Description": null,
+        "Phone": null,
+        "Telegram": null,
+        "City": {
+          "Id": 1,
+          "Name": "Moscow",
+          "LocalizedName": "\u041C\u043E\u0441\u043A\u0432\u0430"
+        },
+        "Experience": 3,
+        "LookingFor": "NotLooking",
+        "Email": "bob@example.com",
+        "DesiredGenres": [],
+        "DesiredSpecialties": [],
+        "Genres": [],
+        "Specialties": [],
+        "CollaborationGoals": []
+      },
+      "ToProfile": {
+        "Id": "33b4adc3-0061-4687-b383-7bfeae8b5480",
+        "ProfileType": "Individual",
+        "FullName": "Alice Johnson",
+        "AvatarUrl": null,
+        "Age": null,
+        "Description": null,
+        "Phone": null,
+        "Telegram": null,
+        "City": {
+          "Id": 1,
+          "Name": "Moscow",
+          "LocalizedName": "\u041C\u043E\u0441\u043A\u0432\u0430"
+        },
+        "Experience": 5,
+        "LookingFor": "NotLooking",
+        "Email": "alice@example.com",
+        "DesiredGenres": [],
+        "DesiredSpecialties": [],
+        "Genres": [
+          {
+            "Id": 1,
+            "Name": "jazz",
+            "LocalizedName": "\u0414\u0436\u0430\u0437"
+          },
+          {
+            "Id": 2,
+            "Name": "rock",
+            "LocalizedName": "\u0420\u043E\u043A"
+          }
+        ],
+        "Specialties": [
+          {
+            "Id": 1,
+            "Name": "vocalist",
+            "LocalizedName": "\u0412\u043E\u043A\u0430\u043B\u0438\u0441\u0442"
+          }
+        ],
+        "CollaborationGoals": [
+          {
+            "Id": 1,
+            "Name": "band",
+            "LocalizedName": "\u0418\u0449\u0443 \u0443\u0447\u0430\u0441\u0442\u043D\u0438\u043A\u043E\u0432 \u0432 \u0433\u0440\u0443\u043F\u043F\u0443"
+          }
+        ]
+      },
+      "Message": "Let\u0027s collaborate!",
+      "Status": "pending",
+      "CreatedAt": "2026-04-11T21:00:57.935564Z"
+    }
+  ],
+  "Total": 1,
+  "Page": 1,
+  "Limit": 20,
+  "TotalPages": 1
+}
+
+--- Alice's Notifications ---
+{
+  "Items": [
+    {
+      "Id": "8c828c7f-be4f-4d8a-a905-fc6733b02c4f",
+      "Type": "CollaborationReceived",
+      "Title": "\u041F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044C Bob Smith \u043E\u0442\u043F\u0440\u0430\u0432\u0438\u043B \u0432\u0430\u043C \u043F\u0440\u0435\u0434\u043B\u043E\u0436\u0435\u043D\u0438\u0435 \u043E \u0441\u043E\u0442\u0440\u0443\u0434\u043D\u0438\u0447\u0435\u0441\u0442\u0432\u0435",
+      "Message": "\u0423 \u0432\u0430\u0441 \u043D\u043E\u0432\u043E\u0435 \u043F\u0440\u0435\u0434\u043B\u043E\u0436\u0435\u043D\u0438\u0435 \u043E \u0441\u043E\u0442\u0440\u0443\u0434\u043D\u0438\u0447\u0435\u0441\u0442\u0432\u0435",
+      "ImageUrl": null,
+      "EntityType": "CollaborationSuggestion",
+      "EntityId": "ab21742a-0c4a-4475-8ad0-1a88ce49eee1",
+      "IsRead": false,
+      "CreatedAt": "2026-04-11T21:00:57.957838Z"
+    },
+    {
+      "Id": "5ce0deb5-2665-4532-b806-b775943b0540",
+      "Type": "EventRegistration",
+      "Title": "Bob Smith \u0437\u0430\u043F\u0438\u0441\u0430\u043B\u0441\u044F \u043D\u0430 \u0432\u0430\u0448\u0435 \u043C\u0435\u0440\u043E\u043F\u0440\u0438\u044F\u0442\u0438\u0435 \u0022Alice\u0027s Concert\u0022",
+      "Message": "\u041D\u043E\u0432\u044B\u0439 \u0443\u0447\u0430\u0441\u0442\u043D\u0438\u043A \u0437\u0430\u0440\u0435\u0433\u0438\u0441\u0442\u0440\u0438\u0440\u043E\u0432\u0430\u043B\u0441\u044F \u043D\u0430 \u0432\u0430\u0448\u0435 \u043C\u0435\u0440\u043E\u043F\u0440\u0438\u044F\u0442\u0438\u0435",
+      "ImageUrl": null,
+      "EntityType": "Event",
+      "EntityId": "66876e3f-4431-4202-aad8-4ea71d95ee56",
+      "IsRead": false,
+      "CreatedAt": "2026-04-11T21:00:57.684727Z"
+    }
+  ],
+  "Total": 2,
+  "Page": 1,
+  "Limit": 20,
+  "TotalPages": 1
+}
+
+--- Alice's Received Suggestions ---
+{
+  "Items": [
+    {
+      "Id": "ab21742a-0c4a-4475-8ad0-1a88ce49eee1",
+      "FromProfile": {
+        "Id": "7a0df0e2-1924-4a83-a204-eb061dcd8fe2",
+        "ProfileType": "Individual",
+        "FullName": "Bob Smith",
+        "AvatarUrl": null,
+        "Age": null,
+        "Description": null,
+        "Phone": null,
+        "Telegram": null,
+        "City": {
+          "Id": 1,
+          "Name": "Moscow",
+          "LocalizedName": "\u041C\u043E\u0441\u043A\u0432\u0430"
+        },
+        "Experience": 3,
+        "LookingFor": "NotLooking",
+        "Email": "bob@example.com",
+        "DesiredGenres": [],
+        "DesiredSpecialties": [],
+        "Genres": [
+          {
+            "Id": 1,
+            "Name": "jazz",
+            "LocalizedName": "\u0414\u0436\u0430\u0437"
+          }
+        ],
+        "Specialties": [
+          {
+            "Id": 2,
+            "Name": "guitarist",
+            "LocalizedName": "\u0413\u0438\u0442\u0430\u0440\u0438\u0441\u0442"
+          }
+        ],
+        "CollaborationGoals": []
+      },
+      "ToProfile": {
+        "Id": "33b4adc3-0061-4687-b383-7bfeae8b5480",
+        "ProfileType": "Individual",
+        "FullName": "Alice Johnson",
+        "AvatarUrl": null,
+        "Age": null,
+        "Description": null,
+        "Phone": null,
+        "Telegram": null,
+        "City": {
+          "Id": 1,
+          "Name": "Moscow",
+          "LocalizedName": "\u041C\u043E\u0441\u043A\u0432\u0430"
+        },
+        "Experience": 5,
+        "LookingFor": "NotLooking",
+        "Email": "alice@example.com",
+        "DesiredGenres": [],
+        "DesiredSpecialties": [],
+        "Genres": [],
+        "Specialties": [],
+        "CollaborationGoals": []
+      },
+      "Message": "Let\u0027s collaborate!",
+      "Status": "pending",
+      "CreatedAt": "2026-04-11T21:00:57.935564Z"
+    }
+  ],
+  "Total": 1,
+  "Page": 1,
+  "Limit": 20,
+  "TotalPages": 1
+}

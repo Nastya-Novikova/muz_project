@@ -5,7 +5,7 @@ namespace backend.Models.Repositories.Interfaces;
 
 public interface IUserRepository
 {
-    DbSet<User> Users { get; }
+    //DbSet<User> Users { get; }
     Task AddAsync(User user);
     Task<User?> GetByIdAsync(Guid id);
     Task<User?> GetByEmailAsync(string email);

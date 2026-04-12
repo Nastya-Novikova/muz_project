@@ -112,13 +112,23 @@
   font-size: 0.95rem;
 }
 
-.user-email {
+.user-email,
+.user-email-logo {
   display: block;
   font-size: 0.8rem;
   color: var(--text-grey);
   margin-top: 0.25rem;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.user-email-logo {
+  border: none;
+  background-color: white;
+}
+
+.user-email-logo button{
+  cursor: pointer; 
 }
 
 .dropdown-divider {

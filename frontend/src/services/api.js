@@ -76,10 +76,10 @@ export const api = {
   },
 
   // Создать профиль
-  async createProfile(profileData, token) { // Принимаем токен
+  async createProfile(profileData, token) { 
     const response = await fetch(`${API_URL}/Profiles`, {
       method: 'POST',
-      headers: getAuthHeaders(token), // Используем токен
+      headers: getAuthHeaders(token),
       body: JSON.stringify(profileData),
     });
 
@@ -92,10 +92,10 @@ export const api = {
   },
 
   // Обновить профиль
-  async updateProfile(profileData, token) { // Принимаем токен
+  async updateProfile(profileData, token) {
     const response = await fetch(`${API_URL}/Profiles`, {
       method: 'PUT',
-      headers: getAuthHeaders(token), // Используем токен
+      headers: getAuthHeaders(token),
       body: JSON.stringify(profileData),
     });
 
@@ -107,17 +107,11 @@ export const api = {
     return response.json();
   },
 
-  // Загрузить аватар
-  async uploadAvatar(file, token) { // Принимаем токен
-    const formData = new FormData();
-    formData.append('avatar', file);
-
-    const response = await fetch(`${API_URL}/Uploads/avatar`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}` // <-- Только авторизация, без Content-Type
-      },
-      body: formData,
+  // Удалить профиль
+  async deleteProfile(token) {
+    const response = await fetch(`${API_URL}/Profiles`, {
+      method: 'DELETE',
+      headers: getAuthHeaders(token),
     });
 
     if (!response.ok) {
@@ -128,8 +122,20 @@ export const api = {
     return response.json();
   },
 
-  // Загрузить аудио
-  async uploadAudio(file, title, token, description = '') { // Принимаем токен
+  async uploadAvatar(file, token) {
+    const formData = new FormData();
+    formData.append('avatar', file);
+
+    const response = await fetch(`${API_URL}/Uploads/avatar`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${token}` },
+      body: formData,
+    });
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    return response.json(); 
+  },
+
+  async uploadAudio(file, title, token, description = '') {
     const formData = new FormData();
     formData.append('audio', file);
     formData.append('title', title);
@@ -137,22 +143,29 @@ export const api = {
 
     const response = await fetch(`${API_URL}/Uploads/portfolio/audio`, {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}` // <-- Только авторизация, без Content-Type
-      },
+      headers: { 'Authorization': `Bearer ${token}` },
       body: formData,
     });
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    return response.json(); 
+  },
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ message: 'HTTP error!' }));
-      throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
-    }
+  async uploadVideo(file, title, token, description = '') {
+    const formData = new FormData();
+    formData.append('video', file);
+    formData.append('title', title);
+    if (description) formData.append('description', description);
 
+    const response = await fetch(`${API_URL}/Uploads/portfolio/video`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${token}` },
+      body: formData,
+    });
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     return response.json();
   },
 
-  // Загрузить фото
-  async uploadPhoto(file, title, token, description = '') { // Принимаем токен
+  async uploadPhoto(file, title, token, description = '') {
     const formData = new FormData();
     formData.append('photo', file);
     formData.append('title', title);
@@ -160,18 +173,38 @@ export const api = {
 
     const response = await fetch(`${API_URL}/Uploads/portfolio/photo`, {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}` // <-- Только авторизация, без Content-Type
-      },
+      headers: { 'Authorization': `Bearer ${token}` },
       body: formData,
     });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ message: 'HTTP error!' }));
-      throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
-    }
-
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     return response.json();
+  },
+
+  async getMedia(profileId, token) {
+    const response = await fetch(`${API_URL}/Profiles/${profileId}/media`, {
+      headers: { 
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    return response.json(); 
+  },
+  
+  getAvatarUrl(avatarUrl) {
+    if (!avatarUrl) return '/default-avatar.png';
+    if (typeof avatarUrl === 'string' && (avatarUrl.startsWith('http') || avatarUrl.startsWith('data:'))) {
+      return avatarUrl;
+    }
+    return '/default-avatar.png';
+  },
+
+  getAudioUrl(audioUrl) {
+    if (!audioUrl) return null;
+    if (typeof audioUrl === 'string' && (audioUrl.startsWith('http') || audioUrl.startsWith('data:'))) {
+      return audioUrl;
+    }
+    return null;
   },
 
   //Поиск музыкантов
@@ -206,11 +239,15 @@ export const api = {
     return response.json();
   },
   
+  //Направить предложение о сотрудничестве
   async sendSuggestion(profileId, message=" ", token) {
     const response = await fetch(`${API_URL}/Collaborations/${profileId}`, {
       method: 'POST',
       headers: getAuthHeaders(token),
-      body: JSON.stringify({ message })
+      body: JSON.stringify({ 
+        toProfileId: profileId,
+        message: message
+      })
     });
 
     if (!response.ok) {
@@ -285,48 +322,65 @@ async getFavorites(token, page = 1, limit = 20) {
   return response.json();
 },
 
-// Добавить в избранное
-async addToFavorites(favoriteUserId, token) {
-  const response = await fetch(`${API_URL}/Favorites/${favoriteUserId}`, {
-    method: 'POST',
-    headers: getAuthHeaders(token)
-  });
+  // Добавить в избранное
+  async addToFavorites(favoriteUserId, token) {
+    const response = await fetch(`${API_URL}/Favorites/${favoriteUserId}`, {
+      method: 'POST',
+      headers: getAuthHeaders(token)
+    });
 
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({ message: 'HTTP error!' }));
-    throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ message: 'HTTP error!' }));
+      throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+    }
+
+    return response.json();
+  },
+
+  // Удалить из избранного
+  async removeFromFavorites(favoriteUserId, token) {
+    const response = await fetch(`${API_URL}/Favorites/${favoriteUserId}`, {
+      method: 'DELETE',
+      headers: getAuthHeaders(token)
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ message: 'HTTP error!' }));
+      throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+    }
+
+    return response.json();
+  },
+
+  // Проверить, добавлен ли пользователь в избранное
+  async checkIsFavorite(favoriteUserId, token) {
+    const response = await fetch(`${API_URL}/Favorites/${favoriteUserId}/is-favorite`, {
+      method: 'GET',
+      headers: getAuthHeaders(token)
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ message: 'HTTP error!' }));
+      throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+    }
+
+    return response.json();
+  },
+
+  // Проверить наличие предложения пользователю
+  async checkCollaboration(collaboratedProfileId, token) {
+    const response = await fetch(`${API_URL}/Collaborations/${collaboratedProfileId}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return response.json();
   }
-
-  return response.json();
-},
-
-// Удалить из избранного
-async removeFromFavorites(favoriteUserId, token) {
-  const response = await fetch(`${API_URL}/Favorites/${favoriteUserId}`, {
-    method: 'DELETE',
-    headers: getAuthHeaders(token)
-  });
-
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({ message: 'HTTP error!' }));
-    throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
-  }
-
-  return response.json();
-},
-
-// Проверить, добавлен ли пользователь в избранное
-async checkIsFavorite(favoriteUserId, token) {
-  const response = await fetch(`${API_URL}/Favorites/${favoriteUserId}`, {
-    method: 'GET',
-    headers: getAuthHeaders(token)
-  });
-
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({ message: 'HTTP error!' }));
-    throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
-  }
-
-  return response.json();
-}
 };
