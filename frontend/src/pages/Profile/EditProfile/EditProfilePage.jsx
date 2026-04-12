@@ -24,7 +24,8 @@ function EditProfilePage() {
     collaborationGoalIds: [],
     lookingFor: 'NotLooking',
     desiredGenreIds: [],
-    desiredSpecialtyIds: []
+    desiredSpecialtyIds: [],
+    //notifyByEmail: ''
   });
 
   const userRole = getUserRole() || 'Individual';
@@ -32,6 +33,7 @@ function EditProfilePage() {
   const [lookingForChecked, setLookingForChecked] = useState(false);
   const [desiredGenres, setDesiredGenres] = useState([]);
   const [desiredSpecialties, setDesiredSpecialties] = useState([]);
+  const [notifyByEmail, setNotifyByEmail] = useState(true);
 
   const [avatarFile, setAvatarFile] = useState(null);
   const [avatarPreview, setAvatarPreview] = useState('');
@@ -95,7 +97,8 @@ function EditProfilePage() {
             collaborationGoalIds: profile.collaborationGoals?.map(g => g.id) || [],
             lookingFor: profile.lookingFor || 'NotLooking',
             desiredGenreIds: profile.desiredGenres?.map(g => g.id) || [],
-            desiredSpecialtyIds: profile.desiredSpecialties?.map(s => s.id) || []
+            desiredSpecialtyIds: profile.desiredSpecialties?.map(s => s.id) || [],
+            //notifyByEmail: profile.notifyByEmail,
           });
 
           setLookingForChecked(profile.lookingFor !== 'NotLooking');
@@ -289,7 +292,8 @@ function EditProfilePage() {
         specialtyIds: formData.specialtyIds.map(id => parseInt(id, 10)),
         collaborationGoalIds: formData.collaborationGoalIds.map(id => parseInt(id, 10)),
         desiredGenreIds: desiredGenres.map(id => parseInt(id, 10)),
-        desiredSpecialtyIds: desiredSpecialties.map(id => parseInt(id, 10))
+        desiredSpecialtyIds: desiredSpecialties.map(id => parseInt(id, 10)),
+        //notifyByEmail: formData.notifyByEmail
       };
 
       if (isCreating) {
@@ -362,6 +366,7 @@ function EditProfilePage() {
       photoFiles={photoFiles}
       videoFiles={videoFiles}
       audioTitles={audioTitles}
+      notifyByEmail={notifyByEmail}
       onInputChange={handleInputChange}
       onAvatarChange={handleAvatarChange}
       onLookingForChange={handleLookingForChange}
