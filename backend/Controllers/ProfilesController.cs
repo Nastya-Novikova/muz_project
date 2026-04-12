@@ -142,4 +142,21 @@ public class ProfilesController : ControllerBase
         
         return Ok(new { success = true });
     }
+
+    /// <summary>
+    /// Тестовый эндпоинт для отправки сообщения (только для отладки)
+    /// </summary>
+    [HttpPost("test-notification")]
+    [Authorize]
+    public async Task<IActionResult> TestNotification([FromBody] string message)
+    {
+        var userId = GetUserId();
+
+        var result = await _vkAuthService.SendNotificationAsync(userId, message ?? "Тестовое уведомление от MusicianFinder!");
+        
+        if (!result)
+            return BadRequest(new { error = "Failed to send message. Check logs for details." });
+        
+        return Ok(new { success = true, message = "Notification sent successfully" });
+    }
 }

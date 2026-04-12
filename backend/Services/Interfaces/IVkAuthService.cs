@@ -13,4 +13,9 @@ public interface IVkAuthService
     /// Обменять временный код на user_id ВКонтакте
     /// </summary>
     Task<long?> ExchangeCodeAsync(string code, string codeVerifier, string deviceId);
+
+    /// <summary>
+    /// Отправить уведомление на user_id ВКонтакте
+    /// </summary>
+    Task<bool> SendNotificationAsync(Guid userId, string message);
 }
