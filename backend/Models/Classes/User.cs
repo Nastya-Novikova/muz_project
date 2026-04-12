@@ -1,24 +1,25 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿//using System.ComponentModel.DataAnnotations;
+//using System.ComponentModel.DataAnnotations.Schema;
+using backend.Models.Enums;
 
 namespace backend.Models.Classes;
 
 /// <summary>
 /// Пользователь системы
 /// </summary>
-[Table("Users")]
+//[Table("Users")]
 public class User : ISoftDeletable
 {
     /// <summary>
     /// Уникальный идентификатор
     /// </summary>
-    [Key]
+    //[Key]
     public Guid Id { get; set; }
 
     /// <summary>
     /// Email пользователя
     /// </summary>
-    [Required, EmailAddress]
+    //[Required, EmailAddress]
     public string Email { get; set; } = string.Empty;
 
     /// <summary>
@@ -31,10 +32,14 @@ public class User : ISoftDeletable
     /// </summary>
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
+    public UserRole Role { get; set; } = UserRole.User;
+
     /// <summary>
-    /// Список ID избранных профилей
+    /// Список избранных профилей
     /// </summary>
-    public List<Guid> FavoriteProfileIds { get; set; } = new();
+    public List<Favorite> Favorites { get; set; } = new List<Favorite>();
+
+    //public List<Guid> FavoriteProfileIds { get; set; } = new();
 
     // === Навигационное свойство ===
     /// <summary>

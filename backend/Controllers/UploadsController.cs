@@ -5,6 +5,7 @@ using backend.Services.Interfaces;
 using backend.Models.Classes;
 using backend.Services;
 using backend.Models.Repositories.Interfaces;
+using backend.Models.DTOs.Uploads;
 
 namespace backend.Controllers;
 
@@ -35,32 +36,27 @@ public class UploadsController : ControllerBase
     [HttpPost("avatar")]
     public async Task<IActionResult> UploadAvatar(IFormFile avatar)
     {
-        if (avatar == null || avatar.Length == 0)
-            return BadRequest("Файл не выбран");
+        try
+        {
+            var userId = GetUserId();
+            using var stream = avatar.OpenReadStream();
+            var result = await _profileService.UpdateAvatarAsync(userId, stream, avatar.FileName, avatar.ContentType);
+            if (!result.IsSuccess)
+                return BadRequest(new { error = result.Error });
 
-        if (!avatar.ContentType.StartsWith("image/"))
-            return BadRequest("Разрешены только изображения");
-
-        if (avatar.Length > 2 * 1024 * 1024)
-            return BadRequest("Файл слишком большой");
-
-        using var memoryStream = new MemoryStream();
-        await avatar.CopyToAsync(memoryStream);
-        var avatarBytes = memoryStream.ToArray();
-
-        var userId = GetUserId();
-        var success = await _profileService.UpdateAvatarAsync(userId, avatarBytes);
-
-        return success
-            ? Ok(new { success = true })
-            : BadRequest("Не удалось обновить аватар");
+            return Ok(new { success = true, avatarUrl = result.Value });
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
     }
 
     /// <summary>
     /// Загрузить аудио в портфолио
     /// </summary>
     [HttpPost("portfolio/audio")]
-    public async Task<IActionResult> UploadAudio(
+    public async Task<ActionResult<UploadResultDto>> UploadAudio(
          IFormFile audio,
          [FromForm] string title,
          [FromForm] string? description = null)
@@ -68,13 +64,16 @@ public class UploadsController : ControllerBase
         try
         {
             var userId = GetUserId();
+            using var stream = audio.OpenReadStream();
+            var result = await _audioService.UploadAudioAsync(userId, stream, audio.FileName, audio.ContentType, title, description);
+            if (!result.IsSuccess)
+                return BadRequest(new { error = result.Error });
 
-            var result = await _audioService.UploadAudioAsync(userId, audio, title, description);
-            return Ok(result);
+            return Ok(result.Value);
         }
         catch (ArgumentException ex)
         {
-            return BadRequest(ex.Message);
+            return BadRequest(new { error = ex.Message });
         }
     }
 
@@ -82,7 +81,7 @@ public class UploadsController : ControllerBase
     /// Загрузить видео в портфолио
     /// </summary>
     [HttpPost("portfolio/video")]
-    public async Task<IActionResult> UploadVideo(
+    public async Task<ActionResult<UploadResultDto>> UploadVideo(
         IFormFile video,
         [FromForm] string title,
         [FromForm] string? description = null)
@@ -90,16 +89,16 @@ public class UploadsController : ControllerBase
         try
         {
             var userId = GetUserId();
-            var profile = await _profileService.GetByUserIdAsync(userId);
-            if (profile == null) return BadRequest("Профиль не найден");
-            var profileId = Guid.Parse(profile.RootElement.GetProperty("id").GetString()!);
+            using var stream = video.OpenReadStream();
+            var result = await _videoService.UploadVideoAsync(userId, stream, video.FileName, video.ContentType, title, description);
+            if (!result.IsSuccess)
+                return BadRequest(new { error = result.Error });
 
-            var result = await _videoService.UploadVideoAsync(profileId, video, title, description);
-            return Ok(result);
+            return Ok(result.Value);
         }
         catch (ArgumentException ex)
         {
-            return BadRequest(ex.Message);
+            return BadRequest(new { error = ex.Message });
         }
     }
 
@@ -107,7 +106,7 @@ public class UploadsController : ControllerBase
     /// Загрузить фото в портфолио
     /// </summary>
     [HttpPost("portfolio/photo")]
-    public async Task<IActionResult> UploadPhoto(
+    public async Task<ActionResult<UploadResultDto>> UploadPhoto(
     IFormFile photo,
     [FromForm] string title,
     [FromForm] string? description = null)
@@ -115,16 +114,16 @@ public class UploadsController : ControllerBase
         try
         {
             var userId = GetUserId();
-            var profile = await _profileService.GetByUserIdAsync(userId);
-            if (profile == null) return BadRequest("Профиль не найден");
-            var profileId = Guid.Parse(profile.RootElement.GetProperty("id").GetString()!);
+            using var stream = photo.OpenReadStream();
+            var result = await _photoService.UploadPhotoAsync(userId, stream, photo.FileName, photo.ContentType, title, description);
+            if (!result.IsSuccess)
+                return BadRequest(new { error = result.Error });
 
-            var result = await _photoService.UploadPhotoAsync(profileId, photo, title, description);
-            return Ok(result);
+            return Ok(result.Value);
         }
         catch (ArgumentException ex)
         {
-            return BadRequest(ex.Message);
+            return BadRequest(new { error = ex.Message });
         }
     }
 

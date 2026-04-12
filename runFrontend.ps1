@@ -1,4 +1,4 @@
-﻿Write-Host "Сборка и запуск" -ForegroundColor Cyan
+Write-Host "Сборка и запуск" -ForegroundColor Cyan
 
 Set-Location -Path $PSScriptRoot
 

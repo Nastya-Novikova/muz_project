@@ -5,6 +5,7 @@ import { api } from '../../services/api';
 import Header from '../../components/Header/Header';
 import UserCard from '../../components/UserCard/UserCard';
 import './SuggestionsPage.css';
+import VkAuthButton from '../../components/VkAuthButton/VkAuthButton';
 
 function SuggestionsPage() {
   const navigate = useNavigate();
@@ -13,16 +14,12 @@ function SuggestionsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   
-  // Данные для всех вкладок
   const [receivedUsers, setReceivedUsers] = useState([]);
   const [sentUsers, setSentUsers] = useState([]);
   const [favoriteUsers, setFavoriteUsers] = useState([]);
   const [favoriteIds, setFavoriteIds] = useState(new Set());
-  
-  // Отдельное состояние для загрузки текущей вкладки
   const [tabLoading, setTabLoading] = useState(false);
 
-  // Загружаем ВСЕ данные при первом рендере
   useEffect(() => {
     const loadAllData = async () => {
       setLoading(true);
@@ -36,8 +33,6 @@ function SuggestionsPage() {
         }
 
         console.log('=== Начало загрузки всех данных ===');
-        
-        // Загружаем все данные параллельно
         const [receivedResponse, sentResponse, favoritesResponse] = await Promise.all([
           api.getReceivedSuggestions(token).catch(err => {
             console.error('Ошибка загрузки полученных предложений:', err);
@@ -53,22 +48,32 @@ function SuggestionsPage() {
           })
         ]);
 
-        // Извлекаем данные из ответов
         const extractUsers = (response, tabName) => {
-          if (!response) return [];
+          if (!response || !response.items) return [];
           
-          if (tabName === 'favorites' && response.favorites) {
-            return response.favorites;
+          if (tabName === 'favorites') {
+            return response.items.map(item => ({
+              ...item.profile,
+              isFavorite: true
+            }));
           }
-          if ((tabName === 'received' || tabName === 'sent') && response.suggestions) {
-            return response.suggestions.map(suggestion => suggestion.toProfile || suggestion.fromProfile);
+          
+          if (tabName === 'received') {
+            return response.items.map(item => ({
+              ...item.fromProfile,
+              message: item.message,
+              isSuggestion: true
+            }));
           }
-          if (response.results) {
-            return response.results;
+          
+          if (tabName === 'sent') {
+            return response.items.map(item => ({
+              ...item.toProfile,
+              message: item.message,
+              isSuggestion: true
+            }));
           }
-          if (Array.isArray(response)) {
-            return response;
-          }
+          
           return [];
         };
 
@@ -84,7 +89,6 @@ function SuggestionsPage() {
         setSentUsers(sent);
         setFavoriteUsers(favorites);
         
-        // Сохраняем ID избранных пользователей
         const ids = new Set(favorites.map(user => user.id));
         setFavoriteIds(ids);
 
@@ -97,23 +101,34 @@ function SuggestionsPage() {
     };
 
     loadAllData();
-  }, [getToken, navigate]); // Зависимость только от токена и navigate
+  }, [getToken, navigate]); 
 
   const handleUserProfileClick = (userId) => {
     navigate(`/profile/${userId}`);
   };
 
-  // Получаем данные для текущей вкладки
   const getCurrentUsers = () => {
     if (activeTab === 'received') return receivedUsers;
     if (activeTab === 'sent') return sentUsers;
     return favoriteUsers;
   };
 
+  const handleVkSuccess = async (code, codeVerifier, deviceId) => {
+    console.log('Received code from VK:', code);
+    
+    try {
+      const token = getToken();
+      const data = await api.connectVk(code, codeVerifier, deviceId, token);
+      console.log('VK successfully connected', data);
+      alert('✅ VK успешно привязан!');
+    } catch (err) {
+      console.error('Error connecting VK:', err.message);
+      alert('❌ Ошибка привязки VK: ' + err.message);
+    }
+  };
+
   const currentUsers = getCurrentUsers();
   const currentUsersCount = currentUsers.length;
-
-  // Счетчики для всех вкладок (для отображения в табах)
   const receivedCount = receivedUsers.length;
   const sentCount = sentUsers.length;
   const favoritesCount = favoriteUsers.length;
@@ -122,17 +137,18 @@ function SuggestionsPage() {
     <>
       <Header />
       <div className="suggestions-page">
+        <VkAuthButton 
+          onSuccess={handleVkSuccess}
+          onError={(err) => console.error(err)}
+        />
         <div className="suggestions-container">
           <h1 className="page-title">Предложения</h1>
-          
-          {/* Табы с счетчиками на ВСЕХ вкладках */}
           <div className="suggestions-tabs">
             <button 
               className={`tab ${activeTab === 'received' ? 'active' : ''}`}
               onClick={() => setActiveTab('received')}
             >
               Предложения мне
-              {/* Счетчик показывается всегда, даже если вкладка не активна */}
               {receivedCount > 0 && (
                 <span className="tab-badge">{receivedCount}</span>
               )}
@@ -185,6 +201,8 @@ function SuggestionsPage() {
                           key={user.id}
                           user={user}
                           onProfileClick={handleUserProfileClick}
+                          showMessage={user.isSuggestion}
+                          message={user.message}
                         />
                       ))}
                     </div>

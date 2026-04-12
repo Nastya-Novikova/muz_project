@@ -1,48 +1,48 @@
 ﻿using backend.Models.Classes;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+//using System.ComponentModel.DataAnnotations;
+//using System.ComponentModel.DataAnnotations.Schema;
 
 namespace backend.Models.Classes;
 
 /// <summary>
 /// Видеозапись в портфолио
 /// </summary>
-[Table("PortfolioVideo")]
+//[Table("PortfolioVideo")]
 public class PortfolioVideo
 {
     /// <summary>
     /// Идентификатор
     /// </summary>
-    [Key]
+    //[Key]
     public Guid Id { get; set; }
 
     /// <summary>
     /// ID профиля владельца
     /// </summary>
-    [Required]
+    //[Required]
     public Guid ProfileId { get; set; }
 
     /// <summary>
     /// Название
     /// </summary>
-    [MaxLength(100)]
+    //[MaxLength(100)]
     public string Title { get; set; } = string.Empty;
 
     /// <summary>
     /// Описание
     /// </summary>
-    [MaxLength(500)]
+    //[MaxLength(500)]
     public string? Description { get; set; }
 
     /// <summary>
     /// Видеофайл (бинарные данные)
     /// </summary>
-    public byte[] FileData { get; set; } = Array.Empty<byte>();
+    public string FileUrl { get; set; }
 
     /// <summary>
     /// MIME-тип файла
     /// </summary>
-    [MaxLength(50)]
+    //[MaxLength(50)]
     public string MimeType { get; set; } = "video/mp4";
 
     /// <summary>
@@ -56,6 +56,6 @@ public class PortfolioVideo
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     // Навигационное свойство
-    [ForeignKey("ProfileId")]
+    //[ForeignKey("ProfileId")]
     public MusicianProfile Profile { get; set; } = null!;
 }

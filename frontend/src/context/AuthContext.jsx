@@ -1,4 +1,5 @@
-import React, { createContext, useState, useContext } from 'react';
+import React, { createContext, useState, useContext, useEffect } from 'react';
+import { api } from '../services/api';
 
 const AuthContext = createContext(null);
 
@@ -7,37 +8,67 @@ export const AuthProvider = ({ children }) => {
     return localStorage.getItem('musicianFinder_token');
   });
 
+  const [profile, setProfile] = useState(null);
+
+  useEffect(() => {
+    if (token) {
+      loadProfile();
+    }
+  }, [token]);
+
+  const loadProfile = async () => {
+    try {
+      const profileData = await api.getProfile(token);
+      setProfile(profileData);
+    } catch (error) {
+      console.log('Профиль не найден');
+      setProfile(null);
+    }
+  };
+
   const login = (userData, authToken) => {
     setToken(authToken);
     localStorage.setItem('musicianFinder_token', authToken);
-    // Сохраняем только email для отображения в интерфейсе
     localStorage.setItem('user_email', userData.email);
+  };
+
+  const setRole = (role) => {
+    localStorage.setItem('userRole', role);
   };
 
   const logout = () => {
     setToken(null);
+    setProfile(null);
     localStorage.removeItem('musicianFinder_token');
     localStorage.removeItem('user_email');
+    localStorage.removeItem('userRole');
   };
 
-  const getToken = () => {
-    return token || localStorage.getItem('musicianFinder_token');
-  };
+  const getToken = () => token;
 
   const getUserEmail = () => {
     return localStorage.getItem('user_email');
   };
 
-  const isAuthenticated = !!getToken();
+  const getUserRole = () => {
+    if (profile?.profileType) {
+      return profile.profileType;
+    }
+    return localStorage.getItem('userRole');
+  };
+
+  const isAuthenticated = !!token;
 
   return (
     <AuthContext.Provider value={{
-      token,
       login,
       logout,
+      setRole,
       getToken,
       getUserEmail,
-      isAuthenticated
+      getUserRole,
+      isAuthenticated,
+      profile
     }}>
       {children}
     </AuthContext.Provider>

@@ -1,4 +1,8 @@
-﻿using System.Text.Json;
+﻿using backend.Models.Common;
+using backend.Models.DTOs.Auth;
+using backend.Models.DTOs.Profiles;
+using backend.Models.DTOs.User;
+using System.Text.Json;
 
 namespace backend.Services.Interfaces;
 
@@ -10,15 +14,15 @@ public interface IUserService
     /// <summary>
     /// Получить пользователя по ID
     /// </summary>
-    Task<JsonDocument?> GetByIdAsync(Guid id);
+    Task<Result<UserDto>> GetByIdAsync(Guid id);
 
     /// <summary>
     /// Обновить профиль пользователя
     /// </summary>
-    Task<JsonDocument?> UpdateProfileAsync(Guid userId, JsonDocument profileJson);
+    Task<Result<UserDto>> UpdateProfileAsync(Guid userId, UpdateUserProfileRequest request);
 
     /// <summary>
     /// Удалить пользователя (soft-delete)
     /// </summary>
-    Task<JsonDocument?> DeleteAsync(Guid userId);
+    Task<Result> DeleteAsync(Guid userId);
 }

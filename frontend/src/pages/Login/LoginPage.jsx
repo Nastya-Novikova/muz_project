@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
+import RoleSelector from '../../components/RoleSelector/RoleSelector';
 import './LoginPage.css';
 
 function LoginOTP() {
@@ -11,6 +12,8 @@ function LoginOTP() {
   const [isCodeResendAvailable, setIsCodeResendAvailable] = useState(false);
   const [timer, setTimer] = useState(60);
   const [error, setError] = useState('');
+  const [showRoleSelector, setShowRoleSelector] = useState(false);
+  const [tempUserData, setTempUserData] = useState(null);
   const navigate = useNavigate();
   const { login } = useAuth();
 
@@ -59,12 +62,11 @@ function LoginOTP() {
     try {
       const response = await api.loginWithCode(email, code);
       if (response.success && response.token) {
-        // Логинимся - передаем user и token
         login(response.user, response.token);
         
-        // Проверяем, создан ли профиль
         if (!response.user.profileCreated) {
-          navigate('/profile/edit'); 
+          setTempUserData(response.user);
+          setShowRoleSelector(true);
         } else {
           navigate('/');
         }
@@ -87,6 +89,11 @@ function LoginOTP() {
 
   const handleLogoClick = () => {
     navigate('/');
+  };
+
+  const handleRoleSelect = (role) => {
+    setShowRoleSelector(false);
+    navigate('/profile/edit');
   };
 
   return (
@@ -156,6 +163,10 @@ function LoginOTP() {
           </div>
         )}
       </div>
+
+      {showRoleSelector && (
+        <RoleSelector onRoleSelect={handleRoleSelect} />
+      )}
     </div>
   );
 }
