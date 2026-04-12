@@ -44,6 +44,7 @@ public class VkService : IVkService
 
         // 4. Сохраняем VkUserId в профиль
         profile.VkUserId = vkUserId.Value.ToString();
+        profile.NotifyByVk = true;
         await _profileRepository.UpdateAsync(profile);
         await _unitOfWork.SaveChangesAsync();
 

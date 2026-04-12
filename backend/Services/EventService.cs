@@ -261,7 +261,7 @@ namespace backend.Services
                 return Result.Failure("Вы уже записаны на это мероприятие");
 
             var currentCount = await _eventRepository.GetRegistrationCountAsync(eventId);
-            if (eventEntity.MaxParticipants > 0 && currentCount >= eventEntity.MaxParticipants)
+            if (eventEntity.MaxParticipants > 0 && currentCount > eventEntity.MaxParticipants)
                 return Result.Failure("Достигнут лимит участников");
 
             var registration = new EventRegistration
