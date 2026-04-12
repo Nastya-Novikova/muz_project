@@ -63,7 +63,7 @@ namespace backend.Services.BackgroundServices
                 {
                     var daysLeft = (int)Math.Ceiling((ev.StartDateTime - DateTime.UtcNow).TotalDays);
                     if (daysLeft <= 0) daysLeft = 1;
-
+                        
                     await notificationService.SendNotificationToProfileAsync(
                         reg.ProfileId,
                         NotificationType.EventReminder,

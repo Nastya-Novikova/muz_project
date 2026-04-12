@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using backend.Models.Common;
 using backend.Models.DTOs.Vk;
 using backend.Services.Interfaces;
@@ -44,6 +44,7 @@ public class VkService : IVkService
 
         // 4. Сохраняем VkUserId в профиль
         profile.VkUserId = vkUserId.Value.ToString();
+        profile.NotifyByVk = true;
         await _profileRepository.UpdateAsync(profile);
         await _unitOfWork.SaveChangesAsync();
 

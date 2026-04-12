@@ -174,7 +174,6 @@ namespace backend
                 {
                     OnMessageReceived = context =>
                     {
-                        Console.WriteLine($"Authorization header: {context.Request.Headers["Authorization"]}");
                         return Task.CompletedTask;
                     },
                     OnAuthenticationFailed = context =>
