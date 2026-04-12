@@ -25,7 +25,9 @@ namespace backend.Services
 
             // MusicianProfile → ProfileDto
             CreateMap<MusicianProfile, ProfileDto>()
-                .ForMember(dest => dest.City, opt => opt.MapFrom(src => src.City));
+                .ForMember(dest => dest.City, opt => opt.MapFrom(src => src.City))
+                .ForMember(dest => dest.NotifyByEmail, opt => opt.MapFrom(src => src.NotifyByEmail))
+                .ForMember(dest => dest.NotifyByVk, opt => opt.MapFrom(src => src.NotifyByVk));
 
             // MusicianProfile → FavoriteProfileDto
             CreateMap<MusicianProfile, FavoriteProfileDto>()

@@ -134,13 +134,28 @@ public class ProfilesController : ControllerBase
     public async Task<IActionResult> ConnectVk([FromBody] ConnectVkRequest request)
     {
         var userId = GetUserId();
-        
+
         var result = await _vkAuthService.ConnectVkAsync(userId, request.Code, request.CodeVerifier, request.DeviceId);
-        
+
         if (!result.IsSuccess)
             return BadRequest(new { error = result.Error });
-        
+
         return Ok(new { success = true });
+    }
+
+    /// <summary>
+    /// Получить настройки уведомлений текущего пользователя
+    /// </summary>
+    [HttpGet("notification-settings")]
+    [Authorize]
+    public async Task<ActionResult<NotificationSettingsDto>> GetNotificationSettings()
+    {
+        var userId = GetUserId();
+        var result = await _service.GetNotificationSettingsAsync(userId);
+        if (!result.IsSuccess)
+            return BadRequest(new { error = result.Error });
+
+        return Ok(result.Value);
     }
 
     /// <summary>
@@ -153,10 +168,10 @@ public class ProfilesController : ControllerBase
         var userId = GetUserId();
 
         var result = await _vkAuthService.SendNotificationAsync(userId, message ?? "Тестовое уведомление от MusicianFinder!");
-        
+
         if (!result)
             return BadRequest(new { error = "Failed to send message. Check logs for details." });
-        
+
         return Ok(new { success = true, message = "Notification sent successfully" });
     }
 }

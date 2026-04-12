@@ -127,7 +127,9 @@ public class ProfileService : IProfileService
             CityId = request.CityId,
             Experience = request.Experience,
             LookingFor = request.LookingFor,
-            Email = user.Email
+            Email = user.Email,
+            NotifyByEmail = true,
+            NotifyByVk = false
         };
 
         if (request.GenreIds?.Any() == true)
@@ -189,6 +191,10 @@ public class ProfileService : IProfileService
             profile.Experience = request.Experience.Value;
         if (request.LookingFor.HasValue)
             profile.LookingFor = request.LookingFor.Value;
+        if (request.NotifyByEmail.HasValue)
+            profile.NotifyByEmail = request.NotifyByEmail.Value;
+        if (request.NotifyByVk.HasValue)
+            profile.NotifyByVk = request.NotifyByVk.Value;
 
         // Обновление коллекций
         if (request.GenreIds != null)
@@ -281,6 +287,20 @@ public class ProfileService : IProfileService
         };
 
         return Result<object>.Success(media);
+    }
+    public async Task<Result<NotificationSettingsDto>> GetNotificationSettingsAsync(Guid userId)
+    {
+        var user = await _userRepository.GetByIdAsync(userId);
+        if (user?.MusicianProfile == null)
+            return Result<NotificationSettingsDto>.Failure("Профиль не найден");
+
+        var settings = new NotificationSettingsDto
+        {
+            NotifyByEmail = user.MusicianProfile.NotifyByEmail,
+            NotifyByVk = user.MusicianProfile.NotifyByVk
+        };
+
+        return Result<NotificationSettingsDto>.Success(settings);
     }
 }
 

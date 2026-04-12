@@ -1,6 +1,7 @@
 ﻿using backend.Models.Common;
 using backend.Models.DTOs.Common;
 using backend.Models.DTOs.Notifications;
+using backend.Models.Enums;
 
 namespace backend.Services.Interfaces
 {
@@ -12,17 +13,17 @@ namespace backend.Services.Interfaces
         /// <summary>
         /// Создать уведомление о получении предложения о сотрудничестве
         /// </summary>
-        Task CreateCollaborationReceivedAsync(Guid recipientProfileId, Guid suggestionId, string fromProfileName);
+        //Task CreateCollaborationReceivedAsync(Guid recipientProfileId, Guid suggestionId, string fromProfileName);
 
         /// <summary>
         /// Создать уведомление о записи на мероприятие (для создателя мероприятия)
         /// </summary>
-        Task CreateEventRegistrationAsync(Guid eventCreatorProfileId, Guid eventId, string eventTitle, Guid registeredProfileId);
+        //Task CreateEventRegistrationAsync(Guid eventCreatorProfileId, Guid eventId, string eventTitle, Guid registeredProfileId);
 
         /// <summary>
         /// Создать уведомление-напоминание о предстоящем мероприятии
         /// </summary>
-        Task CreateEventReminderAsync(Guid profileId, Guid eventId, string eventTitle, int daysLeft);
+        //Task CreateEventReminderAsync(Guid profileId, Guid eventId, string eventTitle, int daysLeft);
 
         /// <summary>
         /// Получить уведомления пользователя за последние 30 дней
@@ -43,5 +44,15 @@ namespace backend.Services.Interfaces
         /// Получить количество непрочитанных уведомлений
         /// </summary>
         Task<int> GetUnreadCountAsync(Guid userId);
+
+        /// <summary>
+        /// Отправить уведомление профилю с учётом его настроек (Email, VK, внутреннее)
+        /// </summary>
+        Task SendNotificationToProfileAsync(Guid profileId, NotificationType type, Dictionary<string, object> data);
+
+        /// <summary>
+        /// Отправить уведомление пользователю (по userId) с учётом настроек
+        /// </summary>
+        Task SendNotificationToUserAsync(Guid userId, NotificationType type, Dictionary<string, object> data);
     }
 }

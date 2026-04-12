@@ -23,4 +23,5 @@ public interface IProfileService
     Task<Result> DeleteAsync(Guid id);
     Task<Result<string>> UpdateAvatarAsync(Guid userId, Stream fileStream, string fileName, string contentType);
     Task<Result<object>> GetMediaAsync(Guid id);
+    Task<Result<NotificationSettingsDto>> GetNotificationSettingsAsync(Guid userId);
 }
