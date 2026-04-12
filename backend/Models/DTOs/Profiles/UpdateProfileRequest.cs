@@ -28,6 +28,10 @@ namespace backend.Models.DTOs.Profiles
         [Range(0, int.MaxValue)]
         public int? Experience { get; set; }
 
+        public bool? NotifyByEmail { get; set; }
+
+        public bool? NotifyByVk { get; set; }
+
         public LookingFor? LookingFor { get; set; }
 
         public List<int>? DesiredGenreIds { get; set; }

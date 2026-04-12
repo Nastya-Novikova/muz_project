@@ -65,6 +65,10 @@ public class MusicianProfile : ISoftDeletable
     //[MaxLength(255)]
     public string? VkUserId { get; set; }
 
+    public bool NotifyByEmail { get; set; } = true;
+
+    public bool NotifyByVk { get; set; }
+
     /// <summary>
     /// ID города
     /// </summary>

@@ -278,11 +278,16 @@ namespace backend.Services
             // Создаём уведомление создателю мероприятия (если это не он сам)
             if (eventEntity.CreatorProfileId != user.MusicianProfile.Id)
             {
-                await _notificationService.CreateEventRegistrationAsync(
+                var registeredProfile = await _profileRepository.GetByIdAsync(user.MusicianProfile.Id);
+                await _notificationService.SendNotificationToProfileAsync(
                     eventEntity.CreatorProfileId,
-                    eventId,
-                    eventEntity.Title,
-                    user.MusicianProfile.Id);
+                    NotificationType.EventRegistration,
+                    new Dictionary<string, object>
+                    {
+                        ["registeredProfileName"] = registeredProfile?.FullName ?? "Пользователь",
+                        ["eventId"] = eventId,
+                        ["eventTitle"] = eventEntity.Title
+                    });
             }
 
             return Result.Success();

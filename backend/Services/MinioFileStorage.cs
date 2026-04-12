@@ -37,7 +37,7 @@ namespace backend.Services
                 .WithContentType(contentType);
 
             await _minioClient.PutObjectAsync(putObjectArgs);
-            
+
             return $"http://{_publicEndpoint}/{_bucketName}/{objectName}";
         }
 

@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using MimeKit;
 using MailKit.Net.Smtp;
 using Microsoft.Extensions.Configuration;
+using MailKit.Security;
 
 namespace backend.Services;
 
@@ -97,5 +98,27 @@ public class EmailService : IEmailService
             _logger.LogError(ex, "Failed to send email");
             throw;
         }
+    }
+
+    public async Task SendNotificationAsync(string toEmail, string subject, string body)
+    {
+        var message = new MimeMessage();
+        message.From.Add(new MailboxAddress(_senderName, _senderEmail));
+        message.To.Add(MailboxAddress.Parse(toEmail));
+        message.Subject = subject;
+
+        var bodyBuilder = new BodyBuilder
+        {
+            HtmlBody = $"<div style='font-family: Arial, sans-serif;'><h3>{subject}</h3><p>{body}</p></div>",
+            TextBody = $"{subject}\n\n{body}"
+        };
+        message.Body = bodyBuilder.ToMessageBody();
+
+        using var client = new SmtpClient();
+        await client.ConnectAsync(_smtpServer, _smtpPort, SecureSocketOptions.StartTls);
+        if (!string.IsNullOrEmpty(_smtpUsername))
+            await client.AuthenticateAsync(_smtpUsername, _smtpPassword);
+        await client.SendAsync(message);
+        await client.DisconnectAsync(true);
     }
 }

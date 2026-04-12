@@ -18,6 +18,8 @@ namespace backend.Models.DTOs.Profiles
         public int Experience { get; set; }
         public LookingFor LookingFor { get; set; }
         public string Email { get; set; } = string.Empty;
+        public bool NotifyByEmail { get; set; }
+        public bool NotifyByVk { get; set; }
 
         public List<LookupItemDto> DesiredGenres { get; set; } = new();
         public List<LookupItemDto> DesiredSpecialties { get; set; } = new();

@@ -4,6 +4,7 @@ using backend.Models.Classes;
 using backend.Models.Common;
 using backend.Models.DTOs.Collaborations;
 using backend.Models.DTOs.Common;
+using backend.Models.Enums;
 using backend.Models.Repositories.Interfaces;
 using backend.Services.Interfaces;
 using backend.Services.Utils;
@@ -58,10 +59,14 @@ public class CollaborationService : ICollaborationService
         await _unitOfWork.SaveChangesAsync();
 
         // Отправляем уведомление профилю получателя
-        await _notificationService.CreateCollaborationReceivedAsync(
+        await _notificationService.SendNotificationToProfileAsync(
             toProfile.Id,
-            suggestion.Id,
-            fromUser.MusicianProfile.FullName);
+            NotificationType.CollaborationReceived,
+            new Dictionary<string, object>
+            {
+                ["fromProfileName"] = fromUser.MusicianProfile.FullName,
+                ["suggestionId"] = suggestion.Id
+            });
 
         return Result.Success();
     }

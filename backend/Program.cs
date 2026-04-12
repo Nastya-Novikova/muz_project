@@ -71,7 +71,7 @@ namespace backend
             builder.Services.AddScoped<IAudioUploadService, AudioUploadService>();
             builder.Services.AddScoped<IVideoUploadService, VideoUploadService>();
             builder.Services.AddScoped<IPhotoUploadService, PhotoUploadService>();
-            builder.Services.AddScoped<IVkService, VkService>();        
+            builder.Services.AddScoped<IVkService, VkService>();
             builder.Services.AddScoped<IRegionService, RegionService>();
             builder.Services.AddScoped<IEventService, EventService>();
             builder.Services.AddScoped<INotificationService, NotificationService>();

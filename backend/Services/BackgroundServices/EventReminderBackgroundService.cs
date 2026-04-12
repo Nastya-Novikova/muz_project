@@ -1,4 +1,5 @@
-﻿using backend.Models.Repositories.Interfaces;
+﻿using backend.Models.Enums;
+using backend.Models.Repositories.Interfaces;
 using backend.Services.Interfaces;
 
 namespace backend.Services.BackgroundServices
@@ -64,11 +65,15 @@ namespace backend.Services.BackgroundServices
                     if (daysLeft <= 0) daysLeft = 1;
 
                     // Передаём ProfileId напрямую
-                    await notificationService.CreateEventReminderAsync(
+                    await notificationService.SendNotificationToProfileAsync(
                         reg.ProfileId,
-                        ev.Id,
-                        ev.Title,
-                        daysLeft);
+                        NotificationType.EventReminder,
+                        new Dictionary<string, object>
+                        {
+                            ["eventId"] = ev.Id,
+                            ["eventTitle"] = ev.Title,
+                            ["daysLeft"] = daysLeft
+                        });
                 }
             }
 
