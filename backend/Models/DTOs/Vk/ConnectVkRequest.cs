@@ -1,4 +1,4 @@
-namespace backend.Models.DTOs.Vk;
+﻿namespace backend.Models.DTOs.Vk;
 
 public class ConnectVkRequest
 {

@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using backend.Data;
 using backend.Models.Classes;
 using backend.Models.Repositories.Interfaces;
@@ -9,12 +9,10 @@ namespace backend.Models.Repositories;
 public class CityRepository : ICityRepository
 {
     private readonly MusicianFinderDbContext _context;
-    //public DbSet<City> Cities { get; set; }
 
     public CityRepository(MusicianFinderDbContext context)
     {
         _context = context;
-        //Cities = _context.Set<City>();
     }
 
     public async Task<List<City>> GetAllAsync(string? query = null, string? sortBy = null, bool sortDesc = false)

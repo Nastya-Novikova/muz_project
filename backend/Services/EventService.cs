@@ -63,7 +63,6 @@ namespace backend.Services
 
             var dtos = _mapper.Map<List<EventDto>>(items);
 
-            // Для каждого мероприятия получаем количество участников
             foreach (var dto in dtos)
             {
                 var eventId = dto.Id;
@@ -166,7 +165,6 @@ namespace backend.Services
             if (eventEntity.Status != EventStatus.Scheduled)
                 return Result<EventDto>.Failure("Можно редактировать только запланированные мероприятия");
 
-            // Обновление полей
             if (!string.IsNullOrWhiteSpace(request.Title))
                 eventEntity.Title = request.Title;
             if (request.Description != null)
@@ -275,7 +273,6 @@ namespace backend.Services
             await _eventRepository.AddRegistrationAsync(registration);
             await _unitOfWork.SaveChangesAsync();
 
-            // Создаём уведомление создателю мероприятия (если это не он сам)
             if (eventEntity.CreatorProfileId != user.MusicianProfile.Id)
             {
                 var registeredProfile = await _profileRepository.GetByIdAsync(user.MusicianProfile.Id);
@@ -372,7 +369,7 @@ namespace backend.Services
             if (!contentType.StartsWith("image/"))
                 return Result<string>.Failure("Разрешены только изображения");
 
-            if (fileStream.Length > 5 * 1024 * 1024) // 5 MB
+            if (fileStream.Length > 5 * 1024 * 1024)
                 return Result<string>.Failure("Файл слишком большой (макс. 5 МБ)");
 
             var user = await _userRepository.GetByIdAsync(userId);

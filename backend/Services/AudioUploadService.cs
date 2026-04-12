@@ -36,11 +36,9 @@ public class AudioUploadService : IAudioUploadService
 
     public async Task<Result<UploadResultDto>> UploadAudioAsync(Guid userId, Stream fileStream, string fileName, string contentType, string title, string? description)
     {
-        // Проверка формата
         if (!contentType.StartsWith("audio/"))
             return Result<UploadResultDto>.Failure("Only audio files are allowed");
 
-        // Проверка размера (например, 1000 МБ)
         if (fileStream.Length > 1000 * 1024 * 1024)
             return Result<UploadResultDto>.Failure("File too large (max 1000 MB)");
 
@@ -52,7 +50,6 @@ public class AudioUploadService : IAudioUploadService
         if (profile == null)
             return Result<UploadResultDto>.Failure("Profile not found");
 
-        // Сохраняем файл
         var fileUrl = await _fileStorage.SaveFileAsync(fileStream, fileName, contentType);
 
         var audio = new PortfolioAudio
@@ -61,7 +58,7 @@ public class AudioUploadService : IAudioUploadService
             ProfileId = profile.Id,
             Title = title,
             Description = description,
-            FileUrl = fileUrl, // после миграции заменим на FileUrl
+            FileUrl = fileUrl,
             MimeType = contentType,
             Duration = 0, // TODO: получить длительность
             CreatedAt = DateTime.UtcNow
@@ -71,83 +68,8 @@ public class AudioUploadService : IAudioUploadService
         await _unitOfWork.SaveChangesAsync();
 
         var dto = _mapper.Map<UploadResultDto>(audio);
-        dto.FileUrl = fileUrl; // временно
+        dto.FileUrl = fileUrl;
 
         return Result<UploadResultDto>.Success(dto);
     }
 }
-
-/*public class AudioUploadService : IAudioUploadService
-{
-    private readonly IProfileRepository _profileRepository;
-    private readonly IPortfolioAudioRepository _audioRepository;
-    private readonly IUserRepository _userRepository;
-
-    public AudioUploadService(
-        IProfileRepository profileRepository,
-        IPortfolioAudioRepository audioRepository, IUserRepository userRepository)
-    {
-        _profileRepository = profileRepository;
-        _audioRepository = audioRepository;
-        _userRepository = userRepository;
-    }
-
-    public async Task<object> UploadAudioAsync(
-        Guid userId,
-        IFormFile file,
-        string title,
-        string? description = null)
-    {
-        var user = await _userRepository.GetByIdAsync(userId);
-        if (user == null || user.MusicianProfile == null) return null;
-        var profile = await _profileRepository.GetByIdAsync(user.MusicianProfile.Id);
-        if (profile == null) return null;
-
-
-        if (file == null || file.Length == 0)
-            throw new ArgumentException("Файл не выбран");
-
-        if (!IsAudio(file.ContentType))
-            throw new ArgumentException("Разрешены только аудиофайлы");
-
-        if (file.Length > 10 * 1024 * 1024)
-            throw new ArgumentException("Файл слишком большой");
-
-        if (profile == null)
-            throw new ArgumentException("Профиль не найден");
-
-        using var memoryStream = new MemoryStream();
-        await file.CopyToAsync(memoryStream);
-        var fileBytes = memoryStream.ToArray();
-
-        var audio = new PortfolioAudio
-        {
-            Id = Guid.NewGuid(),
-            ProfileId = profile.Id,
-            Title = title,
-            Description = description,
-            FileData = fileBytes,
-            MimeType = file.ContentType,
-            Duration = 0 //TODO:Получить продолжительность
-        };
-
-        await _audioRepository.AddAsync(audio);
-
-        return new
-        {
-            success = true,
-            audio = new
-            {
-                audio.Id,
-                audio.Title,
-                audio.Description,
-                audio.MimeType,
-                audio.Duration,
-                audio.CreatedAt
-            }
-        };
-    }
-
-    private static bool IsAudio(string contentType) =>
-        contentType.StartsWith("audio/", StringComparison.OrdinalIgnoreCase);
-}*/

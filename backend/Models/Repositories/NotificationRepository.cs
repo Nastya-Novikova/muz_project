@@ -33,7 +33,6 @@ namespace backend.Models.Repositories
             return (items, totalCount);
         }
 
-        // остальные методы без изменений...
         public async Task<Notification?> GetByIdAsync(Guid id)
         {
             return await _context.Notifications.FindAsync(id);

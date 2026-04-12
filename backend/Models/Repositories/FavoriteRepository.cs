@@ -9,12 +9,10 @@ namespace backend.Models.Repositories
     public class FavoriteRepository : IFavoriteRepository
     {
         private readonly MusicianFinderDbContext _context;
-        //public DbSet<Favorite> Favorites { get; set; }
 
         public FavoriteRepository(MusicianFinderDbContext context)
         {
             _context = context;
-            //Favorites = _context.Set<Favorite>();
         }
 
         public async Task AddAsync(Favorite favorite)

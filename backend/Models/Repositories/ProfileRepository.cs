@@ -11,21 +11,10 @@ namespace backend.Models.Repositories;
 public class ProfileRepository : IProfileRepository
 {
     private readonly MusicianFinderDbContext _context;
-    //public DbSet<MusicianProfile> MusicianProfiles { get; set; }
 
-    /*private readonly ICityRepository _cityRepository;
-    private readonly IGenreRepository _genreRepository;
-    private readonly IMusicalSpecialtyRepository _musicalSpecialtyRepository;
-    private readonly ICollaborationGoalRepository _collaborationGoalRepository;*/
-
-    public ProfileRepository(MusicianFinderDbContext context/*, ICityRepository cityRepository, IMusicalSpecialtyRepository musicalSpecialtyRepository, ICollaborationGoalRepository collaborationGoalRepository, IGenreRepository genreRepository*/)
+    public ProfileRepository(MusicianFinderDbContext context)
     {
         _context = context;
-        //MusicianProfiles = _context.Set<MusicianProfile>();
-        /*_cityRepository = cityRepository;
-        _musicalSpecialtyRepository = musicalSpecialtyRepository;
-        _collaborationGoalRepository = collaborationGoalRepository;
-        _genreRepository = genreRepository;*/
     }
 
     public async Task<(List<MusicianProfile> Items, int TotalCount)> SearchAsync(
@@ -171,64 +160,6 @@ public class ProfileRepository : IProfileRepository
         profile.DeletedAt = DateTime.UtcNow;
         _context.MusicianProfiles.Update(profile);
     }
-
-    /*public async Task AddAsync(MusicianProfile profile)
-    {
-        var city = await _cityRepository.GetByIdAsync(profile.CityId);
-        if (city == null)
-            throw new ApiException(404, "Город не найден", "CITY_NOT_FOUND");
-
-        foreach (var genre in profile.Genres)
-        {
-            var existingGenre = await _genreRepository.GetByIdAsync(genre.Id);
-            if (existingGenre != null && !existingGenre.Profiles.Any(p => p.Id == profile.Id))
-            {
-                existingGenre.Profiles.Add(profile);
-            }
-        }
-
-        foreach (var specialty in profile.Specialties)
-        {
-            var existingSpecialty = await _musicalSpecialtyRepository.GetByIdAsync(specialty.Id);
-            if (existingSpecialty != null && !existingSpecialty.Profiles.Any(p => p.Id == profile.Id))
-            {
-                existingSpecialty.Profiles.Add(profile);
-            }
-        }
-
-        foreach (var goal in profile.CollaborationGoals)
-        {
-            var existingGoal = await _collaborationGoalRepository.GetByIdAsync(goal.Id);
-            if (existingGoal != null && !existingGoal.Profiles.Any(p => p.Id == profile.Id))
-            {
-                existingGoal.Profiles.Add(profile);
-            }
-        }
-
-        await MusicianProfiles.AddAsync(profile);
-        //await _context.SaveChangesAsync();
-    }
-
-    public async Task UpdateAsync(MusicianProfile profile)
-    {
-        if (profile.Id == Guid.Empty)
-            throw new ApiException(400, "Некорректный ID профиля", "INVALID_PROFILE_ID");
-
-        MusicianProfiles.Update(profile);
-        //await _context.SaveChangesAsync();
-    }
-
-    public async Task SoftDeleteAsync(Guid id)
-    {
-        var profile = await MusicianProfiles.FindAsync(id);
-        if (profile == null)
-            throw new ApiException(404, "Профиль не найден", "PROFILE_NOT_FOUND");
-
-        profile.IsDeleted = true;
-        profile.DeletedAt = DateTime.UtcNow;
-        MusicianProfiles.Update(profile);
-        //await _context.SaveChangesAsync();
-    }*/
 
     public async Task<List<MusicianProfile>> GetProfilesByIdsAsync(List<Guid> ids)
     {

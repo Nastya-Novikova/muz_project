@@ -73,7 +73,6 @@ namespace backend.Services
             // 3. VK, если разрешено и привязан
             if (profile.NotifyByVk && !string.IsNullOrEmpty(profile.VkUserId))
             {
-                // Находим пользователя, которому принадлежит профиль
                 var user = await _userRepository.GetByMusicianProfileIdAsync(profile.Id);
                 if (user != null)
                 {
@@ -92,7 +91,6 @@ namespace backend.Services
             await SendNotificationToProfileAsync(user.MusicianProfile.Id, type, data);
         }
 
-        // Вспомогательные методы
         private (string Title, string Message) GetNotificationText(NotificationType type, Dictionary<string, object> data)
         {
             return type switch
@@ -128,66 +126,6 @@ namespace backend.Services
                  : data.TryGetValue("eventId", out var eid) ? (Guid)eid
                  : Guid.Empty;
         }
-
-        /*public async Task CreateCollaborationReceivedAsync(Guid recipientProfileId, Guid suggestionId, string fromProfileName)
-        {
-            var notification = new Notification
-            {
-                Id = Guid.NewGuid(),
-                ProfileId = recipientProfileId,
-                Type = NotificationType.CollaborationReceived,
-                Title = $"Пользователь {fromProfileName} отправил вам предложение о сотрудничестве",
-                Message = "У вас новое предложение о сотрудничестве",
-                EntityType = EntityType.CollaborationSuggestion,
-                EntityId = suggestionId,
-                IsRead = false,
-                CreatedAt = DateTime.UtcNow
-            };
-
-            await _notificationRepository.AddAsync(notification);
-            await _unitOfWork.SaveChangesAsync();
-        }*/
-
-        /*public async Task CreateEventRegistrationAsync(Guid eventCreatorProfileId, Guid eventId, string eventTitle, Guid registeredProfileId)
-        {
-            var registeredProfile = await _profileRepository.GetByIdAsync(registeredProfileId);
-            var profileName = registeredProfile?.FullName ?? "Пользователь";
-
-            var notification = new Notification
-            {
-                Id = Guid.NewGuid(),
-                ProfileId = eventCreatorProfileId,
-                Type = NotificationType.EventRegistration,
-                Title = $"{profileName} записался на ваше мероприятие \"{eventTitle}\"",
-                Message = "Новый участник зарегистрировался на ваше мероприятие",
-                EntityType = EntityType.Event,
-                EntityId = eventId,
-                IsRead = false,
-                CreatedAt = DateTime.UtcNow
-            };
-
-            await _notificationRepository.AddAsync(notification);
-            await _unitOfWork.SaveChangesAsync();
-        }*/
-
-        /*public async Task CreateEventReminderAsync(Guid profileId, Guid eventId, string eventTitle, int daysLeft)
-        {
-            var notification = new Notification
-            {
-                Id = Guid.NewGuid(),
-                ProfileId = profileId,
-                Type = NotificationType.EventReminder,
-                Title = $"Через {daysLeft} дн. состоится мероприятие \"{eventTitle}\"",
-                Message = "Не забудьте о предстоящем мероприятии",
-                EntityType = EntityType.Event,
-                EntityId = eventId,
-                IsRead = false,
-                CreatedAt = DateTime.UtcNow
-            };
-
-            await _notificationRepository.AddAsync(notification);
-            await _unitOfWork.SaveChangesAsync();
-        }*/
 
         public async Task<Result<PagedResult<NotificationDto>>> GetUserNotificationsAsync(Guid userId, int page, int limit)
         {

@@ -7,14 +7,6 @@ namespace backend.Services.Interfaces;
 
 public interface IProfileService
 {
-    /*Task<JsonDocument?> SearchAsync(JsonDocument searchParams);
-    Task<JsonDocument?> GetByIdAsync(Guid id);
-    Task<JsonDocument?> GetByUserIdAsync(Guid userId);
-    Task<JsonDocument?> CreateAsync(JsonDocument profileJson, Guid userId);
-    Task<JsonDocument?> UpdateAsync(JsonDocument profileJson, Guid userId);
-    Task<JsonDocument?> DeleteAsync(Guid id);
-    Task<bool> UpdateAvatarAsync(Guid userId, IFormFile file);
-    Task<JsonDocument?> GetMediaByIdAsync(Guid id);*/
     Task<Result<PagedResult<ProfileDto>>> SearchAsync(SearchRequest request);
     Task<Result<ProfileDto>> GetByIdAsync(Guid id);
     Task<Result<ProfileDto>> GetByUserIdAsync(Guid userId);

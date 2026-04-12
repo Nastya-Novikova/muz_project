@@ -1,39 +1,32 @@
-//using System.ComponentModel.DataAnnotations;
-//using System.ComponentModel.DataAnnotations.Schema;
-
-namespace backend.Models.Classes;
+п»їnamespace backend.Models.Classes;
 
 /// <summary>
-/// Код подтверждения email
+/// РљРѕРґ РїРѕРґС‚РІРµСЂР¶РґРµРЅРёСЏ email
 /// </summary>
-//[Table("EmailVerificationCodes")]
 public class EmailVerificationCode
 {
     /// <summary>
-    /// Идентификатор
+    /// РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ
     /// </summary>
-    //[Key]
     public Guid Id { get; set; } = Guid.NewGuid();
 
     /// <summary>
     /// Email
     /// </summary>
-    //[Required, EmailAddress]
     public string Email { get; set; } = string.Empty;
 
     /// <summary>
-    /// 6-значный код
+    /// 6-Р·РЅР°С‡РЅС‹Р№ РєРѕРґ
     /// </summary>
-    //[Required, StringLength(6)]
     public string Code { get; set; } = string.Empty;
 
     /// <summary>
-    /// Время создания
+    /// Р’СЂРµРјСЏ СЃРѕР·РґР°РЅРёСЏ
     /// </summary>
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     /// <summary>
-    /// Использован ли код
+    /// РСЃРїРѕР»СЊР·РѕРІР°РЅ Р»Рё РєРѕРґ
     /// </summary>
     public bool IsUsed { get; set; } = false;
 }

@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using backend.Data;
 using backend.Models.Classes;
 using backend.Models.Repositories.Interfaces;
@@ -8,12 +8,10 @@ namespace backend.Models.Repositories;
 public class MusicalSpecialtyRepository : IMusicalSpecialtyRepository
 {
     private readonly MusicianFinderDbContext _context;
-    //public DbSet<MusicalSpecialty> MusicalSpecialties { get; set; }
 
     public MusicalSpecialtyRepository(MusicianFinderDbContext context)
     {
         _context = context;
-        //MusicalSpecialties = _context.Set<MusicalSpecialty>();
     }
 
     public async Task<List<MusicalSpecialty>> GetAllAsync(string? query = null, string? sortBy = null, bool sortDesc = false)

@@ -80,10 +80,6 @@ namespace backend
             builder.Services.AddScoped<IFileStorage, MinioFileStorage>();
 
             builder.Services.AddAutoMapper(cfg => cfg.AddMaps(typeof(Program).Assembly));
-            /*builder.Services.AddAutoMapper(cfg =>
-            {
-                cfg.AddProfile<MappingProfile>();
-            });*/
 
             builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 

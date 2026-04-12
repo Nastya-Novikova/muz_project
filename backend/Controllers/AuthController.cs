@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+п»їusing Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 using backend.Services.Interfaces;
 using backend.Models.DTOs.Auth;
@@ -7,7 +7,7 @@ using backend.Services;
 namespace backend.Controllers;
 
 /// <summary>
-/// Контроллер аутентификации
+/// РљРѕРЅС‚СЂРѕР»Р»РµСЂ Р°СѓС‚РµРЅС‚РёС„РёРєР°С†РёРё
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
@@ -21,7 +21,7 @@ public class AuthController : ControllerBase
     }
 
     /// <summary>
-    /// Запрос кода подтверждения на email
+    /// Р—Р°РїСЂРѕСЃ РєРѕРґР° РїРѕРґС‚РІРµСЂР¶РґРµРЅРёСЏ РЅР° email
     /// </summary>
     [HttpPost("request-code")]
     public async Task<IActionResult> RequestCode([FromBody] RequestCodeRequest request)
@@ -34,7 +34,7 @@ public class AuthController : ControllerBase
     }
 
     /// <summary>
-    /// Вход/регистрация по коду
+    /// Р’С…РѕРґ/СЂРµРіРёСЃС‚СЂР°С†РёСЏ РїРѕ РєРѕРґСѓ
     /// </summary>
     [HttpPost("login")]
     public async Task<ActionResult<AuthResponse>> Login([FromBody] LoginRequest request)

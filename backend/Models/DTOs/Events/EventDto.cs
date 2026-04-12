@@ -18,7 +18,7 @@ namespace backend.Models.DTOs.Events
 
         public int MaxParticipants { get; set; }
         public int CurrentParticipants { get; set; }
-        public bool IsRegistered { get; set; } // для текущего пользователя
+        public bool IsRegistered { get; set; }
 
         public EventStatus Status { get; set; }
 

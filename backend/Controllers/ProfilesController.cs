@@ -19,12 +19,12 @@ namespace backend.Controllers;
 public class ProfilesController : ControllerBase
 {
     private readonly IProfileService _service;
-    private readonly IVkService _vkAuthService;
+    private readonly IVkService _vkService;
 
-    public ProfilesController(IProfileService service, IVkService vkAuthService)
+    public ProfilesController(IProfileService service, IVkService vkService)
     {
         _service = service;
-        _vkAuthService = vkAuthService;
+        _vkService = vkService;
     }
 
     /// <summary>
@@ -135,7 +135,7 @@ public class ProfilesController : ControllerBase
     {
         var userId = GetUserId();
 
-        var result = await _vkAuthService.ConnectVkAsync(userId, request.Code, request.CodeVerifier, request.DeviceId);
+        var result = await _vkService.ConnectVkAsync(userId, request.Code, request.CodeVerifier, request.DeviceId);
 
         if (!result.IsSuccess)
             return BadRequest(new { error = result.Error });
@@ -167,7 +167,7 @@ public class ProfilesController : ControllerBase
     {
         var userId = GetUserId();
 
-        var result = await _vkAuthService.SendNotificationAsync(userId, message ?? "Тестовое уведомление от MusicianFinder!");
+        var result = await _vkService.SendNotificationAsync(userId, message ?? "Тестовое уведомление от MusicianFinder!");
 
         if (!result)
             return BadRequest(new { error = "Failed to send message. Check logs for details." });

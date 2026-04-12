@@ -6,7 +6,6 @@ namespace backend.Models.Repositories.Interfaces;
 
 public interface IProfileRepository
 {
-    //DbSet<MusicianProfile> MusicianProfiles { get; }
     Task<(List<MusicianProfile> Items, int TotalCount)> SearchAsync(
             string? query = null,
             int? cityId = null,

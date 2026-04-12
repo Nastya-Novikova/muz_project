@@ -16,12 +16,12 @@ namespace backend.Services
             var accessKey = configuration["Minio:AccessKey"];
             var secretKey = configuration["Minio:SecretKey"];
             _bucketName = configuration["Minio:BucketName"] ?? "musician-files";
-            _publicEndpoint = configuration["Minio:PublicEndpoint"] ?? endpoint; // для внешнего доступа
+            _publicEndpoint = configuration["Minio:PublicEndpoint"] ?? endpoint;
 
             _minioClient = new MinioClient()
                 .WithEndpoint(endpoint)
                 .WithCredentials(accessKey, secretKey)
-                .WithSSL(false) // в разработке false, в продакшене true с сертификатом
+                .WithSSL(false)
                 .Build();
         }
 
@@ -74,7 +74,6 @@ namespace backend.Services
 
         private string ExtractObjectNameFromUrl(string url)
         {
-            // Пример URL: http://localhost:9000/musician-files/guid_filename.mp3
             var uri = new Uri(url);
             var segments = uri.AbsolutePath.Split('/');
             if (segments.Length >= 2 && segments[1] == _bucketName)

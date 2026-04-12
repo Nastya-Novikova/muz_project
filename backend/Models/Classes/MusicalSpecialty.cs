@@ -1,38 +1,32 @@
-using backend.Models.DTOs;
-//using System.ComponentModel.DataAnnotations;
-//using System.ComponentModel.DataAnnotations.Schema;
+п»їusing backend.Models.DTOs;
 
 namespace backend.Models.Classes;
 
 /// <summary>
-/// Музыкальная специальность: вокалист, гитарист, композитор и т.д.
+/// РњСѓР·С‹РєР°Р»СЊРЅР°СЏ СЃРїРµС†РёР°Р»СЊРЅРѕСЃС‚СЊ: РІРѕРєР°Р»РёСЃС‚, РіРёС‚Р°СЂРёСЃС‚, РєРѕРјРїРѕР·РёС‚РѕСЂ Рё С‚.Рґ.
 /// </summary>
-//[Table("MusicalSpecializations")]
 public class MusicalSpecialty : ILookupItem
 {
     /// <summary>
-    /// Идентификатор
+    /// РРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ
     /// </summary>
-    //[Key]
     public int Id { get; set; }
 
     /// <summary>
-    /// Английское название специальности
+    /// РђРЅРіР»РёР№СЃРєРѕРµ РЅР°Р·РІР°РЅРёРµ СЃРїРµС†РёР°Р»СЊРЅРѕСЃС‚Рё
     /// </summary>
-    //[Required, MaxLength(50)]
     public string Name { get; set; } = string.Empty;
 
     /// <summary>
-    /// Русское название специальности
+    /// Р СѓСЃСЃРєРѕРµ РЅР°Р·РІР°РЅРёРµ СЃРїРµС†РёР°Р»СЊРЅРѕСЃС‚Рё
     /// </summary>
-    //[Required, MaxLength(50)]
     public string LocalizedName { get; set; } = string.Empty;
 
     /// <summary>
-    /// Связанные профили
+    /// РЎРІСЏР·Р°РЅРЅС‹Рµ РїСЂРѕС„РёР»Рё
     /// </summary>
     public List<MusicianProfile> Profiles { get; set; } = new();
 
-    // Профили, которые ищут эту специализацию
+    // РџСЂРѕС„РёР»Рё, РєРѕС‚РѕСЂС‹Рµ РёС‰СѓС‚ СЌС‚Сѓ СЃРїРµС†РёР°Р»РёР·Р°С†РёСЋ
     public List<MusicianProfile> ProfilesLookingForThisSpecialty { get; set; } = new();
 }
