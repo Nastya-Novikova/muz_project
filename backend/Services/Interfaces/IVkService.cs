@@ -2,7 +2,7 @@ using backend.Models.Common;
 
 namespace backend.Services.Interfaces;
 
-public interface IVkAuthService
+public interface IVkService
 {
     /// <summary>
     /// Привязать VK аккаунт к профилю пользователя

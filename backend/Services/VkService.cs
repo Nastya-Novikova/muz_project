@@ -6,15 +6,15 @@ using backend.Models.Repositories.Interfaces;
 
 namespace backend.Services;
 
-public class VkAuthService : IVkAuthService
+public class VkService : IVkService
 {
     private readonly IProfileRepository _profileRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly HttpClient _httpClient;
     private readonly IConfiguration _config;
-    private readonly ILogger<VkAuthService> _logger;
+    private readonly ILogger<VkService> _logger;
 
-    public VkAuthService(IProfileRepository profileRepository, IUnitOfWork unitOfWork, IConfiguration config, ILogger<VkAuthService> logger)
+    public VkService(IProfileRepository profileRepository, IUnitOfWork unitOfWork, IConfiguration config, ILogger<VkService> logger)
     {
         _profileRepository = profileRepository;
         _unitOfWork = unitOfWork;

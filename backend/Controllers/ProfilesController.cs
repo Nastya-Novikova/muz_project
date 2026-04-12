@@ -19,9 +19,9 @@ namespace backend.Controllers;
 public class ProfilesController : ControllerBase
 {
     private readonly IProfileService _service;
-    private readonly IVkAuthService _vkAuthService;
+    private readonly IVkService _vkAuthService;
 
-    public ProfilesController(IProfileService service, IVkAuthService vkAuthService)
+    public ProfilesController(IProfileService service, IVkService vkAuthService)
     {
         _service = service;
         _vkAuthService = vkAuthService;

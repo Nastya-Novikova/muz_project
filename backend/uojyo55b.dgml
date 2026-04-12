@@ -1,0 +1,355 @@
+<?xml version="1.0" encoding="utf-8"?>
+<DirectedGraph xmlns="http://schemas.microsoft.com/vs/2009/dgml">
+  <Nodes>
+    <Node Id="backend" Group="Expanded" Label="backend" Category="CodeSchema_Namespace" />
+    <Node Id="backend.Program" Label="Program" Category="CodeSchema_Class" Group="backend" />
+    <Node Id="Controllers" Group="Expanded" Label="Controllers" Category="CodeSchema_Namespace" />
+    <Node Id="backend.Controllers.AuthController" Label="AuthController" Category="CodeSchema_Class" Group="Controllers" />
+    <Node Id="backend.Controllers.CollaborationsController" Label="CollaborationsController" Category="CodeSchema_Class" Group="Controllers" />
+    <Node Id="backend.Controllers.FavoritesController" Label="FavoritesController" Category="CodeSchema_Class" Group="Controllers" />
+    <Node Id="backend.Controllers.MetadataController" Label="MetadataController" Category="CodeSchema_Class" Group="Controllers" />
+    <Node Id="backend.Controllers.ProfilesController" Label="ProfilesController" Category="CodeSchema_Class" Group="Controllers" />
+    <Node Id="backend.Controllers.UploadsController" Label="UploadsController" Category="CodeSchema_Class" Group="Controllers" />
+    <Node Id="Data" Group="Expanded" Label="Data" Category="CodeSchema_Namespace" />
+    <Node Id="backend.Data.MusicianFinderDbContext" Label="MusicianFinderDbContext" Category="CodeSchema_Class" Group="Data" />
+    <Node Id="Exceptions" Group="Expanded" Label="Exceptions" Category="CodeSchema_Namespace" />
+    <Node Id="backend.Exceptions.ApiException" Label="ApiException" Category="CodeSchema_Class" Group="Exceptions" />
+    <Node Id="Middleware" Group="Expanded" Label="Middleware" Category="CodeSchema_Namespace" />
+    <Node Id="backend.Middleware.ExceptionMiddleware" Label="ExceptionMiddleware" Category="CodeSchema_Class" Group="Middleware" />
+    <Node Id="Migrations" Group="Expanded" Label="Migrations" Category="CodeSchema_Namespace" />
+    <Node Id="backend.Migrations.InitialCreate" Label="InitialCreate" Category="CodeSchema_Class" Group="Migrations" />
+    <Node Id="backend.Migrations.MusicianFinderDbContextModelSnapshot" Label="MusicianFinderDbContextModelSnapshot" Category="CodeSchema_Class" Group="Migrations" />
+    <Node Id="Models.Classes" Group="Expanded" Label="Models.Classes" Category="CodeSchema_Namespace" />
+    <Node Id="backend.Models.Classes.City" Label="City" Category="CodeSchema_Class" Group="Models.Classes" />
+    <Node Id="backend.Models.Classes.CollaborationGoal" Label="CollaborationGoal" Category="CodeSchema_Class" Group="Models.Classes" />
+    <Node Id="backend.Models.Classes.CollaborationSuggestion" Label="CollaborationSuggestion" Category="CodeSchema_Class" Group="Models.Classes" />
+    <Node Id="backend.Models.Classes.EmailVerificationCode" Label="EmailVerificationCode" Category="CodeSchema_Class" Group="Models.Classes" />
+    <Node Id="backend.Models.Classes.Genre" Label="Genre" Category="CodeSchema_Class" Group="Models.Classes" />
+    <Node Id="backend.Models.Classes.ISoftDeletable" Label="ISoftDeletable" Category="CodeSchema_Interface" Group="Models.Classes" />
+    <Node Id="backend.Models.Classes.MusicalSpecialty" Label="MusicalSpecialty" Category="CodeSchema_Class" Group="Models.Classes" />
+    <Node Id="backend.Models.Classes.MusicianProfile" Label="MusicianProfile" Category="CodeSchema_Class" Group="Models.Classes" />
+    <Node Id="backend.Models.Classes.PortfolioAudio" Label="PortfolioAudio" Category="CodeSchema_Class" Group="Models.Classes" />
+    <Node Id="backend.Models.Classes.PortfolioPhoto" Label="PortfolioPhoto" Category="CodeSchema_Class" Group="Models.Classes" />
+    <Node Id="backend.Models.Classes.PortfolioVideo" Label="PortfolioVideo" Category="CodeSchema_Class" Group="Models.Classes" />
+    <Node Id="backend.Models.Classes.User" Label="User" Category="CodeSchema_Class" Group="Models.Classes" />
+    <Node Id="Models.DTOs" Group="Expanded" Label="Models.DTOs" Category="CodeSchema_Namespace" />
+    <Node Id="backend.Models.DTOs.ILookupItem" Label="ILookupItem" Category="CodeSchema_Interface" Group="Models.DTOs" />
+    <Node Id="backend.Models.DTOs.LookupItemDto" Label="LookupItemDto" Category="CodeSchema_Class" Group="Models.DTOs" />
+    <Node Id="Models.Repositories" Group="Expanded" Label="Models.Repositories" Category="CodeSchema_Namespace" />
+    <Node Id="backend.Models.Repositories.CityRepository" Label="CityRepository" Category="CodeSchema_Class" Group="Models.Repositories" />
+    <Node Id="backend.Models.Repositories.CollaborationGoalRepository" Label="CollaborationGoalRepository" Category="CodeSchema_Class" Group="Models.Repositories" />
+    <Node Id="backend.Models.Repositories.CollaborationSuggestionRepository" Label="CollaborationSuggestionRepository" Category="CodeSchema_Class" Group="Models.Repositories" />
+    <Node Id="backend.Models.Repositories.EmailVerificationCodeRepository" Label="EmailVerificationCodeRepository" Category="CodeSchema_Class" Group="Models.Repositories" />
+    <Node Id="backend.Models.Repositories.GenreRepository" Label="GenreRepository" Category="CodeSchema_Class" Group="Models.Repositories" />
+    <Node Id="backend.Models.Repositories.MusicalSpecialtyRepository" Label="MusicalSpecialtyRepository" Category="CodeSchema_Class" Group="Models.Repositories" />
+    <Node Id="backend.Models.Repositories.PortfolioAudioRepository" Label="PortfolioAudioRepository" Category="CodeSchema_Class" Group="Models.Repositories" />
+    <Node Id="backend.Models.Repositories.PortfolioPhotoRepository" Label="PortfolioPhotoRepository" Category="CodeSchema_Class" Group="Models.Repositories" />
+    <Node Id="backend.Models.Repositories.PortfolioVideoRepository" Label="PortfolioVideoRepository" Category="CodeSchema_Class" Group="Models.Repositories" />
+    <Node Id="backend.Models.Repositories.ProfileRepository" Label="ProfileRepository" Category="CodeSchema_Class" Group="Models.Repositories" />
+    <Node Id="backend.Models.Repositories.UserRepository" Label="UserRepository" Category="CodeSchema_Class" Group="Models.Repositories" />
+    <Node Id="Models.Repositories.Interfaces" Group="Expanded" Label="Models.Repositories.Interfaces" Category="CodeSchema_Namespace" />
+    <Node Id="backend.Models.Repositories.Interfaces.ICityRepository" Label="ICityRepository" Category="CodeSchema_Interface" Group="Models.Repositories.Interfaces" />
+    <Node Id="backend.Models.Repositories.Interfaces.ICollaborationGoalRepository" Label="ICollaborationGoalRepository" Category="CodeSchema_Interface" Group="Models.Repositories.Interfaces" />
+    <Node Id="backend.Models.Repositories.Interfaces.ICollaborationSuggestionRepository" Label="ICollaborationSuggestionRepository" Category="CodeSchema_Interface" Group="Models.Repositories.Interfaces" />
+    <Node Id="backend.Models.Repositories.Interfaces.IEmailVerificationCodeRepository" Label="IEmailVerificationCodeRepository" Category="CodeSchema_Interface" Group="Models.Repositories.Interfaces" />
+    <Node Id="backend.Models.Repositories.Interfaces.IGenreRepository" Label="IGenreRepository" Category="CodeSchema_Interface" Group="Models.Repositories.Interfaces" />
+    <Node Id="backend.Models.Repositories.Interfaces.IMusicalSpecialtyRepository" Label="IMusicalSpecialtyRepository" Category="CodeSchema_Interface" Group="Models.Repositories.Interfaces" />
+    <Node Id="backend.Models.Repositories.Interfaces.IPortfolioAudioRepository" Label="IPortfolioAudioRepository" Category="CodeSchema_Interface" Group="Models.Repositories.Interfaces" />
+    <Node Id="backend.Models.Repositories.Interfaces.IPortfolioPhotoRepository" Label="IPortfolioPhotoRepository" Category="CodeSchema_Interface" Group="Models.Repositories.Interfaces" />
+    <Node Id="backend.Models.Repositories.Interfaces.IPortfolioVideoRepository" Label="IPortfolioVideoRepository" Category="CodeSchema_Interface" Group="Models.Repositories.Interfaces" />
+    <Node Id="backend.Models.Repositories.Interfaces.IProfileRepository" Label="IProfileRepository" Category="CodeSchema_Interface" Group="Models.Repositories.Interfaces" />
+    <Node Id="backend.Models.Repositories.Interfaces.IUserRepository" Label="IUserRepository" Category="CodeSchema_Interface" Group="Models.Repositories.Interfaces" />
+    <Node Id="Services" Group="Expanded" Label="Services" Category="CodeSchema_Namespace" />
+    <Node Id="backend.Services.AudioUploadService" Label="AudioUploadService" Category="CodeSchema_Class" Group="Services" />
+    <Node Id="backend.Services.AuthService" Label="AuthService" Category="CodeSchema_Class" Group="Services" />
+    <Node Id="backend.Services.CityService" Label="CityService" Category="CodeSchema_Class" Group="Services" />
+    <Node Id="backend.Services.CollaborationGoalService" Label="CollaborationGoalService" Category="CodeSchema_Class" Group="Services" />
+    <Node Id="backend.Services.CollaborationService" Label="CollaborationService" Category="CodeSchema_Class" Group="Services" />
+    <Node Id="backend.Services.EmailService" Label="EmailService" Category="CodeSchema_Class" Group="Services" />
+    <Node Id="backend.Services.FavoriteService" Label="FavoriteService" Category="CodeSchema_Class" Group="Services" />
+    <Node Id="backend.Services.GenreService" Label="GenreService" Category="CodeSchema_Class" Group="Services" />
+    <Node Id="backend.Services.MusicalSpecialtyService" Label="MusicalSpecialtyService" Category="CodeSchema_Class" Group="Services" />
+    <Node Id="backend.Services.PhotoUploadService" Label="PhotoUploadService" Category="CodeSchema_Class" Group="Services" />
+    <Node Id="backend.Services.ProfileService" Label="ProfileService" Category="CodeSchema_Class" Group="Services" />
+    <Node Id="backend.Services.UserService" Label="UserService" Category="CodeSchema_Class" Group="Services" />
+    <Node Id="backend.Services.VideoUploadService" Label="VideoUploadService" Category="CodeSchema_Class" Group="Services" />
+    <Node Id="Services.Interfaces" Group="Expanded" Label="Services.Interfaces" Category="CodeSchema_Namespace" />
+    <Node Id="backend.Services.Interfaces.IAudioUploadService" Label="IAudioUploadService" Category="CodeSchema_Interface" Group="Services.Interfaces" />
+    <Node Id="backend.Services.Interfaces.IAuthService" Label="IAuthService" Category="CodeSchema_Interface" Group="Services.Interfaces" />
+    <Node Id="backend.Services.Interfaces.ICityService" Label="ICityService" Category="CodeSchema_Interface" Group="Services.Interfaces" />
+    <Node Id="backend.Services.Interfaces.ICollaborationGoalService" Label="ICollaborationGoalService" Category="CodeSchema_Interface" Group="Services.Interfaces" />
+    <Node Id="backend.Services.Interfaces.ICollaborationService" Label="ICollaborationService" Category="CodeSchema_Interface" Group="Services.Interfaces" />
+    <Node Id="backend.Services.Interfaces.IEmailService" Label="IEmailService" Category="CodeSchema_Interface" Group="Services.Interfaces" />
+    <Node Id="backend.Services.Interfaces.IFavoriteService" Label="IFavoriteService" Category="CodeSchema_Interface" Group="Services.Interfaces" />
+    <Node Id="backend.Services.Interfaces.IGenreService" Label="IGenreService" Category="CodeSchema_Interface" Group="Services.Interfaces" />
+    <Node Id="backend.Services.Interfaces.IMusicalSpecialtyService" Label="IMusicalSpecialtyService" Category="CodeSchema_Interface" Group="Services.Interfaces" />
+    <Node Id="backend.Services.Interfaces.IPhotoUploadService" Label="IPhotoUploadService" Category="CodeSchema_Interface" Group="Services.Interfaces" />
+    <Node Id="backend.Services.Interfaces.IProfileService" Label="IProfileService" Category="CodeSchema_Interface" Group="Services.Interfaces" />
+    <Node Id="backend.Services.Interfaces.IUserService" Label="IUserService" Category="CodeSchema_Interface" Group="Services.Interfaces" />
+    <Node Id="backend.Services.Interfaces.IVideoUploadService" Label="IVideoUploadService" Category="CodeSchema_Interface" Group="Services.Interfaces" />
+    <Node Id="Services.Utils" Group="Expanded" Label="Services.Utils" Category="CodeSchema_Namespace" />
+    <Node Id="backend.Services.Utils.LookupItemUtil" Label="LookupItemUtil" Category="CodeSchema_Class" Group="Services.Utils" />
+  </Nodes>
+  <Links>
+    <Link Source="backend" Target="backend.Program" Category="Contains" />
+    <Link Source="backend" Target="Controllers" Category="Contains" />
+    <Link Source="Controllers" Target="backend.Controllers.AuthController" Category="Contains" />
+    <Link Source="Controllers" Target="backend.Controllers.CollaborationsController" Category="Contains" />
+    <Link Source="Controllers" Target="backend.Controllers.FavoritesController" Category="Contains" />
+    <Link Source="Controllers" Target="backend.Controllers.MetadataController" Category="Contains" />
+    <Link Source="Controllers" Target="backend.Controllers.ProfilesController" Category="Contains" />
+    <Link Source="Controllers" Target="backend.Controllers.UploadsController" Category="Contains" />
+    <Link Source="backend" Target="Data" Category="Contains" />
+    <Link Source="Data" Target="backend.Data.MusicianFinderDbContext" Category="Contains" />
+    <Link Source="backend" Target="Exceptions" Category="Contains" />
+    <Link Source="Exceptions" Target="backend.Exceptions.ApiException" Category="Contains" />
+    <Link Source="backend" Target="Middleware" Category="Contains" />
+    <Link Source="Middleware" Target="backend.Middleware.ExceptionMiddleware" Category="Contains" />
+    <Link Source="backend" Target="Migrations" Category="Contains" />
+    <Link Source="Migrations" Target="backend.Migrations.InitialCreate" Category="Contains" />
+    <Link Source="Migrations" Target="backend.Migrations.MusicianFinderDbContextModelSnapshot" Category="Contains" />
+    <Link Source="Models.Classes" Target="backend.Models.Classes.City" Category="Contains" />
+    <Link Source="Models.Classes" Target="backend.Models.Classes.CollaborationGoal" Category="Contains" />
+    <Link Source="Models.Classes" Target="backend.Models.Classes.CollaborationSuggestion" Category="Contains" />
+    <Link Source="Models.Classes" Target="backend.Models.Classes.EmailVerificationCode" Category="Contains" />
+    <Link Source="Models.Classes" Target="backend.Models.Classes.Genre" Category="Contains" />
+    <Link Source="Models.Classes" Target="backend.Models.Classes.ISoftDeletable" Category="Contains" />
+    <Link Source="Models.Classes" Target="backend.Models.Classes.MusicalSpecialty" Category="Contains" />
+    <Link Source="Models.Classes" Target="backend.Models.Classes.MusicianProfile" Category="Contains" />
+    <Link Source="Models.Classes" Target="backend.Models.Classes.PortfolioAudio" Category="Contains" />
+    <Link Source="Models.Classes" Target="backend.Models.Classes.PortfolioPhoto" Category="Contains" />
+    <Link Source="Models.Classes" Target="backend.Models.Classes.PortfolioVideo" Category="Contains" />
+    <Link Source="Models.Classes" Target="backend.Models.Classes.User" Category="Contains" />
+    <Link Source="Models.DTOs" Target="backend.Models.DTOs.ILookupItem" Category="Contains" />
+    <Link Source="Models.DTOs" Target="backend.Models.DTOs.LookupItemDto" Category="Contains" />
+    <Link Source="Models.Repositories" Target="backend.Models.Repositories.CityRepository" Category="Contains" />
+    <Link Source="Models.Repositories" Target="backend.Models.Repositories.CollaborationGoalRepository" Category="Contains" />
+    <Link Source="Models.Repositories" Target="backend.Models.Repositories.CollaborationSuggestionRepository" Category="Contains" />
+    <Link Source="Models.Repositories" Target="backend.Models.Repositories.EmailVerificationCodeRepository" Category="Contains" />
+    <Link Source="Models.Repositories" Target="backend.Models.Repositories.GenreRepository" Category="Contains" />
+    <Link Source="Models.Repositories" Target="backend.Models.Repositories.MusicalSpecialtyRepository" Category="Contains" />
+    <Link Source="Models.Repositories" Target="backend.Models.Repositories.PortfolioAudioRepository" Category="Contains" />
+    <Link Source="Models.Repositories" Target="backend.Models.Repositories.PortfolioPhotoRepository" Category="Contains" />
+    <Link Source="Models.Repositories" Target="backend.Models.Repositories.PortfolioVideoRepository" Category="Contains" />
+    <Link Source="Models.Repositories" Target="backend.Models.Repositories.ProfileRepository" Category="Contains" />
+    <Link Source="Models.Repositories" Target="backend.Models.Repositories.UserRepository" Category="Contains" />
+    <Link Source="Models.Repositories" Target="Models.Repositories.Interfaces" Category="Contains" />
+    <Link Source="Models.Repositories.Interfaces" Target="backend.Models.Repositories.Interfaces.ICityRepository" Category="Contains" />
+    <Link Source="Models.Repositories.Interfaces" Target="backend.Models.Repositories.Interfaces.ICollaborationGoalRepository" Category="Contains" />
+    <Link Source="Models.Repositories.Interfaces" Target="backend.Models.Repositories.Interfaces.ICollaborationSuggestionRepository" Category="Contains" />
+    <Link Source="Models.Repositories.Interfaces" Target="backend.Models.Repositories.Interfaces.IEmailVerificationCodeRepository" Category="Contains" />
+    <Link Source="Models.Repositories.Interfaces" Target="backend.Models.Repositories.Interfaces.IGenreRepository" Category="Contains" />
+    <Link Source="Models.Repositories.Interfaces" Target="backend.Models.Repositories.Interfaces.IMusicalSpecialtyRepository" Category="Contains" />
+    <Link Source="Models.Repositories.Interfaces" Target="backend.Models.Repositories.Interfaces.IPortfolioAudioRepository" Category="Contains" />
+    <Link Source="Models.Repositories.Interfaces" Target="backend.Models.Repositories.Interfaces.IPortfolioPhotoRepository" Category="Contains" />
+    <Link Source="Models.Repositories.Interfaces" Target="backend.Models.Repositories.Interfaces.IPortfolioVideoRepository" Category="Contains" />
+    <Link Source="Models.Repositories.Interfaces" Target="backend.Models.Repositories.Interfaces.IProfileRepository" Category="Contains" />
+    <Link Source="Models.Repositories.Interfaces" Target="backend.Models.Repositories.Interfaces.IUserRepository" Category="Contains" />
+    <Link Source="backend" Target="Services" Category="Contains" />
+    <Link Source="Services" Target="backend.Services.AudioUploadService" Category="Contains" />
+    <Link Source="Services" Target="backend.Services.AuthService" Category="Contains" />
+    <Link Source="Services" Target="backend.Services.CityService" Category="Contains" />
+    <Link Source="Services" Target="backend.Services.CollaborationGoalService" Category="Contains" />
+    <Link Source="Services" Target="backend.Services.CollaborationService" Category="Contains" />
+    <Link Source="Services" Target="backend.Services.EmailService" Category="Contains" />
+    <Link Source="Services" Target="backend.Services.FavoriteService" Category="Contains" />
+    <Link Source="Services" Target="backend.Services.GenreService" Category="Contains" />
+    <Link Source="Services" Target="backend.Services.MusicalSpecialtyService" Category="Contains" />
+    <Link Source="Services" Target="backend.Services.PhotoUploadService" Category="Contains" />
+    <Link Source="Services" Target="backend.Services.ProfileService" Category="Contains" />
+    <Link Source="Services" Target="backend.Services.UserService" Category="Contains" />
+    <Link Source="Services" Target="backend.Services.VideoUploadService" Category="Contains" />
+    <Link Source="Services" Target="Services.Interfaces" Category="Contains" />
+    <Link Source="Services.Interfaces" Target="backend.Services.Interfaces.IAudioUploadService" Category="Contains" />
+    <Link Source="Services.Interfaces" Target="backend.Services.Interfaces.IAuthService" Category="Contains" />
+    <Link Source="Services.Interfaces" Target="backend.Services.Interfaces.ICityService" Category="Contains" />
+    <Link Source="Services.Interfaces" Target="backend.Services.Interfaces.ICollaborationGoalService" Category="Contains" />
+    <Link Source="Services.Interfaces" Target="backend.Services.Interfaces.ICollaborationService" Category="Contains" />
+    <Link Source="Services.Interfaces" Target="backend.Services.Interfaces.IEmailService" Category="Contains" />
+    <Link Source="Services.Interfaces" Target="backend.Services.Interfaces.IFavoriteService" Category="Contains" />
+    <Link Source="Services.Interfaces" Target="backend.Services.Interfaces.IGenreService" Category="Contains" />
+    <Link Source="Services.Interfaces" Target="backend.Services.Interfaces.IMusicalSpecialtyService" Category="Contains" />
+    <Link Source="Services.Interfaces" Target="backend.Services.Interfaces.IPhotoUploadService" Category="Contains" />
+    <Link Source="Services.Interfaces" Target="backend.Services.Interfaces.IProfileService" Category="Contains" />
+    <Link Source="Services.Interfaces" Target="backend.Services.Interfaces.IUserService" Category="Contains" />
+    <Link Source="Services.Interfaces" Target="backend.Services.Interfaces.IVideoUploadService" Category="Contains" />
+    <Link Source="Services" Target="Services.Utils" Category="Contains" />
+    <Link Source="Services.Utils" Target="backend.Services.Utils.LookupItemUtil" Category="Contains" />
+    <Link Source="backend.Controllers.AuthController" Target="backend.Services.Interfaces.IAuthService" Category="Uses" />
+    <Link Source="backend.Controllers.CollaborationsController" Target="backend.Services.Interfaces.ICollaborationService" Category="Uses" />
+    <Link Source="backend.Controllers.FavoritesController" Target="backend.Services.Interfaces.IFavoriteService" Category="Uses" />
+    <Link Source="backend.Controllers.MetadataController" Target="backend.Services.Interfaces.ICityService" Category="Uses" />
+    <Link Source="backend.Controllers.MetadataController" Target="backend.Services.Interfaces.IMusicalSpecialtyService" Category="Uses" />
+    <Link Source="backend.Controllers.MetadataController" Target="backend.Services.Interfaces.IGenreService" Category="Uses" />
+    <Link Source="backend.Controllers.MetadataController" Target="backend.Services.Interfaces.ICollaborationGoalService" Category="Uses" />
+    <Link Source="backend.Controllers.ProfilesController" Target="backend.Services.Interfaces.IProfileService" Category="Uses" />
+    <Link Source="backend.Controllers.UploadsController" Target="backend.Services.Interfaces.IProfileService" Category="Uses" />
+    <Link Source="backend.Controllers.UploadsController" Target="backend.Services.Interfaces.IAudioUploadService" Category="Uses" />
+    <Link Source="backend.Controllers.UploadsController" Target="backend.Services.Interfaces.IVideoUploadService" Category="Uses" />
+    <Link Source="backend.Controllers.UploadsController" Target="backend.Services.Interfaces.IPhotoUploadService" Category="Uses" />
+    <Link Source="backend.Data.MusicianFinderDbContext" Target="backend.Models.Classes.User" Category="Uses" />
+    <Link Source="backend.Data.MusicianFinderDbContext" Target="backend.Models.Classes.MusicianProfile" Category="Uses" />
+    <Link Source="backend.Data.MusicianFinderDbContext" Target="backend.Models.Classes.City" Category="Uses" />
+    <Link Source="backend.Data.MusicianFinderDbContext" Target="backend.Models.Classes.Genre" Category="Uses" />
+    <Link Source="backend.Data.MusicianFinderDbContext" Target="backend.Models.Classes.MusicalSpecialty" Category="Uses" />
+    <Link Source="backend.Data.MusicianFinderDbContext" Target="backend.Models.Classes.CollaborationGoal" Category="Uses" />
+    <Link Source="backend.Data.MusicianFinderDbContext" Target="backend.Models.Classes.EmailVerificationCode" Category="Uses" />
+    <Link Source="backend.Data.MusicianFinderDbContext" Target="backend.Models.Classes.CollaborationSuggestion" Category="Uses" />
+    <Link Source="backend.Data.MusicianFinderDbContext" Target="backend.Models.Classes.PortfolioAudio" Category="Uses" />
+    <Link Source="backend.Data.MusicianFinderDbContext" Target="backend.Models.Classes.PortfolioVideo" Category="Uses" />
+    <Link Source="backend.Data.MusicianFinderDbContext" Target="backend.Models.Classes.PortfolioPhoto" Category="Uses" />
+    <Link Source="backend.Models.Classes.CollaborationGoal" Target="backend.Models.DTOs.ILookupItem" Category="Implements" />
+    <Link Source="backend.Models.Classes.Genre" Target="backend.Models.DTOs.ILookupItem" Category="Implements" />
+    <Link Source="backend.Models.Classes.MusicalSpecialty" Target="backend.Models.DTOs.ILookupItem" Category="Implements" />
+    <Link Source="backend.Models.Classes.MusicianProfile" Target="backend.Models.Classes.ISoftDeletable" Category="Implements" />
+    <Link Source="backend.Models.Classes.User" Target="backend.Models.Classes.ISoftDeletable" Category="Implements" />
+    <Link Source="backend.Models.DTOs.LookupItemDto" Target="backend.Models.DTOs.ILookupItem" Category="Implements" />
+    <Link Source="backend.Models.Repositories.CityRepository" Target="backend.Models.Repositories.Interfaces.ICityRepository" Category="Implements" />
+    <Link Source="backend.Models.Repositories.CollaborationGoalRepository" Target="backend.Models.Repositories.Interfaces.ICollaborationGoalRepository" Category="Implements" />
+    <Link Source="backend.Models.Repositories.CollaborationSuggestionRepository" Target="backend.Models.Repositories.Interfaces.ICollaborationSuggestionRepository" Category="Implements" />
+    <Link Source="backend.Models.Repositories.CollaborationSuggestionRepository" Target="backend.Models.Repositories.Interfaces.IProfileRepository" Category="Uses" />
+    <Link Source="backend.Models.Repositories.EmailVerificationCodeRepository" Target="backend.Models.Repositories.Interfaces.IEmailVerificationCodeRepository" Category="Implements" />
+    <Link Source="backend.Models.Repositories.GenreRepository" Target="backend.Models.Repositories.Interfaces.IGenreRepository" Category="Implements" />
+    <Link Source="backend.Models.Repositories.MusicalSpecialtyRepository" Target="backend.Models.Repositories.Interfaces.IMusicalSpecialtyRepository" Category="Implements" />
+    <Link Source="backend.Models.Repositories.PortfolioAudioRepository" Target="backend.Models.Repositories.Interfaces.IPortfolioAudioRepository" Category="Implements" />
+    <Link Source="backend.Models.Repositories.PortfolioPhotoRepository" Target="backend.Models.Repositories.Interfaces.IPortfolioPhotoRepository" Category="Implements" />
+    <Link Source="backend.Models.Repositories.PortfolioVideoRepository" Target="backend.Models.Repositories.Interfaces.IPortfolioVideoRepository" Category="Implements" />
+    <Link Source="backend.Models.Repositories.ProfileRepository" Target="backend.Models.Repositories.Interfaces.IProfileRepository" Category="Implements" />
+    <Link Source="backend.Models.Repositories.ProfileRepository" Target="backend.Models.Repositories.Interfaces.ICityRepository" Category="Uses" />
+    <Link Source="backend.Models.Repositories.ProfileRepository" Target="backend.Models.Repositories.Interfaces.IGenreRepository" Category="Uses" />
+    <Link Source="backend.Models.Repositories.ProfileRepository" Target="backend.Models.Repositories.Interfaces.IMusicalSpecialtyRepository" Category="Uses" />
+    <Link Source="backend.Models.Repositories.ProfileRepository" Target="backend.Models.Repositories.Interfaces.ICollaborationGoalRepository" Category="Uses" />
+    <Link Source="backend.Models.Repositories.UserRepository" Target="backend.Models.Repositories.Interfaces.IUserRepository" Category="Implements" />
+    <Link Source="backend.Services.AudioUploadService" Target="backend.Services.Interfaces.IAudioUploadService" Category="Implements" />
+    <Link Source="backend.Services.AudioUploadService" Target="backend.Models.Repositories.Interfaces.IUserRepository" Category="Uses" />
+    <Link Source="backend.Services.AudioUploadService" Target="backend.Models.Repositories.Interfaces.IProfileRepository" Category="Uses" />
+    <Link Source="backend.Services.AudioUploadService" Target="backend.Models.Repositories.Interfaces.IPortfolioAudioRepository" Category="Uses" />
+    <Link Source="backend.Services.AuthService" Target="backend.Services.Interfaces.IAuthService" Category="Implements" />
+    <Link Source="backend.Services.AuthService" Target="backend.Models.Repositories.Interfaces.IEmailVerificationCodeRepository" Category="Uses" />
+    <Link Source="backend.Services.AuthService" Target="backend.Services.Interfaces.IEmailService" Category="Uses" />
+    <Link Source="backend.Services.AuthService" Target="backend.Models.Repositories.Interfaces.IUserRepository" Category="Uses" />
+    <Link Source="backend.Services.CityService" Target="backend.Services.Interfaces.ICityService" Category="Implements" />
+    <Link Source="backend.Services.CityService" Target="backend.Models.Repositories.Interfaces.ICityRepository" Category="Uses" />
+    <Link Source="backend.Services.CollaborationGoalService" Target="backend.Services.Interfaces.ICollaborationGoalService" Category="Implements" />
+    <Link Source="backend.Services.CollaborationGoalService" Target="backend.Models.Repositories.Interfaces.ICollaborationGoalRepository" Category="Uses" />
+    <Link Source="backend.Services.CollaborationGoalService" Target="backend.Services.Utils.LookupItemUtil" Category="Uses" />
+    <Link Source="backend.Services.CollaborationService" Target="backend.Services.Interfaces.ICollaborationService" Category="Implements" />
+    <Link Source="backend.Services.CollaborationService" Target="backend.Models.Repositories.Interfaces.IUserRepository" Category="Uses" />
+    <Link Source="backend.Services.CollaborationService" Target="backend.Models.Repositories.Interfaces.IProfileRepository" Category="Uses" />
+    <Link Source="backend.Services.CollaborationService" Target="backend.Models.Repositories.Interfaces.ICollaborationSuggestionRepository" Category="Uses" />
+    <Link Source="backend.Services.CollaborationService" Target="backend.Services.Utils.LookupItemUtil" Category="Uses" />
+    <Link Source="backend.Services.EmailService" Target="backend.Services.Interfaces.IEmailService" Category="Implements" />
+    <Link Source="backend.Services.FavoriteService" Target="backend.Services.Interfaces.IFavoriteService" Category="Implements" />
+    <Link Source="backend.Services.FavoriteService" Target="backend.Models.Repositories.Interfaces.IUserRepository" Category="Uses" />
+    <Link Source="backend.Services.FavoriteService" Target="backend.Models.Repositories.Interfaces.IProfileRepository" Category="Uses" />
+    <Link Source="backend.Services.FavoriteService" Target="backend.Services.Utils.LookupItemUtil" Category="Uses" />
+    <Link Source="backend.Services.GenreService" Target="backend.Services.Interfaces.IGenreService" Category="Implements" />
+    <Link Source="backend.Services.GenreService" Target="backend.Models.Repositories.Interfaces.IGenreRepository" Category="Uses" />
+    <Link Source="backend.Services.GenreService" Target="backend.Services.Utils.LookupItemUtil" Category="Uses" />
+    <Link Source="backend.Services.MusicalSpecialtyService" Target="backend.Services.Interfaces.IMusicalSpecialtyService" Category="Implements" />
+    <Link Source="backend.Services.MusicalSpecialtyService" Target="backend.Models.Repositories.Interfaces.IMusicalSpecialtyRepository" Category="Uses" />
+    <Link Source="backend.Services.MusicalSpecialtyService" Target="backend.Services.Utils.LookupItemUtil" Category="Uses" />
+    <Link Source="backend.Services.PhotoUploadService" Target="backend.Services.Interfaces.IPhotoUploadService" Category="Implements" />
+    <Link Source="backend.Services.PhotoUploadService" Target="backend.Models.Repositories.Interfaces.IProfileRepository" Category="Uses" />
+    <Link Source="backend.Services.PhotoUploadService" Target="backend.Models.Repositories.Interfaces.IPortfolioPhotoRepository" Category="Uses" />
+    <Link Source="backend.Services.ProfileService" Target="backend.Services.Interfaces.IProfileService" Category="Implements" />
+    <Link Source="backend.Services.ProfileService" Target="backend.Models.Repositories.Interfaces.IProfileRepository" Category="Uses" />
+    <Link Source="backend.Services.ProfileService" Target="backend.Services.Utils.LookupItemUtil" Category="Uses" />
+    <Link Source="backend.Services.ProfileService" Target="backend.Models.Repositories.Interfaces.ICityRepository" Category="Uses" />
+    <Link Source="backend.Services.ProfileService" Target="backend.Models.Repositories.Interfaces.IUserRepository" Category="Uses" />
+    <Link Source="backend.Services.ProfileService" Target="backend.Models.Repositories.Interfaces.IPortfolioAudioRepository" Category="Uses" />
+    <Link Source="backend.Services.UserService" Target="backend.Services.Interfaces.IUserService" Category="Implements" />
+    <Link Source="backend.Services.UserService" Target="backend.Models.Repositories.Interfaces.IUserRepository" Category="Uses" />
+    <Link Source="backend.Services.VideoUploadService" Target="backend.Services.Interfaces.IVideoUploadService" Category="Implements" />
+    <Link Source="backend.Services.VideoUploadService" Target="backend.Models.Repositories.Interfaces.IProfileRepository" Category="Uses" />
+    <Link Source="backend.Services.VideoUploadService" Target="backend.Models.Repositories.Interfaces.IPortfolioVideoRepository" Category="Uses" />
+    <Link Source="backend.Program" Target="backend.Data.MusicianFinderDbContext" Category="Uses" />
+    <Link Source="backend.Program" Target="backend.Models.Repositories.Interfaces.IUserRepository" Category="Uses" />
+    <Link Source="backend.Program" Target="backend.Models.Repositories.UserRepository" Category="Uses" />
+    <Link Source="backend.Program" Target="backend.Models.Repositories.Interfaces.IProfileRepository" Category="Uses" />
+    <Link Source="backend.Program" Target="backend.Models.Repositories.ProfileRepository" Category="Uses" />
+    <Link Source="backend.Program" Target="backend.Models.Repositories.Interfaces.ICityRepository" Category="Uses" />
+    <Link Source="backend.Program" Target="backend.Models.Repositories.CityRepository" Category="Uses" />
+    <Link Source="backend.Program" Target="backend.Models.Repositories.Interfaces.IGenreRepository" Category="Uses" />
+    <Link Source="backend.Program" Target="backend.Models.Repositories.GenreRepository" Category="Uses" />
+    <Link Source="backend.Program" Target="backend.Models.Repositories.Interfaces.IMusicalSpecialtyRepository" Category="Uses" />
+    <Link Source="backend.Program" Target="backend.Models.Repositories.MusicalSpecialtyRepository" Category="Uses" />
+    <Link Source="backend.Program" Target="backend.Models.Repositories.Interfaces.ICollaborationGoalRepository" Category="Uses" />
+    <Link Source="backend.Program" Target="backend.Models.Repositories.CollaborationGoalRepository" Category="Uses" />
+    <Link Source="backend.Program" Target="backend.Models.Repositories.Interfaces.IEmailVerificationCodeRepository" Category="Uses" />
+    <Link Source="backend.Program" Target="backend.Models.Repositories.EmailVerificationCodeRepository" Category="Uses" />
+    <Link Source="backend.Program" Target="backend.Models.Repositories.Interfaces.ICollaborationSuggestionRepository" Category="Uses" />
+    <Link Source="backend.Program" Target="backend.Models.Repositories.CollaborationSuggestionRepository" Category="Uses" />
+    <Link Source="backend.Program" Target="backend.Models.Repositories.Interfaces.IPortfolioAudioRepository" Category="Uses" />
+    <Link Source="backend.Program" Target="backend.Models.Repositories.PortfolioAudioRepository" Category="Uses" />
+    <Link Source="backend.Program" Target="backend.Models.Repositories.Interfaces.IPortfolioVideoRepository" Category="Uses" />
+    <Link Source="backend.Program" Target="backend.Models.Repositories.PortfolioVideoRepository" Category="Uses" />
+    <Link Source="backend.Program" Target="backend.Models.Repositories.Interfaces.IPortfolioPhotoRepository" Category="Uses" />
+    <Link Source="backend.Program" Target="backend.Models.Repositories.PortfolioPhotoRepository" Category="Uses" />
+    <Link Source="backend.Program" Target="backend.Services.Interfaces.IAuthService" Category="Uses" />
+    <Link Source="backend.Program" Target="backend.Services.AuthService" Category="Uses" />
+    <Link Source="backend.Program" Target="backend.Services.Interfaces.IProfileService" Category="Uses" />
+    <Link Source="backend.Program" Target="backend.Services.ProfileService" Category="Uses" />
+    <Link Source="backend.Program" Target="backend.Services.Interfaces.ICityService" Category="Uses" />
+    <Link Source="backend.Program" Target="backend.Services.CityService" Category="Uses" />
+    <Link Source="backend.Program" Target="backend.Services.Interfaces.IGenreService" Category="Uses" />
+    <Link Source="backend.Program" Target="backend.Services.GenreService" Category="Uses" />
+    <Link Source="backend.Program" Target="backend.Services.Interfaces.IMusicalSpecialtyService" Category="Uses" />
+    <Link Source="backend.Program" Target="backend.Services.MusicalSpecialtyService" Category="Uses" />
+    <Link Source="backend.Program" Target="backend.Services.Interfaces.ICollaborationGoalService" Category="Uses" />
+    <Link Source="backend.Program" Target="backend.Services.CollaborationGoalService" Category="Uses" />
+    <Link Source="backend.Program" Target="backend.Services.Interfaces.IEmailService" Category="Uses" />
+    <Link Source="backend.Program" Target="backend.Services.EmailService" Category="Uses" />
+    <Link Source="backend.Program" Target="backend.Services.Interfaces.IUserService" Category="Uses" />
+    <Link Source="backend.Program" Target="backend.Services.UserService" Category="Uses" />
+    <Link Source="backend.Program" Target="backend.Services.Interfaces.ICollaborationService" Category="Uses" />
+    <Link Source="backend.Program" Target="backend.Services.CollaborationService" Category="Uses" />
+    <Link Source="backend.Program" Target="backend.Services.Interfaces.IFavoriteService" Category="Uses" />
+    <Link Source="backend.Program" Target="backend.Services.FavoriteService" Category="Uses" />
+    <Link Source="backend.Program" Target="backend.Services.Interfaces.IAudioUploadService" Category="Uses" />
+    <Link Source="backend.Program" Target="backend.Services.AudioUploadService" Category="Uses" />
+    <Link Source="backend.Program" Target="backend.Services.Interfaces.IVideoUploadService" Category="Uses" />
+    <Link Source="backend.Program" Target="backend.Services.VideoUploadService" Category="Uses" />
+    <Link Source="backend.Program" Target="backend.Services.Interfaces.IPhotoUploadService" Category="Uses" />
+    <Link Source="backend.Program" Target="backend.Services.PhotoUploadService" Category="Uses" />
+    <Link Source="backend.Program" Target="backend.Middleware.ExceptionMiddleware" Category="Uses" />
+  </Links>
+  <Categories>
+    <Category Id="Contains" />
+    <Category Id="Inheritance" Background="#FF00FF00" />
+    <Category Id="Implementation" Background="#FFFFFF00" />
+    <Category Id="Composes" Background="#FF008000" />
+    <Category Id="Aggregates" Background="#FFFFA500" />
+    <Category Id="Uses" Background="#FF000000" />
+  </Categories>
+  <Styles>
+    <Style TargetType="Link" GroupLabel="Inherits" ValueLabel="True">
+      <Condition Expression="HasCategory('Inherits')" />
+      <Setter Property="Stroke" Value="#FF000000" />
+      <Setter Property="StrokeThickness" Value="2" />
+    </Style>
+    <Style TargetType="Link" GroupLabel="Implements" ValueLabel="True">
+      <Condition Expression="HasCategory('Implements')" />
+      <Setter Property="Stroke" Value="#FF000000" />
+      <Setter Property="StrokeThickness" Value="2" />
+      <Setter Property="StrokeDashArray" Value="4,2" />
+    </Style>
+    <Style TargetType="Link" GroupLabel="Composes" ValueLabel="True">
+      <Condition Expression="HasCategory('Composes')" />
+      <Setter Property="Stroke" Value="#FFFFA500" />
+      <Setter Property="StrokeThickness" Value="1" />
+    </Style>
+    <Style TargetType="Link" GroupLabel="Aggregates" ValueLabel="True">
+      <Condition Expression="HasCategory('Aggregates')" />
+      <Setter Property="Stroke" Value="#FFFFA500" />
+      <Setter Property="StrokeThickness" Value="1" />
+      <Setter Property="StrokeDashArray" Value="2,4" />
+    </Style>
+    <Style TargetType="Link" GroupLabel="Uses" ValueLabel="True">
+      <Condition Expression="HasCategory('Uses')" />
+      <Setter Property="Stroke" Value="#FF000000" />
+      <Setter Property="StrokeThickness" Value="1" />
+      <Setter Property="StrokeDashArray" Value="1,2" />
+    </Style>
+  </Styles>
+</DirectedGraph>
