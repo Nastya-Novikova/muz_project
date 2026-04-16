@@ -1,4 +1,5 @@
 ﻿using backend.Models.Classes;
+using backend.Models.DTOs.Events;
 using backend.Models.Enums;
 
 namespace backend.Models.Repositories.Interfaces
@@ -33,5 +34,6 @@ namespace backend.Models.Repositories.Interfaces
         // Получение мероприятий пользователя
         Task<(List<Event> Items, int TotalCount)> GetCreatedByProfileAsync(Guid profileId, int page, int limit);
         Task<(List<Event> Items, int TotalCount)> GetRegisteredByProfileAsync(Guid profileId, int page, int limit);
+        Task<(List<EventDto> Items, int TotalCount)> GetEventDtosAsync(EventFilterRequest filter, Guid? currentUserId = null);
     }
 }

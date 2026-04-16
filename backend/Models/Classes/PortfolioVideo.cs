@@ -30,7 +30,7 @@ public class PortfolioVideo
     /// <summary>
     /// Видеофайл (бинарные данные)
     /// </summary>
-    public string FileUrl { get; set; }
+    public string FileUrl { get; set; } = string.Empty;
 
     /// <summary>
     /// MIME-тип файла

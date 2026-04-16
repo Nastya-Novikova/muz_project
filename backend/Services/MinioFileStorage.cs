@@ -4,21 +4,21 @@ using Minio;
 
 namespace backend.Services
 {
-    public class MinioFileStorage : IFileStorage
+    public class MinIoFileStorage : IFileStorage
     {
-        private readonly IMinioClient _minioClient;
+        private readonly IMinioClient _minIoClient;
         private readonly string _bucketName;
         private readonly string _publicEndpoint;
 
-        public MinioFileStorage(IConfiguration configuration)
+        public MinIoFileStorage(IConfiguration configuration)
         {
-            var endpoint = configuration["Minio:Endpoint"];
-            var accessKey = configuration["Minio:AccessKey"];
-            var secretKey = configuration["Minio:SecretKey"];
-            _bucketName = configuration["Minio:BucketName"] ?? "musician-files";
-            _publicEndpoint = configuration["Minio:PublicEndpoint"] ?? endpoint;
+            var endpoint = configuration["MinIo:Endpoint"];
+            var accessKey = configuration["MinIo:AccessKey"];
+            var secretKey = configuration["MinIo:SecretKey"];
+            _bucketName = configuration["MinIo:BucketName"] ?? "musician-files";
+            _publicEndpoint = configuration["MinIo:PublicEndpoint"] ?? endpoint ?? string.Empty;
 
-            _minioClient = new MinioClient()
+            _minIoClient = new MinioClient()
                 .WithEndpoint(endpoint)
                 .WithCredentials(accessKey, secretKey)
                 .WithSSL(false)
@@ -36,7 +36,7 @@ namespace backend.Services
                 .WithObjectSize(fileStream.Length)
                 .WithContentType(contentType);
 
-            await _minioClient.PutObjectAsync(putObjectArgs);
+            await _minIoClient.PutObjectAsync(putObjectArgs);
 
             return $"http://{_publicEndpoint}/{_bucketName}/{objectName}";
         }
@@ -50,7 +50,7 @@ namespace backend.Services
                 .WithBucket(_bucketName)
                 .WithObject(objectName);
 
-            await _minioClient.RemoveObjectAsync(removeArgs);
+            await _minIoClient.RemoveObjectAsync(removeArgs);
         }
 
         public async Task<bool> FileExistsAsync(string fileUrl)
@@ -63,7 +63,7 @@ namespace backend.Services
                 var statArgs = new StatObjectArgs()
                     .WithBucket(_bucketName)
                     .WithObject(objectName);
-                var stat = await _minioClient.StatObjectAsync(statArgs);
+                var stat = await _minIoClient.StatObjectAsync(statArgs);
                 return stat != null;
             }
             catch
@@ -72,7 +72,7 @@ namespace backend.Services
             }
         }
 
-        private string ExtractObjectNameFromUrl(string url)
+        private string? ExtractObjectNameFromUrl(string url)
         {
             var uri = new Uri(url);
             var segments = uri.AbsolutePath.Split('/');

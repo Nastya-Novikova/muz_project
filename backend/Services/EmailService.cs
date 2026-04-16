@@ -20,12 +20,12 @@ public class EmailService : IEmailService
 
     public EmailService(IConfiguration config, ILogger<EmailService> logger)
     {
-        _smtpServer = config["EmailSettings:SmtpServer"] ?? "localhost";
-        _smtpPort = int.Parse(config["EmailSettings:SmtpPort"] ?? "1025");
-        _senderEmail = config["EmailSettings:SenderEmail"] ?? "no-reply@example.com";
-        _senderName = config["EmailSettings:SenderName"] ?? "MusicianFinder";
-        _smtpUsername = config["EmailSettings:SmtpUsername"];
-        _smtpPassword = config["EmailSettings:SmtpPassword"];
+        _smtpServer = config["EmailSettings:SmtpServer"] ?? string.Empty;
+        _smtpPort = int.Parse(config["EmailSettings:SmtpPort"] ?? string.Empty);
+        _senderEmail = config["EmailSettings:SenderEmail"] ?? string.Empty;
+        _senderName = config["EmailSettings:SenderName"] ?? string.Empty;
+        _smtpUsername = config["EmailSettings:SmtpUsername"] ?? string.Empty;
+        _smtpPassword = config["EmailSettings:SmtpPassword"] ?? string.Empty;
         _logger = logger;
 
         _logger.LogInformation("EmailService initialized with server: {Server}:{Port}",

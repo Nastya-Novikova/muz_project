@@ -11,14 +11,9 @@ namespace backend.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
-public class AuthController : ControllerBase
+public class AuthController(IAuthService service) : ControllerBase
 {
-    private readonly IAuthService _service;
-
-    public AuthController(IAuthService service)
-    {
-        _service = service;
-    }
+    private readonly IAuthService _service = service;
 
     /// <summary>
     /// Запрос кода подтверждения на email
@@ -27,7 +22,7 @@ public class AuthController : ControllerBase
     public async Task<IActionResult> RequestCode([FromBody] RequestCodeRequest request)
     {
         var result = await _service.RequestCodeAsync(request.Email);
-        if (!result.IsSuccess)
+        if (result != null && !result.IsSuccess)
             return BadRequest(new { error = result.Error });
 
         return Ok(new { success = true });
@@ -43,6 +38,6 @@ public class AuthController : ControllerBase
         if (!result.IsSuccess)
             return BadRequest(new { error = result.Error });
 
-        return Ok(result.Value);
+        return Ok(result.Value!);
     }
 }

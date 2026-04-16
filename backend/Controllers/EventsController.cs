@@ -26,7 +26,11 @@ namespace backend.Controllers
         [HttpGet]
         public async Task<ActionResult<PagedResult<EventDto>>> GetEvents([FromQuery] EventFilterRequest filter)
         {
-            var result = await _eventService.GetEventsAsync(filter);
+            Guid? currentUserId = null;
+            if (User.Identity?.IsAuthenticated == true)
+                currentUserId = GetUserId();
+
+            var result = await _eventService.GetEventsAsync(filter, currentUserId);
             if (!result.IsSuccess)
                 return BadRequest(new { error = result.Error });
             return Ok(result.Value);

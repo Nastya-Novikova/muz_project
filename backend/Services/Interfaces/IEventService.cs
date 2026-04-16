@@ -10,9 +10,11 @@ namespace backend.Services.Interfaces
     public interface IEventService
     {
         /// <summary>
-        /// Получить ленту мероприятий с фильтрацией и пагинацией
+        /// Получить ленту мероприятий с фильтрацией и пагинацией.
         /// </summary>
-        Task<Result<PagedResult<EventDto>>> GetEventsAsync(EventFilterRequest filter);
+        /// <param name="filter">Параметры фильтрации.</param>
+        /// <param name="currentUserId">ID текущего пользователя для определения IsRegistered.</param>
+        Task<Result<PagedResult<EventDto>>> GetEventsAsync(EventFilterRequest filter, Guid? currentUserId = null);
 
         /// <summary>
         /// Получить мероприятие по ID

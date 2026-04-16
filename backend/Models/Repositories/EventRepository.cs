@@ -1,6 +1,8 @@
 ﻿using backend.Data;
 using backend.Exceptions;
 using backend.Models.Classes;
+using backend.Models.DTOs;
+using backend.Models.DTOs.Events;
 using backend.Models.Enums;
 using backend.Models.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -80,20 +82,12 @@ namespace backend.Models.Repositories
 
         public async Task AddAsync(Event eventEntity)
         {
-            if (eventEntity == null)
-                throw new ApiException(400, "Событие не может быть null", "EVENT_IS_NULL");
-
             await _context.Events.AddAsync(eventEntity);
         }
 
         public async Task UpdateAsync(Event eventEntity)
         {
-            if (eventEntity == null)
-                throw new ApiException(400, "Событие не может быть null", "EVENT_IS_NULL");
-
             var existing = await _context.Events.FindAsync(eventEntity.Id);
-            if (existing == null)
-                throw new ApiException(404, "Событие не найдено", "EVENT_NOT_FOUND");
 
             _context.Events.Update(eventEntity);
         }
@@ -101,8 +95,6 @@ namespace backend.Models.Repositories
         public async Task SoftDeleteAsync(Guid id)
         {
             var eventEntity = await _context.Events.FindAsync(id);
-            if (eventEntity == null)
-                throw new ApiException(404, "Событие не найдено", "EVENT_NOT_FOUND");
 
             eventEntity.IsDeleted = true;
             eventEntity.DeletedAt = DateTime.UtcNow;
@@ -179,6 +171,74 @@ namespace backend.Models.Repositories
                 .OrderByDescending(e => e.StartDateTime)
                 .Skip((page - 1) * limit)
                 .Take(limit)
+                .ToListAsync();
+
+            return (items, totalCount);
+        }
+
+        public async Task<(List<EventDto> Items, int TotalCount)> GetEventDtosAsync(EventFilterRequest filter, Guid? currentUserId = null)
+        {
+            var queryable = _context.Events
+                .Where(e => !e.IsDeleted)
+                .AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(filter.Query))
+                queryable = queryable.Where(e => e.Title.Contains(filter.Query) || (e.Description != null && e.Description.Contains(filter.Query)));
+
+            if (filter.RegionId.HasValue)
+                queryable = queryable.Where(e => e.RegionId == filter.RegionId.Value);
+
+            if (filter.CityId.HasValue)
+                queryable = queryable.Where(e => e.CityId == filter.CityId.Value);
+
+            if (filter.FromDate.HasValue)
+                queryable = queryable.Where(e => e.StartDateTime >= filter.FromDate.Value);
+
+            if (filter.ToDate.HasValue)
+                queryable = queryable.Where(e => e.StartDateTime <= filter.ToDate.Value);
+
+            if (filter.Status.HasValue)
+                queryable = queryable.Where(e => e.Status == filter.Status.Value);
+
+            if (filter.CreatorProfileId.HasValue)
+                queryable = queryable.Where(e => e.CreatorProfileId == filter.CreatorProfileId.Value);
+
+            var totalCount = await queryable.CountAsync();
+
+            IOrderedQueryable<Event> orderedQuery = filter.SortBy?.ToLower() switch
+            {
+                "title" => filter.SortDesc ? queryable.OrderByDescending(e => e.Title) : queryable.OrderBy(e => e.Title),
+                "startdatetime" => filter.SortDesc ? queryable.OrderByDescending(e => e.StartDateTime) : queryable.OrderBy(e => e.StartDateTime),
+                "createdat" => filter.SortDesc ? queryable.OrderByDescending(e => e.CreatedAt) : queryable.OrderBy(e => e.CreatedAt),
+                _ => filter.SortDesc ? queryable.OrderByDescending(e => e.StartDateTime) : queryable.OrderBy(e => e.StartDateTime)
+            };
+
+            var items = await orderedQuery
+                .Skip((filter.Page - 1) * filter.Limit)
+                .Take(filter.Limit)
+                .Select(e => new EventDto
+                {
+                    Id = e.Id,
+                    Title = e.Title,
+                    Description = e.Description,
+                    ImageUrl = e.ImageUrl,
+                    Region = new LookupItemDto { Id = e.Region.Id, Name = e.Region.Name, LocalizedName = e.Region.LocalizedName },
+                    City = new LookupItemDto { Id = e.City.Id, Name = e.City.Name, LocalizedName = e.City.LocalizedName },
+                    Address = e.Address,
+                    StartDateTime = e.StartDateTime,
+                    EndDateTime = e.EndDateTime,
+                    MaxParticipants = e.MaxParticipants,
+                    CurrentParticipants = e.Registrations.Count(),
+                    Status = e.Status,
+                    CreatorProfileId = e.CreatorProfileId,
+                    CreatorFullName = e.CreatorProfile.FullName,
+                    CreatorAvatarUrl = e.CreatorProfile.AvatarUrl,
+                    CreatedAt = e.CreatedAt,
+                    UpdatedAt = e.UpdatedAt,
+                    IsRegistered = currentUserId.HasValue
+                        ? e.Registrations.Any(r => r.ProfileId == currentUserId.Value)
+                        : false
+                })
                 .ToListAsync();
 
             return (items, totalCount);

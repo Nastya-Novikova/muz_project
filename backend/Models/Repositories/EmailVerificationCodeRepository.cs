@@ -17,17 +17,11 @@ public class EmailVerificationCodeRepository : IEmailVerificationCodeRepository
 
     public async Task AddAsync(EmailVerificationCode code)
     {
-        if (string.IsNullOrWhiteSpace(code.Email) || string.IsNullOrWhiteSpace(code.Code))
-            throw new ApiException(400, "Email и код обязательны", "MISSING_CODE_DATA");
-
         await _context.EmailVerificationCodes.AddAsync(code);
     }
 
     public async Task<EmailVerificationCode?> GetByCodeAndEmailAsync(string code, string email)
     {
-        if (string.IsNullOrWhiteSpace(code) || string.IsNullOrWhiteSpace(email))
-            throw new ApiException(400, "Email и код обязательны", "MISSING_CODE_DATA");
-
         return await _context.EmailVerificationCodes
             .Where(c => c.Code == code && c.Email == email && !c.IsUsed)
             .OrderByDescending(c => c.CreatedAt)
@@ -36,12 +30,7 @@ public class EmailVerificationCodeRepository : IEmailVerificationCodeRepository
 
     public async Task MarkAsUsedAsync(Guid id)
     {
-        if (id == Guid.Empty)
-            throw new ApiException(400, "ID кода не может быть пустым", "INVALID_CODE_ID");
-
         var code = await _context.EmailVerificationCodes.FindAsync(id);
-        if (code == null)
-            throw new ApiException(404, "Код подтверждения не найден", "CODE_NOT_FOUND");
 
         code.IsUsed = true;
         _context.EmailVerificationCodes.Update(code);

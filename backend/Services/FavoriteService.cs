@@ -10,37 +10,26 @@ using backend.Services.Utils;
 
 namespace backend.Services;
 
-public class FavoriteService : IFavoriteService
+public class FavoriteService(
+    IFavoriteRepository favoriteRepository,
+    IUnitOfWork unitOfWork,
+    IMapper mapper,
+    IEntityExistenceService existenceService) : IFavoriteService
 {
-    private readonly IFavoriteRepository _favoriteRepository;
-    private readonly IUserRepository _userRepository;
-    private readonly IProfileRepository _profileRepository;
-    private readonly IUnitOfWork _unitOfWork;
-    private readonly IMapper _mapper;
-
-    public FavoriteService(
-        IFavoriteRepository favoriteRepository,
-        IUserRepository userRepository,
-        IProfileRepository profileRepository,
-        IUnitOfWork unitOfWork,
-        IMapper mapper)
-    {
-        _favoriteRepository = favoriteRepository;
-        _userRepository = userRepository;
-        _profileRepository = profileRepository;
-        _unitOfWork = unitOfWork;
-        _mapper = mapper;
-    }
+    private readonly IFavoriteRepository _favoriteRepository = favoriteRepository;
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
+    private readonly IMapper _mapper = mapper;
+    private readonly IEntityExistenceService _entityExistenceService = existenceService;
 
     public async Task<Result> AddFavoriteAsync(Guid userId, Guid profileId)
     {
-        var user = await _userRepository.GetByIdAsync(userId);
-        if (user == null)
-            return Result.Failure("User not found");
+        var userResult = await _entityExistenceService.ValidateUserWithProfileAsync(userId);
+        if (!userResult.IsSuccess)
+            return Result.Failure(userResult.Error);
 
-        var profile = await _profileRepository.GetByIdAsync(profileId);
-        if (profile == null)
-            return Result.Failure("Profile not found");
+        var profileResult = await _entityExistenceService.ValidateMusicianProfileAsync(profileId);
+        if (!profileResult.IsSuccess)
+            return Result.Failure(profileResult.Error);
 
         if (await _favoriteRepository.ExistsAsync(userId, profileId))
             return Result.Failure("Already in favorites");
@@ -65,9 +54,10 @@ public class FavoriteService : IFavoriteService
 
     public async Task<Result<PagedResult<FavoriteProfileDto>>> GetFavoritesAsync(Guid userId, int page, int limit)
     {
-        var user = await _userRepository.GetByIdAsync(userId);
-        if (user == null)
-            return Result<PagedResult<FavoriteProfileDto>>.Failure("User not found");
+        var userResult = await _entityExistenceService.GetUserWithProfileAsync(userId);
+        if (!userResult.IsSuccess)
+            return Result<PagedResult<FavoriteProfileDto>>.Failure(userResult.Error);
+        var user = userResult.Value;
 
         var favorites = await _favoriteRepository.GetFavoritesByUserIdAsync(userId, page, limit);
         var total = await _favoriteRepository.CountFavoritesByUserIdAsync(userId);

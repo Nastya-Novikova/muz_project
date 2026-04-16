@@ -4,47 +4,48 @@ using backend.Models.Classes;
 using backend.Models.Common;
 using backend.Models.DTOs.Collaborations;
 using backend.Models.DTOs.Common;
+using backend.Models.DTOs.Favorites;
 using backend.Models.Enums;
 using backend.Models.Repositories.Interfaces;
 using backend.Services.Interfaces;
 using backend.Services.Utils;
+using FluentValidation;
 
 namespace backend.Services;
 
-public class CollaborationService : ICollaborationService
+public class CollaborationService(
+    ICollaborationSuggestionRepository suggestionRepository,
+    IUnitOfWork unitOfWork,
+    IMapper mapper,
+    INotificationService notificationService,
+    IEntityExistenceService existenceService,
+    IValidator<SendSuggestionRequest> suggestionValidator) : ICollaborationService
 {
-    private readonly ICollaborationSuggestionRepository _suggestionRepository;
-    private readonly IUserRepository _userRepository;
-    private readonly IProfileRepository _profileRepository;
-    private readonly IUnitOfWork _unitOfWork;
-    private readonly IMapper _mapper;
-    private readonly INotificationService _notificationService;
-
-    public CollaborationService(
-        ICollaborationSuggestionRepository suggestionRepository,
-        IUserRepository userRepository,
-        IProfileRepository profileRepository,
-        IUnitOfWork unitOfWork,
-        IMapper mapper,
-        INotificationService notificationService)
-    {
-        _suggestionRepository = suggestionRepository;
-        _userRepository = userRepository;
-        _profileRepository = profileRepository;
-        _unitOfWork = unitOfWork;
-        _mapper = mapper;
-        _notificationService = notificationService;
-    }
+    private readonly ICollaborationSuggestionRepository _suggestionRepository = suggestionRepository;
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
+    private readonly IMapper _mapper = mapper;
+    private readonly INotificationService _notificationService = notificationService;
+    private readonly IEntityExistenceService _existenceService = existenceService;
+    private readonly IValidator<SendSuggestionRequest> _suggestionValidator = suggestionValidator;
 
     public async Task<Result> SendSuggestionAsync(Guid fromUserId, Guid toProfileId, string? message)
     {
-        var fromUser = await _userRepository.GetByIdAsync(fromUserId);
-        if (fromUser?.MusicianProfile == null)
-            return Result.Failure("Sender profile not found");
+        var request = new SendSuggestionRequest { ToProfileId = toProfileId, Message = message };
+        var validationResult = await _suggestionValidator.ValidateAsync(request);
+        if (!validationResult.IsValid)
+        {
+            return Result.Failure(validationResult.ToErrorString());
+        }
 
-        var toProfile = await _profileRepository.GetByIdAsync(toProfileId);
-        if (toProfile == null)
-            return Result.Failure("Recipient profile not found");
+        var fromUserValidation = await _existenceService.GetUserWithProfileAsync(fromUserId);
+        if (!fromUserValidation.IsSuccess)
+            return Result.Failure(fromUserValidation.Error);
+        var fromUser = fromUserValidation.Value;
+
+        var toProfileValidation = await _existenceService.GetMusicianProfileAsync(toProfileId);
+        if (!toProfileValidation.IsSuccess)
+            return Result.Failure(toProfileValidation.Error);
+        var toProfile = toProfileValidation.Value;
 
         var suggestion = new CollaborationSuggestion
         {
@@ -65,7 +66,8 @@ public class CollaborationService : ICollaborationService
             new Dictionary<string, object>
             {
                 ["fromProfileName"] = fromUser.MusicianProfile.FullName,
-                ["suggestionId"] = suggestion.Id
+                ["suggestionId"] = suggestion.Id,
+                ["message"] = suggestion.Message ?? string.Empty
             });
 
         return Result.Success();
@@ -73,9 +75,10 @@ public class CollaborationService : ICollaborationService
 
     public async Task<Result<PagedResult<SuggestionDto>>> GetReceivedAsync(Guid userId, int page, int limit, string? sortBy, bool sortDesc)
     {
-        var user = await _userRepository.GetByIdAsync(userId);
-        if (user?.MusicianProfile == null)
-            return Result<PagedResult<SuggestionDto>>.Failure("Profile not found");
+        var userResult = await _existenceService.GetUserWithProfileAsync(userId);
+        if (!userResult.IsSuccess)
+            return Result<PagedResult<SuggestionDto>>.Failure(userResult.Error);
+        var user = userResult.Value;
 
         var suggestions = await _suggestionRepository.GetReceivedAsync(user.MusicianProfile.Id, page, limit, sortBy, sortDesc);
         var total = suggestions.Count;
@@ -93,9 +96,10 @@ public class CollaborationService : ICollaborationService
 
     public async Task<Result<PagedResult<SuggestionDto>>> GetSentAsync(Guid userId, int page, int limit, string? sortBy, bool sortDesc)
     {
-        var user = await _userRepository.GetByIdAsync(userId);
-        if (user?.MusicianProfile == null)
-            return Result<PagedResult<SuggestionDto>>.Failure("Profile not found");
+        var userResult = await _existenceService.GetUserWithProfileAsync(userId);
+        if (!userResult.IsSuccess)
+            return Result<PagedResult<SuggestionDto>>.Failure(userResult.Error);
+        var user = userResult.Value;
 
         var suggestions = await _suggestionRepository.GetSentAsync(user.MusicianProfile.Id, page, limit, sortBy, sortDesc);
         var total = suggestions.Count;
@@ -113,9 +117,10 @@ public class CollaborationService : ICollaborationService
 
     public async Task<Result<bool>> IsCollaboratedAsync(Guid userId, Guid collaboratedProfileId)
     {
-        var user = await _userRepository.GetByIdAsync(userId);
-        if (user?.MusicianProfile == null)
-            return Result<bool>.Success(false);
+        var userResult = await _existenceService.GetUserWithProfileAsync(userId);
+        if (!userResult.IsSuccess)
+            return Result<bool>.Failure(userResult.Error);
+        var user = userResult.Value;
 
         var sent = await _suggestionRepository.GetSentAsync(user.MusicianProfile.Id, 1, 1);
         return Result<bool>.Success(sent.Any(s => s.ToProfileId == collaboratedProfileId));

@@ -75,9 +75,11 @@ namespace backend
             builder.Services.AddScoped<IRegionService, RegionService>();
             builder.Services.AddScoped<IEventService, EventService>();
             builder.Services.AddScoped<INotificationService, NotificationService>();
+            builder.Services.AddScoped<IEntityExistenceService, EntityExistenceService>();
+            builder.Services.AddScoped<IEventValidationService, EventValidationService>();
 
             builder.Services.AddHostedService<EventReminderBackgroundService>();
-            builder.Services.AddScoped<IFileStorage, MinioFileStorage>();
+            builder.Services.AddScoped<IFileStorage, MinIoFileStorage>();
 
             builder.Services.AddAutoMapper(cfg => cfg.AddMaps(typeof(Program).Assembly));
 
@@ -140,11 +142,15 @@ namespace backend
             });
 
             // CORS
+            var corsOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
+                  ?? Array.Empty<string>();
+
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("AllowAll", policy =>
                 {
                     policy.AllowAnyOrigin()
+                          //.WithOrigins(corsOrigins)
                           .AllowAnyHeader()
                           .AllowAnyMethod();
                 });
@@ -188,6 +194,7 @@ namespace backend
             app.UseMiddleware<ExceptionMiddleware>();
 
             app.UseCors("AllowAll");
+            //app.UseCors("AllowSpecificOrigins");
             app.UseHttpsRedirection();
             app.UseAuthentication();
             app.UseAuthorization();

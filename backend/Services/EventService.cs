@@ -3,75 +3,56 @@ using backend.Models.Classes;
 using backend.Models.Common;
 using backend.Models.DTOs.Common;
 using backend.Models.DTOs.Events;
+using backend.Models.DTOs.Uploads;
 using backend.Models.Enums;
 using backend.Models.Repositories.Interfaces;
 using backend.Services.Interfaces;
+using FluentValidation;
+using Microsoft.EntityFrameworkCore;
+using Npgsql;
+using backend.Services.Utils;
 
 namespace backend.Services
 {
     /// <summary>
     /// Сервис для работы с мероприятиями
     /// </summary>
-    public class EventService : IEventService
+    public class EventService(
+        IEventRepository eventRepository,
+        IUserRepository userRepository,
+        IUnitOfWork unitOfWork,
+        IMapper mapper,
+        IFileStorage fileStorage,
+        INotificationService notificationService,
+        IValidator<CreateEventRequest> createValidator,
+        IValidator<UpdateEventRequest> updateValidator,
+        IEntityExistenceService entityExistenceService,
+        IEventValidationService eventValidationService,
+        IValidator<EventFilterRequest> filterValidator) : IEventService
     {
-        private readonly IEventRepository _eventRepository;
-        private readonly IUserRepository _userRepository;
-        private readonly IProfileRepository _profileRepository;
-        private readonly IRegionRepository _regionRepository;
-        private readonly ICityRepository _cityRepository;
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly IMapper _mapper;
-        private readonly IFileStorage _fileStorage;
-        private readonly INotificationService _notificationService;
+        private readonly IEventRepository _eventRepository = eventRepository;
+        private readonly IUserRepository _userRepository = userRepository;
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
+        private readonly IMapper _mapper = mapper;
+        private readonly IFileStorage _fileStorage = fileStorage;
+        private readonly INotificationService _notificationService = notificationService;
+        private readonly IValidator<CreateEventRequest> _createValidator = createValidator;
+        private readonly IValidator<UpdateEventRequest> _updateValidator = updateValidator;
+        private readonly IEntityExistenceService _existenceService = entityExistenceService;
+        private readonly IEventValidationService _eventValidator = eventValidationService;
+        private readonly IValidator<EventFilterRequest> _filterValidator = filterValidator;
 
-        public EventService(
-            IEventRepository eventRepository,
-            IUserRepository userRepository,
-            IProfileRepository profileRepository,
-            IRegionRepository regionRepository,
-            ICityRepository cityRepository,
-            IUnitOfWork unitOfWork,
-            IMapper mapper,
-            IFileStorage fileStorage,
-            INotificationService notificationService)
+        public async Task<Result<PagedResult<EventDto>>> GetEventsAsync(EventFilterRequest filter, Guid? currentUserId = null)
         {
-            _eventRepository = eventRepository;
-            _userRepository = userRepository;
-            _profileRepository = profileRepository;
-            _regionRepository = regionRepository;
-            _cityRepository = cityRepository;
-            _unitOfWork = unitOfWork;
-            _mapper = mapper;
-            _fileStorage = fileStorage;
-            _notificationService = notificationService;
-        }
+            var validationResult = await _filterValidator.ValidateAsync(filter);
+            if (!validationResult.IsValid)
+                return Result<PagedResult<EventDto>>.Failure(validationResult.ToErrorString());
 
-        public async Task<Result<PagedResult<EventDto>>> GetEventsAsync(EventFilterRequest filter)
-        {
-            var (items, totalCount) = await _eventRepository.SearchAsync(
-                query: filter.Query,
-                regionId: filter.RegionId,
-                cityId: filter.CityId,
-                fromDate: filter.FromDate,
-                toDate: filter.ToDate,
-                status: filter.Status,
-                creatorProfileId: filter.CreatorProfileId,
-                page: filter.Page,
-                limit: filter.Limit,
-                sortBy: filter.SortBy,
-                sortDesc: filter.SortDesc);
-
-            var dtos = _mapper.Map<List<EventDto>>(items);
-
-            foreach (var dto in dtos)
-            {
-                var eventId = dto.Id;
-                dto.CurrentParticipants = await _eventRepository.GetRegistrationCountAsync(eventId);
-            }
+            var (items, totalCount) = await _eventRepository.GetEventDtosAsync(filter, currentUserId);
 
             var result = new PagedResult<EventDto>
             {
-                Items = dtos,
+                Items = items,
                 Total = totalCount,
                 Page = filter.Page,
                 Limit = filter.Limit
@@ -82,20 +63,22 @@ namespace backend.Services
 
         public async Task<Result<EventDto>> GetByIdAsync(Guid id, Guid? currentUserId = null)
         {
-            var eventEntity = await _eventRepository.GetByIdAsync(id);
-            if (eventEntity == null)
-                return Result<EventDto>.Failure("Мероприятие не найдено");
+            var eventResult = await _existenceService.GetEventAsync(id);
+            if (!eventResult.IsSuccess)
+                return Result<EventDto>.Failure(eventResult.Error);
+            var eventEntity = eventResult.Value;
+
 
             var dto = _mapper.Map<EventDto>(eventEntity);
             dto.CurrentParticipants = await _eventRepository.GetRegistrationCountAsync(id);
 
             if (currentUserId.HasValue)
             {
-                var user = await _userRepository.GetByIdAsync(currentUserId.Value);
-                if (user?.MusicianProfile != null)
-                {
-                    dto.IsRegistered = await _eventRepository.IsUserRegisteredAsync(id, user.MusicianProfile.Id);
-                }
+                var userResult = await _existenceService.GetUserWithProfileAsync(currentUserId ?? Guid.NewGuid());
+                if (!userResult.IsSuccess)
+                    return Result<EventDto>.Failure(userResult.Error);
+                var user = userResult.Value;
+                dto.IsRegistered = await _eventRepository.IsUserRegisteredAsync(id, user.MusicianProfile.Id);
             }
 
             return Result<EventDto>.Success(dto);
@@ -103,26 +86,30 @@ namespace backend.Services
 
         public async Task<Result<EventDto>> CreateAsync(Guid userId, CreateEventRequest request)
         {
-            var user = await _userRepository.GetByIdAsync(userId);
-            if (user?.MusicianProfile == null)
-                return Result<EventDto>.Failure("Профиль пользователя не найден");
+            // Валидация DTO
+            var validationResult = await _createValidator.ValidateAsync(request);
+            if (!validationResult.IsValid)
+                return Result<EventDto>.Failure(validationResult.ToErrorString());
 
-            var region = await _regionRepository.GetByIdAsync(request.RegionId);
-            if (region == null)
-                return Result<EventDto>.Failure("Регион не найден");
+            // Получаем пользователя с профилем (сразу с проверкой)
+            var userResult = await _existenceService.GetUserWithProfileAsync(userId);
+            if (!userResult.IsSuccess)
+                return Result<EventDto>.Failure(userResult.Error);
+            var user = userResult.Value;
 
-            var city = await _cityRepository.GetByIdAsync(request.CityId);
-            if (city == null)
-                return Result<EventDto>.Failure("Город не найден");
+            // Проверяем регион и город, но объекты нам не нужны (можно использовать Validate или Get)
+            var regionCheck = await _existenceService.ValidateRegionAsync(request.RegionId);
+            if (!regionCheck.IsSuccess)
+                return Result<EventDto>.Failure(regionCheck.Error);
 
-            if (request.StartDateTime < DateTime.UtcNow)
-                return Result<EventDto>.Failure("Дата начала не может быть в прошлом");
+            var cityCheck = await _existenceService.ValidateCityAsync(request.CityId);
+            if (!cityCheck.IsSuccess)
+                return Result<EventDto>.Failure(cityCheck.Error);
 
-            if (request.EndDateTime.HasValue && request.EndDateTime.Value < request.StartDateTime)
-                return Result<EventDto>.Failure("Дата окончания не может быть раньше даты начала");
-
-            if (request.MaxParticipants < 0)
-                return Result<EventDto>.Failure("Максимальное количество участников не может быть отрицательным");
+            // Бизнес-валидация дат
+            var dateValidation = _eventValidator.ValidateEventDates(request.StartDateTime, request.EndDateTime);
+            if (!dateValidation.IsSuccess)
+                return Result<EventDto>.Failure(dateValidation.Error);
 
             var eventEntity = new Event
             {
@@ -151,19 +138,31 @@ namespace backend.Services
 
         public async Task<Result<EventDto>> UpdateAsync(Guid userId, Guid eventId, UpdateEventRequest request)
         {
-            var user = await _userRepository.GetByIdAsync(userId);
-            if (user?.MusicianProfile == null)
-                return Result<EventDto>.Failure("Профиль пользователя не найден");
+            var validationResult = await _updateValidator.ValidateAsync(request);
+            if (!validationResult.IsValid)
+            {
+                return Result<EventDto>.Failure(validationResult.ToErrorString());
+            }
+
+            var userValidation = await _existenceService.ValidateUserWithProfileAsync(userId);
+            if (!userValidation.IsSuccess)
+                return Result<EventDto>.Failure(userValidation.Error);
+
+            var eventValidation = await _existenceService.ValidateEventAsync(eventId);
+            if (!eventValidation.IsSuccess)
+                return Result<EventDto>.Failure(eventValidation.Error);
 
             var eventEntity = await _eventRepository.GetByIdAsync(eventId);
-            if (eventEntity == null)
-                return Result<EventDto>.Failure("Мероприятие не найдено");
+            var user = await _userRepository.GetByIdAsync(userId);
 
-            if (eventEntity.CreatorProfileId != user.MusicianProfile.Id)
-                return Result<EventDto>.Failure("Только создатель может редактировать мероприятие");
+            var ownershipCheck = _eventValidator.ValidateEventOwnership(eventEntity, user.MusicianProfile.Id);
+            if (!ownershipCheck.IsSuccess)
+                return Result<EventDto>.Failure(ownershipCheck.Error);
 
-            if (eventEntity.Status != EventStatus.Scheduled)
-                return Result<EventDto>.Failure("Можно редактировать только запланированные мероприятия");
+            var scheduledCheck = _eventValidator.ValidateEventIsScheduled(eventEntity);
+            if (!scheduledCheck.IsSuccess)
+                return Result<EventDto>.Failure(scheduledCheck.Error);
+
 
             if (!string.IsNullOrWhiteSpace(request.Title))
                 eventEntity.Title = request.Title;
@@ -171,36 +170,36 @@ namespace backend.Services
                 eventEntity.Description = request.Description;
             if (request.RegionId.HasValue)
             {
-                var region = await _regionRepository.GetByIdAsync(request.RegionId.Value);
-                if (region == null)
-                    return Result<EventDto>.Failure("Регион не найден");
+                var regionValidation = await _existenceService.ValidateRegionAsync(request.RegionId.Value);
+                if (!regionValidation.IsSuccess)
+                    return Result<EventDto>.Failure(regionValidation.Error);
                 eventEntity.RegionId = request.RegionId.Value;
             }
             if (request.CityId.HasValue)
             {
-                var city = await _cityRepository.GetByIdAsync(request.CityId.Value);
-                if (city == null)
-                    return Result<EventDto>.Failure("Город не найден");
+                var cityValidation = await _existenceService.ValidateCityAsync(request.CityId.Value);
+                if (!cityValidation.IsSuccess)
+                    return Result<EventDto>.Failure(cityValidation.Error);
                 eventEntity.CityId = request.CityId.Value;
             }
             if (!string.IsNullOrWhiteSpace(request.Address))
                 eventEntity.Address = request.Address;
             if (request.StartDateTime.HasValue)
             {
-                if (request.StartDateTime.Value < DateTime.UtcNow)
-                    return Result<EventDto>.Failure("Дата начала не может быть в прошлом");
+                var dateCheck = _eventValidator.ValidateEventDates(request.StartDateTime.Value, request.EndDateTime ?? eventEntity.EndDateTime);
+                if (!dateCheck.IsSuccess)
+                    return Result<EventDto>.Failure(dateCheck.Error);
                 eventEntity.StartDateTime = request.StartDateTime.Value;
             }
             if (request.EndDateTime.HasValue)
             {
-                if (request.EndDateTime.Value < eventEntity.StartDateTime)
-                    return Result<EventDto>.Failure("Дата окончания не может быть раньше даты начала");
+                var dateCheck = _eventValidator.ValidateEventDates(request.StartDateTime ?? eventEntity.StartDateTime, request.EndDateTime);
+                if (!dateCheck.IsSuccess)
+                    return Result<EventDto>.Failure(dateCheck.Error);
                 eventEntity.EndDateTime = request.EndDateTime;
             }
             if (request.MaxParticipants.HasValue)
             {
-                if (request.MaxParticipants < 0)
-                    return Result<EventDto>.Failure("Максимальное количество участников не может быть отрицательным");
                 eventEntity.MaxParticipants = request.MaxParticipants.Value;
             }
 
@@ -218,19 +217,24 @@ namespace backend.Services
 
         public async Task<Result> CancelAsync(Guid userId, Guid eventId)
         {
-            var user = await _userRepository.GetByIdAsync(userId);
-            if (user?.MusicianProfile == null)
-                return Result.Failure("Профиль пользователя не найден");
+            var userValidation = await _existenceService.ValidateUserWithProfileAsync(userId);
+            if (!userValidation.IsSuccess)
+                return Result.Failure(userValidation.Error);
+
+            var eventValidation = await _existenceService.ValidateEventAsync(eventId);
+            if (!eventValidation.IsSuccess)
+                return Result.Failure(eventValidation.Error);
 
             var eventEntity = await _eventRepository.GetByIdAsync(eventId);
-            if (eventEntity == null)
-                return Result.Failure("Мероприятие не найдено");
+            var user = await _userRepository.GetByIdAsync(userId);
 
-            if (eventEntity.CreatorProfileId != user.MusicianProfile.Id)
-                return Result.Failure("Только создатель может отменить мероприятие");
+            var ownershipCheck = _eventValidator.ValidateEventOwnership(eventEntity, user.MusicianProfile.Id);
+            if (!ownershipCheck.IsSuccess)
+                return ownershipCheck;
 
-            if (eventEntity.Status != EventStatus.Scheduled)
-                return Result.Failure("Можно отменить только запланированное мероприятие");
+            var scheduledCheck = _eventValidator.ValidateEventIsScheduled(eventEntity);
+            if (!scheduledCheck.IsSuccess)
+                return scheduledCheck;
 
             eventEntity.Status = EventStatus.Cancelled;
             eventEntity.UpdatedAt = DateTime.UtcNow;
@@ -243,65 +247,64 @@ namespace backend.Services
 
         public async Task<Result> RegisterAsync(Guid userId, Guid eventId)
         {
-            var user = await _userRepository.GetByIdAsync(userId);
-            if (user?.MusicianProfile == null)
-                return Result.Failure("Профиль пользователя не найден");
+            var userResult = await _existenceService.GetUserWithProfileAsync(userId);
+            if (!userResult.IsSuccess)
+                return Result.Failure(userResult.Error);
+            var user = userResult.Value;
 
-            var eventEntity = await _eventRepository.GetByIdAsync(eventId);
-            if (eventEntity == null)
-                return Result.Failure("Мероприятие не найдено");
+            var eventResult = await _existenceService.GetEventAsync(eventId);
+            if (!eventResult.IsSuccess)
+                return Result.Failure(eventResult.Error);
+            var eventEntity = eventResult.Value;
 
-            if (eventEntity.Status != EventStatus.Scheduled)
-                return Result.Failure("Нельзя записаться на отменённое или завершённое мероприятие");
+            var scheduledCheck = _eventValidator.ValidateEventIsScheduled(eventEntity);
+            if (!scheduledCheck.IsSuccess) return scheduledCheck;
 
-            if (eventEntity.StartDateTime < DateTime.UtcNow)
-                return Result.Failure("Мероприятие уже началось");
+            var notStartedCheck = _eventValidator.ValidateEventNotStarted(eventEntity);
+            if (!notStartedCheck.IsSuccess) return notStartedCheck;
 
             if (await _eventRepository.IsUserRegisteredAsync(eventId, user.MusicianProfile.Id))
                 return Result.Failure("Вы уже записаны на это мероприятие");
 
             var currentCount = await _eventRepository.GetRegistrationCountAsync(eventId);
-            if (eventEntity.MaxParticipants > 0 && currentCount > eventEntity.MaxParticipants)
-                return Result.Failure("Достигнут лимит участников");
+            var capacityCheck = _eventValidator.ValidateEventCapacity(eventEntity, currentCount);
+            if (!capacityCheck.IsSuccess) return capacityCheck;
 
-            var registration = new EventRegistration
-            {
-                EventId = eventId,
-                ProfileId = user.MusicianProfile.Id
-            };
-
+            var registration = new EventRegistration { EventId = eventId, ProfileId = user.MusicianProfile.Id };
             await _eventRepository.AddRegistrationAsync(registration);
-            await _unitOfWork.SaveChangesAsync();
-
-            if (eventEntity.CreatorProfileId != user.MusicianProfile.Id)
+            try
             {
-                var registeredProfile = await _profileRepository.GetByIdAsync(user.MusicianProfile.Id);
-                await _notificationService.SendNotificationToProfileAsync(
-                    eventEntity.CreatorProfileId,
-                    NotificationType.EventRegistration,
-                    new Dictionary<string, object>
-                    {
-                        ["registeredProfileName"] = registeredProfile?.FullName ?? "Пользователь",
-                        ["eventId"] = eventId,
-                        ["eventTitle"] = eventEntity.Title
-                    });
+                await _unitOfWork.SaveChangesAsync();
             }
+            catch (DbUpdateException ex) when (IsDuplicateKeyException(ex))
+            {
+                return Result.Failure("Вы уже зарегистрированы на это мероприятие");
+            }
+
+            await _notificationService.SendNotificationToProfileAsync(
+                user.MusicianProfile.Id,
+                NotificationType.EventRegistration,
+                new Dictionary<string, object> { ["eventId"] = eventId, ["eventTitle"] = eventEntity.Title });
 
             return Result.Success();
         }
 
         public async Task<Result> UnregisterAsync(Guid userId, Guid eventId)
         {
-            var user = await _userRepository.GetByIdAsync(userId);
-            if (user?.MusicianProfile == null)
-                return Result.Failure("Профиль пользователя не найден");
+            var userValidation = await _existenceService.ValidateUserWithProfileAsync(userId);
+            if (!userValidation.IsSuccess)
+                return Result.Failure(userValidation.Error);
+
+            var eventValidation = await _existenceService.ValidateEventAsync(eventId);
+            if (!eventValidation.IsSuccess)
+                return Result.Failure(eventValidation.Error);
 
             var eventEntity = await _eventRepository.GetByIdAsync(eventId);
-            if (eventEntity == null)
-                return Result.Failure("Мероприятие не найдено");
+            var user = await _userRepository.GetByIdAsync(userId);
 
-            if (eventEntity.Status != EventStatus.Scheduled)
-                return Result.Failure("Нельзя отменить запись на отменённое или завершённое мероприятие");
+            var scheduledCheck = _eventValidator.ValidateEventIsScheduled(eventEntity);
+            if (!scheduledCheck.IsSuccess)
+                return scheduledCheck;
 
             if (!await _eventRepository.IsUserRegisteredAsync(eventId, user.MusicianProfile.Id))
                 return Result.Failure("Вы не записаны на это мероприятие");
@@ -314,9 +317,10 @@ namespace backend.Services
 
         public async Task<Result<PagedResult<EventDto>>> GetMyCreatedEventsAsync(Guid userId, int page, int limit)
         {
-            var user = await _userRepository.GetByIdAsync(userId);
-            if (user?.MusicianProfile == null)
-                return Result<PagedResult<EventDto>>.Failure("Профиль пользователя не найден");
+            var userResult = await _existenceService.GetUserWithProfileAsync(userId);
+            if (!userResult.IsSuccess)
+                return Result<PagedResult<EventDto>>.Failure(userResult.Error);
+            var user = userResult.Value;
 
             var (items, totalCount) = await _eventRepository.GetCreatedByProfileAsync(user.MusicianProfile.Id, page, limit);
             var dtos = _mapper.Map<List<EventDto>>(items);
@@ -340,9 +344,10 @@ namespace backend.Services
 
         public async Task<Result<PagedResult<EventDto>>> GetMyRegisteredEventsAsync(Guid userId, int page, int limit)
         {
-            var user = await _userRepository.GetByIdAsync(userId);
-            if (user?.MusicianProfile == null)
-                return Result<PagedResult<EventDto>>.Failure("Профиль пользователя не найден");
+            var userResult = await _existenceService.GetUserWithProfileAsync(userId);
+            if (!userResult.IsSuccess)
+                return Result<PagedResult<EventDto>>.Failure(userResult.Error);
+            var user = userResult.Value;
 
             var (items, totalCount) = await _eventRepository.GetRegisteredByProfileAsync(user.MusicianProfile.Id, page, limit);
             var dtos = _mapper.Map<List<EventDto>>(items);
@@ -372,16 +377,20 @@ namespace backend.Services
             if (fileStream.Length > 5 * 1024 * 1024)
                 return Result<string>.Failure("Файл слишком большой (макс. 5 МБ)");
 
-            var user = await _userRepository.GetByIdAsync(userId);
-            if (user?.MusicianProfile == null)
-                return Result<string>.Failure("Профиль пользователя не найден");
+            var userValidation = await _existenceService.ValidateUserWithProfileAsync(userId);
+            if (!userValidation.IsSuccess)
+                return Result<string>.Failure(userValidation.Error);
+
+            var eventValidation = await _existenceService.ValidateEventAsync(eventId);
+            if (!eventValidation.IsSuccess)
+                return Result<string>.Failure(eventValidation.Error);
 
             var eventEntity = await _eventRepository.GetByIdAsync(eventId);
-            if (eventEntity == null)
-                return Result<string>.Failure("Мероприятие не найдено");
+            var user = await _userRepository.GetByIdAsync(userId);
 
-            if (eventEntity.CreatorProfileId != user.MusicianProfile.Id)
-                return Result<string>.Failure("Только создатель может менять изображение");
+            var ownershipCheck = _eventValidator.ValidateEventOwnership(eventEntity, user.MusicianProfile.Id);
+            if (!ownershipCheck.IsSuccess)
+                return Result<string>.Failure(ownershipCheck.Error);
 
             if (eventEntity.ImageUrl != null)
             {
@@ -396,6 +405,22 @@ namespace backend.Services
             await _unitOfWork.SaveChangesAsync();
 
             return Result<string>.Success(fileUrl);
+        }
+
+        /// <summary>
+        /// Определяет, является ли исключение нарушением уникальности (дубликат ключа).
+        /// Для PostgreSQL анализируется PostgresException с SqlState = "23505".
+        /// </summary>
+        private static bool IsDuplicateKeyException(DbUpdateException ex)
+        {
+            var inner = ex.InnerException;
+            while (inner != null)
+            {
+                if (inner is PostgresException postgresEx && postgresEx.SqlState == "23505")
+                    return true;
+                inner = inner.InnerException;
+            }
+            return false;
         }
     }
 }

@@ -17,63 +17,32 @@ public class UserRepository : IUserRepository
 
     public async Task AddAsync(User user)
     {
-        if (user == null)
-            throw new ApiException(400, "Пользователь не может быть null", "USER_IS_NULL");
-
-        if (string.IsNullOrWhiteSpace(user.Email))
-            throw new ApiException(400, "Email обязателен", "MISSING_EMAIL");
-
         await _context.Users.AddAsync(user);
     }
 
     public async Task<User?> GetByIdAsync(Guid id)
     {
-        if (id == Guid.Empty)
-            throw new ApiException(400, "ID пользователя не может быть пустым", "INVALID_USER_ID");
-
         return await _context.Users.Include(u => u.MusicianProfile).FirstOrDefaultAsync(u => u.Id == id && !u.IsDeleted);
     }
 
     public async Task<User?> GetByEmailAsync(string email)
     {
-        if (string.IsNullOrWhiteSpace(email))
-            throw new ApiException(400, "Email не может быть пустым", "MISSING_EMAIL");
-
         return await _context.Users.FirstOrDefaultAsync(u => u.Email == email && !u.IsDeleted);
     }
 
     public async Task<User?> GetByMusicianProfileIdAsync(Guid profileId)
     {
-        if (profileId == Guid.Empty)
-            throw new ApiException(400, "ID музыкального профиля не может быть пустым", "INVALID_MUSICIAN_PROFILE_ID");
-
         return await _context.Users.FirstOrDefaultAsync(u => u.MusicianProfile != null && u.MusicianProfile.Id == profileId && !u.IsDeleted);
     }
 
     public async Task UpdateAsync(User user)
     {
-        if (user == null)
-            throw new ApiException(400, "Пользователь не может быть null", "USER_IS_NULL");
-
-        if (user.Id == Guid.Empty)
-            throw new ApiException(400, "Некорректный ID пользователя", "INVALID_USER_ID");
-
-        var existing = await _context.Users.FindAsync(user.Id);
-        if (existing == null)
-            throw new ApiException(404, "Пользователь не найден", "USER_NOT_FOUND");
-
         _context.Users.Update(user);
     }
 
     public async Task SoftDeleteAsync(Guid id)
     {
-        if (id == Guid.Empty)
-            throw new ApiException(400, "ID пользователя не может быть пустым", "INVALID_USER_ID");
-
         var user = await _context.Users.FindAsync(id);
-        if (user == null)
-            throw new ApiException(404, "Пользователь не найден", "USER_NOT_FOUND");
-
         user.IsDeleted = true;
         user.DeletedAt = DateTime.UtcNow;
         _context.Users.Update(user);

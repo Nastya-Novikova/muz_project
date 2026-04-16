@@ -6,6 +6,8 @@ using backend.Models.DTOs.Auth;
 using backend.Models.DTOs.User;
 using backend.Models.Repositories.Interfaces;
 using backend.Services.Interfaces;
+using backend.Services.Utils;
+using FluentValidation;
 
 namespace backend.Services;
 
@@ -18,12 +20,14 @@ public class UserService : IUserService
     private readonly IUserRepository _userRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
+    private readonly IValidator<UpdateUserProfileRequest> _updateProfileValidator;
 
-    public UserService(IUserRepository userRepository, IUnitOfWork unitOfWork, IMapper mapper)
+    public UserService(IUserRepository userRepository, IUnitOfWork unitOfWork, IMapper mapper, IValidator<UpdateUserProfileRequest> updateProfileValidator)
     {
         _userRepository = userRepository;
         _unitOfWork = unitOfWork;
         _mapper = mapper;
+        _updateProfileValidator = updateProfileValidator;
     }
 
     public async Task<Result<UserDto>> GetByIdAsync(Guid id)
@@ -37,6 +41,12 @@ public class UserService : IUserService
 
     public async Task<Result<UserDto>> UpdateProfileAsync(Guid userId, UpdateUserProfileRequest request)
     {
+        var validationResult = await _updateProfileValidator.ValidateAsync(request);
+        if (!validationResult.IsValid)
+        {
+            return Result<UserDto>.Failure(validationResult.ToErrorString());
+        }
+
         var user = await _userRepository.GetByIdAsync(userId);
         if (user == null)
             return Result<UserDto>.Failure("User not found");
