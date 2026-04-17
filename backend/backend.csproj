@@ -30,6 +30,25 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
     <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="6.6.2" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="API\Controllers\" />
+    <Folder Include="API\Middleware\" />
+    <Folder Include="API\Extensions\" />
+    <Folder Include="Application\Features\" />
+    <Folder Include="Application\Interfaces\" />
+    <Folder Include="Application\Common\" />
+    <Folder Include="Domain\Entities\" />
+    <Folder Include="Domain\ValueObjects\" />
+    <Folder Include="Domain\Enums\" />
+    <Folder Include="Domain\Exceptions\" />
+    <Folder Include="Domain\Interfaces\" />
+    <Folder Include="Infrastructure\Persistence\" />
+    <Folder Include="Infrastructure\Services\" />
+    <Folder Include="Infrastructure\Identity\" />
+    <Folder Include="Shared\Constants\" />
+    <Folder Include="Shared\Utils\" />
+  </ItemGroup>
 	<PropertyGroup>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
     </PropertyGroup>
