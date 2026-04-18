@@ -3,6 +3,9 @@ using backend.Models.Common;
 using backend.Models.DTOs.Vk;
 using backend.Services.Interfaces;
 using backend.Models.Repositories.Interfaces;
+using FluentValidation;
+using backend.Models.DTOs.Profiles;
+using backend.Services.Utils;
 
 namespace backend.Services;
 
@@ -13,14 +16,18 @@ public class VkService : IVkService
     private readonly HttpClient _httpClient;
     private readonly IConfiguration _config;
     private readonly ILogger<VkService> _logger;
+    private readonly IValidator<ConnectVkRequest> _connectVkValidator;
+    private readonly IEntityExistenceService _entityExistenceService;
 
-    public VkService(IProfileRepository profileRepository, IUnitOfWork unitOfWork, IConfiguration config, ILogger<VkService> logger)
+    public VkService(IProfileRepository profileRepository, IUnitOfWork unitOfWork, IConfiguration config, ILogger<VkService> logger, IValidator<ConnectVkRequest> connectVkValidator, IEntityExistenceService entityExistenceService)
     {
         _profileRepository = profileRepository;
         _unitOfWork = unitOfWork;
         _config = config;
         _logger = logger;
         _httpClient = new HttpClient();
+        _connectVkValidator = connectVkValidator;
+        _entityExistenceService = entityExistenceService;
     }
 
     /// <summary>
@@ -28,10 +35,17 @@ public class VkService : IVkService
     /// </summary>
     public async Task<Result> ConnectVkAsync(Guid userId, string code, string codeVerifier, string deviceId)
     {
-        // 1. Находим профиль пользователя
-        var profile = await _profileRepository.GetByUserIdAsync(userId);
-        if (profile == null)
-            return Result.Failure("Profile not found");
+        var request = new ConnectVkRequest { Code = code, CodeVerifier = codeVerifier, DeviceId = deviceId };
+        var validationResult = await _connectVkValidator.ValidateAsync(request);
+        if (!validationResult.IsValid)
+        {
+            return Result.Failure(validationResult.ToErrorString());
+        }
+
+        var userResult = await _entityExistenceService.GetUserWithProfileAsync(userId);
+        if (!userResult.IsSuccess)
+            return Result<NotificationSettingsDto>.Failure(userResult.Error);
+        var profile = userResult.Value.MusicianProfile;
 
         // 2. Проверяем, не привязан ли уже VK
         if (!string.IsNullOrEmpty(profile.VkUserId))

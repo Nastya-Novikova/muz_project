@@ -20,6 +20,9 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:7000
       - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=musicianfinder;Username=postgres;Password=postgres
+      - Jwt__Key=${JWT_KEY}
+      - EmailSettings__SmtpPassword=${SMTP_PASSWORD}
+      - VkSettings__CommunityToken=${VK_COMMUNITY_TOKEN}
     depends_on:
       - postgres
     networks:

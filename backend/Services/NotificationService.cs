@@ -7,39 +7,31 @@ using backend.Models.Repositories.Interfaces;
 using backend.Services.Interfaces;
 using backend.Models.Classes;
 using backend.Services.Utils;
+using backend.Models.DTOs.Events;
 
 namespace backend.Services
 {
     /// <summary>
     /// Сервис для работы с уведомлениями
     /// </summary>
-    public class NotificationService : INotificationService
+    public class NotificationService(
+        INotificationRepository notificationRepository,
+        IProfileRepository profileRepository,
+        IUserRepository userRepository,
+        IUnitOfWork unitOfWork,
+        IMapper mapper,
+        IEmailService emailService,
+        IVkService vkService,
+        IEntityExistenceService existenceService) : INotificationService
     {
-        private readonly INotificationRepository _notificationRepository;
-        private readonly IProfileRepository _profileRepository;
-        private readonly IUserRepository _userRepository;
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly IMapper _mapper;
-        private readonly IEmailService _emailService;
-        private readonly IVkService _vkService;
-
-        public NotificationService(
-            INotificationRepository notificationRepository,
-            IProfileRepository profileRepository,
-            IUserRepository userRepository,
-            IUnitOfWork unitOfWork,
-            IMapper mapper,
-            IEmailService emailService,
-            IVkService vkService)
-        {
-            _notificationRepository = notificationRepository;
-            _profileRepository = profileRepository;
-            _userRepository = userRepository;
-            _unitOfWork = unitOfWork;
-            _mapper = mapper;
-            _emailService = emailService;
-            _vkService = vkService;
-        }
+        private readonly INotificationRepository _notificationRepository = notificationRepository;
+        private readonly IProfileRepository _profileRepository = profileRepository;
+        private readonly IUserRepository _userRepository = userRepository;
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
+        private readonly IMapper _mapper = mapper;
+        private readonly IEmailService _emailService = emailService;
+        private readonly IVkService _vkService = vkService;
+        private readonly IEntityExistenceService _existenceService = existenceService;
 
         public async Task SendNotificationToProfileAsync(Guid profileId, NotificationType type, Dictionary<string, object> data)
         {
@@ -91,36 +83,42 @@ namespace backend.Services
             await SendNotificationToProfileAsync(user.MusicianProfile.Id, type, data);
         }
 
-        private (string Title, string Message) GetNotificationText(NotificationType type, Dictionary<string, object> data)
+        private static (string Title, string Message) GetNotificationText(NotificationType type, Dictionary<string, object> data)
         {
-            return type switch
+            switch (type)
             {
-                NotificationType.CollaborationReceived =>
-                    NotificationMessageProvider.GetCollaborationReceived(data["fromProfileName"].ToString()!),
-                NotificationType.EventRegistration =>
-                    NotificationMessageProvider.GetEventRegistration(
-                        data["registeredProfileName"].ToString()!,
-                        data["eventTitle"].ToString()!),
-                NotificationType.EventReminder =>
-                    NotificationMessageProvider.GetEventReminder(
+                case NotificationType.CollaborationReceived:
+                    var message = data.TryGetValue("message", out var msg) ? msg?.ToString() : null;
+                    return NotificationMessageProvider.GetCollaborationReceived(
+                        data["fromProfileName"].ToString()!,
+                        message);
+
+                case NotificationType.EventRegistration:
+                    return NotificationMessageProvider.GetEventRegistration(
+                        data["eventTitle"].ToString()!);
+
+                case NotificationType.EventReminder:
+                    return NotificationMessageProvider.GetEventReminder(
                         data["eventTitle"].ToString()!,
-                        (int)data["daysLeft"]),
-                _ => ("Новое уведомление", "")
-            };
+                        (int)data["daysLeft"]);
+
+                default:
+                    return ("Новое уведомление", "");
+            }
         }
 
-        private EntityType GetEntityType(NotificationType type)
+        private static EntityType GetEntityType(NotificationType type)
         {
             return type switch
             {
                 NotificationType.CollaborationReceived => EntityType.CollaborationSuggestion,
                 NotificationType.EventRegistration => EntityType.Event,
                 NotificationType.EventReminder => EntityType.Event,
-                _ => throw new ArgumentOutOfRangeException()
+                _ => throw new ArgumentOutOfRangeException(nameof(type), type, $"Unsupported notification type: {type}")
             };
         }
 
-        private Guid GetEntityId(Dictionary<string, object> data)
+        private static Guid GetEntityId(Dictionary<string, object> data)
         {
             return data.TryGetValue("suggestionId", out var sid) ? (Guid)sid
                  : data.TryGetValue("eventId", out var eid) ? (Guid)eid
@@ -129,9 +127,10 @@ namespace backend.Services
 
         public async Task<Result<PagedResult<NotificationDto>>> GetUserNotificationsAsync(Guid userId, int page, int limit)
         {
-            var user = await _userRepository.GetByIdAsync(userId);
-            if (user?.MusicianProfile == null)
-                return Result<PagedResult<NotificationDto>>.Failure("Профиль пользователя не найден");
+            var userResult = await _existenceService.GetUserWithProfileAsync(userId);
+            if (!userResult.IsSuccess)
+                return Result<PagedResult<NotificationDto>>.Failure(userResult.Error);
+            var user = userResult.Value;
 
             var profileId = user.MusicianProfile.Id;
             var thirtyDaysAgo = DateTime.UtcNow.AddDays(-30);
@@ -152,9 +151,10 @@ namespace backend.Services
 
         public async Task<Result> MarkAsReadAsync(Guid notificationId, Guid userId)
         {
-            var user = await _userRepository.GetByIdAsync(userId);
-            if (user?.MusicianProfile == null)
-                return Result.Failure("Профиль пользователя не найден");
+            var userResult = await _existenceService.GetUserWithProfileAsync(userId);
+            if (!userResult.IsSuccess)
+                return Result.Failure(userResult.Error);
+            var user = userResult.Value;
 
             var profileId = user.MusicianProfile.Id;
             var notification = await _notificationRepository.GetByIdAsync(notificationId);
@@ -172,9 +172,10 @@ namespace backend.Services
 
         public async Task<Result> MarkAllAsReadAsync(Guid userId)
         {
-            var user = await _userRepository.GetByIdAsync(userId);
-            if (user?.MusicianProfile == null)
-                return Result.Failure("Профиль пользователя не найден");
+            var userResult = await _existenceService.GetUserWithProfileAsync(userId);
+            if (!userResult.IsSuccess)
+                return Result.Failure(userResult.Error);
+            var user = userResult.Value;
 
             var profileId = user.MusicianProfile.Id;
             await _notificationRepository.MarkAllAsReadAsync(profileId);
@@ -184,9 +185,10 @@ namespace backend.Services
 
         public async Task<int> GetUnreadCountAsync(Guid userId)
         {
-            var user = await _userRepository.GetByIdAsync(userId);
-            if (user?.MusicianProfile == null)
+            var userResult = await _existenceService.GetUserWithProfileAsync(userId);
+            if (!userResult.IsSuccess)
                 return 0;
+            var user = userResult.Value;
 
             var profileId = user.MusicianProfile.Id;
             return await _notificationRepository.GetUnreadCountAsync(profileId);

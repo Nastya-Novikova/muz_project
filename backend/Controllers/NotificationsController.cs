@@ -12,14 +12,9 @@ namespace backend.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [Authorize]
-    public class NotificationsController : ControllerBase
+    public class NotificationsController(INotificationService notificationService) : ControllerBase
     {
-        private readonly INotificationService _notificationService;
-
-        public NotificationsController(INotificationService notificationService)
-        {
-            _notificationService = notificationService;
-        }
+        private readonly INotificationService _notificationService = notificationService;
 
         /// <summary>
         /// Получить уведомления текущего пользователя за последние 30 дней

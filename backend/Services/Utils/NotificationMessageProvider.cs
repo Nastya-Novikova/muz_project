@@ -2,19 +2,23 @@
 {
     public static class NotificationMessageProvider
     {
-        public static (string Title, string Message) GetCollaborationReceived(string fromProfileName)
+        public static (string Title, string Message) GetCollaborationReceived(string fromProfileName, string? suggestionMessage)
         {
+            var body = string.IsNullOrWhiteSpace(suggestionMessage)
+                ? "У вас новое предложение о сотрудничестве"
+                : $"Сообщение: {suggestionMessage}";
+
             return (
                 $"Пользователь {fromProfileName} отправил вам предложение о сотрудничестве",
-                "У вас новое предложение о сотрудничестве"
+                body
             );
         }
 
-        public static (string Title, string Message) GetEventRegistration(string registeredProfileName, string eventTitle)
+        public static (string Title, string Message) GetEventRegistration(string eventTitle)
         {
             return (
-                $"{registeredProfileName} записался на ваше мероприятие \"{eventTitle}\"",
-                "Новый участник зарегистрировался на ваше мероприятие"
+                "Регистрация подтверждена",
+                $"Вы успешно зарегистрировались на мероприятие \"{eventTitle}\""
             );
         }
 

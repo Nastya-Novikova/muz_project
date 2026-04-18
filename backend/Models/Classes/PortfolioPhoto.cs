@@ -12,7 +12,7 @@ public class PortfolioPhoto
 
     public string? Description { get; set; }
 
-    public string FileUrl { get; set; }
+    public string FileUrl { get; set; } = string.Empty;
     
     public string MimeType { get; set; } = "image/jpeg";
 

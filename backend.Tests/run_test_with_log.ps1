@@ -1,4 +1,4 @@
-$timestamp = Get-Date -Format "yyyy-MM-dd_HH-mm-ss"
+﻿$timestamp = Get-Date -Format "yyyy-MM-dd_HH-mm-ss"
 $logFile = "test_log_$timestamp.txt"
 
 Write-Host "Running test and logging to $logFile ..."

@@ -1,19 +1,26 @@
 ﻿=== FULL USER JOURNEY TEST SUMMARY ===
-Timestamp: 2026-04-12 04:00:53
+Timestamp: 2026-04-18 00:05:21
 
-CHECKS PASSED: 15
+CHECKS PASSED: 22
   [OK] Alice profile full name is correct
   [OK] Bob profile full name is correct
   [OK] Event title is correct
   [OK] Event max participants is correct
+  [OK] Event initially has 0 participants
+  [OK] After Bob registration, participants count is 1
+  [OK] Bob is registered for the event
+  [OK] Event updated successfully
   [OK] Bob has 1 favorite
   [OK] Bob's favorite is Alice
   [OK] Bob sent 1 suggestion
   [OK] Bob's suggestion is to Alice
   [OK] Suggestion message is correct
-  [OK] Alice received 2 notifications
-  [OK] Alice has event registration notification
+  [OK] Bob received 1 notification
+  [OK] Bob has event registration notification
+  [OK] Alice received 1 notification
   [OK] Alice has collaboration received notification
+  [OK] Alice's notification marked as read successfully
+  [OK] Alice's unread count is 0 after marking her only notification read
   [OK] Alice received 1 suggestion
   [OK] Suggestion is from Bob
   [OK] Received message is correct
@@ -22,7 +29,7 @@ CHECKS PASSED: 15
 
 --- Alice Profile ---
 {
-  "Id": "33b4adc3-0061-4687-b383-7bfeae8b5480",
+  "Id": "e49c7b86-fe38-45ab-b5ef-dbc205eb9560",
   "ProfileType": "Individual",
   "FullName": "Alice Johnson",
   "AvatarUrl": null,
@@ -38,6 +45,8 @@ CHECKS PASSED: 15
   "Experience": 5,
   "LookingFor": "NotLooking",
   "Email": "alice@example.com",
+  "NotifyByEmail": true,
+  "NotifyByVk": false,
   "DesiredGenres": [],
   "DesiredSpecialties": [],
   "Genres": [
@@ -70,7 +79,7 @@ CHECKS PASSED: 15
 
 --- Bob Profile ---
 {
-  "Id": "7a0df0e2-1924-4a83-a204-eb061dcd8fe2",
+  "Id": "0a2491c0-8d2b-414f-90e6-9ce6953c19c3",
   "ProfileType": "Individual",
   "FullName": "Bob Smith",
   "AvatarUrl": null,
@@ -86,6 +95,8 @@ CHECKS PASSED: 15
   "Experience": 3,
   "LookingFor": "NotLooking",
   "Email": "bob@example.com",
+  "NotifyByEmail": true,
+  "NotifyByVk": false,
   "DesiredGenres": [],
   "DesiredSpecialties": [],
   "Genres": [
@@ -105,12 +116,42 @@ CHECKS PASSED: 15
   "CollaborationGoals": []
 }
 
+--- Event (after update) ---
+{
+  "Id": "fdaea87d-5f77-4742-ba5f-7f6bbbaaa3fc",
+  "Title": "Alice\u0027s Concert",
+  "Description": "Updated description",
+  "ImageUrl": null,
+  "Region": {
+    "Id": 1,
+    "Name": "Moscow Oblast",
+    "LocalizedName": "\u041C\u043E\u0441\u043A\u043E\u0432\u0441\u043A\u0430\u044F \u043E\u0431\u043B\u0430\u0441\u0442\u044C"
+  },
+  "City": {
+    "Id": 1,
+    "Name": "Moscow",
+    "LocalizedName": "\u041C\u043E\u0441\u043A\u0432\u0430"
+  },
+  "Address": "Main St, 1",
+  "StartDateTime": "2026-04-27T17:05:22.160407Z",
+  "EndDateTime": null,
+  "MaxParticipants": 50,
+  "CurrentParticipants": 1,
+  "IsRegistered": false,
+  "Status": "Scheduled",
+  "CreatorProfileId": "e49c7b86-fe38-45ab-b5ef-dbc205eb9560",
+  "CreatorFullName": "Alice Johnson",
+  "CreatorAvatarUrl": null,
+  "CreatedAt": "2026-04-17T17:05:22.189066Z",
+  "UpdatedAt": "2026-04-17T17:05:25.1910704Z"
+}
+
 --- Bob's Favorites ---
 {
   "Items": [
     {
       "Profile": {
-        "Id": "33b4adc3-0061-4687-b383-7bfeae8b5480",
+        "Id": "e49c7b86-fe38-45ab-b5ef-dbc205eb9560",
         "ProfileType": "Individual",
         "FullName": "Alice Johnson",
         "AvatarUrl": null,
@@ -126,6 +167,8 @@ CHECKS PASSED: 15
         "Experience": 5,
         "LookingFor": "NotLooking",
         "Email": "alice@example.com",
+        "NotifyByEmail": true,
+        "NotifyByVk": false,
         "DesiredGenres": [],
         "DesiredSpecialties": [],
         "Genres": [
@@ -168,9 +211,9 @@ CHECKS PASSED: 15
 {
   "Items": [
     {
-      "Id": "ab21742a-0c4a-4475-8ad0-1a88ce49eee1",
+      "Id": "96ce7e80-1286-4b68-8e5c-c7c4a82fa1c8",
       "FromProfile": {
-        "Id": "7a0df0e2-1924-4a83-a204-eb061dcd8fe2",
+        "Id": "0a2491c0-8d2b-414f-90e6-9ce6953c19c3",
         "ProfileType": "Individual",
         "FullName": "Bob Smith",
         "AvatarUrl": null,
@@ -186,6 +229,8 @@ CHECKS PASSED: 15
         "Experience": 3,
         "LookingFor": "NotLooking",
         "Email": "bob@example.com",
+        "NotifyByEmail": true,
+        "NotifyByVk": false,
         "DesiredGenres": [],
         "DesiredSpecialties": [],
         "Genres": [],
@@ -193,7 +238,7 @@ CHECKS PASSED: 15
         "CollaborationGoals": []
       },
       "ToProfile": {
-        "Id": "33b4adc3-0061-4687-b383-7bfeae8b5480",
+        "Id": "e49c7b86-fe38-45ab-b5ef-dbc205eb9560",
         "ProfileType": "Individual",
         "FullName": "Alice Johnson",
         "AvatarUrl": null,
@@ -209,6 +254,8 @@ CHECKS PASSED: 15
         "Experience": 5,
         "LookingFor": "NotLooking",
         "Email": "alice@example.com",
+        "NotifyByEmail": true,
+        "NotifyByVk": false,
         "DesiredGenres": [],
         "DesiredSpecialties": [],
         "Genres": [
@@ -240,7 +287,28 @@ CHECKS PASSED: 15
       },
       "Message": "Let\u0027s collaborate!",
       "Status": "pending",
-      "CreatedAt": "2026-04-11T21:00:57.935564Z"
+      "CreatedAt": "2026-04-17T17:05:23.43398Z"
+    }
+  ],
+  "Total": 1,
+  "Page": 1,
+  "Limit": 20,
+  "TotalPages": 1
+}
+
+--- Bob's Notifications ---
+{
+  "Items": [
+    {
+      "Id": "c02f6425-3cef-4d53-aab5-db8d8c863092",
+      "Type": "EventRegistration",
+      "Title": "\u0420\u0435\u0433\u0438\u0441\u0442\u0440\u0430\u0446\u0438\u044F \u043F\u043E\u0434\u0442\u0432\u0435\u0440\u0436\u0434\u0435\u043D\u0430",
+      "Message": "\u0412\u044B \u0443\u0441\u043F\u0435\u0448\u043D\u043E \u0437\u0430\u0440\u0435\u0433\u0438\u0441\u0442\u0440\u0438\u0440\u043E\u0432\u0430\u043B\u0438\u0441\u044C \u043D\u0430 \u043C\u0435\u0440\u043E\u043F\u0440\u0438\u044F\u0442\u0438\u0435 \u0022Alice\u0027s Concert\u0022",
+      "ImageUrl": null,
+      "EntityType": "Event",
+      "EntityId": "fdaea87d-5f77-4742-ba5f-7f6bbbaaa3fc",
+      "IsRead": false,
+      "CreatedAt": "2026-04-17T17:05:23.138504Z"
     }
   ],
   "Total": 1,
@@ -253,29 +321,18 @@ CHECKS PASSED: 15
 {
   "Items": [
     {
-      "Id": "8c828c7f-be4f-4d8a-a905-fc6733b02c4f",
+      "Id": "137336b0-69d9-4719-8cac-a042607d8dee",
       "Type": "CollaborationReceived",
       "Title": "\u041F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044C Bob Smith \u043E\u0442\u043F\u0440\u0430\u0432\u0438\u043B \u0432\u0430\u043C \u043F\u0440\u0435\u0434\u043B\u043E\u0436\u0435\u043D\u0438\u0435 \u043E \u0441\u043E\u0442\u0440\u0443\u0434\u043D\u0438\u0447\u0435\u0441\u0442\u0432\u0435",
-      "Message": "\u0423 \u0432\u0430\u0441 \u043D\u043E\u0432\u043E\u0435 \u043F\u0440\u0435\u0434\u043B\u043E\u0436\u0435\u043D\u0438\u0435 \u043E \u0441\u043E\u0442\u0440\u0443\u0434\u043D\u0438\u0447\u0435\u0441\u0442\u0432\u0435",
+      "Message": "\u0421\u043E\u043E\u0431\u0449\u0435\u043D\u0438\u0435: Let\u0027s collaborate!",
       "ImageUrl": null,
       "EntityType": "CollaborationSuggestion",
-      "EntityId": "ab21742a-0c4a-4475-8ad0-1a88ce49eee1",
+      "EntityId": "96ce7e80-1286-4b68-8e5c-c7c4a82fa1c8",
       "IsRead": false,
-      "CreatedAt": "2026-04-11T21:00:57.957838Z"
-    },
-    {
-      "Id": "5ce0deb5-2665-4532-b806-b775943b0540",
-      "Type": "EventRegistration",
-      "Title": "Bob Smith \u0437\u0430\u043F\u0438\u0441\u0430\u043B\u0441\u044F \u043D\u0430 \u0432\u0430\u0448\u0435 \u043C\u0435\u0440\u043E\u043F\u0440\u0438\u044F\u0442\u0438\u0435 \u0022Alice\u0027s Concert\u0022",
-      "Message": "\u041D\u043E\u0432\u044B\u0439 \u0443\u0447\u0430\u0441\u0442\u043D\u0438\u043A \u0437\u0430\u0440\u0435\u0433\u0438\u0441\u0442\u0440\u0438\u0440\u043E\u0432\u0430\u043B\u0441\u044F \u043D\u0430 \u0432\u0430\u0448\u0435 \u043C\u0435\u0440\u043E\u043F\u0440\u0438\u044F\u0442\u0438\u0435",
-      "ImageUrl": null,
-      "EntityType": "Event",
-      "EntityId": "66876e3f-4431-4202-aad8-4ea71d95ee56",
-      "IsRead": false,
-      "CreatedAt": "2026-04-11T21:00:57.684727Z"
+      "CreatedAt": "2026-04-17T17:05:23.507816Z"
     }
   ],
-  "Total": 2,
+  "Total": 1,
   "Page": 1,
   "Limit": 20,
   "TotalPages": 1
@@ -285,9 +342,9 @@ CHECKS PASSED: 15
 {
   "Items": [
     {
-      "Id": "ab21742a-0c4a-4475-8ad0-1a88ce49eee1",
+      "Id": "96ce7e80-1286-4b68-8e5c-c7c4a82fa1c8",
       "FromProfile": {
-        "Id": "7a0df0e2-1924-4a83-a204-eb061dcd8fe2",
+        "Id": "0a2491c0-8d2b-414f-90e6-9ce6953c19c3",
         "ProfileType": "Individual",
         "FullName": "Bob Smith",
         "AvatarUrl": null,
@@ -303,6 +360,8 @@ CHECKS PASSED: 15
         "Experience": 3,
         "LookingFor": "NotLooking",
         "Email": "bob@example.com",
+        "NotifyByEmail": true,
+        "NotifyByVk": false,
         "DesiredGenres": [],
         "DesiredSpecialties": [],
         "Genres": [
@@ -322,7 +381,7 @@ CHECKS PASSED: 15
         "CollaborationGoals": []
       },
       "ToProfile": {
-        "Id": "33b4adc3-0061-4687-b383-7bfeae8b5480",
+        "Id": "e49c7b86-fe38-45ab-b5ef-dbc205eb9560",
         "ProfileType": "Individual",
         "FullName": "Alice Johnson",
         "AvatarUrl": null,
@@ -338,6 +397,8 @@ CHECKS PASSED: 15
         "Experience": 5,
         "LookingFor": "NotLooking",
         "Email": "alice@example.com",
+        "NotifyByEmail": true,
+        "NotifyByVk": false,
         "DesiredGenres": [],
         "DesiredSpecialties": [],
         "Genres": [],
@@ -346,7 +407,7 @@ CHECKS PASSED: 15
       },
       "Message": "Let\u0027s collaborate!",
       "Status": "pending",
-      "CreatedAt": "2026-04-11T21:00:57.935564Z"
+      "CreatedAt": "2026-04-17T17:05:23.43398Z"
     }
   ],
   "Total": 1,

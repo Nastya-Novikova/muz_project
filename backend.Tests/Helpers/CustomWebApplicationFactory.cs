@@ -1,12 +1,15 @@
-﻿using Microsoft.AspNetCore.Hosting;
+﻿using backend.Data;
+using backend.Models.Common;
+using backend.Services.Interfaces;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
+using Moq;
 using Npgsql;
 using Testcontainers.PostgreSql;
-using backend.Data;
 
 namespace backend.Tests.Helpers;
 
@@ -20,7 +23,7 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>, IAsyn
         // Отключаем Ryuk, так как Docker не может его скачать
         Environment.SetEnvironmentVariable("TESTCONTAINERS_RYUK_DISABLED", "true");
 
-        _dbContainer = new PostgreSqlBuilder()
+        _dbContainer = new PostgreSqlBuilder(PostgreSqlBuilder.PostgreSqlImage)
             .WithImage("postgres:16-alpine")
             .WithDatabase("musicianfinder_test")
             .WithUsername("postgres")
@@ -38,9 +41,27 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>, IAsyn
         {
             services.RemoveAll<DbContextOptions<MusicianFinderDbContext>>();
             services.RemoveAll<MusicianFinderDbContext>();
-
             services.AddDbContext<MusicianFinderDbContext>(options =>
                 options.UseNpgsql(_dbContainer.GetConnectionString()));
+
+            services.AddLogging(builder => builder.AddConsole().SetMinimumLevel(LogLevel.Debug));
+
+            // --- Моки внешних сервисов ---
+            services.RemoveAll<IEmailService>();
+            var emailMock = new Mock<IEmailService>();
+            emailMock.Setup(x => x.SendVerificationCodeAsync(It.IsAny<string>(), It.IsAny<string>()))
+                     .Returns(Task.CompletedTask);
+            emailMock.Setup(x => x.SendNotificationAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+                     .Returns(Task.CompletedTask);
+            services.AddScoped(_ => emailMock.Object);
+
+            services.RemoveAll<IVkService>();
+            var vkMock = new Mock<IVkService>();
+            vkMock.Setup(x => x.ConnectVkAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+                  .ReturnsAsync(Result.Success());
+            vkMock.Setup(x => x.SendNotificationAsync(It.IsAny<Guid>(), It.IsAny<string>()))
+                  .ReturnsAsync(true);
+            services.AddScoped(_ => vkMock.Object);
         });
     }
 
@@ -94,14 +115,24 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>, IAsyn
 
         var tables = new[]
         {
-        "EventRegistrations", "Events", "Notifications", "CollaborationSuggestions",
-        "Favorites", "PortfolioAudio", "PortfolioVideo", "PortfolioPhotos",
-        "MusicianProfiles", "Users", "EmailVerificationCodes"
-    };
+            "EventRegistration",
+            "Event",
+            "Notification",
+            "CollaborationSuggestion",
+            "Favorite",
+            "PortfolioAudio",
+            "PortfolioVideo",
+            "PortfolioPhoto",
+            "MusicianProfile",
+            "User",
+            "EmailVerificationCode"
+        };
 
         foreach (var table in tables)
         {
+#pragma warning disable EF1002
             await dbContext.Database.ExecuteSqlRawAsync($"TRUNCATE TABLE \"{table}\" CASCADE");
+#pragma warning restore EF1002
         }
 
         await dbContext.Database.ExecuteSqlRawAsync("SET session_replication_role = 'origin';");

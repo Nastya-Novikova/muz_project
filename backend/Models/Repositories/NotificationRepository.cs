@@ -40,17 +40,12 @@ namespace backend.Models.Repositories
 
         public async Task AddAsync(Notification notification)
         {
-            if (notification == null)
-                throw new ApiException(400, "Уведомление не может быть null", "NOTIFICATION_IS_NULL");
-
             await _context.Notifications.AddAsync(notification);
         }
 
         public async Task MarkAsReadAsync(Guid id)
         {
             var notification = await _context.Notifications.FindAsync(id);
-            if (notification == null)
-                throw new ApiException(404, "Уведомление не найдено", "NOTIFICATION_NOT_FOUND");
 
             notification.IsRead = true;
             _context.Notifications.Update(notification);

@@ -7,11 +7,13 @@ using backend.Models.Classes;
 using backend.Models.Common;
 using backend.Models.DTOs;
 using backend.Models.DTOs.Common;
+using backend.Models.DTOs.Events;
 using backend.Models.DTOs.Media;
 using backend.Models.DTOs.Profiles;
 using backend.Models.Repositories.Interfaces;
 using backend.Services.Interfaces;
 using backend.Services.Utils;
+using FluentValidation;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using Npgsql.TypeMapping;
@@ -19,42 +21,41 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace backend.Services;
 
-public class ProfileService : IProfileService
+public class ProfileService(
+    IProfileRepository profileRepository,
+    IUserRepository userRepository,
+    IGenreRepository genreRepository,
+    IMusicalSpecialtyRepository specialtyRepository,
+    ICollaborationGoalRepository goalRepository,
+    IUnitOfWork unitOfWork,
+    IMapper mapper,
+    IFileStorage fileStorage,
+    IValidator<CreateProfileRequest> createValidator,
+    IValidator<UpdateProfileRequest> updateValidator,
+    IValidator<SearchRequest> searchValidator,
+    IEntityExistenceService existenceService) : IProfileService
 {
-    private readonly IProfileRepository _profileRepository;
-    private readonly IUserRepository _userRepository;
-    private readonly ICityRepository _cityRepository;
-    private readonly IGenreRepository _genreRepository;
-    private readonly IMusicalSpecialtyRepository _specialtyRepository;
-    private readonly ICollaborationGoalRepository _goalRepository;
-    private readonly IUnitOfWork _unitOfWork;
-    private readonly IMapper _mapper;
-    private readonly IFileStorage _fileStorage;
-
-    public ProfileService(
-        IProfileRepository profileRepository,
-        IUserRepository userRepository,
-        ICityRepository cityRepository,
-        IGenreRepository genreRepository,
-        IMusicalSpecialtyRepository specialtyRepository,
-        ICollaborationGoalRepository goalRepository,
-        IUnitOfWork unitOfWork,
-        IMapper mapper,
-        IFileStorage fileStorage)
-    {
-        _profileRepository = profileRepository;
-        _userRepository = userRepository;
-        _cityRepository = cityRepository;
-        _genreRepository = genreRepository;
-        _specialtyRepository = specialtyRepository;
-        _goalRepository = goalRepository;
-        _unitOfWork = unitOfWork;
-        _mapper = mapper;
-        _fileStorage = fileStorage;
-    }
+    private readonly IProfileRepository _profileRepository = profileRepository;
+    private readonly IUserRepository _userRepository = userRepository;
+    private readonly IGenreRepository _genreRepository = genreRepository;
+    private readonly IMusicalSpecialtyRepository _specialtyRepository = specialtyRepository;
+    private readonly ICollaborationGoalRepository _goalRepository = goalRepository;
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
+    private readonly IMapper _mapper = mapper;
+    private readonly IFileStorage _fileStorage = fileStorage;
+    private readonly IValidator<CreateProfileRequest> _createValidator = createValidator;
+    private readonly IValidator<UpdateProfileRequest> _updateValidator = updateValidator;
+    private readonly IValidator<SearchRequest> _searchValidator = searchValidator;
+    private readonly IEntityExistenceService _existenceService = existenceService;
 
     public async Task<Result<PagedResult<ProfileDto>>> SearchAsync(SearchRequest request)
     {
+        var validationResult = await _searchValidator.ValidateAsync(request);
+        if (!validationResult.IsValid)
+        {
+            return Result<PagedResult<ProfileDto>>.Failure(validationResult.ToErrorString());
+        }
+
         var (items, total) = await _profileRepository.SearchAsync(
             query: request.Query,
             cityId: request.CityId,
@@ -85,9 +86,10 @@ public class ProfileService : IProfileService
 
     public async Task<Result<ProfileDto>> GetByIdAsync(Guid id)
     {
-        var profile = await _profileRepository.GetByIdAsync(id);
-        if (profile == null)
-            return Result<ProfileDto>.Failure("Profile not found");
+        var profileResult = await _existenceService.GetMusicianProfileAsync(id);
+        if (!profileResult.IsSuccess)
+            return Result<ProfileDto>.Failure(profileResult.Error);
+        var profile = profileResult.Value;
 
         var dto = _mapper.Map<ProfileDto>(profile);
         return Result<ProfileDto>.Success(dto);
@@ -95,25 +97,30 @@ public class ProfileService : IProfileService
 
     public async Task<Result<ProfileDto>> GetByUserIdAsync(Guid userId)
     {
-        var user = await _userRepository.GetByIdAsync(userId);
-        if (user?.MusicianProfile == null)
-            return Result<ProfileDto>.Failure("Profile not found");
+        var userResult = await _existenceService.GetUserWithProfileAsync(userId);
+        if (!userResult.IsSuccess)
+            return Result<ProfileDto>.Failure(userResult.Error);
+        var user = userResult.Value;
 
         return await GetByIdAsync(user.MusicianProfile.Id);
     }
 
     public async Task<Result<ProfileDto>> CreateAsync(Guid userId, CreateProfileRequest request)
     {
+        var validationResult = await _createValidator.ValidateAsync(request);
+        if (!validationResult.IsValid)
+            return Result<ProfileDto>.Failure(validationResult.ToErrorString());
+
+        var noProfileCheck = await _existenceService.ValidateUserHasNoProfileAsync(userId);
+        if (!noProfileCheck.IsSuccess)
+            return Result<ProfileDto>.Failure(noProfileCheck.Error);
+
         var user = await _userRepository.GetByIdAsync(userId);
-        if (user == null)
-            return Result<ProfileDto>.Failure("User not found");
 
-        if (user.MusicianProfile != null)
-            return Result<ProfileDto>.Failure("Profile already exists");
-
-        var city = await _cityRepository.GetByIdAsync(request.CityId);
-        if (city == null)
-            return Result<ProfileDto>.Failure("City not found");
+        var cityResult = await _existenceService.GetCityAsync(request.CityId);
+        if (!cityResult.IsSuccess)
+            return Result<ProfileDto>.Failure(cityResult.Error);
+        var city = cityResult.Value;
 
         var profile = new MusicianProfile
         {
@@ -133,19 +140,44 @@ public class ProfileService : IProfileService
         };
 
         if (request.GenreIds?.Any() == true)
+        {
+            var genresCheck = await _existenceService.ValidateGenresExistAsync(request.GenreIds);
+            if (!genresCheck.IsSuccess)
+                return Result<ProfileDto>.Failure(genresCheck.Error);
             profile.Genres = await _genreRepository.GetByIdsAsync(request.GenreIds);
+        }
 
         if (request.SpecialtyIds?.Any() == true)
+        {
+            var specialtiesCheck = await _existenceService.ValidateSpecialtiesExistAsync(request.SpecialtyIds);
+            if (!specialtiesCheck.IsSuccess)
+                return Result<ProfileDto>.Failure(specialtiesCheck.Error);
             profile.Specialties = await _specialtyRepository.GetByIdsAsync(request.SpecialtyIds);
+        }
 
         if (request.CollaborationGoalIds?.Any() == true)
+        {
+            var goalsCheck = await _existenceService.ValidateCollaborationGoalsExistAsync(request.CollaborationGoalIds);
+            if (!goalsCheck.IsSuccess)
+                return Result<ProfileDto>.Failure(goalsCheck.Error);
             profile.CollaborationGoals = await _goalRepository.GetByIdsAsync(request.CollaborationGoalIds);
+        }
 
         if (request.DesiredGenreIds?.Any() == true)
+        {
+            var desiredGenresCheck = await _existenceService.ValidateGenresExistAsync(request.DesiredGenreIds);
+            if (!desiredGenresCheck.IsSuccess)
+                return Result<ProfileDto>.Failure(desiredGenresCheck.Error);
             profile.DesiredGenres = await _genreRepository.GetByIdsAsync(request.DesiredGenreIds);
+        }
 
         if (request.DesiredSpecialtyIds?.Any() == true)
+        {
+            var desiredSpecialtiesCheck = await _existenceService.ValidateSpecialtiesExistAsync(request.DesiredSpecialtyIds);
+            if (!desiredSpecialtiesCheck.IsSuccess)
+                return Result<ProfileDto>.Failure(desiredSpecialtiesCheck.Error);
             profile.DesiredSpecialties = await _specialtyRepository.GetByIdsAsync(request.DesiredSpecialtyIds);
+        }
 
         await _profileRepository.AddAsync(profile);
         user.MusicianProfile = profile;
@@ -159,13 +191,22 @@ public class ProfileService : IProfileService
 
     public async Task<Result<ProfileDto>> UpdateAsync(Guid userId, UpdateProfileRequest request)
     {
-        var user = await _userRepository.GetByIdAsync(userId);
-        if (user?.MusicianProfile == null)
-            return Result<ProfileDto>.Failure("Profile not found");
+        var validationResult = await _updateValidator.ValidateAsync(request);
+        if (!validationResult.IsValid)
+            return Result<ProfileDto>.Failure(validationResult.ToErrorString());
 
-        var profile = await _profileRepository.GetByIdAsync(user.MusicianProfile.Id);
-        if (profile == null)
-            return Result<ProfileDto>.Failure("Profile not found");
+        var userValidation = await _existenceService.ValidateUserWithProfileAsync(userId);
+        if (!userValidation.IsSuccess)
+            return Result<ProfileDto>.Failure(userValidation.Error);
+
+        if (request.CityId.HasValue)
+        {
+            var cityCheck = await _existenceService.ValidateCityAsync(request.CityId.Value);
+            if (!cityCheck.IsSuccess)
+                return Result<ProfileDto>.Failure(cityCheck.Error);
+        }
+
+        var profile = await _profileRepository.GetByIdAsync((await _userRepository.GetByIdAsync(userId)).MusicianProfile.Id);
 
         if (request.ProfileType.HasValue)
             profile.ProfileType = request.ProfileType.Value;
@@ -181,9 +222,6 @@ public class ProfileService : IProfileService
             profile.Telegram = request.Telegram;
         if (request.CityId.HasValue)
         {
-            var city = await _cityRepository.GetByIdAsync(request.CityId.Value);
-            if (city == null)
-                return Result<ProfileDto>.Failure("City not found");
             profile.CityId = request.CityId.Value;
         }
         if (request.Experience.HasValue)
@@ -197,23 +235,37 @@ public class ProfileService : IProfileService
 
         if (request.GenreIds != null)
         {
-            profile.Genres = await _genreRepository.GetByIdsAsync(request.GenreIds);
+            var genresCheck = await _existenceService.ValidateGenresExistAsync(request.GenreIds);
+            if (!genresCheck.IsSuccess)
+                return Result<ProfileDto>.Failure(genresCheck.Error);
         }
+
         if (request.SpecialtyIds != null)
         {
-            profile.Specialties = await _specialtyRepository.GetByIdsAsync(request.SpecialtyIds);
+            var specialtiesCheck = await _existenceService.ValidateSpecialtiesExistAsync(request.SpecialtyIds);
+            if (!specialtiesCheck.IsSuccess)
+                return Result<ProfileDto>.Failure(specialtiesCheck.Error);
         }
+
         if (request.CollaborationGoalIds != null)
         {
-            profile.CollaborationGoals = await _goalRepository.GetByIdsAsync(request.CollaborationGoalIds);
+            var goalsCheck = await _existenceService.ValidateCollaborationGoalsExistAsync(request.CollaborationGoalIds);
+            if (!goalsCheck.IsSuccess)
+                return Result<ProfileDto>.Failure(goalsCheck.Error);
         }
+
         if (request.DesiredGenreIds != null)
         {
-            profile.DesiredGenres = await _genreRepository.GetByIdsAsync(request.DesiredGenreIds);
+            var desiredGenresCheck = await _existenceService.ValidateGenresExistAsync(request.DesiredGenreIds);
+            if (!desiredGenresCheck.IsSuccess)
+                return Result<ProfileDto>.Failure(desiredGenresCheck.Error);
         }
+
         if (request.DesiredSpecialtyIds != null)
         {
-            profile.DesiredSpecialties = await _specialtyRepository.GetByIdsAsync(request.DesiredSpecialtyIds);
+            var desiredSpecialtiesCheck = await _existenceService.ValidateSpecialtiesExistAsync(request.DesiredSpecialtyIds);
+            if (!desiredSpecialtiesCheck.IsSuccess)
+                return Result<ProfileDto>.Failure(desiredSpecialtiesCheck.Error);
         }
 
         profile.UpdatedAt = DateTime.UtcNow;
@@ -227,15 +279,12 @@ public class ProfileService : IProfileService
 
     public async Task<Result> DeleteAsync(Guid userId)
     {
-        var user = await _userRepository.GetByIdAsync(userId);
-        if (user?.MusicianProfile == null)
-            return Result<ProfileDto>.Failure("Profile not found");
+        var userResult = await _existenceService.GetUserWithProfileAsync(userId);
+        if (!userResult.IsSuccess)
+            return Result<ProfileDto>.Failure(userResult.Error);
+        var user = userResult.Value;
 
-        var profile = await _profileRepository.GetByIdAsync(user.MusicianProfile.Id);
-        if (profile == null)
-            return Result.Failure("Profile not found");
-
-        await _profileRepository.SoftDeleteAsync(profile.Id);
+        await _profileRepository.SoftDeleteAsync(user.MusicianProfile.Id);
         user.MusicianProfile = null;
         user.ProfileCreated = false;
         await _unitOfWork.SaveChangesAsync();
@@ -245,13 +294,11 @@ public class ProfileService : IProfileService
 
     public async Task<Result<string>> UpdateAvatarAsync(Guid userId, Stream fileStream, string fileName, string contentType)
     {
-        var user = await _userRepository.GetByIdAsync(userId);
-        if (user?.MusicianProfile == null)
-            return Result<string>.Failure("Profile not found");
-
-        var profile = await _profileRepository.GetByIdAsync(user.MusicianProfile.Id);
-        if (profile == null)
-            return Result<string>.Failure("Profile not found");
+        var userResult = await _existenceService.GetUserWithProfileAsync(userId);
+        if (!userResult.IsSuccess)
+            return Result<string>.Failure(userResult.Error);
+        var user = userResult.Value;
+        var profile = user.MusicianProfile;
 
         if (profile.AvatarUrl != null && profile.AvatarUrl != string.Empty)
         {
@@ -270,9 +317,10 @@ public class ProfileService : IProfileService
 
     public async Task<Result<object>> GetMediaAsync(Guid id)
     {
-        var profile = await _profileRepository.GetByIdAsync(id);
-        if (profile == null)
-            return Result<object>.Failure("Profile not found");
+        var profileResult = await _existenceService.GetMusicianProfileAsync(id);
+        if (!profileResult.IsSuccess)
+            return Result<object>.Failure(profileResult.Error);
+        var profile = profileResult.Value;
 
         var media = new
         {
@@ -285,9 +333,10 @@ public class ProfileService : IProfileService
     }
     public async Task<Result<NotificationSettingsDto>> GetNotificationSettingsAsync(Guid userId)
     {
-        var user = await _userRepository.GetByIdAsync(userId);
-        if (user?.MusicianProfile == null)
-            return Result<NotificationSettingsDto>.Failure("Профиль не найден");
+        var userResult = await _existenceService.GetUserWithProfileAsync(userId);
+        if (!userResult.IsSuccess)
+            return Result<NotificationSettingsDto>.Failure(userResult.Error);
+        var user = userResult.Value;
 
         var settings = new NotificationSettingsDto
         {

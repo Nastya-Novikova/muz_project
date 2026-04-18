@@ -17,12 +17,6 @@ public class CollaborationSuggestionRepository : ICollaborationSuggestionReposit
 
     public async Task AddAsync(CollaborationSuggestion suggestion)
     {
-        if (suggestion.FromProfileId == Guid.Empty || suggestion.ToProfileId == Guid.Empty)
-            throw new ApiException(400, "UserID отправителя и получателя обязательны", "MISSING_USER_IDS");
-
-        if (suggestion.FromProfileId == suggestion.ToProfileId)
-            throw new ApiException(400, "Нельзя отправить предложение самому себе", "SELF_SUGGESTION");
-
         await _context.CollaborationSuggestions.AddAsync(suggestion);
     }
 
@@ -84,13 +78,6 @@ public class CollaborationSuggestionRepository : ICollaborationSuggestionReposit
 
     public async Task UpdateAsync(CollaborationSuggestion suggestion)
     {
-        if (suggestion.Id == Guid.Empty)
-            throw new ApiException(400, "ID предложения не может быть пустым", "INVALID_SUGGESTION_ID");
-
-        var existing = await _context.CollaborationSuggestions.FindAsync(suggestion.Id);
-        if (existing == null)
-            throw new ApiException(404, "Предложение не найдено", "SUGGESTION_NOT_FOUND");
-
         _context.CollaborationSuggestions.Update(suggestion);
     }
 

@@ -4,6 +4,9 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__DefaultConnection=Host=postgres;Database=musicianfinder;Username=postgres;Password=postgres
+      - Jwt__Key=${JWT_KEY}
+      - EmailSettings__SmtpPassword=${SMTP_PASSWORD}
+      - VkSettings__CommunityToken=${VK_COMMUNITY_TOKEN}
     depends_on:
       - postgres
     networks:

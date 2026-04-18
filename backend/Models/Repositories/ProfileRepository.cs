@@ -8,14 +8,9 @@ using backend.Models.Enums;
 
 namespace backend.Models.Repositories;
 
-public class ProfileRepository : IProfileRepository
+public class ProfileRepository(MusicianFinderDbContext context) : IProfileRepository
 {
-    private readonly MusicianFinderDbContext _context;
-
-    public ProfileRepository(MusicianFinderDbContext context)
-    {
-        _context = context;
-    }
+    private readonly MusicianFinderDbContext _context = context;
 
     public async Task<(List<MusicianProfile> Items, int TotalCount)> SearchAsync(
             string? query = null,
@@ -90,9 +85,6 @@ public class ProfileRepository : IProfileRepository
 
     public async Task<MusicianProfile?> GetByIdAsync(Guid id)
     {
-        if (id == Guid.Empty)
-            throw new ApiException(400, "ID профиля не может быть пустым", "INVALID_PROFILE_ID");
-
         return await _context.MusicianProfiles
                 .Include(p => p.City)
                 .Include(p => p.Genres)
@@ -108,9 +100,6 @@ public class ProfileRepository : IProfileRepository
 
     public async Task<MusicianProfile?> GetByUserIdAsync(Guid userId)
     {
-        if (userId == Guid.Empty)
-            throw new ApiException(400, "ID пользователя не может быть пустым", "INVALID_USER_ID");
-
         return await _context.MusicianProfiles
             .Include(p => p.City)
             .Include(p => p.Genres)
@@ -118,14 +107,11 @@ public class ProfileRepository : IProfileRepository
             .Include(p => p.CollaborationGoals)
             .Include(p => p.DesiredGenres)
             .Include(p => p.DesiredSpecialties)
-            .FirstOrDefaultAsync(p => !p.IsDeleted && _context.Users.Any(u => u.Id == userId && u.MusicianProfile.Id == p.Id));
+            .FirstOrDefaultAsync(p => !p.IsDeleted && _context.Users.Any(u => u.Id == userId && u.MusicianProfile != null && u.MusicianProfile.Id == p.Id));
     }
 
     public async Task AddAsync(MusicianProfile profile)
     {
-        if (profile == null)
-            throw new ApiException(400, "Профиль не может быть null", "PROFILE_IS_NULL");
-
         if (profile.Id == Guid.Empty)
             profile.Id = Guid.NewGuid();
 
@@ -134,28 +120,12 @@ public class ProfileRepository : IProfileRepository
 
     public async Task UpdateAsync(MusicianProfile profile)
     {
-        if (profile == null)
-            throw new ApiException(400, "Профиль не может быть null", "PROFILE_IS_NULL");
-
-        if (profile.Id == Guid.Empty)
-            throw new ApiException(400, "ID профиля не может быть пустым", "INVALID_PROFILE_ID");
-
-        var existing = await _context.MusicianProfiles.FindAsync(profile.Id);
-        if (existing == null)
-            throw new ApiException(404, "Профиль не найден", "PROFILE_NOT_FOUND");
-
         _context.MusicianProfiles.Update(profile);
     }
 
     public async Task SoftDeleteAsync(Guid id)
     {
-        if (id == Guid.Empty)
-            throw new ApiException(400, "ID профиля не может быть пустым", "INVALID_PROFILE_ID");
-
         var profile = await _context.MusicianProfiles.FindAsync(id);
-        if (profile == null)
-            throw new ApiException(404, "Профиль не найден", "PROFILE_NOT_FOUND");
-
         profile.IsDeleted = true;
         profile.DeletedAt = DateTime.UtcNow;
         _context.MusicianProfiles.Update(profile);
@@ -164,7 +134,7 @@ public class ProfileRepository : IProfileRepository
     public async Task<List<MusicianProfile>> GetProfilesByIdsAsync(List<Guid> ids)
     {
         if (ids == null || ids.Count == 0)
-            return new List<MusicianProfile>();
+            return [];
 
         return await _context.MusicianProfiles
             .Where(p => ids.Contains(p.Id) && !p.IsDeleted)

@@ -80,6 +80,7 @@ namespace backend.Data
             {
                 entity.ToTable("EventRegistration");
                 entity.HasKey(r => new { r.EventId, r.ProfileId });
+                entity.HasIndex(r => new { r.EventId, r.ProfileId }).IsUnique();
 
                 entity.HasOne(r => r.Event)
                       .WithMany(e => e.Registrations)

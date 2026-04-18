@@ -8,39 +8,45 @@ using backend.Models.Repositories.Interfaces;
 using backend.Services.Interfaces;
 using backend.Models.Common;
 using backend.Models.DTOs.Auth;
+using System.Security.Cryptography;
+using FluentValidation;
+using backend.Models.DTOs.Common;
+using backend.Models.DTOs.Events;
+using Minio.DataModel.Notification;
+using backend.Services.Utils;
 
 namespace backend.Services;
 
-public class AuthService : IAuthService
+public class AuthService(
+    IUserRepository userRepository,
+    IEmailVerificationCodeRepository codeRepository,
+    IEmailService emailService,
+    IConfiguration config,
+    IUnitOfWork unitOfWork,
+    IValidator<RequestCodeRequest> requestCodeValidator,
+    IValidator<LoginRequest> loginValidator) : IAuthService
 {
-    private readonly IUserRepository _userRepository;
-    private readonly IEmailVerificationCodeRepository _codeRepository;
-    private readonly IEmailService _emailService;
-    private readonly IConfiguration _config;
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly IUserRepository _userRepository = userRepository;
+    private readonly IEmailVerificationCodeRepository _codeRepository = codeRepository;
+    private readonly IEmailService _emailService = emailService;
+    private readonly IConfiguration _config = config;
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
+    private readonly IValidator<RequestCodeRequest> _requestCodeValidator = requestCodeValidator;
+    private readonly IValidator<LoginRequest> _loginValidator = loginValidator;
 
-    public AuthService(
-        IUserRepository userRepository,
-        IEmailVerificationCodeRepository codeRepository,
-        IEmailService emailService,
-        IConfiguration config,
-        IUnitOfWork unitOfWork)
+    public async Task<Result?> RequestCodeAsync(string email)
     {
-        _userRepository = userRepository;
-        _codeRepository = codeRepository;
-        _emailService = emailService;
-        _config = config;
-        _unitOfWork = unitOfWork;
-    }
+        var request = new RequestCodeRequest { Email = email };
+        var validationResult = await _requestCodeValidator.ValidateAsync(request);
+        if (!validationResult.IsValid)
+        {
+            return Result.Failure(validationResult.ToErrorString());
+        }
 
-    public async Task<Result> RequestCodeAsync(string email)
-    {
         try
         {
-            if (string.IsNullOrWhiteSpace(email))
-                return Result.Failure("Email is required");
-
-            var code = "111111";//new Random().Next(100000, 999999).ToString();
+            var code = "111111";
+            //var code = RandomNumberGenerator.GetInt32(100000, 999999).ToString();
             var verificationCode = new EmailVerificationCode
             {
                 Email = email,
@@ -62,11 +68,15 @@ public class AuthService : IAuthService
 
     public async Task<Result<AuthResponse>> LoginAsync(string email, string code)
     {
+        var request = new LoginRequest { Email = email, Code = code };
+        var validationResult = await _loginValidator.ValidateAsync(request);
+        if (!validationResult.IsValid)
+        {
+            return Result<AuthResponse>.Failure(validationResult.ToErrorString());
+        }
+
         try
         {
-            if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(code))
-                return Result<AuthResponse>.Failure("Email and code are required");
-
             var codeRecord = await _codeRepository.GetByCodeAndEmailAsync(code, email);
             if (codeRecord == null || DateTime.UtcNow - codeRecord.CreatedAt > TimeSpan.FromMinutes(10))
                 return Result<AuthResponse>.Failure("Invalid or expired code");
@@ -105,15 +115,15 @@ public class AuthService : IAuthService
 
     private string GenerateJwtToken(User user)
     {
-        var key = Encoding.ASCII.GetBytes(_config["Jwt:Key"] ?? "SuperSecretKeyForDevelopmentOnly123!");
+        var key = Encoding.ASCII.GetBytes(_config["Jwt:Key"] ?? string.Empty);
         var tokenDescriptor = new SecurityTokenDescriptor
         {
-            Subject = new ClaimsIdentity(new[]
-            {
+            Subject = new ClaimsIdentity(
+            [
                 new Claim("userId", user.Id.ToString()),
                 new Claim("email", user.Email),
                 new Claim(ClaimTypes.Role, user.Role.ToString())
-            }),
+            ]),
             Expires = DateTime.UtcNow.AddDays(7),
             SigningCredentials = new SigningCredentials(
                 new SymmetricSecurityKey(key),

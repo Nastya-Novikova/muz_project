@@ -1,17 +1,13 @@
 ﻿using backend.Data;
 using backend.Models.Classes;
 using backend.Models.Repositories.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace backend.Models.Repositories
 {
-    public class RegionRepository : IRegionRepository
+    public class RegionRepository(MusicianFinderDbContext context) : IRegionRepository
     {
-        private readonly MusicianFinderDbContext _context;
-
-        public RegionRepository(MusicianFinderDbContext context)
-        {
-            _context = context;
-        }
+        private readonly MusicianFinderDbContext _context = context;
 
         public async Task<List<Region>> GetAllAsync(string? query = null, string? sortBy = null, bool sortDesc = false)
         {
@@ -25,7 +21,7 @@ namespace backend.Models.Repositories
             }
 
             queryable = ApplySorting(queryable, sortBy, sortDesc);
-            return queryable.ToList();
+            return await queryable.ToListAsync();
         }
 
         public async Task<Region?> GetByIdAsync(int id)
