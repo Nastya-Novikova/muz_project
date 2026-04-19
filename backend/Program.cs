@@ -157,7 +157,7 @@ namespace backend
             });
 
             // JWT
-            var jwtKey = builder.Configuration["Jwt:Key"] ?? "SuperSecretKeyForDevelopmentOnly123!";
+            var jwtKey = builder.Configuration["Jwt:Key"];
             var key = Encoding.ASCII.GetBytes(jwtKey);
 
             builder.Services.AddAuthentication(options =>

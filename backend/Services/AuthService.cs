@@ -115,7 +115,7 @@ public class AuthService(
 
     private string GenerateJwtToken(User user)
     {
-        var key = Encoding.ASCII.GetBytes(_config["Jwt:Key"] ?? string.Empty);
+        var key = Encoding.ASCII.GetBytes(_config["Jwt:Key"] ?? "SuperSecretKeyForDevelopmentOnly123!");
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity(

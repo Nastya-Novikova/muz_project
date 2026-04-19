@@ -41,6 +41,11 @@ function Header() {
     navigate('/suggestions');
   };
 
+  const handleEventsClick = () => {
+    setDropdownOpen(false);
+    navigate('/events');
+  };
+
   const handleNotificationsClick = () => {
     setDropdownOpen(false);
     navigate('/notifications');
@@ -107,6 +112,13 @@ function Header() {
                     className="dropdown-item"
                   >
                     Предложения
+                  </button>
+
+                  <button 
+                    onClick={handleEventsClick} 
+                    className="dropdown-item"
+                  >
+                    Мероприятия
                   </button>
 
                   <button 
