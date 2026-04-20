@@ -26,7 +26,7 @@ namespace MusicianFinder.Infrastructure.Persistence.Configurations
             builder.Property(e => e.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
             builder.Property(e => e.UpdatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
 
-            builder.HasQueryFilter(e => !e.IsDeleted);
+            //builder.HasQueryFilter(e => !e.IsDeleted);
 
             builder.HasOne(e => e.Region)
                 .WithMany()

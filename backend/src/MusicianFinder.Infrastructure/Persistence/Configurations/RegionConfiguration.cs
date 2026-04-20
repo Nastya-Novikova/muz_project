@@ -22,13 +22,13 @@ namespace MusicianFinder.Infrastructure.Persistence.Configurations
             builder.Property(r => r.Name).IsRequired().HasMaxLength(100);
             builder.Property(r => r.LocalizedName).IsRequired().HasMaxLength(100);
 
-            builder.HasData(
+            /*builder.HasData(
                 new Region("Moscow Oblast", "Московская область"),
                 new Region("Leningrad Oblast", "Ленинградская область"),
                 new Region("Novosibirsk Oblast", "Новосибирская область"),
                 new Region("Sverdlovsk Oblast", "Свердловская область"),
                 new Region("Tatarstan", "Татарстан")
-            );
+            );*/
         }
     }
 }

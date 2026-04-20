@@ -22,7 +22,7 @@ namespace MusicianFinder.Infrastructure.Persistence.Configurations
             builder.Property(ms => ms.Name).IsRequired().HasMaxLength(50);
             builder.Property(ms => ms.LocalizedName).IsRequired().HasMaxLength(50);
 
-            builder.HasData(
+            /*builder.HasData(
                 new MusicalSpecialty("vocalist", "Вокалист"),
                 new MusicalSpecialty("guitarist", "Гитарист"),
                 new MusicalSpecialty("bassist", "Бас-гитарист"),
@@ -33,7 +33,7 @@ namespace MusicianFinder.Infrastructure.Persistence.Configurations
                 new MusicalSpecialty("sound-engineer", "Звукорежиссёр"),
                 new MusicalSpecialty("dj", "Диджей"),
                 new MusicalSpecialty("violinist", "Скрипач")
-            );
+            );*/
         }
     }
 }

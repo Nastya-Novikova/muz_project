@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using MusicianFinder.Domain.Entities;
-using MusicianFinder.Domain.Enums;
 
 namespace MusicianFinder.Infrastructure.Persistence.Configurations
 {
@@ -34,13 +33,14 @@ namespace MusicianFinder.Infrastructure.Persistence.Configurations
             builder.Property(p => p.Email).IsRequired().HasMaxLength(256);
             builder.HasIndex(p => p.Email).IsUnique();
 
-            builder.HasQueryFilter(p => !p.IsDeleted);
+            //builder.HasQueryFilter(p => !p.IsDeleted);
 
             builder.HasOne(p => p.City)
                 .WithMany()
                 .HasForeignKey(p => p.CityId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            // Связи многие-ко-многим
             builder.HasMany(p => p.Genres)
                 .WithMany(g => g.Profiles)
                 .UsingEntity(j => j.ToTable("ProfileGenres"));
@@ -61,6 +61,7 @@ namespace MusicianFinder.Infrastructure.Persistence.Configurations
                 .WithMany(s => s.ProfilesLookingForThisSpecialty)
                 .UsingEntity(j => j.ToTable("ProfileDesiredSpecialties"));
 
+            // Связи один-ко-многим с портфолио
             builder.HasMany(p => p.AudioFiles)
                 .WithOne(a => a.Profile)
                 .HasForeignKey(a => a.ProfileId)
@@ -75,23 +76,6 @@ namespace MusicianFinder.Infrastructure.Persistence.Configurations
                 .WithOne(ph => ph.Profile)
                 .HasForeignKey(ph => ph.ProfileId)
                 .OnDelete(DeleteBehavior.Cascade);
-
-            builder.Metadata.FindNavigation(nameof(MusicianProfile.Genres))!
-                .SetPropertyAccessMode(PropertyAccessMode.Field);
-            builder.Metadata.FindNavigation(nameof(MusicianProfile.Specialties))!
-                .SetPropertyAccessMode(PropertyAccessMode.Field);
-            builder.Metadata.FindNavigation(nameof(MusicianProfile.CollaborationGoals))!
-                .SetPropertyAccessMode(PropertyAccessMode.Field);
-            builder.Metadata.FindNavigation(nameof(MusicianProfile.DesiredGenres))!
-                .SetPropertyAccessMode(PropertyAccessMode.Field);
-            builder.Metadata.FindNavigation(nameof(MusicianProfile.DesiredSpecialties))!
-                .SetPropertyAccessMode(PropertyAccessMode.Field);
-            builder.Metadata.FindNavigation(nameof(MusicianProfile.AudioFiles))!
-                .SetPropertyAccessMode(PropertyAccessMode.Field);
-            builder.Metadata.FindNavigation(nameof(MusicianProfile.VideoFiles))!
-                .SetPropertyAccessMode(PropertyAccessMode.Field);
-            builder.Metadata.FindNavigation(nameof(MusicianProfile.Photos))!
-                .SetPropertyAccessMode(PropertyAccessMode.Field);
         }
     }
 }

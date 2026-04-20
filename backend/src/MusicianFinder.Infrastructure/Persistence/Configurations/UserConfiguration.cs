@@ -26,7 +26,7 @@ namespace MusicianFinder.Infrastructure.Persistence.Configurations
             builder.Property(u => u.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
             builder.Property(u => u.ProfileCreated).IsRequired();
 
-            builder.HasQueryFilter(u => !u.IsDeleted);
+            //builder.HasQueryFilter(u => !u.IsDeleted);
 
             builder.HasOne(u => u.MusicianProfile)
                 .WithOne()

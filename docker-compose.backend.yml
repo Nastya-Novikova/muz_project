@@ -13,7 +13,9 @@ services:
       - pgdata:/var/lib/postgresql/data
 
   backend:
-    build: ./backend
+    build:
+      context: .
+      dockerfile: backend/src/MusicianFinder.API/Dockerfile
     ports:
       - "7000:7000"
     environment:

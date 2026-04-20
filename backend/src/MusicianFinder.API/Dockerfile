@@ -4,26 +4,36 @@
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 USER $APP_UID
 WORKDIR /app
-EXPOSE 8080
-EXPOSE 8081
-
+EXPOSE 7000
 
 # Этот этап используется для сборки проекта службы
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["src/MusicianFinder.API/MusicianFinder.API.csproj", "src/MusicianFinder.API/"]
-RUN dotnet restore "./src/MusicianFinder.API/MusicianFinder.API.csproj"
-COPY . .
-WORKDIR "/src/src/MusicianFinder.API"
-RUN dotnet build "./MusicianFinder.API.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
-# Этот этап используется для публикации проекта службы, который будет скопирован на последний этап
+# Копируем файлы проектов для восстановления зависимостей (кеширование слоёв)
+COPY ["backend/src/MusicianFinder.API/MusicianFinder.API.csproj", "backend/src/MusicianFinder.API/"]
+COPY ["backend/src/MusicianFinder.Application/MusicianFinder.Application.csproj", "backend/src/MusicianFinder.Application/"]
+COPY ["backend/src/MusicianFinder.Domain/MusicianFinder.Domain.csproj", "backend/src/MusicianFinder.Domain/"]
+COPY ["backend/src/MusicianFinder.Infrastructure/MusicianFinder.Infrastructure.csproj", "backend/src/MusicianFinder.Infrastructure/"]
+COPY ["backend/src/MusicianFinder.Shared/MusicianFinder.Shared.csproj", "backend/src/MusicianFinder.Shared/"]
+
+# Восстанавливаем зависимости
+RUN dotnet restore "backend/src/MusicianFinder.API/MusicianFinder.API.csproj"
+
+# Копируем остальные исходные файлы
+COPY . .
+
+# Собираем проект
+WORKDIR "/src/backend/src/MusicianFinder.API"
+RUN dotnet build "MusicianFinder.API.csproj" -c $BUILD_CONFIGURATION -o /app/build
+
+# Этот этап используется для публикации проекта службы
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./MusicianFinder.API.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "MusicianFinder.API.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
-# Этот этап используется в рабочей среде или при запуске из VS в обычном режиме (по умолчанию, когда конфигурация отладки не используется)
+# Этот этап используется в рабочей среде или при запуске из VS в обычном режиме
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
