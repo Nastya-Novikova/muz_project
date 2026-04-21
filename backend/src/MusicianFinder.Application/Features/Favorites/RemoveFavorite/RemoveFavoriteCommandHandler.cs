@@ -13,7 +13,7 @@ namespace MusicianFinder.Application.Features.Favorites.RemoveFavorite
     /// <summary>
     /// Обработчик команды <see cref="RemoveFavoriteCommand"/>.
     /// </summary>
-    public class RemoveFavoriteCommandHandler : IRequestHandler<RemoveFavoriteCommand>
+    public class RemoveFavoriteCommandHandler : IRequestHandler<RemoveFavoriteCommand, Unit>
     {
         private readonly IFavoriteRepository _favoriteRepository;
         private readonly ICurrentUserService _currentUserService;
@@ -32,12 +32,13 @@ namespace MusicianFinder.Application.Features.Favorites.RemoveFavorite
         }
 
         /// <inheritdoc />
-        public async Task Handle(RemoveFavoriteCommand request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(RemoveFavoriteCommand request, CancellationToken cancellationToken)
         {
             if (!await _favoriteRepository.ExistsAsync(_currentUserService.UserId, request.ProfileId))
                 throw new NotFoundException("Профиль не найден в избранном.");
 
             await _favoriteRepository.RemoveAsync(_currentUserService.UserId, request.ProfileId);
+            return Unit.Value;
         }
     }
 }

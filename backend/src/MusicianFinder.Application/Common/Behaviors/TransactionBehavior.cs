@@ -40,6 +40,7 @@ namespace MusicianFinder.Application.Common.Behaviors
                 // Используем перегрузку без явного IsolationLevel для максимальной совместимости
                 await using var transaction = await _dbContext.Database.BeginTransactionAsync(cancellationToken);
                 var response = await next();
+                await _dbContext.SaveChangesAsync(cancellationToken);
                 await transaction.CommitAsync(cancellationToken);
                 return response;
             });

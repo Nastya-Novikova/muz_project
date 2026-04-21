@@ -14,7 +14,7 @@ namespace MusicianFinder.Application.Features.Profiles.DeleteProfile
     /// <summary>
     /// Обработчик команды <see cref="DeleteProfileCommand"/>.
     /// </summary>
-    public class DeleteProfileCommandHandler : IRequestHandler<DeleteProfileCommand>
+    public class DeleteProfileCommandHandler : IRequestHandler<DeleteProfileCommand, Unit>
     {
         private readonly IProfileRepository _profileRepository;
         private readonly IUserRepository _userRepository;
@@ -37,7 +37,7 @@ namespace MusicianFinder.Application.Features.Profiles.DeleteProfile
         }
 
         /// <inheritdoc />
-        public async Task Handle(DeleteProfileCommand request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(DeleteProfileCommand request, CancellationToken cancellationToken)
         {
             var user = await _userRepository.GetByIdAsync(_currentUserService.UserId);
             if (user == null)
@@ -53,6 +53,7 @@ namespace MusicianFinder.Application.Features.Profiles.DeleteProfile
             user.ClearMusicianProfile();
 
             await _userRepository.UpdateAsync(user);
+            return Unit.Value;
         }
     }
 }

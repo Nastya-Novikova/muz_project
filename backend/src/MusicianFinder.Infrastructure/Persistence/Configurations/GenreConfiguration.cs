@@ -22,16 +22,16 @@ namespace MusicianFinder.Infrastructure.Persistence.Configurations
             builder.Property(g => g.Name).IsRequired().HasMaxLength(50);
             builder.Property(g => g.LocalizedName).IsRequired().HasMaxLength(50);
 
-            /*builder.HasData(
-                new Genre("jazz", "Джаз"),
-                new Genre("rock", "Рок"),
-                new Genre("classical", "Классика"),
-                new Genre("electronic", "Электроника"),
-                new Genre("pop", "Поп"),
-                new Genre("hip-hop", "Хип-хоп"),
-                new Genre("metal", "Метал"),
-                new Genre("blues", "Блюз")
-            );*/
+            builder.HasData(
+                new { Id = 1, Name = "jazz", LocalizedName = "Джаз" },
+                new { Id = 2, Name = "rock", LocalizedName = "Рок" },
+                new { Id = 3, Name = "classical", LocalizedName = "Классика" },
+                new { Id = 4, Name = "electronic", LocalizedName = "Электроника" },
+                new { Id = 5, Name = "pop", LocalizedName = "Поп" },
+                new { Id = 6, Name = "hip-hop", LocalizedName = "Хип-хоп" },
+                new { Id = 7, Name = "metal", LocalizedName = "Метал" },
+                new { Id = 8, Name = "blues", LocalizedName = "Блюз" }
+            );
         }
     }
 }

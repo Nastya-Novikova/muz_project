@@ -10,7 +10,7 @@ namespace MusicianFinder.Application.Features.VkIntegration.ConnectVk
     /// <summary>
     /// Команда для привязки аккаунта ВКонтакте.
     /// </summary>
-    public class ConnectVkCommand : IRequest
+    public class ConnectVkCommand : IRequest<Unit>
     {
         /// <summary>
         /// Код авторизации.

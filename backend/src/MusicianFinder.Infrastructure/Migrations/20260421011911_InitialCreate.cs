@@ -4,6 +4,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
 namespace MusicianFinder.Infrastructure.Migrations
 {
     /// <inheritdoc />
@@ -493,6 +495,74 @@ namespace MusicianFinder.Infrastructure.Migrations
                         principalTable: "MusicianProfile",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.InsertData(
+                table: "City",
+                columns: new[] { "Id", "LocalizedName", "Name" },
+                values: new object[,]
+                {
+                    { 1, "Москва", "Moscow" },
+                    { 2, "Санкт-Петербург", "Saint Petersburg" },
+                    { 3, "Новосибирск", "Novosibirsk" },
+                    { 4, "Екатеринбург", "Yekaterinburg" },
+                    { 5, "Казань", "Kazan" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "CollaborationGoal",
+                columns: new[] { "Id", "LocalizedName", "Name" },
+                values: new object[,]
+                {
+                    { 1, "Ищу участников в группу", "band" },
+                    { 2, "Готов(а) к сессионной работе", "session" },
+                    { 3, "Открыт(а) к совместным проектам", "collaboration" },
+                    { 4, "Ищу продюсера", "producer" },
+                    { 5, "Ищу исполнителя для песен", "artist" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Genre",
+                columns: new[] { "Id", "LocalizedName", "Name" },
+                values: new object[,]
+                {
+                    { 1, "Джаз", "jazz" },
+                    { 2, "Рок", "rock" },
+                    { 3, "Классика", "classical" },
+                    { 4, "Электроника", "electronic" },
+                    { 5, "Поп", "pop" },
+                    { 6, "Хип-хоп", "hip-hop" },
+                    { 7, "Метал", "metal" },
+                    { 8, "Блюз", "blues" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "MusicalSpecialty",
+                columns: new[] { "Id", "LocalizedName", "Name" },
+                values: new object[,]
+                {
+                    { 1, "Вокалист", "vocalist" },
+                    { 2, "Гитарист", "guitarist" },
+                    { 3, "Бас-гитарист", "bassist" },
+                    { 4, "Ударник", "drummer" },
+                    { 5, "Клавишник", "keyboardist" },
+                    { 6, "Композитор", "composer" },
+                    { 7, "Продюсер", "producer" },
+                    { 8, "Звукорежиссёр", "sound-engineer" },
+                    { 9, "Диджей", "dj" },
+                    { 10, "Скрипач", "violinist" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Region",
+                columns: new[] { "Id", "LocalizedName", "Name" },
+                values: new object[,]
+                {
+                    { 1, "Московская область", "Moscow Oblast" },
+                    { 2, "Ленинградская область", "Leningrad Oblast" },
+                    { 3, "Новосибирская область", "Novosibirsk Oblast" },
+                    { 4, "Свердловская область", "Sverdlovsk Oblast" },
+                    { 5, "Татарстан", "Tatarstan" }
                 });
 
             migrationBuilder.CreateIndex(

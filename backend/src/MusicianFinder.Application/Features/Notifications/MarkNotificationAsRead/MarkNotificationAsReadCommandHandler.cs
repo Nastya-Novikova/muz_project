@@ -14,7 +14,7 @@ namespace MusicianFinder.Application.Features.Notifications.MarkNotificationAsRe
     /// <summary>
     /// Обработчик команды <see cref="MarkNotificationAsReadCommand"/>.
     /// </summary>
-    public class MarkNotificationAsReadCommandHandler : IRequestHandler<MarkNotificationAsReadCommand>
+    public class MarkNotificationAsReadCommandHandler : IRequestHandler<MarkNotificationAsReadCommand, Unit>
     {
         private readonly INotificationRepository _notificationRepository;
         private readonly IProfileRepository _profileRepository;
@@ -37,7 +37,7 @@ namespace MusicianFinder.Application.Features.Notifications.MarkNotificationAsRe
         }
 
         /// <inheritdoc />
-        public async Task Handle(MarkNotificationAsReadCommand request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(MarkNotificationAsReadCommand request, CancellationToken cancellationToken)
         {
             var profile = await _profileRepository.GetByUserIdAsync(_currentUserService.UserId);
             if (profile == null)
@@ -51,6 +51,7 @@ namespace MusicianFinder.Application.Features.Notifications.MarkNotificationAsRe
                 throw new ForbiddenException("Нет доступа к этому уведомлению.");
 
             await _notificationRepository.MarkAsReadAsync(request.NotificationId);
+            return Unit.Value;
         }
     }
 }

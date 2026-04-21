@@ -31,6 +31,9 @@ builder.Services.AddCorsPolicy(builder.Configuration);
 builder.Services.AddApplication();                // Регистрация слоя Application
 builder.Services.AddInfrastructure(builder.Configuration); // Регистрация слоя Infrastructure
 
+builder.Services.AddJwtAuthentication(builder.Configuration);
+builder.Services.AddAuthorization();
+
 var app = builder.Build();
 
 // Middleware

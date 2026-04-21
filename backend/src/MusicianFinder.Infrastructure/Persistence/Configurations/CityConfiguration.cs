@@ -22,13 +22,13 @@ namespace MusicianFinder.Infrastructure.Persistence.Configurations
             builder.Property(c => c.Name).IsRequired().HasMaxLength(50);
             builder.Property(c => c.LocalizedName).IsRequired().HasMaxLength(50);
 
-            /*builder.HasData(
-                new City("Moscow", "Москва"),
-                new City("Saint Petersburg", "Санкт-Петербург"),
-                new City("Novosibirsk", "Новосибирск"),
-                new City("Yekaterinburg", "Екатеринбург"),
-                new City("Kazan", "Казань")
-            );*/
+            builder.HasData(
+                new { Id = 1, Name = "Moscow", LocalizedName = "Москва" },
+                new { Id = 2, Name = "Saint Petersburg", LocalizedName = "Санкт-Петербург" },
+                new { Id = 3, Name = "Novosibirsk", LocalizedName = "Новосибирск" },
+                new { Id = 4, Name = "Yekaterinburg", LocalizedName = "Екатеринбург" },
+                new { Id = 5, Name = "Kazan", LocalizedName = "Казань" }
+            );
         }
     }
 }

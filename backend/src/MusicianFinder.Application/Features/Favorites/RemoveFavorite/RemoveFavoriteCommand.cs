@@ -10,7 +10,7 @@ namespace MusicianFinder.Application.Features.Favorites.RemoveFavorite
     /// <summary>
     /// Команда для удаления профиля из избранного.
     /// </summary>
-    public class RemoveFavoriteCommand : IRequest
+    public class RemoveFavoriteCommand : IRequest<Unit>
     {
         /// <summary>
         /// Идентификатор профиля.

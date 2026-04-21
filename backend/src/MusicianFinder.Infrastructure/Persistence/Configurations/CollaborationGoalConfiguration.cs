@@ -22,13 +22,13 @@ namespace MusicianFinder.Infrastructure.Persistence.Configurations
             builder.Property(cg => cg.Name).IsRequired().HasMaxLength(50);
             builder.Property(cg => cg.LocalizedName).IsRequired().HasMaxLength(50);
 
-            /*builder.HasData(
-                new CollaborationGoal("band", "Ищу участников в группу"),
-                new CollaborationGoal("session", "Готов(а) к сессионной работе"),
-                new CollaborationGoal("collaboration", "Открыт(а) к совместным проектам"),
-                new CollaborationGoal("producer", "Ищу продюсера"),
-                new CollaborationGoal("artist", "Ищу исполнителя для песен")
-            );*/
+            builder.HasData(
+                new { Id = 1, Name = "band", LocalizedName = "Ищу участников в группу" },
+                new { Id = 2, Name = "session", LocalizedName = "Готов(а) к сессионной работе" },
+                new { Id = 3, Name = "collaboration", LocalizedName = "Открыт(а) к совместным проектам" },
+                new { Id = 4, Name = "producer", LocalizedName = "Ищу продюсера" },
+                new { Id = 5, Name = "artist", LocalizedName = "Ищу исполнителя для песен" }
+            );
         }
     }
 }

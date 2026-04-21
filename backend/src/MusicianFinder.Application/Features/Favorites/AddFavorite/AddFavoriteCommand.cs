@@ -10,7 +10,7 @@ namespace MusicianFinder.Application.Features.Favorites.AddFavorite
     /// <summary>
     /// Команда для добавления профиля в избранное.
     /// </summary>
-    public class AddFavoriteCommand : IRequest
+    public class AddFavoriteCommand : IRequest<Unit>
     {
         /// <summary>
         /// Идентификатор профиля.

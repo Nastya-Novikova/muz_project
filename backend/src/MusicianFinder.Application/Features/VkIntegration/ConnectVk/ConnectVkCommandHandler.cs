@@ -13,7 +13,7 @@ namespace MusicianFinder.Application.Features.VkIntegration.ConnectVk
     /// <summary>
     /// Обработчик команды <see cref="ConnectVkCommand"/>.
     /// </summary>
-    public class ConnectVkCommandHandler : IRequestHandler<ConnectVkCommand>
+    public class ConnectVkCommandHandler : IRequestHandler<ConnectVkCommand, Unit>
     {
         private readonly IProfileRepository _profileRepository;
         private readonly IVkService _vkService;
@@ -36,7 +36,7 @@ namespace MusicianFinder.Application.Features.VkIntegration.ConnectVk
         }
 
         /// <inheritdoc />
-        public async Task Handle(ConnectVkCommand request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(ConnectVkCommand request, CancellationToken cancellationToken)
         {
             var profile = await _profileRepository.GetByUserIdAsync(_currentUserService.UserId);
             if (profile == null)
@@ -51,6 +51,7 @@ namespace MusicianFinder.Application.Features.VkIntegration.ConnectVk
 
             profile.SetVkUserId(vkUserId.Value.ToString());
             await _profileRepository.UpdateAsync(profile);
+            return Unit.Value;
         }
     }
 }

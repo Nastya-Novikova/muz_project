@@ -15,7 +15,7 @@ namespace MusicianFinder.Application.Features.Collaborations.SendSuggestion
     /// <summary>
     /// Обработчик команды <see cref="SendSuggestionCommand"/>.
     /// </summary>
-    public class SendSuggestionCommandHandler : IRequestHandler<SendSuggestionCommand>
+    public class SendSuggestionCommandHandler : IRequestHandler<SendSuggestionCommand, Unit>
     {
         private readonly IProfileRepository _profileRepository;
         private readonly ICollaborationSuggestionRepository _suggestionRepository;
@@ -42,7 +42,7 @@ namespace MusicianFinder.Application.Features.Collaborations.SendSuggestion
         }
 
         /// <inheritdoc />
-        public async Task Handle(SendSuggestionCommand request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(SendSuggestionCommand request, CancellationToken cancellationToken)
         {
             var fromProfile = await _profileRepository.GetByUserIdAsync(_currentUserService.UserId);
             if (fromProfile == null)
@@ -64,6 +64,7 @@ namespace MusicianFinder.Application.Features.Collaborations.SendSuggestion
                     ["suggestionId"] = suggestion.Id,
                     ["message"] = suggestion.Message ?? string.Empty
                 });
+            return Unit.Value;
         }
     }
 }

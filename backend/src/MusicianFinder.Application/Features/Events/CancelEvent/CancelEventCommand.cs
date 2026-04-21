@@ -10,7 +10,7 @@ namespace MusicianFinder.Application.Features.Events.CancelEvent
     /// <summary>
     /// Команда для отмены мероприятия.
     /// </summary>
-    public class CancelEventCommand : IRequest
+    public class CancelEventCommand : IRequest<Unit>
     {
         /// <summary>
         /// Идентификатор мероприятия.

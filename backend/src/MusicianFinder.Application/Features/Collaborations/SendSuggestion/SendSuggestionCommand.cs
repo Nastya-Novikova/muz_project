@@ -10,7 +10,7 @@ namespace MusicianFinder.Application.Features.Collaborations.SendSuggestion
     /// <summary>
     /// Команда для отправки предложения о сотрудничестве.
     /// </summary>
-    public class SendSuggestionCommand : IRequest
+    public class SendSuggestionCommand : IRequest<Unit>
     {
         /// <summary>
         /// Идентификатор профиля получателя.

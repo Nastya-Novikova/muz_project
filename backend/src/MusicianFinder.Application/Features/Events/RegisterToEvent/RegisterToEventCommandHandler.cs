@@ -15,7 +15,7 @@ namespace MusicianFinder.Application.Features.Events.RegisterToEvent
     /// <summary>
     /// Обработчик команды <see cref="RegisterToEventCommand"/>.
     /// </summary>
-    public class RegisterToEventCommandHandler : IRequestHandler<RegisterToEventCommand>
+    public class RegisterToEventCommandHandler : IRequestHandler<RegisterToEventCommand, Unit>
     {
         private readonly IEventRepository _eventRepository;
         private readonly IProfileRepository _profileRepository;
@@ -42,7 +42,7 @@ namespace MusicianFinder.Application.Features.Events.RegisterToEvent
         }
 
         /// <inheritdoc />
-        public async Task Handle(RegisterToEventCommand request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(RegisterToEventCommand request, CancellationToken cancellationToken)
         {
             var eventEntity = await _eventRepository.GetByIdAsync(request.EventId);
             if (eventEntity == null)
@@ -65,6 +65,7 @@ namespace MusicianFinder.Application.Features.Events.RegisterToEvent
                     ["eventTitle"] = eventEntity.Title,
                     ["participantName"] = profile.FullName
                 });
+            return Unit.Value;
         }
     }
 }

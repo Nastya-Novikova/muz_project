@@ -13,7 +13,7 @@ namespace MusicianFinder.Application.Features.Notifications.MarkAllNotifications
     /// <summary>
     /// Обработчик команды <see cref="MarkAllNotificationsAsReadCommand"/>.
     /// </summary>
-    public class MarkAllNotificationsAsReadCommandHandler : IRequestHandler<MarkAllNotificationsAsReadCommand>
+    public class MarkAllNotificationsAsReadCommandHandler : IRequestHandler<MarkAllNotificationsAsReadCommand, Unit>
     {
         private readonly INotificationRepository _notificationRepository;
         private readonly IProfileRepository _profileRepository;
@@ -36,13 +36,14 @@ namespace MusicianFinder.Application.Features.Notifications.MarkAllNotifications
         }
 
         /// <inheritdoc />
-        public async Task Handle(MarkAllNotificationsAsReadCommand request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(MarkAllNotificationsAsReadCommand request, CancellationToken cancellationToken)
         {
             var profile = await _profileRepository.GetByUserIdAsync(_currentUserService.UserId);
             if (profile == null)
                 throw new NotFoundException("Профиль не найден.");
 
             await _notificationRepository.MarkAllAsReadAsync(profile.Id);
+            return Unit.Value;
         }
     }
 }

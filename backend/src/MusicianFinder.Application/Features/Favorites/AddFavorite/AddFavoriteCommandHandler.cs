@@ -14,7 +14,7 @@ namespace MusicianFinder.Application.Features.Favorites.AddFavorite
     /// <summary>
     /// Обработчик команды <see cref="AddFavoriteCommand"/>.
     /// </summary>
-    public class AddFavoriteCommandHandler : IRequestHandler<AddFavoriteCommand>
+    public class AddFavoriteCommandHandler : IRequestHandler<AddFavoriteCommand, Unit>
     {
         private readonly IFavoriteRepository _favoriteRepository;
         private readonly IProfileRepository _profileRepository;
@@ -37,7 +37,7 @@ namespace MusicianFinder.Application.Features.Favorites.AddFavorite
         }
 
         /// <inheritdoc />
-        public async Task Handle(AddFavoriteCommand request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(AddFavoriteCommand request, CancellationToken cancellationToken)
         {
             var targetProfile = await _profileRepository.GetByIdAsync(request.ProfileId);
             if (targetProfile == null)
@@ -48,6 +48,7 @@ namespace MusicianFinder.Application.Features.Favorites.AddFavorite
 
             var favorite = new Favorite(_currentUserService.UserId, request.ProfileId);
             await _favoriteRepository.AddAsync(favorite);
+            return Unit.Value;
         }
     }
 }

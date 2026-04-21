@@ -11,7 +11,7 @@ namespace MusicianFinder.Application.Features.Profiles.UpdateProfile
     /// <summary>
     /// Команда для обновления профиля музыканта.
     /// </summary>
-    public class UpdateProfileCommand : IRequest
+    public class UpdateProfileCommand : IRequest<Unit>
     {
         /// <summary>
         /// Тип профиля.

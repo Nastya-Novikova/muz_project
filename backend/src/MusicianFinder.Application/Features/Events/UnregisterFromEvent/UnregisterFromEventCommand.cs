@@ -10,7 +10,7 @@ namespace MusicianFinder.Application.Features.Events.UnregisterFromEvent
     /// <summary>
     /// Команда для отмены регистрации с мероприятия.
     /// </summary>
-    public class UnregisterFromEventCommand : IRequest
+    public class UnregisterFromEventCommand : IRequest<Unit>
     {
         /// <summary>
         /// Идентификатор мероприятия.

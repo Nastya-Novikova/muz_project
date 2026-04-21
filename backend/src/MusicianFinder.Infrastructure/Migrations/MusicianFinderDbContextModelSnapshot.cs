@@ -118,6 +118,38 @@ namespace MusicianFinder.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("City", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            LocalizedName = "Москва",
+                            Name = "Moscow"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            LocalizedName = "Санкт-Петербург",
+                            Name = "Saint Petersburg"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            LocalizedName = "Новосибирск",
+                            Name = "Novosibirsk"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            LocalizedName = "Екатеринбург",
+                            Name = "Yekaterinburg"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            LocalizedName = "Казань",
+                            Name = "Kazan"
+                        });
                 });
 
             modelBuilder.Entity("MusicianFinder.Domain.Entities.CollaborationGoal", b =>
@@ -141,6 +173,38 @@ namespace MusicianFinder.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("CollaborationGoal", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            LocalizedName = "Ищу участников в группу",
+                            Name = "band"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            LocalizedName = "Готов(а) к сессионной работе",
+                            Name = "session"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            LocalizedName = "Открыт(а) к совместным проектам",
+                            Name = "collaboration"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            LocalizedName = "Ищу продюсера",
+                            Name = "producer"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            LocalizedName = "Ищу исполнителя для песен",
+                            Name = "artist"
+                        });
                 });
 
             modelBuilder.Entity("MusicianFinder.Domain.Entities.CollaborationSuggestion", b =>
@@ -351,6 +415,56 @@ namespace MusicianFinder.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Genre", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            LocalizedName = "Джаз",
+                            Name = "jazz"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            LocalizedName = "Рок",
+                            Name = "rock"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            LocalizedName = "Классика",
+                            Name = "classical"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            LocalizedName = "Электроника",
+                            Name = "electronic"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            LocalizedName = "Поп",
+                            Name = "pop"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            LocalizedName = "Хип-хоп",
+                            Name = "hip-hop"
+                        },
+                        new
+                        {
+                            Id = 7,
+                            LocalizedName = "Метал",
+                            Name = "metal"
+                        },
+                        new
+                        {
+                            Id = 8,
+                            LocalizedName = "Блюз",
+                            Name = "blues"
+                        });
                 });
 
             modelBuilder.Entity("MusicianFinder.Domain.Entities.MusicalSpecialty", b =>
@@ -374,6 +488,68 @@ namespace MusicianFinder.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("MusicalSpecialty", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            LocalizedName = "Вокалист",
+                            Name = "vocalist"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            LocalizedName = "Гитарист",
+                            Name = "guitarist"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            LocalizedName = "Бас-гитарист",
+                            Name = "bassist"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            LocalizedName = "Ударник",
+                            Name = "drummer"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            LocalizedName = "Клавишник",
+                            Name = "keyboardist"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            LocalizedName = "Композитор",
+                            Name = "composer"
+                        },
+                        new
+                        {
+                            Id = 7,
+                            LocalizedName = "Продюсер",
+                            Name = "producer"
+                        },
+                        new
+                        {
+                            Id = 8,
+                            LocalizedName = "Звукорежиссёр",
+                            Name = "sound-engineer"
+                        },
+                        new
+                        {
+                            Id = 9,
+                            LocalizedName = "Диджей",
+                            Name = "dj"
+                        },
+                        new
+                        {
+                            Id = 10,
+                            LocalizedName = "Скрипач",
+                            Name = "violinist"
+                        });
                 });
 
             modelBuilder.Entity("MusicianFinder.Domain.Entities.MusicianProfile", b =>
@@ -655,6 +831,38 @@ namespace MusicianFinder.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Region", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            LocalizedName = "Московская область",
+                            Name = "Moscow Oblast"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            LocalizedName = "Ленинградская область",
+                            Name = "Leningrad Oblast"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            LocalizedName = "Новосибирская область",
+                            Name = "Novosibirsk Oblast"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            LocalizedName = "Свердловская область",
+                            Name = "Sverdlovsk Oblast"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            LocalizedName = "Татарстан",
+                            Name = "Tatarstan"
+                        });
                 });
 
             modelBuilder.Entity("MusicianFinder.Domain.Entities.User", b =>

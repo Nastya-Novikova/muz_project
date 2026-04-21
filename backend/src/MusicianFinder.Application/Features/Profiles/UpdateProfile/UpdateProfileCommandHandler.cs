@@ -14,7 +14,7 @@ namespace MusicianFinder.Application.Features.Profiles.UpdateProfile
     /// <summary>
     /// Обработчик команды <see cref="UpdateProfileCommand"/>.
     /// </summary>
-    public class UpdateProfileCommandHandler : IRequestHandler<UpdateProfileCommand>
+    public class UpdateProfileCommandHandler : IRequestHandler<UpdateProfileCommand, Unit>
     {
         private readonly IProfileRepository _profileRepository;
         private readonly IGenreRepository _genreRepository;
@@ -45,7 +45,7 @@ namespace MusicianFinder.Application.Features.Profiles.UpdateProfile
         }
 
         /// <inheritdoc />
-        public async Task Handle(UpdateProfileCommand request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(UpdateProfileCommand request, CancellationToken cancellationToken)
         {
             var profile = await _profileRepository.GetByUserIdAsync(_currentUserService.UserId);
             if (profile == null)
@@ -71,6 +71,7 @@ namespace MusicianFinder.Application.Features.Profiles.UpdateProfile
             await UpdateDesiredSpecialtiesAsync(profile, request.DesiredSpecialtyIds);
 
             await _profileRepository.UpdateAsync(profile);
+            return Unit.Value;
         }
 
         private async Task UpdateGenresAsync(MusicianProfile profile, List<int>? genreIds)

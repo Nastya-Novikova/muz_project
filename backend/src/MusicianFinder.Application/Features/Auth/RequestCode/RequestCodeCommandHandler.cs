@@ -13,7 +13,7 @@ namespace MusicianFinder.Application.Features.Auth.RequestCode
     /// <summary>
     /// Обработчик команды <see cref="RequestCodeCommand"/>.
     /// </summary>
-    public class RequestCodeCommandHandler : IRequestHandler<RequestCodeCommand>
+    public class RequestCodeCommandHandler : IRequestHandler<RequestCodeCommand, Unit>
     {
         private readonly IEmailVerificationCodeRepository _codeRepository;
         private readonly IEmailService _emailService;
@@ -32,13 +32,15 @@ namespace MusicianFinder.Application.Features.Auth.RequestCode
         }
 
         /// <inheritdoc />
-        public async Task Handle(RequestCodeCommand request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(RequestCodeCommand request, CancellationToken cancellationToken)
         {
             var code = GenerateCode();
             var verificationCode = new EmailVerificationCode(request.Email, code);
 
             await _codeRepository.AddAsync(verificationCode);
             await _emailService.SendVerificationCodeAsync(request.Email, code);
+
+            return Unit.Value;
         }
 
         private static string GenerateCode()

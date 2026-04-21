@@ -31,6 +31,8 @@ namespace MusicianFinder.Infrastructure.Extensions
             services.AddDbContext<MusicianFinderDbContext>(options =>
                 options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
 
+            services.AddScoped<DbContext>(sp => sp.GetRequiredService<MusicianFinderDbContext>());
+
             services.AddScoped<ICityRepository, CityRepository>();
             services.AddScoped<IRegionRepository, RegionRepository>();
             services.AddScoped<IGenreRepository, GenreRepository>();

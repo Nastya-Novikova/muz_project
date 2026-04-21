@@ -10,7 +10,7 @@ namespace MusicianFinder.Application.Features.Notifications.MarkNotificationAsRe
     /// <summary>
     /// Команда для отметки уведомления как прочитанного.
     /// </summary>
-    public class MarkNotificationAsReadCommand : IRequest
+    public class MarkNotificationAsReadCommand : IRequest<Unit>
     {
         /// <summary>
         /// Идентификатор уведомления.

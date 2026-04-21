@@ -10,7 +10,7 @@ namespace MusicianFinder.Application.Features.Events.UpdateEvent
     /// <summary>
     /// Команда для обновления мероприятия.
     /// </summary>
-    public class UpdateEventCommand : IRequest
+    public class UpdateEventCommand : IRequest<Unit>
     {
         /// <summary>
         /// Идентификатор мероприятия.

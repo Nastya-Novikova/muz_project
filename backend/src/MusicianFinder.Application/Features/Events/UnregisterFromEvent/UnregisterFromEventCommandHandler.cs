@@ -14,7 +14,7 @@ namespace MusicianFinder.Application.Features.Events.UnregisterFromEvent
     /// <summary>
     /// Обработчик команды <see cref="UnregisterFromEventCommand"/>.
     /// </summary>
-    public class UnregisterFromEventCommandHandler : IRequestHandler<UnregisterFromEventCommand>
+    public class UnregisterFromEventCommandHandler : IRequestHandler<UnregisterFromEventCommand, Unit>
     {
         private readonly IEventRepository _eventRepository;
         private readonly IProfileRepository _profileRepository;
@@ -37,7 +37,7 @@ namespace MusicianFinder.Application.Features.Events.UnregisterFromEvent
         }
 
         /// <inheritdoc />
-        public async Task Handle(UnregisterFromEventCommand request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(UnregisterFromEventCommand request, CancellationToken cancellationToken)
         {
             var eventEntity = await _eventRepository.GetByIdAsync(request.EventId);
             if (eventEntity == null)
@@ -49,6 +49,7 @@ namespace MusicianFinder.Application.Features.Events.UnregisterFromEvent
 
             eventEntity.Unregister(profile.Id);
             await _eventRepository.UpdateAsync(eventEntity);
+            return Unit.Value;
         }
     }
 }

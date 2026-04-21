@@ -10,7 +10,7 @@ namespace MusicianFinder.Application.Features.Profiles.DeleteProfile
     /// <summary>
     /// Команда для мягкого удаления профиля.
     /// </summary>
-    public class DeleteProfileCommand : IRequest
+    public class DeleteProfileCommand : IRequest<Unit>
     {
     }
 }

@@ -10,7 +10,7 @@ namespace MusicianFinder.Application.Features.Auth.RequestCode
     /// <summary>
     /// Команда для запроса кода подтверждения на email.
     /// </summary>
-    public class RequestCodeCommand : IRequest
+    public class RequestCodeCommand : IRequest<Unit>
     {
         /// <summary>
         /// Email для отправки кода.
