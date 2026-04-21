@@ -20,6 +20,10 @@ function SuggestionsPage() {
   const [favoriteIds, setFavoriteIds] = useState(new Set());
   const [tabLoading, setTabLoading] = useState(false);
 
+  const [bannerVisible, setBannerVisible] = useState(true);
+  const [notifyByVk, setNotifyByVk] = useState(false);
+  const [loadingSettings, setLoadingSettings] = useState(true);
+
   useEffect(() => {
     const loadAllData = async () => {
       setLoading(true);
@@ -31,6 +35,8 @@ function SuggestionsPage() {
           navigate('/login');
           return;
         }
+
+        await loadNotificationSettings(token);
 
         console.log('=== Начало загрузки всех данных ===');
         const [receivedResponse, sentResponse, favoritesResponse] = await Promise.all([
@@ -103,6 +109,19 @@ function SuggestionsPage() {
     loadAllData();
   }, [getToken, navigate]); 
 
+  const loadNotificationSettings = async (token) => {
+    setLoadingSettings(true);
+    try {
+      const settings = await api.getNotificationSettings(token);
+      setNotifyByVk(settings.notifyByVk || false);
+      console.log('Настройки уведомлений:', settings);
+    } catch (err) {
+      console.error('Ошибка загрузки настроек уведомлений:', err);
+    } finally {
+      setLoadingSettings(false);
+    }
+  };
+
   const handleUserProfileClick = (userId) => {
     navigate(`/profile/${userId}`);
   };
@@ -120,11 +139,16 @@ function SuggestionsPage() {
       const token = getToken();
       const data = await api.connectVk(code, codeVerifier, deviceId, token);
       console.log('VK successfully connected', data);
-      alert('✅ VK успешно привязан!');
+      alert('VK успешно привязан!');
+      setNotifyByVk(true);
     } catch (err) {
       console.error('Error connecting VK:', err.message);
-      alert('❌ Ошибка привязки VK: ' + err.message);
+      alert('Ошибка привязки VK: ' + err.message);
     }
+  };
+
+  const closeBanner = () => {
+    setBannerVisible(false);
   };
 
   const currentUsers = getCurrentUsers();
@@ -133,16 +157,41 @@ function SuggestionsPage() {
   const sentCount = sentUsers.length;
   const favoritesCount = favoriteUsers.length;
 
+  const showVkBanner = !loadingSettings && !notifyByVk;
+
   return (
     <>
       <Header />
       <div className="suggestions-page">
+        {showVkBanner && 
         <VkAuthButton 
           onSuccess={handleVkSuccess}
           onError={(err) => console.error(err)}
-        />
+        /> }
         <div className="suggestions-container">
           <h1 className="page-title">Предложения</h1>
+          {bannerVisible && (
+            <div className="notifications-banner">
+              <button className="banner-close-btn" onClick={closeBanner}>×</button>
+              <div className="banner-content">
+                <div className="banner-text">
+                  <div className="banner-title">Получайте уведомления ВКонтакте</div>
+                  <div className="banner-description">
+                    Зарегистрируйстесь ВКонтакте с использованием виджета, а затем подпишитесь на наше сообщество и напишите любое сообщение, чтобы активировать диалог.
+                    После этого все новые предложения будут поступать в чат с сообществом.
+                  </div>
+                </div>
+                <a 
+                  href="https://vk.com/club237605625" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="banner-link"
+                >
+                  Перейти в сообщество
+                </a>
+              </div>
+            </div>
+          )}
           <div className="suggestions-tabs">
             <button 
               className={`tab ${activeTab === 'received' ? 'active' : ''}`}

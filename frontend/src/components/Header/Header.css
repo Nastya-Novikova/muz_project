@@ -94,9 +94,29 @@
   border-radius: 8px;
   box-shadow: 0 4px 12px var(--color-shadow-light);
   min-width: 220px;
+  max-height: 400px;
+  overflow-y: auto;
   margin-top: 0.5rem;
   z-index: 1001;
   overflow: hidden;
+}
+
+.dropdown-menu::-webkit-scrollbar {
+  width: 6px;
+}
+
+.dropdown-menu::-webkit-scrollbar-track {
+  background: var(--light-grey);
+  border-radius: 4px;
+}
+
+.dropdown-menu::-webkit-scrollbar-thumb {
+  background: var(--border-grey);
+  border-radius: 4px;
+}
+
+.dropdown-menu::-webkit-scrollbar-thumb:hover {
+  background: var(--focus-grey);
 }
 
 .user-info {

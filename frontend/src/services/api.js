@@ -397,5 +397,225 @@ async getFavorites(token, page = 1, limit = 20) {
     }
 
     return response.json();
+  },
+
+  // Получить уведомления пользователя
+  async getNotifications(token, page = 1, limit = 20) {
+    const params = new URLSearchParams({
+      page,
+      limit
+    });
+
+    const response = await fetch(`${API_URL}/Notifications?${params}`, {
+      method: 'GET',
+      headers: getAuthHeaders(token)
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ message: 'HTTP error!' }));
+      throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+    }
+
+    return response.json();
+  },
+
+  // Отметить уведомление как прочитанное
+  async markNotificationAsRead(notificationId, token) {
+    const response = await fetch(`${API_URL}/Notifications/${notificationId}/read`, {
+      method: 'PATCH',
+      headers: getAuthHeaders(token)
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ message: 'HTTP error!' }));
+      throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+    }
+
+    return response.json();
+  },
+
+  // Отметить все уведомления как прочитанные
+  async markAllNotificationsAsRead(token) {
+    const response = await fetch(`${API_URL}/Notifications/mark-all-read`, {
+      method: 'POST',
+      headers: getAuthHeaders(token)
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ message: 'HTTP error!' }));
+      throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+    }
+
+    return response.json();
+  },
+
+  // Получить количество непрочитанных уведомлений
+  async getUnreadNotificationsCount(token) {
+    const response = await fetch(`${API_URL}/Notifications/unread-count`, {
+      method: 'GET',
+      headers: getAuthHeaders(token)
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ message: 'HTTP error!' }));
+      throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+    }
+
+    return response.json();
+  },
+
+  // Получить настройки уведомлений
+  async getNotificationSettings(token) {
+    const response = await fetch(`${API_URL}/Profiles/notification-settings`, {
+      method: 'GET',
+      headers: getAuthHeaders(token)
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ message: 'HTTP error!' }));
+      throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+    }
+
+    return response.json();
+  },
+
+  // Получить ленту мероприятий
+  async getEvents(filterParams = {}) {
+    const queryString = new URLSearchParams(filterParams).toString();
+    const response = await fetch(`${API_URL}/Events?${queryString}`);
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ message: 'HTTP error!' }));
+      throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+    }
+    return response.json();
+  },
+
+  // Получить мероприятие по ID
+  async getEventById(eventId, token) {
+    const headers = token ? getAuthHeaders(token) : {};
+    const response = await fetch(`${API_URL}/Events/${eventId}`, { headers });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ message: 'HTTP error!' }));
+      throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+    }
+    return response.json();
+  },
+
+  // Создать мероприятие
+  async createEvent(eventData, token) {
+    const response = await fetch(`${API_URL}/Events`, {
+      method: 'POST',
+      headers: getAuthHeaders(token),
+      body: JSON.stringify(eventData),
+    });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ message: 'HTTP error!' }));
+      throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+    }
+    return response.json();
+  },
+
+  // Обновить мероприятие
+  async updateEvent(eventId, eventData, token) {
+    const response = await fetch(`${API_URL}/Events/${eventId}`, {
+      method: 'PUT',
+      headers: getAuthHeaders(token),
+      body: JSON.stringify(eventData),
+    });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ message: 'HTTP error!' }));
+      throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+    }
+    return response.json();
+  },
+
+  // Отменить мероприятие (только для создателя)
+  async cancelEvent(eventId, token) {
+    const response = await fetch(`${API_URL}/Events/${eventId}`, {
+      method: 'DELETE',
+      headers: getAuthHeaders(token),
+    });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ message: 'HTTP error!' }));
+      throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+    }
+    return response.json();
+  },
+
+  // Записаться на мероприятие
+  async registerForEvent(eventId, token) {
+    const response = await fetch(`${API_URL}/Events/${eventId}/register`, {
+      method: 'POST',
+      headers: getAuthHeaders(token),
+    });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ message: 'HTTP error!' }));
+      throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+    }
+    return response.json();
+  },
+
+  // Отменить запись на мероприятие
+  async unregisterFromEvent(eventId, token) {
+    const response = await fetch(`${API_URL}/Events/${eventId}/register`, {
+      method: 'DELETE',
+      headers: getAuthHeaders(token),
+    });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ message: 'HTTP error!' }));
+      throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+    }
+    return response.json();
+  },
+
+  // Получить мероприятия, созданные пользователем
+  async getMyCreatedEvents(token, page = 1, limit = 20) {
+    const response = await fetch(`${API_URL}/Events/my/created?page=${page}&limit=${limit}`, {
+      headers: getAuthHeaders(token),
+    });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ message: 'HTTP error!' }));
+      throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+    }
+    return response.json();
+  },
+
+  // Получить мероприятия, на которые записан пользователь
+  async getMyRegisteredEvents(token, page = 1, limit = 20) {
+    const response = await fetch(`${API_URL}/Events/my/registered?page=${page}&limit=${limit}`, {
+      headers: getAuthHeaders(token),
+    });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ message: 'HTTP error!' }));
+      throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+    }
+    return response.json();
+  },
+
+  // Загрузить изображение мероприятия
+  async uploadEventImage(eventId, file, token) {
+    const formData = new FormData();
+    formData.append('image', file);
+
+    const response = await fetch(`${API_URL}/Events/${eventId}/image`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${token}` },
+      body: formData,
+    });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ message: 'HTTP error!' }));
+      throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+    }
+    return response.json();
+  },
+
+  // Получить список регионов
+  async getRegions() {
+    const response = await fetch(`${API_URL}/Metadata/regions`);
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ message: 'HTTP error!' }));
+      throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+    }
+    return response.json();
   }
 };

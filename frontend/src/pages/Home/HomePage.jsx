@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom'; 
 import Header from '../../components/Header/Header';
 import MultiSelectDropdown from '../../components/MultiSelectDropDown/MultiSelectDropDown';
-import CityFilter from '../../components/CityFilter/CityFilter';
+import SelectFilter from '../../components/SelectFilter/SelectFilter';
 import UserCard from '../../components/UserCard/UserCard';
 import { useFilters } from '../../context/useFilters';
 import { api } from '../../services/api';
@@ -85,6 +85,10 @@ function HomePage() {
     navigate(`/profile/${userId}`);
   };
 
+  const handleCityChange = (cityId) => {
+    setCity(cityId || '');
+  };
+
   return (
     <>
       <Header />
@@ -137,12 +141,13 @@ function HomePage() {
               </div>
 
               <div className="filter-group">
-                <CityFilter
-                  selectedCity={city}
-                  onCityChange={setCity}
-                  cities = {cities}
+                <SelectFilter
+                  label="Город"
+                  selectedValue={city}
+                  onChange={handleCityChange}
+                  options={cities}
                   placeholder="Выберите город"
-                  allCitiesText="Все города"
+                  allOptionText="Все города"
                 />
               </div>
 

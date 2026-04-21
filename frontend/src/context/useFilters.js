@@ -6,6 +6,7 @@ export function useFilters() {
     cities: [],
     activities: [],
     genres: [],
+    regions: [],
   });
 
   useEffect(() => {
@@ -14,10 +15,12 @@ export function useFilters() {
         const activities = await api.getActivities();
         const cities = await api.getCities();
         const genres = await api.getGenres();
+        const regions = await api.getRegions();
 
         const activityList = Array.isArray(activities) ? activities : (activities?.specialties || []);
         const genreList = Array.isArray(genres) ? genres : (genres?.genres || []);
         const cityList = Array.isArray(cities) ? cities : (cities?.cities || []);
+        const regionList = Array.isArray(regions) ? regions : (regions?.regions || []);
 
         setFilters({
           cities: cityList.map(item => ({
@@ -29,6 +32,10 @@ export function useFilters() {
             name: item.localizedName || item.name
           })),
           genres: genreList.map(item => ({
+            id: item.id,
+            name: item.localizedName || item.name
+          })),
+          regions: regionList.map(item => ({
             id: item.id,
             name: item.localizedName || item.name
           })),

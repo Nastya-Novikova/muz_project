@@ -30,7 +30,8 @@ const UserCard = ({ user, onProfileClick, showMessage = false, message = '' }) =
     if (onProfileClick) {
       onProfileClick(transformedUser.id);
     } else {
-      navigate(`/profile/${transformedUser.id}`);
+      const url = `/profile/${transformedUser.id}`;
+      window.open(url, '_blank');
     }
   };
 

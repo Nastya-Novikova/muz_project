@@ -1,0 +1,253 @@
+/* frontend/src/pages/Events/EventDetailPage.css */
+@import '../../../variables.css';
+
+.event-detail-page {
+  margin-top: 4.5rem;
+  padding: 2rem 1rem;
+  min-height: calc(100vh - 4.5rem);
+  background-color: var(--body-bg);
+}
+
+.event-detail-container {
+  max-width: 900px;
+  margin: 0 auto;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px var(--color-shadow-light);
+  overflow: hidden;
+}
+
+.event-header {
+  width: 100%;
+  height: 250px;
+  background-color: var(--body-bg);
+}
+
+.event-header-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.event-header.placeholder-bg {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #f5f0ff 0%, #e8e0ff 100%);
+}
+
+/* Заголовок и статус в контенте */
+.event-title-section {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.event-detail-title {
+  margin: 0;
+  font-size: 2rem;
+  color: var(--dark-blue);
+  line-height: 1.2;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 0.3rem 1rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  background: #e5e7eb;
+  color: var(--dark-blue);
+}
+
+.status-badge.scheduled {
+  background: rgba(34, 197, 94, 0.15);
+  color: #15803d;
+}
+
+.status-badge.cancelled {
+  background: rgba(220, 38, 38, 0.15);
+  color: #b91c1c;
+}
+
+.status-badge.completed {
+  background: rgba(107, 114, 128, 0.15);
+  color: #4b5563;
+}
+
+/* Контент */
+.event-content {
+  padding: 2rem;
+}
+
+.info-section {
+  background: var(--light-grey);
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+}
+
+.info-section h3 {
+  color: var(--dark-blue);
+  margin-bottom: 1.5rem;
+  margin-top: 0;
+  font-size: 1.3rem;
+}
+
+.info-grid-events {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.info-label {
+  font-weight: 600;
+  color: var(--dark-blue);
+  font-size: 0.95rem;
+}
+
+.info-value {
+  color: var(--text-grey);
+  font-size: 1.05rem;
+}
+
+.info-value.clickable {
+  color: var(--dark-blue);
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-underline-offset: 3px;
+}
+
+.info-value.clickable:hover {
+  color: #4a5568;
+}
+
+.event-description {
+  color: var(--text-grey);
+  line-height: 1.6;
+  font-size: 1.05rem;
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* Действия */
+.event-actions-section {
+  display: flex;
+  gap: 1rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-grey);
+}
+
+.back-btn-events {
+  padding: 0.75rem 1.5rem;
+  background: none;
+  border: 1px solid var(--border-grey);
+  border-radius: 8px;
+  color: var(--dark-blue);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.back-btn-events:hover {
+  background-color: var(--light-grey);
+}
+
+.edit-btn {
+  padding: 0.75rem 1.5rem;
+  background-color: var(--dark-blue);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.edit-btn:hover {
+  background-color: #4a5568;
+}
+
+.register-btn {
+  padding: 0.75rem 2rem;
+  background-color: var(--dark-blue);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.register-btn:hover:not(:disabled) {
+  background-color: #4a5568;
+}
+
+.register-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.unregister-btn {
+  padding: 0.75rem 1.5rem;
+  background: none;
+  border: 1px solid var(--red);
+  border-radius: 8px;
+  color: var(--red);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.unregister-btn:hover {
+  background-color: rgba(220, 38, 38, 0.1);
+}
+
+.cancel-event-btn {
+  padding: 0.75rem 1.5rem;
+  background-color: var(--red);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cancel-event-btn:hover {
+  background-color: var(--dark-red);
+}
+
+.cancel-event-btn:disabled,
+.edit-btn:disabled,
+.unregister-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.loading-spinner {
+  text-align: center;
+  padding: 3rem;
+  color: var(--text-grey);
+}
+
+/* Адаптивность */
+@media (max-width: 640px) {
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .event-actions-section {
+    flex-wrap: wrap;
+  }
+}

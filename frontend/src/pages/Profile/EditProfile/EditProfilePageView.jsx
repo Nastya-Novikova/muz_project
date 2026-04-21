@@ -37,6 +37,7 @@ function EditProfilePageView({
   onRemoveAudioFile,
   onRemoveVideoFile,
   onRemoveExistingAudio,
+  onNotifyByEmailChange,
   onSubmit,
   onCancel
 }) {
@@ -450,6 +451,27 @@ function EditProfilePageView({
                     </div>
                   )}
                 </div>
+              </div>
+            </div>
+
+            {/* Настройка уведомлений */}
+            <div className="form-section">
+              <h2>Настройка уведомлений</h2>
+              <div className="form-group">
+                <label className="checkbox-label">
+                  <input
+                    type="checkbox"
+                    checked={formData.notifyByEmail}
+                    onChange={(e) => onNotifyByEmailChange(e.target.checked)}
+                    className="checkbox-box"
+                  />
+                  <span className="checkbox-span">
+                    Получать уведомления о новых предложениях и мероприятиях на email
+                  </span>
+                </label>
+                <p className="notification-hint">
+                  Уведомления будут приходить на адрес: {userEmail}
+                </p>
               </div>
             </div>
 

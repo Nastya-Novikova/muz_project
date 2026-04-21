@@ -327,3 +327,10 @@
 .checkbox-span {
   font-weight: 400;
 }
+
+.notification-hint {
+  font-size: 0.8rem;
+  color: var(--text-grey);
+  margin-top: 0.25rem;
+  margin-left: 2.2rem;
+}

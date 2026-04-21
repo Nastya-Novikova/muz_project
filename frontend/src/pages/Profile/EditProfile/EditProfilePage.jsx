@@ -24,7 +24,8 @@ function EditProfilePage() {
     collaborationGoalIds: [],
     lookingFor: 'NotLooking',
     desiredGenreIds: [],
-    desiredSpecialtyIds: []
+    desiredSpecialtyIds: [],
+    notifyByEmail: true
   });
 
   const userRole = getUserRole() || 'Individual';
@@ -95,7 +96,8 @@ function EditProfilePage() {
             collaborationGoalIds: profile.collaborationGoals?.map(g => g.id) || [],
             lookingFor: profile.lookingFor || 'NotLooking',
             desiredGenreIds: profile.desiredGenres?.map(g => g.id) || [],
-            desiredSpecialtyIds: profile.desiredSpecialties?.map(s => s.id) || []
+            desiredSpecialtyIds: profile.desiredSpecialties?.map(s => s.id) || [],
+            notifyByEmail: profile.notifyByEmail ?? true
           });
 
           setLookingForChecked(profile.lookingFor !== 'NotLooking');
@@ -268,6 +270,13 @@ function EditProfilePage() {
     setAudiosToDelete(prev => [...prev, audioId]);
   };
 
+  const handleNotifyByEmailChange = (checked) => {
+    setFormData(prev => ({
+      ...prev,
+      notifyByEmail: checked
+    }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSaving(true);
@@ -289,7 +298,8 @@ function EditProfilePage() {
         specialtyIds: formData.specialtyIds.map(id => parseInt(id, 10)),
         collaborationGoalIds: formData.collaborationGoalIds.map(id => parseInt(id, 10)),
         desiredGenreIds: desiredGenres.map(id => parseInt(id, 10)),
-        desiredSpecialtyIds: desiredSpecialties.map(id => parseInt(id, 10))
+        desiredSpecialtyIds: desiredSpecialties.map(id => parseInt(id, 10)),
+        notifyByEmail: formData.notifyByEmail
       };
 
       if (isCreating) {
@@ -376,6 +386,7 @@ function EditProfilePage() {
       onRemoveVideoFile={removeVideoFile}
       onRemoveExistingAudio={removeExistingAudio}
       onSubmit={handleSubmit}
+      onNotifyByEmailChange={handleNotifyByEmailChange}
       onCancel={() => navigate('/profile')}
     />
   );

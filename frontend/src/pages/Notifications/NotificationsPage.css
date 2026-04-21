@@ -1,0 +1,160 @@
+@import '../../variables.css';
+
+.notifications-page {
+  margin-top: 4.5rem;
+  padding: 1.5rem 1rem;
+  min-height: calc(100vh - 4.5rem);
+  background-color: var(--body-bg);
+}
+
+.notifications-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--border-grey);
+}
+
+.notifications-header {
+  padding: 1.5rem;
+  margin: 0;
+  border-bottom: 1px solid var(--border-grey);
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.notifications-header h1 {
+  margin: 0;
+  color: var(--dark-blue);
+  font-size: 1.5rem;
+}
+
+.unread-count {
+  color: var(--text-grey);
+  font-size: 0.9rem;
+}
+
+/* Статус уведомлений (email/vk) */
+.notifications-status {
+  padding: 1.5rem 1.5rem 0 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.status-badge {
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  background: var(--light-grey);
+  color: var(--dark-blue);
+  border: 1px solid var(--border-grey);
+}
+
+.status-badge.email {
+  background: rgba(74, 118, 168, 0.08);
+  border-color: rgba(74, 118, 168, 0.3);
+}
+
+.status-badge.vk {
+  background: rgba(74, 118, 168, 0.08);
+  border-color: rgba(74, 118, 168, 0.3);
+}
+
+.status-message {
+  padding: 0.75rem 0;
+  color: var(--text-grey);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.status-message a {
+  color: var(--dark-blue);
+  font-weight: 500;
+  text-decoration: underline;
+}
+
+/* Кнопка "Отметить все" */
+.mark-all-container {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--border-grey);
+}
+
+.mark-all-read-btn {
+  background: none;
+  border: 1px solid var(--border-grey);
+  border-radius: 20px;
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  color: var(--dark-blue);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.mark-all-read-btn:hover {
+  background-color: var(--light-grey);
+  border-color: var(--focus-grey);
+}
+
+/* Список уведомлений */
+.notifications-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem 1.5rem;
+  background: #f9fafb;
+  border-radius: 8px;
+  margin: 1.5rem;
+  border: 1px dashed var(--border-grey);
+}
+
+.empty-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
+.empty-state h3 {
+  color: var(--dark-blue);
+  margin: 0 0 0.5rem 0;
+  font-size: 1.25rem;
+}
+
+.empty-state p {
+  color: var(--text-grey);
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.load-more-container {
+  padding: 1rem 1.5rem 1.5rem;
+  display: flex;
+  justify-content: center;
+}
+
+.load-more-btn {
+  padding: 0.75rem 2rem;
+  background: white;
+  border: 1px solid var(--border-grey);
+  border-radius: 8px;
+  color: var(--dark-blue);
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.load-more-btn:hover:not(:disabled) {
+  background-color: var(--light-grey);
+  border-color: var(--focus-grey);
+}
+
+.load-more-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
