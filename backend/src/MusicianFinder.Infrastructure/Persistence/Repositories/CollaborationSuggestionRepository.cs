@@ -98,6 +98,13 @@ namespace MusicianFinder.Infrastructure.Persistence.Repositories
             await Task.CompletedTask;
         }
 
+        /// <inheritdoc />
+        public async Task<bool> ExistsAsync(Guid fromProfileId, Guid toProfileId)
+        {
+            return await _context.CollaborationSuggestions
+                .AnyAsync(s => s.FromProfileId == fromProfileId && s.ToProfileId == toProfileId);
+        }
+
         private static IQueryable<CollaborationSuggestion> ApplySorting(IQueryable<CollaborationSuggestion> query, string? sortBy, bool sortDesc)
         {
             return sortBy?.ToLower() switch

@@ -4,6 +4,9 @@ using Microsoft.AspNetCore.Mvc;
 using MusicianFinder.Application.Features.Uploads.UploadAudio;
 using MusicianFinder.Application.Features.Uploads.UploadPhoto;
 using MusicianFinder.Application.Features.Uploads.UploadVideo;
+using MusicianFinder.Application.Features.Uploads.DeleteAudio;
+using MusicianFinder.Application.Features.Uploads.DeletePhoto;
+using MusicianFinder.Application.Features.Uploads.DeleteVideo;
 
 namespace MusicianFinder.API.Controllers
 {
@@ -86,6 +89,39 @@ namespace MusicianFinder.API.Controllers
             };
             var result = await _mediator.Send(command);
             return Ok(result);
+        }
+
+        /// <summary>
+        /// Удалить аудиозапись.
+        /// </summary>
+        [HttpDelete("audio/{id}")]
+        [Authorize]
+        public async Task<IActionResult> DeleteAudio(Guid id)
+        {
+            await _mediator.Send(new DeleteAudioCommand { Id = id });
+            return NoContent();
+        }
+
+        /// <summary>
+        /// Удалить видеозапись.
+        /// </summary>
+        [HttpDelete("video/{id}")]
+        [Authorize]
+        public async Task<IActionResult> DeleteVideo(Guid id)
+        {
+            await _mediator.Send(new DeleteVideoCommand { Id = id });
+            return NoContent();
+        }
+
+        /// <summary>
+        /// Удалить фотографию.
+        /// </summary>
+        [HttpDelete("photo/{id}")]
+        [Authorize]
+        public async Task<IActionResult> DeletePhoto(Guid id)
+        {
+            await _mediator.Send(new DeletePhotoCommand { Id = id });
+            return NoContent();
         }
     }
 }

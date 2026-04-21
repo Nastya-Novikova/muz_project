@@ -72,6 +72,7 @@ namespace MusicianFinder.Application.Features.Events.GetEvents
                 if (currentProfileId.HasValue)
                 {
                     dto.IsRegistered = await _eventRepository.IsUserRegisteredAsync(dto.Id, currentProfileId.Value);
+                    dto.IsCreator = dto.CreatorProfileId == currentProfileId.Value;
                 }
             }
 

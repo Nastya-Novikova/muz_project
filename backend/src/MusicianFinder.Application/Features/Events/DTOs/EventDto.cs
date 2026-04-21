@@ -74,6 +74,11 @@ namespace MusicianFinder.Application.Features.Events.DTOs
         public bool IsRegistered { get; set; }
 
         /// <summary>
+        /// Является ли пользователь создателем мероприятия.
+        /// </summary>
+        public bool IsCreator { get; set; }
+
+        /// <summary>
         /// Статус мероприятия.
         /// </summary>
         public EventStatus Status { get; set; }

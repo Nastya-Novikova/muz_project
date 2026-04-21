@@ -18,8 +18,8 @@ namespace MusicianFinder.Application.Features.Uploads.UploadAudio
         public UploadAudioCommandValidator()
         {
             RuleFor(x => x.Title)
-                .NotEmpty().WithMessage("Название обязательно.")
-                .MaximumLength(100).WithMessage("Название не должно превышать 100 символов.");
+                .MaximumLength(100).When(x => !string.IsNullOrEmpty(x.Title))
+                .WithMessage("Название не должно превышать 100 символов.");
 
             RuleFor(x => x.ContentType)
                 .Must(ct => ct.StartsWith("audio/")).WithMessage("Разрешены только аудиофайлы.");

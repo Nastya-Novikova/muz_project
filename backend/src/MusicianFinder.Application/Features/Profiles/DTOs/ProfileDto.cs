@@ -107,5 +107,20 @@ namespace MusicianFinder.Application.Features.Profiles.DTOs
         /// Искомые специальности.
         /// </summary>
         public List<LookupItemDto> DesiredSpecialties { get; set; } = new();
+
+        /// <summary>
+        /// Является ли профилем текущего пользователя
+        /// </summary>
+        public bool IsMyProfile { get; set; }
+
+        /// <summary>
+        /// Добавлен ли текущий пользователь в избранное
+        /// </summary>
+        public bool IsFavorite { get; set; }
+
+        /// <summary>
+        /// Отправлена ли текущему пользователю предложение о сотрудничестве
+        /// </summary>
+        public bool IsCollaborated { get; set; }
     }
 }

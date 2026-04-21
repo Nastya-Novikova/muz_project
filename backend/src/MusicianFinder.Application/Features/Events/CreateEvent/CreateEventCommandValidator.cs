@@ -39,7 +39,7 @@ namespace MusicianFinder.Application.Features.Events.CreateEvent
                 .WithMessage("Дата окончания должна быть позже даты начала.");
 
             RuleFor(x => x.MaxParticipants)
-                .GreaterThanOrEqualTo(0).WithMessage("Количество участников не может быть отрицательным.");
+                .GreaterThan(0).WithMessage("Количество участников должно быть не менее 1.");
         }
     }
 }

@@ -31,16 +31,22 @@ namespace MusicianFinder.Domain.ValueObjects
             if (string.IsNullOrWhiteSpace(value))
                 throw new ArgumentException("Номер телефона не может быть пустым.", nameof(value));
 
-            // Убираем все нецифровые символы, кроме ведущего '+'
-            var cleaned = value.Trim();
-            if (!cleaned.StartsWith('+'))
-                cleaned = "+" + cleaned;
+            var digitsOnly = new string(value.Where(char.IsDigit).ToArray());
 
-            // Проверяем базовый формат (до 15 цифр)
-            if (!PhoneRegex.IsMatch(cleaned))
-                throw new ArgumentException("Некорректный формат номера телефона.", nameof(value));
+            if (digitsOnly.Length == 11 && (digitsOnly.StartsWith("8") || digitsOnly.StartsWith("7")))
+            {
+                digitsOnly = "7" + digitsOnly.Substring(1);
+            }
+            else if (digitsOnly.Length == 10)
+            {
+                digitsOnly = "7" + digitsOnly;
+            }
 
-            Value = cleaned;
+            if (digitsOnly.Length != 11 || !digitsOnly.StartsWith("7"))
+                throw new ArgumentException("Некорректный номер телефона. Ожидается российский номер.", nameof(value));
+
+            var formatted = $"+{digitsOnly[0]} ({digitsOnly.Substring(1, 3)}) {digitsOnly.Substring(4, 3)} {digitsOnly.Substring(7, 2)} {digitsOnly.Substring(9, 2)}";
+            Value = formatted;
         }
 
         /// <inheritdoc />

@@ -19,7 +19,7 @@ dotnet ef migrations add InitialCreate `
 dotnet ef migrations script `
     --startup-project ../MusicianFinder.API/MusicianFinder.API.csproj `
     --project MusicianFinder.Infrastructure.csproj `
-    -o ../../../../init.sql
+    -o ../../../init.sql
 
 Write-Host "Скрипт init.sql создан в корне репозитория." -ForegroundColor Green
 

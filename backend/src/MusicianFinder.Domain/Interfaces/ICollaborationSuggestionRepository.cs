@@ -52,5 +52,13 @@ namespace MusicianFinder.Domain.Interfaces
         /// </summary>
         /// <param name="suggestion">Предложение с обновлёнными данными.</param>
         Task UpdateAsync(CollaborationSuggestion suggestion);
+
+        /// <summary>
+        /// Проверить, существует ли предложение от указанного отправителя к указанному получателю.
+        /// </summary>
+        /// <param name="fromProfileId">Идентификатор профиля отправителя.</param>
+        /// <param name="toProfileId">Идентификатор профиля получателя.</param>
+        /// <returns>true, если хотя бы одно предложение существует.</returns>
+        Task<bool> ExistsAsync(Guid fromProfileId, Guid toProfileId);
     }
 }

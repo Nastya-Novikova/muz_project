@@ -23,6 +23,8 @@ namespace MusicianFinder.Infrastructure.Persistence.Configurations
             builder.Property(e => e.Title).IsRequired().HasMaxLength(200);
             builder.Property(e => e.Address).HasMaxLength(200);
             builder.Property(e => e.Status).HasConversion<string>().HasDefaultValue(EventStatus.Scheduled);
+            builder.Property(e => e.StartDateTime).HasColumnType("timestamp without time zone");
+            builder.Property(e => e.EndDateTime).HasColumnType("timestamp without time zone");
             builder.Property(e => e.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
             builder.Property(e => e.UpdatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
 
