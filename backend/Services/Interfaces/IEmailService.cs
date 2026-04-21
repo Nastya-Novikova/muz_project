@@ -1,7 +1,0 @@
-﻿namespace backend.Services.Interfaces;
-
-public interface IEmailService
-{
-    Task SendVerificationCodeAsync(string toEmail, string code);
-    Task SendNotificationAsync(string toEmail, string subject, string body);
-}

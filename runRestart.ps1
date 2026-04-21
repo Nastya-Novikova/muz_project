@@ -1,19 +1,33 @@
-Write-Host "Сборка и запуск" -ForegroundColor Cyan
+﻿Write-Host "Генерация миграций и скрипта init.sql" -ForegroundColor Cyan
 
 Set-Location -Path $PSScriptRoot
 
-cd backend
+Set-Location backend/src/MusicianFinder.Infrastructure
 
-rm -r Migrations
+# Удаляем старые миграции, если есть
+if (Test-Path "Migrations") {
+    Remove-Item -Recurse -Force "Migrations"
+    Write-Host "Старые миграции удалены."
+}
 
-dotnet ef migrations add InitialCreate
+# Создаём новую миграцию
+dotnet ef migrations add InitialCreate `
+    --startup-project ../MusicianFinder.API/MusicianFinder.API.csproj `
+    --project MusicianFinder.Infrastructure.csproj
 
-dotnet ef migrations script -o ../init.sql
+# Генерируем SQL-скрипт в корень репозитория (muz_project)
+dotnet ef migrations script `
+    --startup-project ../MusicianFinder.API/MusicianFinder.API.csproj `
+    --project MusicianFinder.Infrastructure.csproj `
+    -o ../../../init.sql
 
-cd ..
+Write-Host "Скрипт init.sql создан в корне репозитория." -ForegroundColor Green
 
-docker-compose down
+# Возвращаемся в корень
+Set-Location -Path $PSScriptRoot
 
-docker-compose down -v
+Write-Host "Остановка контейнеров и удаление томов" -ForegroundColor Yellow
+docker-compose -f docker-compose.backend.yml down -v
 
-Write-Host "🛑 Остановлено." -ForegroundColor Yellow
+Write-Host "Готово. Теперь можно запустить:" -ForegroundColor Green
+Write-Host "docker-compose -f docker-compose.backend.yml up --build" -ForegroundColor White
