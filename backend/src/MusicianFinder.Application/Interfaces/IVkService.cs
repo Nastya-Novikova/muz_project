@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using MusicianFinder.Application.Features.VkIntegration.DTOs;
-
-namespace MusicianFinder.Application.Interfaces
+﻿namespace MusicianFinder.Application.Interfaces
 {
     /// <summary>
     /// Сервис для взаимодействия с API ВКонтакте.

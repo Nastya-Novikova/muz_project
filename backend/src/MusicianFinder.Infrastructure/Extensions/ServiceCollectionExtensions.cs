@@ -1,16 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MusicianFinder.Application.Interfaces;
-using MusicianFinder.Domain.Interfaces;
 using MusicianFinder.Infrastructure.BackgroundServices;
+using MusicianFinder.Infrastructure.Interceptors;
 using MusicianFinder.Infrastructure.Persistence;
-using MusicianFinder.Infrastructure.Persistence.Repositories;
 using MusicianFinder.Infrastructure.Services;
 
 namespace MusicianFinder.Infrastructure.Extensions
@@ -28,27 +22,18 @@ namespace MusicianFinder.Infrastructure.Extensions
         /// <returns>Коллекция сервисов с добавленными зависимостями.</returns>
         public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddDbContext<MusicianFinderDbContext>(options =>
-                options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
+            services.AddSingleton<DispatchDomainEventsInterceptor>();
 
-            services.AddScoped<DbContext>(sp => sp.GetRequiredService<MusicianFinderDbContext>());
+            services.AddDbContext<MusicianFinderDbContext>((sp, options) =>
+            {
+                var interceptor = sp.GetRequiredService<DispatchDomainEventsInterceptor>();
+                options.UseNpgsql(configuration.GetConnectionString("DefaultConnection"))
+                       .AddInterceptors(interceptor);
+            });
 
-            services.AddScoped<ICityRepository, CityRepository>();
-            services.AddScoped<IRegionRepository, RegionRepository>();
-            services.AddScoped<IGenreRepository, GenreRepository>();
-            services.AddScoped<IMusicalSpecialtyRepository, MusicalSpecialtyRepository>();
-            services.AddScoped<ICollaborationGoalRepository, CollaborationGoalRepository>();
-            services.AddScoped<IUserRepository, UserRepository>();
-            services.AddScoped<IProfileRepository, ProfileRepository>();
-            services.AddScoped<IEventRepository, EventRepository>();
-            services.AddScoped<IFavoriteRepository, FavoriteRepository>();
-            services.AddScoped<ICollaborationSuggestionRepository, CollaborationSuggestionRepository>();
-            services.AddScoped<INotificationRepository, NotificationRepository>();
-            services.AddScoped<IPortfolioAudioRepository, PortfolioAudioRepository>();
-            services.AddScoped<IPortfolioVideoRepository, PortfolioVideoRepository>();
-            services.AddScoped<IPortfolioPhotoRepository, PortfolioPhotoRepository>();
-            services.AddScoped<IEmailVerificationCodeRepository, EmailVerificationCodeRepository>();
+            services.AddScoped<IReadDbContext>(sp => sp.GetRequiredService<MusicianFinderDbContext>());
 
+            // Сервисы
             services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<IFileStorage, MinioFileStorage>();
             services.AddScoped<IVkService, VkService>();

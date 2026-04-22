@@ -1,16 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using FluentValidation.Results;
+﻿using FluentValidation.Results;
 
 namespace MusicianFinder.Application.Common.Exceptions
 {
     /// <summary>
     /// Исключение, сигнализирующее об ошибках валидации запроса.
     /// </summary>
-    public class ValidationException : Exception
+    public class ValidationException : System.Exception
     {
         /// <summary>
         /// Словарь ошибок валидации, где ключ — имя свойства, значение — массив сообщений.

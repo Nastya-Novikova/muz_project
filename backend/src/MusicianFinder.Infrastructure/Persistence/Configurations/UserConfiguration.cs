@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using MusicianFinder.Domain.Entities;
 using MusicianFinder.Domain.Enums;
@@ -25,8 +20,6 @@ namespace MusicianFinder.Infrastructure.Persistence.Configurations
             builder.Property(u => u.Role).HasConversion<string>().HasDefaultValue(UserRole.User);
             builder.Property(u => u.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
             builder.Property(u => u.ProfileCreated).IsRequired();
-
-            //builder.HasQueryFilter(u => !u.IsDeleted);
 
             builder.HasOne(u => u.MusicianProfile)
                 .WithOne()

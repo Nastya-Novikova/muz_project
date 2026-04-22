@@ -1,23 +1,19 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MusicianFinder.Application.Features.Profiles.CreateProfile;
-using MusicianFinder.Application.Features.Profiles.DeleteProfile;
-using MusicianFinder.Application.Features.Profiles.GetMedia;
-using MusicianFinder.Application.Features.Profiles.GetMyProfile;
-using MusicianFinder.Application.Features.Profiles.GetNotificationSettings;
-using MusicianFinder.Application.Features.Profiles.GetProfileById;
-using MusicianFinder.Application.Features.Profiles.SearchProfiles;
-using MusicianFinder.Application.Features.Profiles.UpdateAvatar;
-using MusicianFinder.Application.Features.Profiles.UpdateProfile;
+using MusicianFinder.Application.Commands.Profiles;
+using MusicianFinder.Application.Common.Pagination;
+using MusicianFinder.Application.DTOs.Media;
+using MusicianFinder.Application.DTOs.Profiles;
+using MusicianFinder.Application.Queries.Profiles;
 
 namespace MusicianFinder.API.Controllers
 {
     /// <summary>
-    /// Контроллер профилей музыкантов.
+    /// Контроллер для работы с профилями музыкантов.
     /// </summary>
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/profiles")]
     public class ProfilesController : ControllerBase
     {
         private readonly IMediator _mediator;
@@ -25,36 +21,49 @@ namespace MusicianFinder.API.Controllers
         /// <summary>
         /// Инициализирует новый экземпляр <see cref="ProfilesController"/>.
         /// </summary>
+        /// <param name="mediator">Экземпляр <see cref="IMediator"/>.</param>
         public ProfilesController(IMediator mediator)
         {
             _mediator = mediator;
         }
 
         /// <summary>
-        /// Поиск профилей.
+        /// Поиск и фильтрация профилей.
         /// </summary>
-        [HttpPost("search")]
-        public async Task<IActionResult> Search([FromBody] SearchProfilesQuery query)
+        /// <param name="query">Параметры поиска, фильтрации и пагинации.</param>
+        /// <returns>Страница с профилями.</returns>
+        [HttpGet]
+        [ProducesResponseType(typeof(PagedResult<ProfileDto>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> Search([FromQuery] SearchProfilesQuery query)
         {
             var result = await _mediator.Send(query);
             return Ok(result);
         }
 
         /// <summary>
-        /// Получить профиль текущего пользователя.
+        /// Создать профиль музыканта (для нового пользователя).
         /// </summary>
-        [HttpGet("me")]
+        /// <param name="command">Данные для создания профиля.</param>
+        /// <returns>Идентификатор созданного профиля.</returns>
+        [HttpPost]
         [Authorize]
-        public async Task<IActionResult> GetMyProfile()
+        [ProducesResponseType(typeof(ProfileCreatedResponse), StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        public async Task<IActionResult> Create([FromBody] CreateProfileCommand command)
         {
-            var result = await _mediator.Send(new GetMyProfileQuery());
-            return Ok(result);
+            var profileId = await _mediator.Send(command);
+            return CreatedAtAction(nameof(GetById), new { id = profileId }, new { id = profileId });
         }
 
         /// <summary>
-        /// Получить профиль по ID.
+        /// Получить профиль по идентификатору.
         /// </summary>
-        [HttpGet("{id}")]
+        /// <param name="id">Идентификатор профиля.</param>
+        /// <returns>Профиль музыканта.</returns>
+        [HttpGet("{id:guid}")]
+        [ProducesResponseType(typeof(ProfileDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetById(Guid id)
         {
             var result = await _mediator.Send(new GetProfileByIdQuery { ProfileId = id });
@@ -62,74 +71,22 @@ namespace MusicianFinder.API.Controllers
         }
 
         /// <summary>
-        /// Создать профиль.
+        /// Получить медиа-файлы портфолио указанного профиля.
         /// </summary>
-        [HttpPost]
-        [Authorize]
-        public async Task<IActionResult> Create([FromBody] CreateProfileCommand command)
-        {
-            var profileId = await _mediator.Send(command);
-            return Ok(new { id = profileId });
-        }
-
-        /// <summary>
-        /// Обновить профиль.
-        /// </summary>
-        [HttpPut]
-        [Authorize]
-        public async Task<IActionResult> Update([FromBody] UpdateProfileCommand command)
-        {
-            await _mediator.Send(command);
-            return Ok(new { success = true });
-        }
-
-        /// <summary>
-        /// Удалить профиль.
-        /// </summary>
-        [HttpDelete]
-        [Authorize]
-        public async Task<IActionResult> Delete()
-        {
-            await _mediator.Send(new DeleteProfileCommand());
-            return Ok(new { success = true });
-        }
-
-        /// <summary>
-        /// Загрузить аватар.
-        /// </summary>
-        [HttpPost("avatar")]
-        [Authorize]
-        public async Task<IActionResult> UploadAvatar(IFormFile avatar)
-        {
-            var command = new UpdateAvatarCommand
-            {
-                FileStream = avatar.OpenReadStream(),
-                FileName = avatar.FileName,
-                ContentType = avatar.ContentType
-            };
-            var url = await _mediator.Send(command);
-            return Ok(new { avatarUrl = url });
-        }
-
-        /// <summary>
-        /// Получить медиа портфолио.
-        /// </summary>
-        [HttpGet("{id}/media")]
+        /// <param name="id">Идентификатор профиля.</param>
+        /// <returns>Структура с аудио, видео и фото.</returns>
+        [HttpGet("{id:guid}/media")]
+        [ProducesResponseType(typeof(MediaDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetMedia(Guid id)
         {
             var result = await _mediator.Send(new GetMediaQuery { ProfileId = id });
             return Ok(result);
         }
 
-        /// <summary>
-        /// Получить настройки уведомлений.
-        /// </summary>
-        [HttpGet("notification-settings")]
-        [Authorize]
-        public async Task<IActionResult> GetNotificationSettings()
+        private class ProfileCreatedResponse
         {
-            var result = await _mediator.Send(new GetNotificationSettingsQuery());
-            return Ok(result);
+            public Guid Id { get; set; }
         }
     }
 }

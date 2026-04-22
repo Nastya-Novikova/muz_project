@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MusicianFinder.Domain.ValueObjects
 {
@@ -17,7 +13,7 @@ namespace MusicianFinder.Domain.ValueObjects
         public string Value { get; }
 
         /// <summary>
-        /// Создаёт новый экземпляр <see cref="VkUserId"/>.
+        /// Инициализирует новый экземпляр <see cref="VkUserId"/>.
         /// </summary>
         /// <param name="value">Строковое представление идентификатора.</param>
         /// <exception cref="ArgumentException">Выбрасывается, если строка пуста или не является положительным числом.</exception>
@@ -33,7 +29,7 @@ namespace MusicianFinder.Domain.ValueObjects
         }
 
         /// <summary>
-        /// Создаёт новый экземпляр <see cref="VkUserId"/> из числового значения.
+        /// Инициализирует новый экземпляр <see cref="VkUserId"/> из числового значения.
         /// </summary>
         /// <param name="id">Числовой идентификатор.</param>
         public VkUserId(long id) : this(id.ToString())
@@ -57,7 +53,14 @@ namespace MusicianFinder.Domain.ValueObjects
         /// <inheritdoc />
         public override string ToString() => Value;
 
+        /// <summary>
+        /// Оператор равенства.
+        /// </summary>
         public static bool operator ==(VkUserId? left, VkUserId? right) => Equals(left, right);
+
+        /// <summary>
+        /// Оператор неравенства.
+        /// </summary>
         public static bool operator !=(VkUserId? left, VkUserId? right) => !Equals(left, right);
 
         /// <summary>

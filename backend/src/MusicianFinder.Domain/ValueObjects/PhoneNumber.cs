@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Text.RegularExpressions;
 
 namespace MusicianFinder.Domain.ValueObjects
 {
@@ -12,17 +8,13 @@ namespace MusicianFinder.Domain.ValueObjects
     /// </summary>
     public sealed class PhoneNumber : IEquatable<PhoneNumber>
     {
-        private static readonly Regex PhoneRegex = new(
-            @"^\+?[1-9]\d{1,14}$",
-            RegexOptions.Compiled);
-
         /// <summary>
         /// Номер телефона в международном формате (E.164).
         /// </summary>
         public string Value { get; }
 
         /// <summary>
-        /// Создаёт новый экземпляр <see cref="PhoneNumber"/>.
+        /// Инициализирует новый экземпляр <see cref="PhoneNumber"/>.
         /// </summary>
         /// <param name="value">Строка номера телефона.</param>
         /// <exception cref="ArgumentException">Выбрасывается, если строка пуста или имеет неверный формат.</exception>
@@ -33,16 +25,16 @@ namespace MusicianFinder.Domain.ValueObjects
 
             var digitsOnly = new string(value.Where(char.IsDigit).ToArray());
 
-            if (digitsOnly.Length == 11 && (digitsOnly.StartsWith("8") || digitsOnly.StartsWith("7")))
+            if (digitsOnly.Length == 11 && (digitsOnly.StartsWith('8') || digitsOnly.StartsWith('7')))
             {
-                digitsOnly = "7" + digitsOnly.Substring(1);
+                digitsOnly = string.Concat("7", digitsOnly.AsSpan(1));
             }
             else if (digitsOnly.Length == 10)
             {
-                digitsOnly = "7" + digitsOnly;
+                digitsOnly = string.Concat("7", digitsOnly);
             }
 
-            if (digitsOnly.Length != 11 || !digitsOnly.StartsWith("7"))
+            if (digitsOnly.Length != 11 || !digitsOnly.StartsWith('7'))
                 throw new ArgumentException("Некорректный номер телефона. Ожидается российский номер.", nameof(value));
 
             var formatted = $"+{digitsOnly[0]} ({digitsOnly.Substring(1, 3)}) {digitsOnly.Substring(4, 3)} {digitsOnly.Substring(7, 2)} {digitsOnly.Substring(9, 2)}";
@@ -66,7 +58,14 @@ namespace MusicianFinder.Domain.ValueObjects
         /// <inheritdoc />
         public override string ToString() => Value;
 
+        /// <summary>
+        /// Оператор равенства.
+        /// </summary>
         public static bool operator ==(PhoneNumber? left, PhoneNumber? right) => Equals(left, right);
+
+        /// <summary>
+        /// Оператор неравенства.
+        /// </summary>
         public static bool operator !=(PhoneNumber? left, PhoneNumber? right) => !Equals(left, right);
 
         /// <summary>

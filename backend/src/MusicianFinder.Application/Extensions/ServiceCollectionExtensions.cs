@@ -1,15 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
-using System.Reflection;
+﻿using System.Reflection;
 using FluentValidation;
-using MediatR;
-using MusicianFinder.Application.Common.Behaviors;
+using Microsoft.Extensions.DependencyInjection;
+using MusicianFinder.Application.Behaviors;
 
-namespace MusicianFinder.Application
+namespace MusicianFinder.Application.Extensions
 {
     /// <summary>
     /// Методы расширения для регистрации сервисов слоя Application.
@@ -23,20 +17,11 @@ namespace MusicianFinder.Application
         /// <returns>Коллекция сервисов с добавленными зависимостями Application.</returns>
         public static IServiceCollection AddApplication(this IServiceCollection services)
         {
-            // Регистрация MediatR
             services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
-
-            // Регистрация валидаторов FluentValidation
             services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
-
-            // Регистрация pipeline behaviors
-            services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
-            services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
-            services.AddTransient(typeof(IPipelineBehavior<,>), typeof(TransactionBehavior<,>));
-
-            // Регистрация AutoMapper (метод доступен в основном пакете, начиная с версии 13.0.0)
+            services.AddTransient(typeof(MediatR.IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+            services.AddTransient(typeof(MediatR.IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
             services.AddAutoMapper(cfg => cfg.AddMaps(typeof(Common.Mapping.MappingProfile).Assembly));
-
             return services;
         }
     }

@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using MusicianFinder.Domain.Enums;
 
 namespace MusicianFinder.Domain.Entities
@@ -12,8 +8,21 @@ namespace MusicianFinder.Domain.Entities
     /// </summary>
     public class Notification
     {
-        private Notification() { }
+        private Notification()
+        {
+            Title = string.Empty;
+        }
 
+        /// <summary>
+        /// Инициализирует новый экземпляр уведомления.
+        /// </summary>
+        /// <param name="profileId">Идентификатор профиля получателя.</param>
+        /// <param name="type">Тип уведомления.</param>
+        /// <param name="title">Заголовок.</param>
+        /// <param name="entityType">Тип связанной сущности.</param>
+        /// <param name="entityId">Идентификатор связанной сущности.</param>
+        /// <param name="message">Сообщение.</param>
+        /// <param name="imageUrl">URL изображения.</param>
         public Notification(
             Guid profileId,
             NotificationType type,
@@ -41,7 +50,7 @@ namespace MusicianFinder.Domain.Entities
         public Guid Id { get; private set; }
 
         /// <summary>
-        /// ID профиля получателя.
+        /// Идентификатор профиля получателя.
         /// </summary>
         public Guid ProfileId { get; private set; }
 
@@ -51,7 +60,7 @@ namespace MusicianFinder.Domain.Entities
         public NotificationType Type { get; private set; }
 
         /// <summary>
-        /// Заголовок уведомления.
+        /// Заголовок.
         /// </summary>
         public string Title { get; private set; }
 
@@ -61,12 +70,12 @@ namespace MusicianFinder.Domain.Entities
         public string? Message { get; private set; }
 
         /// <summary>
-        /// URL изображения (если есть).
+        /// URL изображения.
         /// </summary>
         public string? ImageUrl { get; private set; }
 
         /// <summary>
-        /// Тип сущности, с которой связано уведомление.
+        /// Тип связанной сущности.
         /// </summary>
         public EntityType EntityType { get; private set; }
 
@@ -85,9 +94,14 @@ namespace MusicianFinder.Domain.Entities
         /// </summary>
         public DateTime CreatedAt { get; private set; }
 
-        // Навигационное свойство
+        /// <summary>
+        /// Профиль получателя.
+        /// </summary>
         public MusicianProfile? Profile { get; private set; }
 
+        /// <summary>
+        /// Отмечает уведомление как прочитанное.
+        /// </summary>
         public void MarkAsRead()
         {
             IsRead = true;

@@ -1,18 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace MusicianFinder.Domain.Entities
+﻿namespace MusicianFinder.Domain.Entities
 {
     /// <summary>
     /// Справочник регионов.
     /// </summary>
     public class Region
     {
-        private Region() { }
+        private Region()
+        {
+            Name = string.Empty;
+            LocalizedName = string.Empty;
+        }
 
+        /// <summary>
+        /// Инициализирует новый экземпляр региона.
+        /// </summary>
+        /// <param name="name">Английское название региона.</param>
+        /// <param name="localizedName">Русское название региона.</param>
         public Region(string name, string localizedName)
         {
             Name = name;
@@ -20,7 +23,7 @@ namespace MusicianFinder.Domain.Entities
         }
 
         /// <summary>
-        /// Идентификатор.
+        /// Идентификатор региона.
         /// </summary>
         public int Id { get; private set; }
 

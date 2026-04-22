@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MusicianFinder.Domain.Entities
 {
@@ -11,8 +7,15 @@ namespace MusicianFinder.Domain.Entities
     /// </summary>
     public class Favorite
     {
-        private Favorite() { }
+        private Favorite()
+        {
+        }
 
+        /// <summary>
+        /// Инициализирует новый экземпляр избранного.
+        /// </summary>
+        /// <param name="userId">Идентификатор пользователя.</param>
+        /// <param name="profileId">Идентификатор профиля.</param>
         public Favorite(Guid userId, Guid profileId)
         {
             UserId = userId;
@@ -21,12 +24,12 @@ namespace MusicianFinder.Domain.Entities
         }
 
         /// <summary>
-        /// Идентификатор пользователя, добавившего в избранное.
+        /// Идентификатор пользователя.
         /// </summary>
         public Guid UserId { get; private set; }
 
         /// <summary>
-        /// Идентификатор профиля, добавленного в избранное.
+        /// Идентификатор профиля.
         /// </summary>
         public Guid ProfileId { get; private set; }
 
@@ -35,8 +38,14 @@ namespace MusicianFinder.Domain.Entities
         /// </summary>
         public DateTime CreatedAt { get; private set; }
 
-        // Навигационные свойства
+        /// <summary>
+        /// Пользователь.
+        /// </summary>
         public User? User { get; private set; }
+
+        /// <summary>
+        /// Профиль.
+        /// </summary>
         public MusicianProfile? Profile { get; private set; }
     }
 }

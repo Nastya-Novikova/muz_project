@@ -1,7 +1,7 @@
 ﻿namespace MusicianFinder.Domain.Enums
 {
     /// <summary>
-    /// Статус мероприятия
+    /// Статус мероприятия.
     /// </summary>
     public enum EventStatus
     {

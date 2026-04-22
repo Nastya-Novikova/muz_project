@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace MusicianFinder.Domain.Entities
 {
@@ -11,10 +7,19 @@ namespace MusicianFinder.Domain.Entities
     /// </summary>
     public class CollaborationGoal
     {
-        private readonly List<MusicianProfile> _profiles = new();
+        private readonly List<MusicianProfile> _profiles = [];
 
-        private CollaborationGoal() { }
+        private CollaborationGoal()
+        {
+            Name = string.Empty;
+            LocalizedName = string.Empty;
+        }
 
+        /// <summary>
+        /// Инициализирует новый экземпляр цели сотрудничества.
+        /// </summary>
+        /// <param name="name">Английское название цели.</param>
+        /// <param name="localizedName">Русское название цели.</param>
         public CollaborationGoal(string name, string localizedName)
         {
             Name = name;
@@ -22,7 +27,7 @@ namespace MusicianFinder.Domain.Entities
         }
 
         /// <summary>
-        /// Идентификатор.
+        /// Идентификатор цели.
         /// </summary>
         public int Id { get; private set; }
 

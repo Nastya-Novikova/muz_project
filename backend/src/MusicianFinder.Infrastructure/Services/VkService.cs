@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text.Json;
+using Microsoft.EntityFrameworkCore;
+using System.Text.Json.Serialization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using MusicianFinder.Application.Interfaces;
-using MusicianFinder.Domain.Interfaces;
-using System.Text.Json;
-using MusicianFinder.Application.Features.VkIntegration.DTOs;
+using MusicianFinder.Infrastructure.Persistence;
 
 namespace MusicianFinder.Infrastructure.Services
 {
@@ -17,7 +13,7 @@ namespace MusicianFinder.Infrastructure.Services
     /// </summary>
     public class VkService : IVkService
     {
-        private readonly IProfileRepository _profileRepository;
+        private readonly MusicianFinderDbContext _dbContext;
         private readonly HttpClient _httpClient;
         private readonly IConfiguration _configuration;
         private readonly ILogger<VkService> _logger;
@@ -25,12 +21,12 @@ namespace MusicianFinder.Infrastructure.Services
         /// <summary>
         /// Инициализирует новый экземпляр <see cref="VkService"/>.
         /// </summary>
-        /// <param name="profileRepository">Репозиторий профилей.</param>
+        /// <param name="dbContext">Контекст базы данных.</param>
         /// <param name="configuration">Конфигурация приложения.</param>
         /// <param name="logger">Логгер.</param>
-        public VkService(IProfileRepository profileRepository, IConfiguration configuration, ILogger<VkService> logger)
+        public VkService(MusicianFinderDbContext dbContext, IConfiguration configuration, ILogger<VkService> logger)
         {
-            _profileRepository = profileRepository;
+            _dbContext = dbContext;
             _httpClient = new HttpClient();
             _configuration = configuration;
             _logger = logger;
@@ -39,7 +35,8 @@ namespace MusicianFinder.Infrastructure.Services
         /// <inheritdoc />
         public async Task ConnectVkAsync(Guid userId, string code, string codeVerifier, string deviceId)
         {
-            var profile = await _profileRepository.GetByUserIdAsync(userId);
+            var profile = await _dbContext.MusicianProfiles
+                .FirstOrDefaultAsync(p => p.Id == userId && !p.IsDeleted);
             if (profile == null)
                 throw new InvalidOperationException("Профиль не найден.");
 
@@ -48,7 +45,7 @@ namespace MusicianFinder.Infrastructure.Services
                 throw new InvalidOperationException("Не удалось получить идентификатор пользователя VK.");
 
             profile.SetVkUserId(vkUserId.Value.ToString());
-            await _profileRepository.UpdateAsync(profile);
+            await _dbContext.SaveChangesAsync();
         }
 
         /// <inheritdoc />
@@ -88,7 +85,8 @@ namespace MusicianFinder.Infrastructure.Services
         /// <inheritdoc />
         public async Task<bool> SendNotificationAsync(Guid userId, string message)
         {
-            var profile = await _profileRepository.GetByUserIdAsync(userId);
+            var profile = await _dbContext.MusicianProfiles
+                .FirstOrDefaultAsync(p => p.Id == userId && !p.IsDeleted);
             if (profile == null || string.IsNullOrEmpty(profile.VkUserId))
                 return false;
 
@@ -111,6 +109,21 @@ namespace MusicianFinder.Infrastructure.Services
             var json = await response.Content.ReadAsStringAsync();
 
             return json.Contains("\"response\":");
+        }
+
+        private class VkTokenResponse
+        {
+            [JsonPropertyName("access_token")]
+            public string AccessToken { get; set; } = string.Empty;
+
+            [JsonPropertyName("user_id")]
+            public long UserId { get; set; }
+
+            [JsonPropertyName("error")]
+            public string? Error { get; set; }
+
+            [JsonPropertyName("error_description")]
+            public string? ErrorDescription { get; set; }
         }
     }
 }

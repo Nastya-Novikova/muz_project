@@ -1,21 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using AutoMapper;
+﻿using AutoMapper;
+using MusicianFinder.Application.DTOs.Auth;
+using MusicianFinder.Application.DTOs.Events;
+using MusicianFinder.Application.DTOs.Media;
+using MusicianFinder.Application.DTOs.Metadata;
+using MusicianFinder.Application.DTOs.Notifications;
+using MusicianFinder.Application.DTOs.Profiles;
+using MusicianFinder.Application.DTOs.Suggestions;
 using MusicianFinder.Domain.Entities;
-using MusicianFinder.Domain.ValueObjects;
-using MusicianFinder.Application.Features.Events.DTOs;
-using MusicianFinder.Application.Features.Profiles.DTOs;
-using MusicianFinder.Application.Features.Collaborations.DTOs;
-using MusicianFinder.Application.Features.Favorites.DTOs;
-using MusicianFinder.Application.Features.Notifications.DTOs;
-using MusicianFinder.Application.Features.Uploads.DTOs;
-using MusicianFinder.Application.Features.Metadata.DTOs;
-using MusicianFinder.Application.Features.Auth.DTOs;
-using MusicianFinder.Application.Features.Profiles.GetMedia;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace MusicianFinder.Application.Common.Mapping
 {
@@ -29,75 +20,62 @@ namespace MusicianFinder.Application.Common.Mapping
         /// </summary>
         public MappingProfile()
         {
-            // Справочники
             CreateMap<City, LookupItemDto>();
             CreateMap<Region, LookupItemDto>();
             CreateMap<Genre, LookupItemDto>();
             CreateMap<MusicalSpecialty, LookupItemDto>();
             CreateMap<CollaborationGoal, LookupItemDto>();
 
-            // Профиль музыканта
             CreateMap<MusicianProfile, ProfileDto>()
-                .ForMember(dest => dest.City, opt => opt.MapFrom(src => src.City))
-                .ForMember(dest => dest.NotifyByEmail, opt => opt.MapFrom(src => src.NotifyByEmail))
-                .ForMember(dest => dest.NotifyByVk, opt => opt.MapFrom(src => src.NotifyByVk));
+                .ForMember(dto => dto.City, opt => opt.MapFrom(src => src.City))
+                .ForMember(dto => dto.Genres, opt => opt.MapFrom(src => src.Genres))
+                .ForMember(dto => dto.Specialties, opt => opt.MapFrom(src => src.Specialties))
+                .ForMember(dto => dto.CollaborationGoals, opt => opt.MapFrom(src => src.CollaborationGoals))
+                .ForMember(dto => dto.DesiredGenres, opt => opt.MapFrom(src => src.DesiredGenres))
+                .ForMember(dto => dto.DesiredSpecialties, opt => opt.MapFrom(src => src.DesiredSpecialties));
 
             CreateMap<MusicianProfile, ProfileShortDto>()
-                .ForMember(dest => dest.City, opt => opt.MapFrom(src => src.City));
+                .ForMember(dto => dto.City, opt => opt.MapFrom(src => src.City))
+                .ForMember(dto => dto.Genres, opt => opt.MapFrom(src => src.Genres))
+                .ForMember(dto => dto.Specialties, opt => opt.MapFrom(src => src.Specialties));
 
-            // Избранное
-            CreateMap<MusicianProfile, FavoriteProfileDto>()
-                .ForMember(dest => dest.Profile, opt => opt.MapFrom(src => src))
-                .ForMember(dest => dest.AddedAt, opt => opt.Ignore());
-
-            // Предложения о сотрудничестве
-            CreateMap<CollaborationSuggestion, SuggestionDto>();
-
-            // Уведомления
-            CreateMap<Notification, NotificationDto>();
-
-            // Мероприятия
             CreateMap<Event, EventDto>()
-                .ForMember(dest => dest.Region, opt => opt.MapFrom(src => src.Region))
-                .ForMember(dest => dest.City, opt => opt.MapFrom(src => src.City))
-                .ForMember(dest => dest.CurrentParticipants, opt => opt.Ignore())
-                .ForMember(dest => dest.IsRegistered, opt => opt.Ignore())
-                .ForMember(dest => dest.CreatorFullName, opt => opt.MapFrom(src => src.CreatorProfile != null ? src.CreatorProfile.FullName : string.Empty))
-                .ForMember(dest => dest.CreatorAvatarUrl, opt => opt.MapFrom(src => src.CreatorProfile != null ? src.CreatorProfile.AvatarUrl : null));
+                .ForMember(dto => dto.Region, opt => opt.MapFrom(src => src.Region))
+                .ForMember(dto => dto.City, opt => opt.MapFrom(src => src.City))
+                .ForMember(dto => dto.CreatorFullName, opt => opt.MapFrom(src => src.CreatorProfile != null ? src.CreatorProfile.FullName : string.Empty))
+                .ForMember(dto => dto.CreatorAvatarUrl, opt => opt.MapFrom(src => src.CreatorProfile != null ? src.CreatorProfile.AvatarUrl : null))
+                .ForMember(dto => dto.CurrentParticipants, opt => opt.Ignore())
+                .ForMember(dto => dto.IsRegistered, opt => opt.Ignore())
+                .ForMember(dto => dto.IsCreator, opt => opt.Ignore());
 
-            // Портфолио
-            CreateMap<PortfolioAudio, AudioDto>();
-            CreateMap<PortfolioVideo, VideoDto>();
-            CreateMap<PortfolioPhoto, PhotoDto>();
+            CreateMap<PortfolioItem, AudioDto>()
+                .ForMember(dto => dto.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dto => dto.Title, opt => opt.MapFrom(src => src.Title))
+                .ForMember(dto => dto.Description, opt => opt.MapFrom(src => src.Description))
+                .ForMember(dto => dto.FileUrl, opt => opt.MapFrom(src => src.FileUrl))
+                .ForMember(dto => dto.MimeType, opt => opt.MapFrom(src => src.MimeType))
+                .ForMember(dto => dto.Duration, opt => opt.MapFrom(src => src.Duration))
+                .ForMember(dto => dto.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt));
 
-            CreateMap<PortfolioAudio, UploadResultDto>()
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title))
-                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
-                .ForMember(dest => dest.FileUrl, opt => opt.MapFrom(src => src.FileUrl))
-                .ForMember(dest => dest.MimeType, opt => opt.MapFrom(src => src.MimeType))
-                .ForMember(dest => dest.Duration, opt => opt.MapFrom(src => src.Duration))
-                .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt));
+            CreateMap<PortfolioItem, VideoDto>()
+                .ForMember(dto => dto.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dto => dto.Title, opt => opt.MapFrom(src => src.Title))
+                .ForMember(dto => dto.Description, opt => opt.MapFrom(src => src.Description))
+                .ForMember(dto => dto.FileUrl, opt => opt.MapFrom(src => src.FileUrl))
+                .ForMember(dto => dto.MimeType, opt => opt.MapFrom(src => src.MimeType))
+                .ForMember(dto => dto.Duration, opt => opt.MapFrom(src => src.Duration))
+                .ForMember(dto => dto.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt));
 
-            CreateMap<PortfolioVideo, UploadResultDto>()
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title))
-                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
-                .ForMember(dest => dest.FileUrl, opt => opt.MapFrom(src => src.FileUrl))
-                .ForMember(dest => dest.MimeType, opt => opt.MapFrom(src => src.MimeType))
-                .ForMember(dest => dest.Duration, opt => opt.MapFrom(src => src.Duration))
-                .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt));
+            CreateMap<PortfolioItem, PhotoDto>()
+                .ForMember(dto => dto.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dto => dto.Title, opt => opt.MapFrom(src => src.Title))
+                .ForMember(dto => dto.Description, opt => opt.MapFrom(src => src.Description))
+                .ForMember(dto => dto.FileUrl, opt => opt.MapFrom(src => src.FileUrl))
+                .ForMember(dto => dto.MimeType, opt => opt.MapFrom(src => src.MimeType))
+                .ForMember(dto => dto.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt));
 
-            CreateMap<PortfolioPhoto, UploadResultDto>()
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-                .ForMember(dest => dest.Title, opt => opt.MapFrom(src => src.Title))
-                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
-                .ForMember(dest => dest.FileUrl, opt => opt.MapFrom(src => src.FileUrl))
-                .ForMember(dest => dest.MimeType, opt => opt.MapFrom(src => src.MimeType))
-                .ForMember(dest => dest.Duration, opt => opt.Ignore())
-                .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt));
-
-            // Пользователь
+            CreateMap<CollaborationSuggestion, SuggestionDto>();
+            CreateMap<Notification, NotificationDto>();
             CreateMap<User, UserDto>();
         }
     }

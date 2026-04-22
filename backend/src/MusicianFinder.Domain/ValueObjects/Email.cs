@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 
 namespace MusicianFinder.Domain.ValueObjects
@@ -10,12 +6,10 @@ namespace MusicianFinder.Domain.ValueObjects
     /// <summary>
     /// Value Object, представляющий email-адрес.
     /// </summary>
-    public sealed class Email : IEquatable<Email>
+    public sealed partial class Email : IEquatable<Email>
     {
-        private static readonly Regex EmailRegex = new(
-            @"^(?("")("".+?(?<!\\)""@)|(([0-9a-z]((\.(?!\.))|[-!#\$%&'\*\+/=\?\^`\{\}\|~\w])*)(?<=[0-9a-z])@))" +
-            @"(?(\[)(\[(\d{1,3}\.){3}\d{1,3}\])|(([0-9a-z][-0-9a-z]*[0-9a-z]*\.)+[a-z0-9][\-a-z0-9]{0,22}[a-z0-9]))$",
-            RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        [GeneratedRegex(@"^(?("")("".+?(?<!\\)""@)|(([0-9a-z]((\.(?!\.))|[-!#\$%&'\*\+/=\?\^`\{\}\|~\w])*)(?<=[0-9a-z])@))(?(\[)(\[(\d{1,3}\.){3}\d{1,3}\])|(([0-9a-z][-0-9a-z]*[0-9a-z]*\.)+[a-z0-9][\-a-z0-9]{0,22}[a-z0-9]))$", RegexOptions.IgnoreCase | RegexOptions.Compiled, "ru-RU")]
+        private static partial Regex EmailRegex();
 
         /// <summary>
         /// Строковое представление email-адреса.
@@ -23,7 +17,7 @@ namespace MusicianFinder.Domain.ValueObjects
         public string Value { get; }
 
         /// <summary>
-        /// Создаёт новый экземпляр <see cref="Email"/>.
+        /// Инициализирует новый экземпляр <see cref="Email"/>.
         /// </summary>
         /// <param name="value">Строка email-адреса.</param>
         /// <exception cref="ArgumentException">Выбрасывается, если строка пуста или имеет неверный формат.</exception>
@@ -32,7 +26,7 @@ namespace MusicianFinder.Domain.ValueObjects
             if (string.IsNullOrWhiteSpace(value))
                 throw new ArgumentException("Email не может быть пустым.", nameof(value));
 
-            if (!EmailRegex.IsMatch(value))
+            if (!EmailRegex().IsMatch(value))
                 throw new ArgumentException("Некорректный формат email.", nameof(value));
 
             Value = value.ToLowerInvariant();
@@ -55,7 +49,14 @@ namespace MusicianFinder.Domain.ValueObjects
         /// <inheritdoc />
         public override string ToString() => Value;
 
+        /// <summary>
+        /// Оператор равенства.
+        /// </summary>
         public static bool operator ==(Email? left, Email? right) => Equals(left, right);
+
+        /// <summary>
+        /// Оператор неравенства.
+        /// </summary>
         public static bool operator !=(Email? left, Email? right) => !Equals(left, right);
 
         /// <summary>

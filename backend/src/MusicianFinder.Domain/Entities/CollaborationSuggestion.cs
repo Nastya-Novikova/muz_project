@@ -1,41 +1,48 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using MusicianFinder.Domain.Common;
+using MusicianFinder.Domain.Enums;
+using MusicianFinder.Domain.Exceptions;
 
 namespace MusicianFinder.Domain.Entities
 {
     /// <summary>
-    /// Предложение о сотрудничестве.
+    /// Предложение о сотрудничестве. Корень агрегата.
     /// </summary>
-    public class CollaborationSuggestion
+    public class CollaborationSuggestion : AggregateRoot
     {
-        private CollaborationSuggestion() { }
+        private CollaborationSuggestion()
+        {
+        }
 
+        /// <summary>
+        /// Инициализирует новый экземпляр предложения.
+        /// </summary>
+        /// <param name="fromProfileId">Идентификатор отправителя.</param>
+        /// <param name="toProfileId">Идентификатор получателя.</param>
+        /// <param name="message">Сообщение.</param>
         public CollaborationSuggestion(Guid fromProfileId, Guid toProfileId, string? message = null)
         {
             Id = Guid.NewGuid();
             FromProfileId = fromProfileId;
             ToProfileId = toProfileId;
             Message = message;
-            Status = "pending";
+            Status = SuggestionStatus.Pending;
             CreatedAt = DateTime.UtcNow;
             UpdatedAt = DateTime.UtcNow;
         }
 
         /// <summary>
-        /// Идентификатор предложения.
+        /// Уникальный идентификатор предложения.
         /// </summary>
         public Guid Id { get; private set; }
 
         /// <summary>
-        /// ID отправителя.
+        /// Идентификатор отправителя.
         /// </summary>
         public Guid FromProfileId { get; private set; }
 
         /// <summary>
-        /// ID получателя.
+        /// Идентификатор получателя.
         /// </summary>
         public Guid ToProfileId { get; private set; }
 
@@ -45,9 +52,9 @@ namespace MusicianFinder.Domain.Entities
         public string? Message { get; private set; }
 
         /// <summary>
-        /// Статус: pending, accepted, rejected, withdrawn.
+        /// Статус предложения.
         /// </summary>
-        public string Status { get; private set; }
+        public SuggestionStatus Status { get; private set; }
 
         /// <summary>
         /// Дата создания.
@@ -59,31 +66,52 @@ namespace MusicianFinder.Domain.Entities
         /// </summary>
         public DateTime UpdatedAt { get; private set; }
 
-        // Навигационные свойства
+        /// <summary>
+        /// Профиль отправителя.
+        /// </summary>
         public MusicianProfile? FromProfile { get; private set; }
+
+        /// <summary>
+        /// Профиль получателя.
+        /// </summary>
         public MusicianProfile? ToProfile { get; private set; }
 
+        /// <summary>
+        /// Принимает предложение.
+        /// </summary>
+        /// <exception cref="DomainException">Выбрасывается, если предложение не в статусе Pending.</exception>
         public void Accept()
         {
-            if (Status != "pending")
-                throw new InvalidOperationException("Only pending suggestions can be accepted.");
-            Status = "accepted";
+            if (Status != SuggestionStatus.Pending)
+                throw new DomainException("Принять можно только ожидающее предложение.");
+
+            Status = SuggestionStatus.Accepted;
             UpdatedAt = DateTime.UtcNow;
         }
 
+        /// <summary>
+        /// Отклоняет предложение.
+        /// </summary>
+        /// <exception cref="DomainException">Выбрасывается, если предложение не в статусе Pending.</exception>
         public void Reject()
         {
-            if (Status != "pending")
-                throw new InvalidOperationException("Only pending suggestions can be rejected.");
-            Status = "rejected";
+            if (Status != SuggestionStatus.Pending)
+                throw new DomainException("Отклонить можно только ожидающее предложение.");
+
+            Status = SuggestionStatus.Rejected;
             UpdatedAt = DateTime.UtcNow;
         }
 
+        /// <summary>
+        /// Отзывает предложение (отправителем).
+        /// </summary>
+        /// <exception cref="DomainException">Выбрасывается, если предложение не в статусе Pending.</exception>
         public void Withdraw()
         {
-            if (Status != "pending")
-                throw new InvalidOperationException("Only pending suggestions can be withdrawn.");
-            Status = "withdrawn";
+            if (Status != SuggestionStatus.Pending)
+                throw new DomainException("Отозвать можно только ожидающее предложение.");
+
+            Status = SuggestionStatus.Withdrawn;
             UpdatedAt = DateTime.UtcNow;
         }
     }

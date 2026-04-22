@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace MusicianFinder.Application.Interfaces
+﻿namespace MusicianFinder.Application.Interfaces
 {
     /// <summary>
     /// Сервис для работы с файловым хранилищем (например, MinIO).

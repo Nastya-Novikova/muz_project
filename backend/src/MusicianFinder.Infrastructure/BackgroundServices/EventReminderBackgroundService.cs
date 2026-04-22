@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using MusicianFinder.Application.Interfaces;
 using MusicianFinder.Domain.Enums;
-using MusicianFinder.Domain.Interfaces;
+using MusicianFinder.Infrastructure.Persistence;
 
 namespace MusicianFinder.Infrastructure.BackgroundServices
 {
@@ -54,24 +50,27 @@ namespace MusicianFinder.Infrastructure.BackgroundServices
         private async Task CheckAndCreateRemindersAsync(CancellationToken cancellationToken)
         {
             using var scope = _serviceScopeFactory.CreateScope();
-            var eventRepository = scope.ServiceProvider.GetRequiredService<IEventRepository>();
+            var dbContext = scope.ServiceProvider.GetRequiredService<MusicianFinderDbContext>();
             var notificationService = scope.ServiceProvider.GetRequiredService<INotificationService>();
 
             var targetStart = DateTime.UtcNow.AddHours(24);
-            var events = await eventRepository.SearchAsync(
-                fromDate: targetStart.Date,
-                toDate: targetStart.Date.AddDays(1).AddTicks(-1),
-                status: EventStatus.Scheduled,
-                page: 1,
-                limit: 1000);
+            var startOfDay = targetStart.Date;
+            var endOfDay = startOfDay.AddDays(1);
 
-            foreach (var ev in events.Items)
+            var events = await dbContext.Events
+                .Where(e => !e.IsDeleted &&
+                            e.Status == EventStatus.Scheduled &&
+                            e.StartDateTime >= startOfDay &&
+                            e.StartDateTime < endOfDay)
+                .Include(e => e.Registrations)
+                .ToListAsync(cancellationToken);
+
+            foreach (var ev in events)
             {
                 if (Math.Abs((ev.StartDateTime - targetStart).TotalHours) > 1)
                     continue;
 
-                var registrations = await eventRepository.GetRegistrationsByEventIdAsync(ev.Id);
-                foreach (var reg in registrations)
+                foreach (var reg in ev.Registrations)
                 {
                     var daysLeft = (int)Math.Ceiling((ev.StartDateTime - DateTime.UtcNow).TotalDays);
                     if (daysLeft <= 0) daysLeft = 1;
@@ -88,7 +87,7 @@ namespace MusicianFinder.Infrastructure.BackgroundServices
                 }
             }
 
-            _logger.LogInformation("Проверка напоминаний завершена. Обработано мероприятий: {Count}", events.Items.Count);
+            _logger.LogInformation("Проверка напоминаний завершена. Обработано мероприятий: {Count}", events.Count);
         }
     }
 }

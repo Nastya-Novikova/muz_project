@@ -1,24 +1,18 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MusicianFinder.Application.Features.Events.CancelEvent;
-using MusicianFinder.Application.Features.Events.CreateEvent;
-using MusicianFinder.Application.Features.Events.GetEventById;
-using MusicianFinder.Application.Features.Events.GetEvents;
-using MusicianFinder.Application.Features.Events.GetMyCreatedEvents;
-using MusicianFinder.Application.Features.Events.GetMyRegisteredEvents;
-using MusicianFinder.Application.Features.Events.RegisterToEvent;
-using MusicianFinder.Application.Features.Events.UnregisterFromEvent;
-using MusicianFinder.Application.Features.Events.UpdateEvent;
-using MusicianFinder.Application.Features.Events.UploadEventImage;
+using MusicianFinder.Application.Commands.Events;
+using MusicianFinder.Application.Common.Pagination;
+using MusicianFinder.Application.DTOs.Events;
+using MusicianFinder.Application.Queries.Events;
 
 namespace MusicianFinder.API.Controllers
 {
     /// <summary>
-    /// Контроллер мероприятий.
+    /// Контроллер для работы с мероприятиями.
     /// </summary>
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/events")]
     public class EventsController : ControllerBase
     {
         private readonly IMediator _mediator;
@@ -26,15 +20,19 @@ namespace MusicianFinder.API.Controllers
         /// <summary>
         /// Инициализирует новый экземпляр <see cref="EventsController"/>.
         /// </summary>
+        /// <param name="mediator">Экземпляр <see cref="IMediator"/>.</param>
         public EventsController(IMediator mediator)
         {
             _mediator = mediator;
         }
 
         /// <summary>
-        /// Получить список мероприятий.
+        /// Получить список мероприятий с фильтрацией и пагинацией.
         /// </summary>
+        /// <param name="query">Параметры фильтрации и пагинации.</param>
+        /// <returns>Страница с мероприятиями.</returns>
         [HttpGet]
+        [ProducesResponseType(typeof(PagedResult<EventDto>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetEvents([FromQuery] GetEventsQuery query)
         {
             var result = await _mediator.Send(query);
@@ -42,9 +40,28 @@ namespace MusicianFinder.API.Controllers
         }
 
         /// <summary>
-        /// Получить мероприятие по ID.
+        /// Создать новое мероприятие.
         /// </summary>
-        [HttpGet("{id}")]
+        /// <param name="command">Данные мероприятия.</param>
+        /// <returns>Идентификатор созданного мероприятия.</returns>
+        [HttpPost]
+        [Authorize]
+        [ProducesResponseType(typeof(EventCreatedResponse), StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> Create([FromBody] CreateEventCommand command)
+        {
+            var eventId = await _mediator.Send(command);
+            return CreatedAtAction(nameof(GetById), new { id = eventId }, new { id = eventId });
+        }
+
+        /// <summary>
+        /// Получить мероприятие по идентификатору.
+        /// </summary>
+        /// <param name="id">Идентификатор мероприятия.</param>
+        /// <returns>Мероприятие.</returns>
+        [HttpGet("{id:guid}")]
+        [ProducesResponseType(typeof(EventDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetById(Guid id)
         {
             var result = await _mediator.Send(new GetEventByIdQuery { EventId = id });
@@ -52,66 +69,52 @@ namespace MusicianFinder.API.Controllers
         }
 
         /// <summary>
-        /// Создать мероприятие.
+        /// Полностью обновить мероприятие.
         /// </summary>
-        [HttpPost]
+        /// <param name="id">Идентификатор мероприятия.</param>
+        /// <param name="command">Данные для обновления.</param>
+        /// <returns>Статус 204 No Content.</returns>
+        [HttpPut("{id:guid}")]
         [Authorize]
-        public async Task<IActionResult> Create([FromBody] CreateEventCommand command)
-        {
-            var eventId = await _mediator.Send(command);
-            return Ok(new { id = eventId });
-        }
-
-        /// <summary>
-        /// Обновить мероприятие.
-        /// </summary>
-        [HttpPut("{id}")]
-        [Authorize]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Update(Guid id, [FromBody] UpdateEventCommand command)
         {
             command.EventId = id;
             await _mediator.Send(command);
-            return Ok(new { success = true });
+            return NoContent();
         }
 
         /// <summary>
-        /// Отменить мероприятие.
+        /// Отменить мероприятие (мягкое удаление).
         /// </summary>
-        [HttpDelete("{id}")]
+        /// <param name="id">Идентификатор мероприятия.</param>
+        /// <returns>Статус 204 No Content.</returns>
+        [HttpDelete("{id:guid}")]
         [Authorize]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Cancel(Guid id)
         {
             await _mediator.Send(new CancelEventCommand { EventId = id });
-            return Ok(new { success = true });
+            return NoContent();
         }
 
         /// <summary>
-        /// Зарегистрироваться на мероприятие.
+        /// Загрузить или обновить изображение мероприятия.
         /// </summary>
-        [HttpPost("{id}/register")]
+        /// <param name="id">Идентификатор мероприятия.</param>
+        /// <param name="image">Файл изображения.</param>
+        /// <returns>URL загруженного изображения.</returns>
+        [HttpPost("{id:guid}/image")]
         [Authorize]
-        public async Task<IActionResult> Register(Guid id)
-        {
-            await _mediator.Send(new RegisterToEventCommand { EventId = id });
-            return Ok(new { success = true });
-        }
-
-        /// <summary>
-        /// Отменить регистрацию.
-        /// </summary>
-        [HttpDelete("{id}/register")]
-        [Authorize]
-        public async Task<IActionResult> Unregister(Guid id)
-        {
-            await _mediator.Send(new UnregisterFromEventCommand { EventId = id });
-            return Ok(new { success = true });
-        }
-
-        /// <summary>
-        /// Загрузить изображение мероприятия.
-        /// </summary>
-        [HttpPost("{id}/image")]
-        [Authorize]
+        [ProducesResponseType(typeof(ImageUploadResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> UploadImage(Guid id, IFormFile image)
         {
             var command = new UploadEventImageCommand
@@ -126,25 +129,46 @@ namespace MusicianFinder.API.Controllers
         }
 
         /// <summary>
-        /// Получить созданные мной мероприятия.
+        /// Записаться на мероприятие.
         /// </summary>
-        [HttpGet("my/created")]
+        /// <param name="id">Идентификатор мероприятия.</param>
+        /// <returns>Статус 204 No Content.</returns>
+        [HttpPost("{id:guid}/registrations")]
         [Authorize]
-        public async Task<IActionResult> GetMyCreated([FromQuery] GetMyCreatedEventsQuery query)
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        public async Task<IActionResult> Register(Guid id)
         {
-            var result = await _mediator.Send(query);
-            return Ok(result);
+            await _mediator.Send(new RegisterToEventCommand { EventId = id });
+            return NoContent();
         }
 
         /// <summary>
-        /// Получить мероприятия, на которые я записан.
+        /// Отменить свою регистрацию на мероприятие.
         /// </summary>
-        [HttpGet("my/registered")]
+        /// <param name="id">Идентификатор мероприятия.</param>
+        /// <returns>Статус 204 No Content.</returns>
+        [HttpDelete("{id:guid}/registrations/me")]
         [Authorize]
-        public async Task<IActionResult> GetMyRegistered([FromQuery] GetMyRegisteredEventsQuery query)
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> Unregister(Guid id)
         {
-            var result = await _mediator.Send(query);
-            return Ok(result);
+            await _mediator.Send(new UnregisterFromEventCommand { EventId = id });
+            return NoContent();
+        }
+
+        private class EventCreatedResponse
+        {
+            public Guid Id { get; set; }
+        }
+
+        private class ImageUploadResponse
+        {
+            public string ImageUrl { get; set; } = string.Empty;
         }
     }
 }

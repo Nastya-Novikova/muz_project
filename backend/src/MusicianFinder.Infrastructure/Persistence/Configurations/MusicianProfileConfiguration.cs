@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using MusicianFinder.Domain.Entities;
 
@@ -19,6 +14,7 @@ namespace MusicianFinder.Infrastructure.Persistence.Configurations
         {
             builder.ToTable("MusicianProfile");
             builder.HasKey(p => p.Id);
+
             builder.Property(p => p.FullName).IsRequired().HasMaxLength(100);
             builder.Property(p => p.Phone).HasMaxLength(20);
             builder.Property(p => p.Telegram).HasMaxLength(50);
@@ -33,14 +29,11 @@ namespace MusicianFinder.Infrastructure.Persistence.Configurations
             builder.Property(p => p.Email).IsRequired().HasMaxLength(256);
             builder.HasIndex(p => p.Email).IsUnique();
 
-            //builder.HasQueryFilter(p => !p.IsDeleted);
-
             builder.HasOne(p => p.City)
                 .WithMany()
                 .HasForeignKey(p => p.CityId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // Связи многие-ко-многим
             builder.HasMany(p => p.Genres)
                 .WithMany(g => g.Profiles)
                 .UsingEntity(j => j.ToTable("ProfileGenres"));
@@ -61,21 +54,19 @@ namespace MusicianFinder.Infrastructure.Persistence.Configurations
                 .WithMany(s => s.ProfilesLookingForThisSpecialty)
                 .UsingEntity(j => j.ToTable("ProfileDesiredSpecialties"));
 
-            // Связи один-ко-многим с портфолио
-            builder.HasMany(p => p.AudioFiles)
-                .WithOne(a => a.Profile)
-                .HasForeignKey(a => a.ProfileId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            builder.HasMany(p => p.VideoFiles)
-                .WithOne(v => v.Profile)
-                .HasForeignKey(v => v.ProfileId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            builder.HasMany(p => p.Photos)
-                .WithOne(ph => ph.Profile)
-                .HasForeignKey(ph => ph.ProfileId)
-                .OnDelete(DeleteBehavior.Cascade);
+            builder.OwnsMany(p => p.PortfolioItems, a =>
+            {
+                a.ToTable("PortfolioItems");
+                a.WithOwner().HasForeignKey("ProfileId");
+                a.HasKey("Id");
+                a.Property(x => x.Title).HasMaxLength(100).IsRequired();
+                a.Property(x => x.Description).HasMaxLength(500);
+                a.Property(x => x.FileUrl).IsRequired();
+                a.Property(x => x.MimeType).HasMaxLength(50).IsRequired();
+                a.Property(x => x.Type).HasConversion<string>().IsRequired();
+                a.Property(x => x.Duration);
+                a.Property(x => x.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+            });
         }
     }
 }

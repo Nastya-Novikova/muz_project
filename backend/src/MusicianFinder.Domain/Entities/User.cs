@@ -1,25 +1,36 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using MusicianFinder.Domain.Common;
 using MusicianFinder.Domain.Enums;
+using MusicianFinder.Domain.Exceptions;
 
 namespace MusicianFinder.Domain.Entities
 {
     /// <summary>
-    /// Пользователь системы.
+    /// Пользователь системы. Корень агрегата.
     /// </summary>
-    public class User : ISoftDeletable
+    public class User : AggregateRoot, ISoftDeletable
     {
-        private readonly List<Favorite> _favorites = new();
+        private readonly List<Favorite> _favorites = [];
 
-        private User() { } // для EF Core
+        private User()
+        {
+            Email = string.Empty;
+        }
 
+        /// <summary>
+        /// Инициализирует новый экземпляр пользователя.
+        /// </summary>
+        /// <param name="email">Email пользователя.</param>
+        /// <exception cref="DomainException">Выбрасывается, если email пуст.</exception>
         public User(string email)
         {
+            if (string.IsNullOrWhiteSpace(email))
+                throw new DomainException("Email не может быть пустым.");
+
             Id = Guid.NewGuid();
-            Email = email ?? throw new ArgumentNullException(nameof(email));
+            Email = email;
             CreatedAt = DateTime.UtcNow;
             Role = UserRole.User;
             ProfileCreated = false;
@@ -27,7 +38,7 @@ namespace MusicianFinder.Domain.Entities
         }
 
         /// <summary>
-        /// Уникальный идентификатор.
+        /// Уникальный идентификатор пользователя.
         /// </summary>
         public Guid Id { get; private set; }
 
@@ -47,17 +58,17 @@ namespace MusicianFinder.Domain.Entities
         public DateTime CreatedAt { get; private set; }
 
         /// <summary>
-        /// Роль пользователя в системе.
+        /// Роль пользователя.
         /// </summary>
         public UserRole Role { get; private set; }
 
         /// <summary>
-        /// Список избранных профилей.
+        /// Коллекция избранных профилей.
         /// </summary>
         public IReadOnlyCollection<Favorite> Favorites => _favorites.AsReadOnly();
 
         /// <summary>
-        /// Музыкальный профиль пользователя (связь один-к-одному).
+        /// Профиль музыканта, связанный с пользователем.
         /// </summary>
         public MusicianProfile? MusicianProfile { get; private set; }
 
@@ -67,21 +78,60 @@ namespace MusicianFinder.Domain.Entities
         /// <inheritdoc />
         public DateTime? DeletedAt { get; private set; }
 
-        // Методы бизнес-логики
-
+        /// <summary>
+        /// Отмечает, что профиль музыканта создан, и связывает его с пользователем.
+        /// </summary>
+        /// <param name="profile">Профиль музыканта.</param>
+        /// <exception cref="DomainException">Выбрасывается, если профиль уже создан или передан null.</exception>
         public void MarkProfileAsCreated(MusicianProfile profile)
         {
-            if (profile == null) throw new ArgumentNullException(nameof(profile));
+            ArgumentNullException.ThrowIfNull(profile);
+
+            if (ProfileCreated)
+                throw new DomainException("Профиль уже создан.");
+
             MusicianProfile = profile;
             ProfileCreated = true;
         }
 
+        /// <summary>
+        /// Удаляет связь с профилем (используется при мягком удалении профиля).
+        /// </summary>
         public void ClearMusicianProfile()
         {
             MusicianProfile = null;
             ProfileCreated = false;
         }
 
+        /// <summary>
+        /// Добавляет профиль в избранное.
+        /// </summary>
+        /// <param name="profileId">Идентификатор профиля.</param>
+        /// <exception cref="DomainException">Выбрасывается, если профиль уже в избранном.</exception>
+        public void AddFavorite(Guid profileId)
+        {
+            if (_favorites.Any(f => f.ProfileId == profileId))
+                throw new DomainException("Профиль уже в избранном.");
+
+            _favorites.Add(new Favorite(Id, profileId));
+        }
+
+        /// <summary>
+        /// Удаляет профиль из избранного.
+        /// </summary>
+        /// <param name="profileId">Идентификатор профиля.</param>
+        /// <exception cref="DomainException">Выбрасывается, если профиль не найден в избранном.</exception>
+        public void RemoveFavorite(Guid profileId)
+        {
+            var favorite = _favorites.FirstOrDefault(f => f.ProfileId == profileId)
+                ?? throw new DomainException("Профиль не найден в избранном.");
+
+            _favorites.Remove(favorite);
+        }
+
+        /// <summary>
+        /// Помечает пользователя как удалённого (мягкое удаление).
+        /// </summary>
         public void MarkAsDeleted()
         {
             IsDeleted = true;

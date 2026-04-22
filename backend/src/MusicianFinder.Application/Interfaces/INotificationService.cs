@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using MusicianFinder.Domain.Enums;
+﻿using MusicianFinder.Domain.Enums;
 
 namespace MusicianFinder.Application.Interfaces
 {

@@ -1,9 +1,7 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
+﻿using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using System.Text;
 
 namespace MusicianFinder.API.Extensions
 {
@@ -28,7 +26,6 @@ namespace MusicianFinder.API.Extensions
                     Description = "Платформа для поиска музыкантов и организации мероприятий."
                 });
 
-                // Определение схемы безопасности
                 c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
                     Name = "Authorization",
@@ -39,7 +36,6 @@ namespace MusicianFinder.API.Extensions
                     Description = "Введите 'Bearer {токен}'"
                 });
 
-                // Требование безопасности для всех эндпоинтов
                 c.AddSecurityRequirement(new OpenApiSecurityRequirement
                 {
                     {
@@ -71,7 +67,7 @@ namespace MusicianFinder.API.Extensions
 
             services.AddCors(options =>
             {
-                options.AddPolicy("AllowAll", policy =>
+                options.AddPolicy("DefaultCorsPolicy", policy =>
                 {
                     policy.WithOrigins(allowedOrigins)
                           .AllowAnyHeader()
@@ -106,25 +102,13 @@ namespace MusicianFinder.API.Extensions
                 {
                     ValidateIssuerSigningKey = true,
                     IssuerSigningKey = new SymmetricSecurityKey(key),
-                    ValidateIssuer = false,
-                    ValidateAudience = false,
+                    ValidateIssuer = true,
+                    ValidIssuer = configuration["Jwt:Issuer"],
+                    ValidateAudience = true,
+                    ValidAudience = configuration["Jwt:Audience"],
                     ClockSkew = TimeSpan.Zero
                 };
             });
-            /*.AddJwtBearer(options =>
-            {
-                options.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidateLifetime = true,
-                    ValidateIssuerSigningKey = true,
-                    ValidIssuer = configuration["Jwt:Issuer"],
-                    ValidAudience = configuration["Jwt:Audience"],
-                    IssuerSigningKey = new SymmetricSecurityKey(key),
-                    ClockSkew = TimeSpan.Zero
-                };
-            });*/
 
             return services;
         }

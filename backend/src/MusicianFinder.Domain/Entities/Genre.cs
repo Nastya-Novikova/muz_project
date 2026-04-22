@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace MusicianFinder.Domain.Entities
 {
@@ -11,11 +7,20 @@ namespace MusicianFinder.Domain.Entities
     /// </summary>
     public class Genre
     {
-        private readonly List<MusicianProfile> _profiles = new();
-        private readonly List<MusicianProfile> _profilesLookingForThisGenre = new();
+        private readonly List<MusicianProfile> _profiles = [];
+        private readonly List<MusicianProfile> _profilesLookingForThisGenre = [];
 
-        private Genre() { }
+        private Genre()
+        {
+            Name = string.Empty;
+            LocalizedName = string.Empty;
+        }
 
+        /// <summary>
+        /// Инициализирует новый экземпляр жанра.
+        /// </summary>
+        /// <param name="name">Английское название жанра.</param>
+        /// <param name="localizedName">Русское название жанра.</param>
         public Genre(string name, string localizedName)
         {
             Name = name;
@@ -23,7 +28,7 @@ namespace MusicianFinder.Domain.Entities
         }
 
         /// <summary>
-        /// Идентификатор.
+        /// Идентификатор жанра.
         /// </summary>
         public int Id { get; private set; }
 

@@ -1,22 +1,39 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using MusicianFinder.Domain.Common;
+using MusicianFinder.Domain.DomainEvents;
 using MusicianFinder.Domain.Enums;
 using MusicianFinder.Domain.Exceptions;
 
 namespace MusicianFinder.Domain.Entities
 {
     /// <summary>
-    /// Мероприятие.
+    /// Мероприятие. Корень агрегата.
     /// </summary>
-    public class Event : ISoftDeletable
+    public class Event : AggregateRoot, ISoftDeletable
     {
-        private readonly List<EventRegistration> _registrations = new();
+        private readonly List<EventRegistration> _registrations = [];
 
-        private Event() { } // для EF Core
+        private Event()
+        {
+            Title = string.Empty;
+            Address = string.Empty;
+        }
 
+        /// <summary>
+        /// Инициализирует новый экземпляр мероприятия.
+        /// </summary>
+        /// <param name="title">Название.</param>
+        /// <param name="regionId">Идентификатор региона.</param>
+        /// <param name="cityId">Идентификатор города.</param>
+        /// <param name="address">Адрес.</param>
+        /// <param name="startDateTime">Дата и время начала.</param>
+        /// <param name="creatorProfileId">Идентификатор профиля создателя.</param>
+        /// <param name="description">Описание.</param>
+        /// <param name="endDateTime">Дата и время окончания.</param>
+        /// <param name="maxParticipants">Максимальное количество участников.</param>
+        /// <exception cref="DomainException">Выбрасывается при нарушении бизнес-правил.</exception>
         public Event(
             string title,
             int regionId,
@@ -28,12 +45,15 @@ namespace MusicianFinder.Domain.Entities
             DateTime? endDateTime = null,
             int maxParticipants = 0)
         {
+            SetTitle(title);
+            SetAddress(address);
+            if (startDateTime <= DateTime.UtcNow)
+                throw new DomainException("Дата начала должна быть в будущем.");
+
             Id = Guid.NewGuid();
-            Title = title ?? throw new ArgumentNullException(nameof(title));
             Description = description;
             RegionId = regionId;
             CityId = cityId;
-            Address = address ?? throw new ArgumentNullException(nameof(address));
             StartDateTime = startDateTime;
             EndDateTime = endDateTime;
             MaxParticipants = maxParticipants;
@@ -42,10 +62,12 @@ namespace MusicianFinder.Domain.Entities
             CreatedAt = DateTime.UtcNow;
             UpdatedAt = DateTime.UtcNow;
             IsDeleted = false;
+
+            AddDomainEvent(new EventCreatedDomainEvent(Id));
         }
 
         /// <summary>
-        /// Идентификатор мероприятия.
+        /// Уникальный идентификатор мероприятия.
         /// </summary>
         public Guid Id { get; private set; }
 
@@ -95,7 +117,7 @@ namespace MusicianFinder.Domain.Entities
         public int MaxParticipants { get; private set; }
 
         /// <summary>
-        /// Текущий статус мероприятия.
+        /// Статус мероприятия.
         /// </summary>
         public EventStatus Status { get; private set; }
 
@@ -125,44 +147,68 @@ namespace MusicianFinder.Domain.Entities
         /// <inheritdoc />
         public DateTime? DeletedAt { get; private set; }
 
-        // Навигационные свойства (будут загружаться отдельно)
+        /// <summary>
+        /// Регион (навигационное свойство).
+        /// </summary>
         public Region? Region { get; private set; }
+
+        /// <summary>
+        /// Город (навигационное свойство).
+        /// </summary>
         public City? City { get; private set; }
+
+        /// <summary>
+        /// Профиль создателя (навигационное свойство).
+        /// </summary>
         public MusicianProfile? CreatorProfile { get; private set; }
 
-        // ---------- Бизнес-методы ----------
-
+        /// <summary>
+        /// Регистрирует пользователя на мероприятие.
+        /// </summary>
+        /// <param name="profileId">Идентификатор профиля.</param>
+        /// <exception cref="DomainException">Выбрасывается при невозможности регистрации.</exception>
         public void Register(Guid profileId)
         {
             if (Status != EventStatus.Scheduled)
                 throw new DomainException("Нельзя зарегистрироваться на отменённое или завершённое мероприятие.");
 
             if (_registrations.Any(r => r.ProfileId == profileId))
-                throw new DomainException("Пользователь уже зарегистрирован на это мероприятие.");
+                throw new DomainException("Пользователь уже зарегистрирован.");
 
             if (MaxParticipants > 0 && _registrations.Count >= MaxParticipants)
                 throw new DomainException("Достигнут лимит участников.");
 
             if (StartDateTime < DateTime.UtcNow)
-                throw new DomainException("Мероприятие уже началось, регистрация невозможна.");
+                throw new DomainException("Мероприятие уже началось.");
 
             _registrations.Add(new EventRegistration(Id, profileId));
             UpdatedAt = DateTime.UtcNow;
+
+            AddDomainEvent(new UserRegisteredToEventDomainEvent(Id, profileId));
         }
 
+        /// <summary>
+        /// Отменяет регистрацию пользователя.
+        /// </summary>
+        /// <param name="profileId">Идентификатор профиля.</param>
+        /// <exception cref="DomainException">Выбрасывается, если пользователь не зарегистрирован.</exception>
         public void Unregister(Guid profileId)
         {
             if (Status != EventStatus.Scheduled)
                 throw new DomainException("Нельзя отменить регистрацию на отменённое или завершённое мероприятие.");
 
-            var registration = _registrations.FirstOrDefault(r => r.ProfileId == profileId);
-            if (registration == null)
-                throw new DomainException("Пользователь не зарегистрирован на это мероприятие.");
+            var registration = _registrations.FirstOrDefault(r => r.ProfileId == profileId)
+                ?? throw new DomainException("Пользователь не зарегистрирован.");
 
             _registrations.Remove(registration);
             UpdatedAt = DateTime.UtcNow;
         }
 
+        /// <summary>
+        /// Отменяет мероприятие. Может выполнить только создатель.
+        /// </summary>
+        /// <param name="userId">Идентификатор пользователя, выполняющего отмену.</param>
+        /// <exception cref="DomainException">Выбрасывается, если пользователь не создатель или мероприятие уже отменено/завершено.</exception>
         public void Cancel(Guid userId)
         {
             if (CreatorProfileId != userId)
@@ -173,8 +219,23 @@ namespace MusicianFinder.Domain.Entities
 
             Status = EventStatus.Cancelled;
             UpdatedAt = DateTime.UtcNow;
+
+            AddDomainEvent(new EventCancelledDomainEvent(Id));
         }
 
+        /// <summary>
+        /// Обновляет информацию о мероприятии. Может выполнить только создатель.
+        /// </summary>
+        /// <param name="title">Название.</param>
+        /// <param name="description">Описание.</param>
+        /// <param name="regionId">Идентификатор региона.</param>
+        /// <param name="cityId">Идентификатор города.</param>
+        /// <param name="address">Адрес.</param>
+        /// <param name="startDateTime">Дата начала.</param>
+        /// <param name="endDateTime">Дата окончания.</param>
+        /// <param name="maxParticipants">Максимум участников.</param>
+        /// <param name="userId">Идентификатор пользователя, выполняющего обновление.</param>
+        /// <exception cref="DomainException">Выбрасывается при нарушении бизнес-правил.</exception>
         public void Update(
             string title,
             string? description,
@@ -192,20 +253,28 @@ namespace MusicianFinder.Domain.Entities
             if (Status != EventStatus.Scheduled)
                 throw new DomainException("Редактировать можно только запланированное мероприятие.");
 
+            SetTitle(title);
+            SetAddress(address);
+            if (startDateTime <= DateTime.UtcNow)
+                throw new DomainException("Дата начала должна быть в будущем.");
             if (endDateTime.HasValue && endDateTime.Value < startDateTime)
                 throw new DomainException("Дата окончания не может быть раньше даты начала.");
 
-            Title = title;
             Description = description;
             RegionId = regionId;
             CityId = cityId;
-            Address = address;
             StartDateTime = startDateTime;
             EndDateTime = endDateTime;
             MaxParticipants = maxParticipants;
             UpdatedAt = DateTime.UtcNow;
         }
 
+        /// <summary>
+        /// Устанавливает изображение мероприятия. Может выполнить только создатель.
+        /// </summary>
+        /// <param name="imageUrl">URL изображения.</param>
+        /// <param name="userId">Идентификатор пользователя.</param>
+        /// <exception cref="DomainException">Выбрасывается, если пользователь не создатель.</exception>
         public void SetImage(string imageUrl, Guid userId)
         {
             if (CreatorProfileId != userId)
@@ -215,6 +284,9 @@ namespace MusicianFinder.Domain.Entities
             UpdatedAt = DateTime.UtcNow;
         }
 
+        /// <summary>
+        /// Помечает мероприятие как удалённое.
+        /// </summary>
         public void MarkAsDeleted()
         {
             IsDeleted = true;
@@ -222,5 +294,23 @@ namespace MusicianFinder.Domain.Entities
         }
 
         void ISoftDeletable.MarkAsDeleted() => MarkAsDeleted();
+
+        private void SetTitle(string title)
+        {
+            if (string.IsNullOrWhiteSpace(title))
+                throw new DomainException("Название не может быть пустым.");
+            if (title.Length > 200)
+                throw new DomainException("Название не может быть длиннее 200 символов.");
+            Title = title;
+        }
+
+        private void SetAddress(string address)
+        {
+            if (string.IsNullOrWhiteSpace(address))
+                throw new DomainException("Адрес не может быть пустым.");
+            if (address.Length > 200)
+                throw new DomainException("Адрес не может быть длиннее 200 символов.");
+            Address = address;
+        }
     }
 }

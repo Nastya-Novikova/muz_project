@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MusicianFinder.Application.Common.Exceptions
 {
@@ -27,7 +23,6 @@ namespace MusicianFinder.Application.Common.Exceptions
         /// </summary>
         /// <param name="name">Название сущности.</param>
         /// <param name="key">Ключ сущности.</param>
-        public NotFoundException(string name, object key)
-            : base($"Сущность \"{name}\" с ключом ({key}) не найдена.") { }
+        public NotFoundException(string name, object key) : base($"Сущность \"{name}\" с ключом ({key}) не найдена.") { }
     }
 }

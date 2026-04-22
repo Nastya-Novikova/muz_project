@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace MusicianFinder.Application.Common.Pagination
+﻿namespace MusicianFinder.Application.Common.Pagination
 {
     /// <summary>
     /// Представляет результат пагинации списка элементов.
@@ -35,6 +29,6 @@ namespace MusicianFinder.Application.Common.Pagination
         /// <summary>
         /// Общее количество страниц.
         /// </summary>
-        public int TotalPages => (Total + Limit - 1) / Limit;
+        public int TotalPages => Limit > 0 ? (Total + Limit - 1) / Limit : 0;
     }
 }

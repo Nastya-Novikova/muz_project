@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MusicianFinder.Domain.Entities
 {
@@ -11,8 +7,17 @@ namespace MusicianFinder.Domain.Entities
     /// </summary>
     public class EmailVerificationCode
     {
-        private EmailVerificationCode() { }
+        private EmailVerificationCode()
+        {
+            Email = string.Empty;
+            Code = string.Empty;
+        }
 
+        /// <summary>
+        /// Инициализирует новый экземпляр кода подтверждения.
+        /// </summary>
+        /// <param name="email">Email, для которого сгенерирован код.</param>
+        /// <param name="code">6-значный код.</param>
         public EmailVerificationCode(string email, string code)
         {
             Id = Guid.NewGuid();
@@ -47,11 +52,19 @@ namespace MusicianFinder.Domain.Entities
         /// </summary>
         public bool IsUsed { get; private set; }
 
+        /// <summary>
+        /// Помечает код как использованный.
+        /// </summary>
         public void MarkAsUsed()
         {
             IsUsed = true;
         }
 
+        /// <summary>
+        /// Проверяет, истёк ли срок действия кода.
+        /// </summary>
+        /// <param name="validityPeriod">Период действия.</param>
+        /// <returns>true, если код просрочен.</returns>
         public bool IsExpired(TimeSpan validityPeriod)
         {
             return DateTime.UtcNow > CreatedAt + validityPeriod;

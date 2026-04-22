@@ -1,7 +1,7 @@
 ﻿namespace MusicianFinder.Domain.Enums
 {
     /// <summary>
-    /// Тип уведомления
+    /// Тип уведомления.
     /// </summary>
     public enum NotificationType
     {
