@@ -1,8 +1,9 @@
 ﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using MusicianFinder.Application.Common.Exceptions;
-using MusicianFinder.Application.Common.Pagination;
+using MusicianFinder.Application.Core.Exceptions;
+using MusicianFinder.Application.Core.Pagination;
 using MusicianFinder.Application.DTOs.Suggestions;
 using MusicianFinder.Application.Interfaces;
 using MusicianFinder.Domain.Entities;
@@ -41,25 +42,20 @@ namespace MusicianFinder.Application.Queries.Suggestions
 
             var query = _dbContext.CollaborationSuggestions
                 .AsNoTracking()
-                .Include("ToProfile.City")
-                .Include("ToProfile.Genres")
-                .Include("ToProfile.Specialties")
                 .Where(s => s.FromProfileId == profile.Id);
 
             query = ApplySorting(query, request.SortBy, request.SortDesc);
 
             var totalCount = await query.CountAsync(cancellationToken);
-
             var items = await query
                 .Skip((request.Page - 1) * request.Limit)
                 .Take(request.Limit)
+                .ProjectTo<SuggestionDto>(_mapper.ConfigurationProvider)
                 .ToListAsync(cancellationToken);
-
-            var dtos = _mapper.Map<List<SuggestionDto>>(items);
 
             return new PagedResult<SuggestionDto>
             {
-                Items = dtos,
+                Items = items,
                 Total = totalCount,
                 Page = request.Page,
                 Limit = request.Limit

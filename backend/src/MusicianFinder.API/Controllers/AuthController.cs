@@ -6,7 +6,7 @@ using MusicianFinder.Application.DTOs.Auth;
 namespace MusicianFinder.API.Controllers
 {
     /// <summary>
-    /// Контроллер аутентификации. Обрабатывает запросы кода подтверждения и входа.
+    /// Контроллер аутентификации.
     /// </summary>
     [ApiController]
     [Route("api/auth")]

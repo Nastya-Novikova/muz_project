@@ -14,30 +14,37 @@ namespace MusicianFinder.Application.Queries.Metadata
     {
         private readonly IReadDbContext _dbContext;
         private readonly IMapper _mapper;
+        private readonly ICacheService _cache;
 
         /// <summary>
         /// Инициализирует новый экземпляр <see cref="GetCollaborationGoalsQueryHandler"/>.
         /// </summary>
         /// <param name="dbContext">Контекст базы данных.</param>
         /// <param name="mapper">Маппер.</param>
-        public GetCollaborationGoalsQueryHandler(IReadDbContext dbContext, IMapper mapper)
+        /// <param name="cache">Сервис кеша.</param>
+        public GetCollaborationGoalsQueryHandler(IReadDbContext dbContext, IMapper mapper, ICacheService cache)
         {
             _dbContext = dbContext;
             _mapper = mapper;
+            _cache = cache;
         }
 
         /// <inheritdoc />
         public async Task<List<LookupItemDto>> Handle(GetCollaborationGoalsQuery request, CancellationToken cancellationToken)
         {
-            var query = _dbContext.CollaborationGoals.AsNoTracking();
+            string cacheKey = "reference:collaborationgoals";
+            var cached = await _cache.GetAsync<List<LookupItemDto>>(cacheKey);
+            if (cached != null) return cached;
 
+            var query = _dbContext.CollaborationGoals.AsNoTracking();
             if (!string.IsNullOrWhiteSpace(request.Query))
                 query = query.Where(g => g.Name.Contains(request.Query) || g.LocalizedName.Contains(request.Query));
 
             query = ApplySorting(query, request.SortBy, request.SortDesc);
-
             var goals = await query.ToListAsync(cancellationToken);
-            return _mapper.Map<List<LookupItemDto>>(goals);
+            var dtos = _mapper.Map<List<LookupItemDto>>(goals);
+            await _cache.SetAsync(cacheKey, dtos, TimeSpan.FromHours(1));
+            return dtos;
         }
 
         private static IQueryable<CollaborationGoal> ApplySorting(IQueryable<CollaborationGoal> query, string? sortBy, bool sortDesc)

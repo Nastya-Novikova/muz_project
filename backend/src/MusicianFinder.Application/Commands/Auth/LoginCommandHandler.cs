@@ -5,11 +5,11 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
-using MusicianFinder.Application.Common.Exceptions;
+using MusicianFinder.Application.Core.Exceptions;
 using MusicianFinder.Application.DTOs.Auth;
 using MusicianFinder.Application.Interfaces;
 using MusicianFinder.Domain.Entities;
-using ValidationException = MusicianFinder.Application.Common.Exceptions.ValidationException;
+using ValidationException = MusicianFinder.Application.Core.Exceptions.ValidationException;
 
 namespace MusicianFinder.Application.Commands.Auth
 {
@@ -83,6 +83,8 @@ namespace MusicianFinder.Application.Commands.Auth
                     new Claim(ClaimTypes.Role, user.Role.ToString())
                 }),
                 Expires = DateTime.UtcNow.AddDays(7),
+                Issuer = _configuration["Jwt:Issuer"],
+                Audience = _configuration["Jwt:Audience"],
                 SigningCredentials = new SigningCredentials(
                     new SymmetricSecurityKey(key),
                     SecurityAlgorithms.HmacSha256Signature)

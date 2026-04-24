@@ -1,12 +1,13 @@
 ﻿using System.Net;
 using System.Text.Json;
-using MusicianFinder.Application.Common.Exceptions;
+using Microsoft.AspNetCore.Mvc;
+using MusicianFinder.Application.Core.Exceptions;
 using MusicianFinder.Domain.Exceptions;
 
 namespace MusicianFinder.API.Middleware
 {
     /// <summary>
-    /// Middleware для глобальной обработки исключений и возврата унифицированного ответа в формате ProblemDetails.
+    /// Middleware для глобальной обработки исключений и возврата ProblemDetails (RFC 7807).
     /// </summary>
     public class ErrorHandlingMiddleware
     {
@@ -43,72 +44,52 @@ namespace MusicianFinder.API.Middleware
 
         private static async Task HandleExceptionAsync(HttpContext context, Exception exception)
         {
-            var response = context.Response;
-            response.ContentType = "application/problem+json";
-
-            var problem = new ApiProblemDetails
+            var problem = new ProblemDetails
             {
-                TraceId = context.TraceIdentifier
+                Instance = context.Request.Path,
+                Status = (int)HttpStatusCode.InternalServerError,
+                Title = "Внутренняя ошибка сервера",
+                Type = "/errors/server"
             };
 
             switch (exception)
             {
                 case ValidationException validationEx:
-                    response.StatusCode = (int)HttpStatusCode.BadRequest;
-                    problem.Type = "/errors/validation";
+                    problem.Status = (int)HttpStatusCode.BadRequest;
                     problem.Title = "Ошибка валидации";
-                    problem.Status = response.StatusCode;
-                    problem.Errors = validationEx.Errors;
+                    problem.Type = "/errors/validation";
+                    problem.Extensions["errors"] = validationEx.Errors;
                     break;
 
                 case DomainException domainEx:
-                    response.StatusCode = (int)HttpStatusCode.BadRequest;
+                    problem.Status = (int)HttpStatusCode.BadRequest;
+                    problem.Title = domainEx.Message;
                     problem.Type = "/errors/domain";
-                    problem.Title = "Нарушение бизнес-правил";
-                    problem.Status = response.StatusCode;
-                    problem.Errors = new Dictionary<string, string[]> { { "domain", new[] { domainEx.Message } } };
                     break;
 
                 case NotFoundException notFoundEx:
-                    response.StatusCode = (int)HttpStatusCode.NotFound;
-                    problem.Type = "/errors/not-found";
+                    problem.Status = (int)HttpStatusCode.NotFound;
                     problem.Title = notFoundEx.Message;
-                    problem.Status = response.StatusCode;
+                    problem.Type = "/errors/not-found";
                     break;
 
                 case ConflictException conflictEx:
-                    response.StatusCode = (int)HttpStatusCode.Conflict;
-                    problem.Type = "/errors/conflict";
+                    problem.Status = (int)HttpStatusCode.Conflict;
                     problem.Title = conflictEx.Message;
-                    problem.Status = response.StatusCode;
+                    problem.Type = "/errors/conflict";
                     break;
 
                 case ForbiddenException forbiddenEx:
-                    response.StatusCode = (int)HttpStatusCode.Forbidden;
-                    problem.Type = "/errors/forbidden";
+                    problem.Status = (int)HttpStatusCode.Forbidden;
                     problem.Title = forbiddenEx.Message;
-                    problem.Status = response.StatusCode;
-                    break;
-
-                default:
-                    response.StatusCode = (int)HttpStatusCode.InternalServerError;
-                    problem.Type = "/errors/server";
-                    problem.Title = "Внутренняя ошибка сервера";
-                    problem.Status = response.StatusCode;
+                    problem.Type = "/errors/forbidden";
                     break;
             }
 
+            context.Response.StatusCode = problem.Status ?? 500;
+            context.Response.ContentType = "application/problem+json";
             var json = JsonSerializer.Serialize(problem);
-            await response.WriteAsync(json);
-        }
-
-        private class ApiProblemDetails
-        {
-            public string Type { get; set; } = string.Empty;
-            public string Title { get; set; } = string.Empty;
-            public int Status { get; set; }
-            public string TraceId { get; set; } = string.Empty;
-            public IDictionary<string, string[]>? Errors { get; set; }
+            await context.Response.WriteAsync(json);
         }
     }
 }

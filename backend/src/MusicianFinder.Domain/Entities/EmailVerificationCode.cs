@@ -17,7 +17,7 @@ namespace MusicianFinder.Domain.Entities
         /// Инициализирует новый экземпляр кода подтверждения.
         /// </summary>
         /// <param name="email">Email, для которого сгенерирован код.</param>
-        /// <param name="code">6-значный код.</param>
+        /// <param name="code">Шестизначный код.</param>
         public EmailVerificationCode(string email, string code)
         {
             Id = Guid.NewGuid();
@@ -28,7 +28,7 @@ namespace MusicianFinder.Domain.Entities
         }
 
         /// <summary>
-        /// Идентификатор.
+        /// Идентификатор кода.
         /// </summary>
         public Guid Id { get; private set; }
 
@@ -38,7 +38,7 @@ namespace MusicianFinder.Domain.Entities
         public string Email { get; private set; }
 
         /// <summary>
-        /// 6-значный код.
+        /// Шестизначный код.
         /// </summary>
         public string Code { get; private set; }
 

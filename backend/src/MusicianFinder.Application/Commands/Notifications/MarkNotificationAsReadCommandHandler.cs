@@ -1,6 +1,6 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
-using MusicianFinder.Application.Common.Exceptions;
+using MusicianFinder.Application.Core.Exceptions;
 using MusicianFinder.Application.Interfaces;
 using MusicianFinder.Domain.Entities;
 
@@ -19,7 +19,9 @@ namespace MusicianFinder.Application.Commands.Notifications
         /// </summary>
         /// <param name="dbContext">Контекст базы данных.</param>
         /// <param name="currentUserService">Сервис текущего пользователя.</param>
-        public MarkNotificationAsReadCommandHandler(IReadDbContext dbContext, ICurrentUserService currentUserService)
+        public MarkNotificationAsReadCommandHandler(
+            IReadDbContext dbContext,
+            ICurrentUserService currentUserService)
         {
             _dbContext = dbContext;
             _currentUserService = currentUserService;

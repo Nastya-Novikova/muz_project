@@ -1,6 +1,6 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
-using MusicianFinder.Application.Common.Exceptions;
+using MusicianFinder.Application.Core.Exceptions;
 using MusicianFinder.Application.Interfaces;
 using MusicianFinder.Domain.Entities;
 
@@ -21,7 +21,10 @@ namespace MusicianFinder.Application.Commands.Media
         /// <param name="dbContext">Контекст базы данных.</param>
         /// <param name="currentUserService">Сервис текущего пользователя.</param>
         /// <param name="fileStorage">Сервис файлового хранилища.</param>
-        public UploadMediaCommandHandler(IReadDbContext dbContext, ICurrentUserService currentUserService, IFileStorage fileStorage)
+        public UploadMediaCommandHandler(
+            IReadDbContext dbContext,
+            ICurrentUserService currentUserService,
+            IFileStorage fileStorage)
         {
             _dbContext = dbContext;
             _currentUserService = currentUserService;
@@ -36,7 +39,8 @@ namespace MusicianFinder.Application.Commands.Media
                 .FirstOrDefaultAsync(p => p.Id == _currentUserService.UserId && !p.IsDeleted, cancellationToken)
                 ?? throw new NotFoundException("Профиль не найден.");
 
-            var fileUrl = await _fileStorage.SaveFileAsync(request.FileStream, request.FileName, request.ContentType);
+            using var stream = new MemoryStream(request.Content);
+            var fileUrl = await _fileStorage.SaveFileAsync(stream, request.FileName, request.ContentType);
 
             var portfolioItem = new PortfolioItem(
                 request.Title,

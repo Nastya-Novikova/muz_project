@@ -11,7 +11,6 @@ namespace MusicianFinder.API.Extensions
         /// <summary>
         /// Применяет миграции базы данных при запуске.
         /// </summary>
-        /// <param name="app">Экземпляр <see cref="IApplicationBuilder"/>.</param>
         public static void ApplyMigrations(this IApplicationBuilder app)
         {
             using var scope = app.ApplicationServices.CreateScope();

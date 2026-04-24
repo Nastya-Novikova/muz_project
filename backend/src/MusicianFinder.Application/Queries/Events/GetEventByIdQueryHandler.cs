@@ -1,7 +1,8 @@
 ﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using MusicianFinder.Application.Common.Exceptions;
+using MusicianFinder.Application.Core.Exceptions;
 using MusicianFinder.Application.DTOs.Events;
 using MusicianFinder.Application.Interfaces;
 
@@ -13,55 +14,48 @@ namespace MusicianFinder.Application.Queries.Events
     public class GetEventByIdQueryHandler : IRequestHandler<GetEventByIdQuery, EventDto>
     {
         private readonly IReadDbContext _dbContext;
-        private readonly ICurrentUserService _currentUserService;
         private readonly IMapper _mapper;
+        private readonly ICacheService _cache;
 
         /// <summary>
         /// Инициализирует новый экземпляр <see cref="GetEventByIdQueryHandler"/>.
         /// </summary>
         /// <param name="dbContext">Контекст базы данных.</param>
-        /// <param name="currentUserService">Сервис текущего пользователя.</param>
         /// <param name="mapper">Маппер.</param>
-        public GetEventByIdQueryHandler(IReadDbContext dbContext, ICurrentUserService currentUserService, IMapper mapper)
+        /// <param name="cache">Сервис кеша.</param>
+        public GetEventByIdQueryHandler(IReadDbContext dbContext, IMapper mapper, ICacheService cache)
         {
             _dbContext = dbContext;
-            _currentUserService = currentUserService;
             _mapper = mapper;
+            _cache = cache;
         }
 
         /// <inheritdoc />
         public async Task<EventDto> Handle(GetEventByIdQuery request, CancellationToken cancellationToken)
         {
-            var eventEntity = await _dbContext.Events
+            string cacheKey = $"event:{request.EventId}";
+            var cached = await _cache.GetAsync<EventDto>(cacheKey);
+            if (cached != null)
+            {
+                // Дополнительные вычисляемые поля могут быть неактуальны, но для простоты возвращаем как есть
+                return cached;
+            }
+
+            var dto = await _dbContext.Events
                 .AsNoTracking()
-                .Include(nameof(Domain.Entities.Event.Region))
-                .Include(nameof(Domain.Entities.Event.City))
-                .Include(nameof(Domain.Entities.Event.CreatorProfile))
-                .FirstOrDefaultAsync(e => e.Id == request.EventId && !e.IsDeleted, cancellationToken)
+                .Where(e => e.Id == request.EventId && !e.IsDeleted)
+                .ProjectTo<EventDto>(_mapper.ConfigurationProvider)
+                .FirstOrDefaultAsync(cancellationToken)
                 ?? throw new NotFoundException(nameof(Domain.Entities.Event), request.EventId);
 
-            var dto = _mapper.Map<EventDto>(eventEntity);
             dto.CurrentParticipants = await _dbContext.Events
                 .Where(e => e.Id == request.EventId)
                 .SelectMany(e => e.Registrations)
                 .CountAsync(cancellationToken);
 
-            if (_currentUserService.IsAuthenticated)
-            {
-                var profile = await _dbContext.Profiles
-                    .AsNoTracking()
-                    .FirstOrDefaultAsync(p => p.Id == _currentUserService.UserId && !p.IsDeleted, cancellationToken);
-                if (profile != null)
-                {
-                    dto.IsRegistered = await _dbContext.Events
-                        .Where(e => e.Id == request.EventId)
-                        .SelectMany(e => e.Registrations)
-                        .AnyAsync(r => r.ProfileId == profile.Id, cancellationToken);
-                    dto.IsCreator = eventEntity.CreatorProfileId == profile.Id;
-                }
-            }
+            await _cache.SetAsync(cacheKey, dto, TimeSpan.FromMinutes(2));
 
             return dto;
         }
     }
-}   
+}

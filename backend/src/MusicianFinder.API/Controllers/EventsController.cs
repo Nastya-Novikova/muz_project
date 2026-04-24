@@ -2,9 +2,11 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MusicianFinder.Application.Commands.Events;
-using MusicianFinder.Application.Common.Pagination;
+using MusicianFinder.Application.Core.Behaviors;
+using MusicianFinder.Application.Core.Pagination;
 using MusicianFinder.Application.DTOs.Events;
 using MusicianFinder.Application.Queries.Events;
+using MusicianFinder.API.Contracts.Responses;
 
 namespace MusicianFinder.API.Controllers
 {
@@ -46,12 +48,13 @@ namespace MusicianFinder.API.Controllers
         /// <returns>Идентификатор созданного мероприятия.</returns>
         [HttpPost]
         [Authorize]
-        [ProducesResponseType(typeof(EventCreatedResponse), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(CreatedEventResponse), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Create([FromBody] CreateEventCommand command)
         {
+            SetIdempotencyKey(command);
             var eventId = await _mediator.Send(command);
-            return CreatedAtAction(nameof(GetById), new { id = eventId }, new { id = eventId });
+            return CreatedAtAction(nameof(GetById), new { id = eventId }, new CreatedEventResponse { Id = eventId });
         }
 
         /// <summary>
@@ -83,6 +86,7 @@ namespace MusicianFinder.API.Controllers
         public async Task<IActionResult> Update(Guid id, [FromBody] UpdateEventCommand command)
         {
             command.EventId = id;
+            SetIdempotencyKey(command);
             await _mediator.Send(command);
             return NoContent();
         }
@@ -99,7 +103,9 @@ namespace MusicianFinder.API.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Cancel(Guid id)
         {
-            await _mediator.Send(new CancelEventCommand { EventId = id });
+            var command = new CancelEventCommand { EventId = id };
+            SetIdempotencyKey(command);
+            await _mediator.Send(command);
             return NoContent();
         }
 
@@ -111,21 +117,24 @@ namespace MusicianFinder.API.Controllers
         /// <returns>URL загруженного изображения.</returns>
         [HttpPost("{id:guid}/image")]
         [Authorize]
-        [ProducesResponseType(typeof(ImageUploadResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(FileUploadResultDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> UploadImage(Guid id, IFormFile image)
         {
+            using var ms = new MemoryStream();
+            await image.CopyToAsync(ms);
             var command = new UploadEventImageCommand
             {
                 EventId = id,
-                FileStream = image.OpenReadStream(),
+                Content = ms.ToArray(),
                 FileName = image.FileName,
                 ContentType = image.ContentType
             };
+            SetIdempotencyKey(command);
             var url = await _mediator.Send(command);
-            return Ok(new { imageUrl = url });
+            return Ok(new FileUploadResultDto { Url = url });
         }
 
         /// <summary>
@@ -141,7 +150,9 @@ namespace MusicianFinder.API.Controllers
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         public async Task<IActionResult> Register(Guid id)
         {
-            await _mediator.Send(new RegisterToEventCommand { EventId = id });
+            var command = new RegisterToEventCommand { EventId = id };
+            SetIdempotencyKey(command);
+            await _mediator.Send(command);
             return NoContent();
         }
 
@@ -157,18 +168,17 @@ namespace MusicianFinder.API.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Unregister(Guid id)
         {
-            await _mediator.Send(new UnregisterFromEventCommand { EventId = id });
+            var command = new UnregisterFromEventCommand { EventId = id };
+            SetIdempotencyKey(command);
+            await _mediator.Send(command);
             return NoContent();
         }
 
-        private class EventCreatedResponse
+        private void SetIdempotencyKey(IBaseCommand command)
         {
-            public Guid Id { get; set; }
-        }
-
-        private class ImageUploadResponse
-        {
-            public string ImageUrl { get; set; } = string.Empty;
+            var key = Request.Headers["Idempotency-Key"].FirstOrDefault();
+            if (!string.IsNullOrEmpty(key))
+                command.IdempotencyKey = key;
         }
     }
 }

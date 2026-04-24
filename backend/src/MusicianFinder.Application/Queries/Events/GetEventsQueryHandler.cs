@@ -1,7 +1,8 @@
 ﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using MusicianFinder.Application.Common.Pagination;
+using MusicianFinder.Application.Core.Pagination;
 using MusicianFinder.Application.DTOs.Events;
 using MusicianFinder.Application.Interfaces;
 using MusicianFinder.Domain.Entities;
@@ -14,20 +15,20 @@ namespace MusicianFinder.Application.Queries.Events
     public class GetEventsQueryHandler : IRequestHandler<GetEventsQuery, PagedResult<EventDto>>
     {
         private readonly IReadDbContext _dbContext;
-        private readonly ICurrentUserService _currentUserService;
         private readonly IMapper _mapper;
+        private readonly ICacheService _cache;
 
         /// <summary>
         /// Инициализирует новый экземпляр <see cref="GetEventsQueryHandler"/>.
         /// </summary>
         /// <param name="dbContext">Контекст базы данных.</param>
-        /// <param name="currentUserService">Сервис текущего пользователя.</param>
         /// <param name="mapper">Маппер.</param>
-        public GetEventsQueryHandler(IReadDbContext dbContext, ICurrentUserService currentUserService, IMapper mapper)
+        /// <param name="cache">Сервис кеша.</param>
+        public GetEventsQueryHandler(IReadDbContext dbContext, IMapper mapper, ICacheService cache)
         {
             _dbContext = dbContext;
-            _currentUserService = currentUserService;
             _mapper = mapper;
+            _cache = cache;
         }
 
         /// <inheritdoc />
@@ -36,9 +37,6 @@ namespace MusicianFinder.Application.Queries.Events
             var query = _dbContext.Events
                 .AsNoTracking()
                 .Where(e => !e.IsDeleted)
-                .Include(nameof(Event.Region))
-                .Include(nameof(Event.City))
-                .Include(nameof(Event.CreatorProfile))
                 .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(request.Query))
@@ -69,38 +67,21 @@ namespace MusicianFinder.Application.Queries.Events
             var items = await query
                 .Skip((request.Page - 1) * request.Limit)
                 .Take(request.Limit)
+                .ProjectTo<EventDto>(_mapper.ConfigurationProvider)
                 .ToListAsync(cancellationToken);
 
-            var dtos = _mapper.Map<List<EventDto>>(items);
-
-            Guid? currentProfileId = null;
-            if (_currentUserService.IsAuthenticated)
-            {
-                var profile = await _dbContext.Profiles
-                    .AsNoTracking()
-                    .FirstOrDefaultAsync(p => p.Id == _currentUserService.UserId && !p.IsDeleted, cancellationToken);
-                currentProfileId = profile?.Id;
-            }
-
-            foreach (var dto in dtos)
+            // Вычисляем дополнительные поля
+            foreach (var dto in items)
             {
                 dto.CurrentParticipants = await _dbContext.Events
                     .Where(e => e.Id == dto.Id)
                     .SelectMany(e => e.Registrations)
                     .CountAsync(cancellationToken);
-                if (currentProfileId.HasValue)
-                {
-                    dto.IsRegistered = await _dbContext.Events
-                        .Where(e => e.Id == dto.Id)
-                        .SelectMany(e => e.Registrations)
-                        .AnyAsync(r => r.ProfileId == currentProfileId.Value, cancellationToken);
-                    dto.IsCreator = dto.CreatorProfileId == currentProfileId.Value;
-                }
             }
 
             return new PagedResult<EventDto>
             {
-                Items = dtos,
+                Items = items,
                 Total = totalCount,
                 Page = request.Page,
                 Limit = request.Limit

@@ -14,7 +14,8 @@ namespace MusicianFinder.Infrastructure.Persistence
         /// Инициализирует новый экземпляр <see cref="MusicianFinderDbContext"/>.
         /// </summary>
         /// <param name="options">Опции конфигурации контекста.</param>
-        public MusicianFinderDbContext(DbContextOptions<MusicianFinderDbContext> options) : base(options)
+        public MusicianFinderDbContext(DbContextOptions<MusicianFinderDbContext> options)
+            : base(options)
         {
         }
 

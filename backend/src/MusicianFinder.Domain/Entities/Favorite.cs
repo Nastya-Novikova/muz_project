@@ -39,12 +39,12 @@ namespace MusicianFinder.Domain.Entities
         public DateTime CreatedAt { get; private set; }
 
         /// <summary>
-        /// Пользователь.
+        /// Пользователь (навигационное свойство).
         /// </summary>
         public User? User { get; private set; }
 
         /// <summary>
-        /// Профиль.
+        /// Профиль (навигационное свойство).
         /// </summary>
         public MusicianProfile? Profile { get; private set; }
     }

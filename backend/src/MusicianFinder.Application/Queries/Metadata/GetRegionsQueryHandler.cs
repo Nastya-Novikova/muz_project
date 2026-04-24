@@ -14,30 +14,37 @@ namespace MusicianFinder.Application.Queries.Metadata
     {
         private readonly IReadDbContext _dbContext;
         private readonly IMapper _mapper;
+        private readonly ICacheService _cache;
 
         /// <summary>
         /// Инициализирует новый экземпляр <see cref="GetRegionsQueryHandler"/>.
         /// </summary>
         /// <param name="dbContext">Контекст базы данных.</param>
         /// <param name="mapper">Маппер.</param>
-        public GetRegionsQueryHandler(IReadDbContext dbContext, IMapper mapper)
+        /// <param name="cache">Сервис кеша.</param>
+        public GetRegionsQueryHandler(IReadDbContext dbContext, IMapper mapper, ICacheService cache)
         {
             _dbContext = dbContext;
             _mapper = mapper;
+            _cache = cache;
         }
 
         /// <inheritdoc />
         public async Task<List<LookupItemDto>> Handle(GetRegionsQuery request, CancellationToken cancellationToken)
         {
-            var query = _dbContext.Regions.AsNoTracking();
+            string cacheKey = "reference:regions";
+            var cached = await _cache.GetAsync<List<LookupItemDto>>(cacheKey);
+            if (cached != null) return cached;
 
+            var query = _dbContext.Regions.AsNoTracking();
             if (!string.IsNullOrWhiteSpace(request.Query))
                 query = query.Where(r => r.Name.Contains(request.Query) || r.LocalizedName.Contains(request.Query));
 
             query = ApplySorting(query, request.SortBy, request.SortDesc);
-
             var regions = await query.ToListAsync(cancellationToken);
-            return _mapper.Map<List<LookupItemDto>>(regions);
+            var dtos = _mapper.Map<List<LookupItemDto>>(regions);
+            await _cache.SetAsync(cacheKey, dtos, TimeSpan.FromHours(1));
+            return dtos;
         }
 
         private static IQueryable<Region> ApplySorting(IQueryable<Region> query, string? sortBy, bool sortDesc)

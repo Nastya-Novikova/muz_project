@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using MusicianFinder.Application.Core.Behaviors;
 using MusicianFinder.Application.DTOs.Auth;
 
 namespace MusicianFinder.Application.Commands.Auth
@@ -6,7 +7,7 @@ namespace MusicianFinder.Application.Commands.Auth
     /// <summary>
     /// Команда для входа/регистрации по коду подтверждения.
     /// </summary>
-    public class LoginCommand : IRequest<AuthResponse>
+    public class LoginCommand : IRequest<AuthResponse>, IBaseCommand
     {
         /// <summary>
         /// Email пользователя.
@@ -17,5 +18,8 @@ namespace MusicianFinder.Application.Commands.Auth
         /// Код подтверждения.
         /// </summary>
         public string Code { get; set; } = string.Empty;
+
+        /// <inheritdoc />
+        public string IdempotencyKey { get; set; } = string.Empty;
     }
 }

@@ -1,8 +1,9 @@
 ﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using MusicianFinder.Application.Common.Exceptions;
-using MusicianFinder.Application.Common.Pagination;
+using MusicianFinder.Application.Core.Exceptions;
+using MusicianFinder.Application.Core.Pagination;
 using MusicianFinder.Application.DTOs.Notifications;
 using MusicianFinder.Application.Interfaces;
 
@@ -50,13 +51,12 @@ namespace MusicianFinder.Application.Queries.Notifications
                 .OrderByDescending(n => n.CreatedAt)
                 .Skip((request.Page - 1) * request.Limit)
                 .Take(request.Limit)
+                .ProjectTo<NotificationDto>(_mapper.ConfigurationProvider)
                 .ToListAsync(cancellationToken);
-
-            var dtos = _mapper.Map<List<NotificationDto>>(items);
 
             return new PagedResult<NotificationDto>
             {
-                Items = dtos,
+                Items = items,
                 Total = totalCount,
                 Page = request.Page,
                 Limit = request.Limit

@@ -1,11 +1,12 @@
 ﻿using MediatR;
+using MusicianFinder.Application.Core.Behaviors;
 
 namespace MusicianFinder.Application.Commands.Events
 {
     /// <summary>
     /// Команда для обновления мероприятия.
     /// </summary>
-    public class UpdateEventCommand : IRequest<Unit>
+    public class UpdateEventCommand : IRequest<Unit>, IBaseCommand
     {
         /// <summary>
         /// Идентификатор мероприятия.
@@ -51,5 +52,8 @@ namespace MusicianFinder.Application.Commands.Events
         /// Новое максимальное количество участников.
         /// </summary>
         public int? MaxParticipants { get; set; }
+
+        /// <inheritdoc />
+        public string IdempotencyKey { get; set; } = string.Empty;
     }
 }

@@ -1,10 +1,10 @@
 ﻿using FluentValidation.Results;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using MusicianFinder.Application.Common.Exceptions;
+using MusicianFinder.Application.Core.Exceptions;
 using MusicianFinder.Application.Interfaces;
 using MusicianFinder.Domain.Entities;
-using ValidationException = MusicianFinder.Application.Common.Exceptions.ValidationException;
+using ValidationException = MusicianFinder.Application.Core.Exceptions.ValidationException;
 
 namespace MusicianFinder.Application.Commands.Events
 {
@@ -23,7 +23,10 @@ namespace MusicianFinder.Application.Commands.Events
         /// <param name="dbContext">Контекст базы данных.</param>
         /// <param name="currentUserService">Сервис текущего пользователя.</param>
         /// <param name="fileStorage">Сервис файлового хранилища.</param>
-        public UploadEventImageCommandHandler(IReadDbContext dbContext, ICurrentUserService currentUserService, IFileStorage fileStorage)
+        public UploadEventImageCommandHandler(
+            IReadDbContext dbContext,
+            ICurrentUserService currentUserService,
+            IFileStorage fileStorage)
         {
             _dbContext = dbContext;
             _currentUserService = currentUserService;
@@ -36,8 +39,8 @@ namespace MusicianFinder.Application.Commands.Events
             if (!request.ContentType.StartsWith("image/"))
                 throw new ValidationException(new[] { new ValidationFailure(nameof(request.ContentType), "Разрешены только изображения.") });
 
-            if (request.FileStream.Length > 5 * 1024 * 1024)
-                throw new ValidationException(new[] { new ValidationFailure(nameof(request.FileStream), "Файл слишком большой (макс. 5 МБ).") });
+            if (request.Content.Length > 5 * 1024 * 1024)
+                throw new ValidationException(new[] { new ValidationFailure(nameof(request.Content), "Файл слишком большой (макс. 5 МБ).") });
 
             var eventEntity = await _dbContext.Events
                 .FirstOrDefaultAsync(e => e.Id == request.EventId && !e.IsDeleted, cancellationToken)
@@ -53,7 +56,8 @@ namespace MusicianFinder.Application.Commands.Events
             if (!string.IsNullOrEmpty(eventEntity.ImageUrl))
                 await _fileStorage.DeleteFileAsync(eventEntity.ImageUrl);
 
-            var fileUrl = await _fileStorage.SaveFileAsync(request.FileStream, request.FileName, request.ContentType);
+            using var stream = new MemoryStream(request.Content);
+            var fileUrl = await _fileStorage.SaveFileAsync(stream, request.FileName, request.ContentType);
             eventEntity.SetImage(fileUrl, profile.Id);
             await ((DbContext)_dbContext).SaveChangesAsync(cancellationToken);
 

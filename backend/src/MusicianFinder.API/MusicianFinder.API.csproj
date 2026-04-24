@@ -25,7 +25,7 @@
   <ItemGroup>
     <ProjectReference Include="..\MusicianFinder.Application\MusicianFinder.Application.csproj" />
     <ProjectReference Include="..\MusicianFinder.Infrastructure\MusicianFinder.Infrastructure.csproj" />
-	<ProjectReference Include="..\MusicianFinder.Shared\MusicianFinder.Shared.csproj" />
+	<ProjectReference Include="..\MusicianFinder.Shared\MusicianFinder.SharedKernel.csproj" />
   </ItemGroup>
 
 </Project>

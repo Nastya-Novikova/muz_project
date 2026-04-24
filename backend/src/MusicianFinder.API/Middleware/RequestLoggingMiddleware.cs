@@ -28,9 +28,7 @@ namespace MusicianFinder.API.Middleware
         public async Task InvokeAsync(HttpContext context)
         {
             var stopwatch = Stopwatch.StartNew();
-
             await _next(context);
-
             stopwatch.Stop();
 
             _logger.LogInformation(

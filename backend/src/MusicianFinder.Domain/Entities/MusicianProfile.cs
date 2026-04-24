@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using MusicianFinder.Domain.Common;
+using MusicianFinder.Domain.DomainEvents;
 using MusicianFinder.Domain.Enums;
 using MusicianFinder.Domain.Exceptions;
 
@@ -64,7 +65,7 @@ namespace MusicianFinder.Domain.Entities
         public Guid Id { get; private set; }
 
         /// <summary>
-        /// Тип профиля (Individual или Band).
+        /// Тип профиля.
         /// </summary>
         public ProfileType ProfileType { get; private set; }
 
@@ -224,6 +225,8 @@ namespace MusicianFinder.Domain.Entities
             if (notifyByVk.HasValue) NotifyByVk = notifyByVk.Value;
 
             UpdatedAt = DateTime.UtcNow;
+
+            AddDomainEvent(new ProfileUpdatedDomainEvent(Id));
         }
 
         /// <summary>
@@ -234,6 +237,8 @@ namespace MusicianFinder.Domain.Entities
         {
             AvatarUrl = avatarUrl;
             UpdatedAt = DateTime.UtcNow;
+
+            AddDomainEvent(new ProfileUpdatedDomainEvent(Id));
         }
 
         /// <summary>

@@ -1,6 +1,6 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
-using MusicianFinder.Application.Common.Exceptions;
+using MusicianFinder.Application.Core.Exceptions;
 using MusicianFinder.Application.Interfaces;
 using MusicianFinder.Domain.Entities;
 using MusicianFinder.Domain.Enums;
@@ -22,7 +22,10 @@ namespace MusicianFinder.Application.Commands.Events
         /// <param name="dbContext">Контекст базы данных.</param>
         /// <param name="currentUserService">Сервис текущего пользователя.</param>
         /// <param name="notificationService">Сервис уведомлений.</param>
-        public RegisterToEventCommandHandler(IReadDbContext dbContext, ICurrentUserService currentUserService, INotificationService notificationService)
+        public RegisterToEventCommandHandler(
+            IReadDbContext dbContext,
+            ICurrentUserService currentUserService,
+            INotificationService notificationService)
         {
             _dbContext = dbContext;
             _currentUserService = currentUserService;

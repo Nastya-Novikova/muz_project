@@ -21,7 +21,10 @@ namespace MusicianFinder.Infrastructure.Services
         /// <param name="dbContext">Контекст базы данных.</param>
         /// <param name="emailService">Сервис email.</param>
         /// <param name="vkService">Сервис VK.</param>
-        public NotificationService(MusicianFinderDbContext dbContext, IEmailService emailService, IVkService vkService)
+        public NotificationService(
+            MusicianFinderDbContext dbContext,
+            IEmailService emailService,
+            IVkService vkService)
         {
             _dbContext = dbContext;
             _emailService = emailService;
@@ -29,11 +32,13 @@ namespace MusicianFinder.Infrastructure.Services
         }
 
         /// <inheritdoc />
-        public async Task SendNotificationToProfileAsync(Guid profileId, NotificationType type, Dictionary<string, object> data)
+        public async Task SendNotificationToProfileAsync(
+            Guid profileId,
+            NotificationType type,
+            Dictionary<string, object> data)
         {
             var profile = await _dbContext.MusicianProfiles.FindAsync(profileId);
-            if (profile == null)
-                return;
+            if (profile == null) return;
 
             var (title, message) = GetNotificationText(type, data);
 
@@ -61,24 +66,29 @@ namespace MusicianFinder.Infrastructure.Services
         }
 
         /// <inheritdoc />
-        public async Task SendNotificationToUserAsync(Guid userId, NotificationType type, Dictionary<string, object> data)
+        public async Task SendNotificationToUserAsync(
+            Guid userId,
+            NotificationType type,
+            Dictionary<string, object> data)
         {
             var user = await _dbContext.Users
                 .Include(u => u.MusicianProfile)
                 .FirstOrDefaultAsync(u => u.Id == userId && !u.IsDeleted);
-            if (user?.MusicianProfile == null)
-                return;
+            if (user?.MusicianProfile == null) return;
 
             await SendNotificationToProfileAsync(user.MusicianProfile.Id, type, data);
         }
 
-        private static (string Title, string Message) GetNotificationText(NotificationType type, Dictionary<string, object> data)
+        private static (string Title, string Message) GetNotificationText(
+            NotificationType type, Dictionary<string, object> data)
         {
             return type switch
             {
                 NotificationType.CollaborationReceived => (
                     $"Пользователь {data["fromProfileName"]} отправил вам предложение о сотрудничестве",
-                    data.TryGetValue("message", out var msg) ? msg?.ToString() ?? "У вас новое предложение о сотрудничестве" : "У вас новое предложение о сотрудничестве"
+                    data.TryGetValue("message", out var msg)
+                        ? msg?.ToString() ?? "У вас новое предложение о сотрудничестве"
+                        : "У вас новое предложение о сотрудничестве"
                 ),
                 NotificationType.EventRegistration => (
                     "Регистрация подтверждена",

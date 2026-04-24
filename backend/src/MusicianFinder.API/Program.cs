@@ -23,24 +23,20 @@ builder.Services.AddControllers()
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerWithJwt();
-
 builder.Services.AddCorsPolicy(builder.Configuration);
-
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
-
 builder.Services.AddJwtAuthentication(builder.Configuration);
 builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
+app.UseMiddleware<CorrelationIdMiddleware>();
 app.UseMiddleware<ErrorHandlingMiddleware>();
 app.UseMiddleware<RequestLoggingMiddleware>();
 
 app.UseSwagger();
 app.UseSwaggerUI();
-
-app.UseHttpsRedirection();
 
 app.UseCors("DefaultCorsPolicy");
 

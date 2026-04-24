@@ -63,7 +63,7 @@ namespace MusicianFinder.Domain.Entities
         public UserRole Role { get; private set; }
 
         /// <summary>
-        /// Коллекция избранных профилей.
+        /// Коллекция избранных профилей (только для чтения).
         /// </summary>
         public IReadOnlyCollection<Favorite> Favorites => _favorites.AsReadOnly();
 

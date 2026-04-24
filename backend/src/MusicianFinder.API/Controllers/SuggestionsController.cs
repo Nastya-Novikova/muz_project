@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MusicianFinder.Application.Commands.Suggestions;
+using MusicianFinder.Application.Core.Behaviors;
 
 namespace MusicianFinder.API.Controllers
 {
@@ -36,6 +37,7 @@ namespace MusicianFinder.API.Controllers
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         public async Task<IActionResult> SendSuggestion([FromBody] SendSuggestionCommand command)
         {
+            SetIdempotencyKey(command);
             await _mediator.Send(command);
             return NoContent();
         }
@@ -54,8 +56,16 @@ namespace MusicianFinder.API.Controllers
         public async Task<IActionResult> UpdateStatus(Guid id, [FromBody] UpdateSuggestionStatusCommand command)
         {
             command.SuggestionId = id;
+            SetIdempotencyKey(command);
             await _mediator.Send(command);
             return NoContent();
+        }
+
+        private void SetIdempotencyKey(IBaseCommand command)
+        {
+            var key = Request.Headers["Idempotency-Key"].FirstOrDefault();
+            if (!string.IsNullOrEmpty(key))
+                command.IdempotencyKey = key;
         }
     }
 }

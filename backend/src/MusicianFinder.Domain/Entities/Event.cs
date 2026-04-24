@@ -32,7 +32,7 @@ namespace MusicianFinder.Domain.Entities
         /// <param name="creatorProfileId">Идентификатор профиля создателя.</param>
         /// <param name="description">Описание.</param>
         /// <param name="endDateTime">Дата и время окончания.</param>
-        /// <param name="maxParticipants">Максимальное количество участников.</param>
+        /// <param name="maxParticipants">Максимальное количество участников (0 — без ограничений).</param>
         /// <exception cref="DomainException">Выбрасывается при нарушении бизнес-правил.</exception>
         public Event(
             string title,
@@ -74,10 +74,10 @@ namespace MusicianFinder.Domain.Entities
         /// <summary>
         /// Название мероприятия.
         /// </summary>
-        public string Title { get; private set; }
+        public string Title { get; private set; } = string.Empty;
 
         /// <summary>
-        /// Описание.
+        /// Описание мероприятия.
         /// </summary>
         public string? Description { get; private set; }
 
@@ -99,7 +99,7 @@ namespace MusicianFinder.Domain.Entities
         /// <summary>
         /// Адрес проведения.
         /// </summary>
-        public string Address { get; private set; }
+        public string Address { get; private set; } = string.Empty;
 
         /// <summary>
         /// Дата и время начала.
@@ -137,7 +137,7 @@ namespace MusicianFinder.Domain.Entities
         public DateTime UpdatedAt { get; private set; }
 
         /// <summary>
-        /// Список регистраций на мероприятие.
+        /// Список регистраций на мероприятие (только для чтения).
         /// </summary>
         public IReadOnlyCollection<EventRegistration> Registrations => _registrations.AsReadOnly();
 
@@ -267,6 +267,8 @@ namespace MusicianFinder.Domain.Entities
             EndDateTime = endDateTime;
             MaxParticipants = maxParticipants;
             UpdatedAt = DateTime.UtcNow;
+
+            AddDomainEvent(new EventUpdatedDomainEvent(Id));
         }
 
         /// <summary>
@@ -282,6 +284,8 @@ namespace MusicianFinder.Domain.Entities
 
             ImageUrl = imageUrl;
             UpdatedAt = DateTime.UtcNow;
+
+            AddDomainEvent(new EventUpdatedDomainEvent(Id));
         }
 
         /// <summary>

@@ -22,7 +22,10 @@ namespace MusicianFinder.Infrastructure.Interceptors
         }
 
         /// <inheritdoc />
-        public override async ValueTask<int> SavedChangesAsync(SaveChangesCompletedEventData eventData, int result, CancellationToken cancellationToken = default)
+        public override async ValueTask<int> SavedChangesAsync(
+            SaveChangesCompletedEventData eventData,
+            int result,
+            CancellationToken cancellationToken = default)
         {
             await DispatchDomainEventsAsync(eventData.Context, cancellationToken);
             return await base.SavedChangesAsync(eventData, result, cancellationToken);
@@ -30,8 +33,7 @@ namespace MusicianFinder.Infrastructure.Interceptors
 
         private async Task DispatchDomainEventsAsync(DbContext? context, CancellationToken cancellationToken)
         {
-            if (context == null)
-                return;
+            if (context == null) return;
 
             var aggregates = context.ChangeTracker
                 .Entries<AggregateRoot>()

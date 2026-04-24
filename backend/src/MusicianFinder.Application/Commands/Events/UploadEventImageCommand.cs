@@ -1,11 +1,12 @@
 ﻿using MediatR;
+using MusicianFinder.Application.Core.Behaviors;
 
 namespace MusicianFinder.Application.Commands.Events
 {
     /// <summary>
     /// Команда для загрузки изображения мероприятия.
     /// </summary>
-    public class UploadEventImageCommand : IRequest<string>
+    public class UploadEventImageCommand : IRequest<string>, IBaseCommand
     {
         /// <summary>
         /// Идентификатор мероприятия.
@@ -13,9 +14,9 @@ namespace MusicianFinder.Application.Commands.Events
         public Guid EventId { get; set; }
 
         /// <summary>
-        /// Поток с изображением.
+        /// Содержимое файла.
         /// </summary>
-        public Stream FileStream { get; set; } = null!;
+        public byte[] Content { get; set; } = Array.Empty<byte>();
 
         /// <summary>
         /// Имя файла.
@@ -26,5 +27,8 @@ namespace MusicianFinder.Application.Commands.Events
         /// MIME-тип файла.
         /// </summary>
         public string ContentType { get; set; } = string.Empty;
+
+        /// <inheritdoc />
+        public string IdempotencyKey { get; set; } = string.Empty;
     }
 }

@@ -24,7 +24,10 @@ namespace MusicianFinder.Infrastructure.Services
         /// <param name="dbContext">Контекст базы данных.</param>
         /// <param name="configuration">Конфигурация приложения.</param>
         /// <param name="logger">Логгер.</param>
-        public VkService(MusicianFinderDbContext dbContext, IConfiguration configuration, ILogger<VkService> logger)
+        public VkService(
+            MusicianFinderDbContext dbContext,
+            IConfiguration configuration,
+            ILogger<VkService> logger)
         {
             _dbContext = dbContext;
             _httpClient = new HttpClient();

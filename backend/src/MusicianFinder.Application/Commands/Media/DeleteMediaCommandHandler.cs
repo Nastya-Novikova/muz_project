@@ -1,6 +1,6 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
-using MusicianFinder.Application.Common.Exceptions;
+using MusicianFinder.Application.Core.Exceptions;
 using MusicianFinder.Application.Interfaces;
 
 namespace MusicianFinder.Application.Commands.Media
@@ -20,7 +20,10 @@ namespace MusicianFinder.Application.Commands.Media
         /// <param name="dbContext">Контекст базы данных.</param>
         /// <param name="currentUserService">Сервис текущего пользователя.</param>
         /// <param name="fileStorage">Сервис файлового хранилища.</param>
-        public DeleteMediaCommandHandler(IReadDbContext dbContext, ICurrentUserService currentUserService, IFileStorage fileStorage)
+        public DeleteMediaCommandHandler(
+            IReadDbContext dbContext,
+            ICurrentUserService currentUserService,
+            IFileStorage fileStorage)
         {
             _dbContext = dbContext;
             _currentUserService = currentUserService;

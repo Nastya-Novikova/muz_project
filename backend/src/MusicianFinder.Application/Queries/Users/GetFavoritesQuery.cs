@@ -1,5 +1,5 @@
 ﻿using MediatR;
-using MusicianFinder.Application.Common.Pagination;
+using MusicianFinder.Application.Core.Pagination;
 using MusicianFinder.Application.DTOs.Profiles;
 
 namespace MusicianFinder.Application.Queries.Users

@@ -39,12 +39,12 @@ namespace MusicianFinder.Domain.Entities
         public DateTime RegisteredAt { get; private set; }
 
         /// <summary>
-        /// Мероприятие.
+        /// Мероприятие (навигационное свойство).
         /// </summary>
         public Event? Event { get; private set; }
 
         /// <summary>
-        /// Профиль участника.
+        /// Профиль участника (навигационное свойство).
         /// </summary>
         public MusicianProfile? Profile { get; private set; }
     }

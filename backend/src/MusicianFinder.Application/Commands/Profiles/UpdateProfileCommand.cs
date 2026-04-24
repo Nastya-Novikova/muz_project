@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using MusicianFinder.Application.Core.Behaviors;
 using MusicianFinder.Domain.Enums;
 
 namespace MusicianFinder.Application.Commands.Profiles
@@ -6,7 +7,7 @@ namespace MusicianFinder.Application.Commands.Profiles
     /// <summary>
     /// Команда для обновления профиля музыканта.
     /// </summary>
-    public class UpdateProfileCommand : IRequest<Unit>
+    public class UpdateProfileCommand : IRequest<Unit>, IBaseCommand
     {
         /// <summary>
         /// Тип профиля.
@@ -74,7 +75,7 @@ namespace MusicianFinder.Application.Commands.Profiles
         public List<int>? SpecialtyIds { get; set; }
 
         /// <summary>
-        /// Идентификаторы целей.
+        /// Идентификаторы целей сотрудничества.
         /// </summary>
         public List<int>? CollaborationGoalIds { get; set; }
 
@@ -87,5 +88,8 @@ namespace MusicianFinder.Application.Commands.Profiles
         /// Идентификаторы искомых специальностей.
         /// </summary>
         public List<int>? DesiredSpecialtyIds { get; set; }
+
+        /// <inheritdoc />
+        public string IdempotencyKey { get; set; } = string.Empty;
     }
 }

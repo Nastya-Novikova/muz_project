@@ -21,7 +21,9 @@ namespace MusicianFinder.Infrastructure.BackgroundServices
         /// </summary>
         /// <param name="serviceScopeFactory">Фабрика областей сервисов.</param>
         /// <param name="logger">Логгер.</param>
-        public EventReminderBackgroundService(IServiceScopeFactory serviceScopeFactory, ILogger<EventReminderBackgroundService> logger)
+        public EventReminderBackgroundService(
+            IServiceScopeFactory serviceScopeFactory,
+            ILogger<EventReminderBackgroundService> logger)
         {
             _serviceScopeFactory = serviceScopeFactory;
             _logger = logger;

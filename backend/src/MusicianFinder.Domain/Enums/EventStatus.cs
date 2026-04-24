@@ -5,8 +5,19 @@
     /// </summary>
     public enum EventStatus
     {
+        /// <summary>
+        /// Запланировано.
+        /// </summary>
         Scheduled,
+
+        /// <summary>
+        /// Отменено.
+        /// </summary>
         Cancelled,
+
+        /// <summary>
+        /// Завершено.
+        /// </summary>
         Completed
     }
 }

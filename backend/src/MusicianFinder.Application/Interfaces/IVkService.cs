@@ -12,7 +12,6 @@
         /// <param name="code">Код авторизации OAuth.</param>
         /// <param name="codeVerifier">Верификатор кода (PKCE).</param>
         /// <param name="deviceId">Идентификатор устройства.</param>
-        /// <returns>Результат операции.</returns>
         Task ConnectVkAsync(Guid userId, string code, string codeVerifier, string deviceId);
 
         /// <summary>

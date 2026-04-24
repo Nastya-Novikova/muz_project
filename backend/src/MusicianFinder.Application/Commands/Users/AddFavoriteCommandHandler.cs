@@ -1,6 +1,6 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
-using MusicianFinder.Application.Common.Exceptions;
+using MusicianFinder.Application.Core.Exceptions;
 using MusicianFinder.Application.Interfaces;
 
 namespace MusicianFinder.Application.Commands.Users
@@ -18,7 +18,9 @@ namespace MusicianFinder.Application.Commands.Users
         /// </summary>
         /// <param name="dbContext">Контекст базы данных.</param>
         /// <param name="currentUserService">Сервис текущего пользователя.</param>
-        public AddFavoriteCommandHandler(IReadDbContext dbContext, ICurrentUserService currentUserService)
+        public AddFavoriteCommandHandler(
+            IReadDbContext dbContext,
+            ICurrentUserService currentUserService)
         {
             _dbContext = dbContext;
             _currentUserService = currentUserService;

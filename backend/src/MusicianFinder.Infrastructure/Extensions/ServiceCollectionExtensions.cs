@@ -20,7 +20,9 @@ namespace MusicianFinder.Infrastructure.Extensions
         /// <param name="services">Коллекция сервисов.</param>
         /// <param name="configuration">Конфигурация приложения.</param>
         /// <returns>Коллекция сервисов с добавленными зависимостями.</returns>
-        public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection AddInfrastructure(
+            this IServiceCollection services,
+            IConfiguration configuration)
         {
             services.AddSingleton<DispatchDomainEventsInterceptor>();
 
@@ -31,17 +33,20 @@ namespace MusicianFinder.Infrastructure.Extensions
                        .AddInterceptors(interceptor);
             });
 
-            services.AddScoped<IReadDbContext>(sp => sp.GetRequiredService<MusicianFinderDbContext>());
+            services.AddScoped<IReadDbContext>(sp =>
+                sp.GetRequiredService<MusicianFinderDbContext>());
 
-            // Сервисы
+            services.AddScoped<ICacheService, RedisCacheService>();
+            services.AddScoped<IDomainEventDispatcher, DomainEventDispatcher>();
+
             services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<IFileStorage, MinioFileStorage>();
             services.AddScoped<IVkService, VkService>();
             services.AddScoped<INotificationService, NotificationService>();
             services.AddScoped<ICurrentUserService, CurrentUserService>();
+            services.AddScoped<IEntityExistenceValidator, EntityExistenceValidator>();
 
             services.AddHttpContextAccessor();
-
             services.AddHostedService<EventReminderBackgroundService>();
 
             return services;

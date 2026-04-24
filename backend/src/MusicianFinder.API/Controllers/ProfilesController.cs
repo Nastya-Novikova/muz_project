@@ -2,7 +2,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MusicianFinder.Application.Commands.Profiles;
-using MusicianFinder.Application.Common.Pagination;
+using MusicianFinder.Application.Core.Behaviors;
+using MusicianFinder.Application.Core.Pagination;
 using MusicianFinder.Application.DTOs.Media;
 using MusicianFinder.Application.DTOs.Profiles;
 using MusicianFinder.Application.Queries.Profiles;
@@ -47,11 +48,12 @@ namespace MusicianFinder.API.Controllers
         /// <returns>Идентификатор созданного профиля.</returns>
         [HttpPost]
         [Authorize]
-        [ProducesResponseType(typeof(ProfileCreatedResponse), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(Guid), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         public async Task<IActionResult> Create([FromBody] CreateProfileCommand command)
         {
+            SetIdempotencyKey(command);
             var profileId = await _mediator.Send(command);
             return CreatedAtAction(nameof(GetById), new { id = profileId }, new { id = profileId });
         }
@@ -84,9 +86,11 @@ namespace MusicianFinder.API.Controllers
             return Ok(result);
         }
 
-        private class ProfileCreatedResponse
+        private void SetIdempotencyKey(IBaseCommand command)
         {
-            public Guid Id { get; set; }
+            var key = Request.Headers["Idempotency-Key"].FirstOrDefault();
+            if (!string.IsNullOrEmpty(key))
+                command.IdempotencyKey = key;
         }
     }
 }

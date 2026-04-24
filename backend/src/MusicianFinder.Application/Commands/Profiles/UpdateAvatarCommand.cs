@@ -1,16 +1,17 @@
 ﻿using MediatR;
+using MusicianFinder.Application.Core.Behaviors;
 
 namespace MusicianFinder.Application.Commands.Profiles
 {
     /// <summary>
     /// Команда для обновления аватара профиля.
     /// </summary>
-    public class UpdateAvatarCommand : IRequest<string>
+    public class UpdateAvatarCommand : IRequest<string>, IBaseCommand
     {
         /// <summary>
-        /// Поток с изображением.
+        /// Содержимое изображения.
         /// </summary>
-        public Stream FileStream { get; set; } = null!;
+        public byte[] Content { get; set; } = Array.Empty<byte>();
 
         /// <summary>
         /// Имя файла.
@@ -21,5 +22,8 @@ namespace MusicianFinder.Application.Commands.Profiles
         /// MIME-тип файла.
         /// </summary>
         public string ContentType { get; set; } = string.Empty;
+
+        /// <inheritdoc />
+        public string IdempotencyKey { get; set; } = string.Empty;
     }
 }

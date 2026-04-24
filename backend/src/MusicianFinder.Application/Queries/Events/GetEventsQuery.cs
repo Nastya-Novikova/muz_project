@@ -1,5 +1,5 @@
 ﻿using MediatR;
-using MusicianFinder.Application.Common.Pagination;
+using MusicianFinder.Application.Core.Pagination;
 using MusicianFinder.Application.DTOs.Events;
 using MusicianFinder.Domain.Enums;
 
@@ -56,7 +56,7 @@ namespace MusicianFinder.Application.Queries.Events
         public int Limit { get; set; } = 20;
 
         /// <summary>
-        /// Поле для сортировки (title, startdatetime, createdat).
+        /// Поле сортировки.
         /// </summary>
         public string? SortBy { get; set; }
 

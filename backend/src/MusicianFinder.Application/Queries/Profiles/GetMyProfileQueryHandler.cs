@@ -1,7 +1,8 @@
 ﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using MusicianFinder.Application.Common.Exceptions;
+using MusicianFinder.Application.Core.Exceptions;
 using MusicianFinder.Application.DTOs.Profiles;
 using MusicianFinder.Application.Interfaces;
 
@@ -15,6 +16,7 @@ namespace MusicianFinder.Application.Queries.Profiles
         private readonly IReadDbContext _dbContext;
         private readonly ICurrentUserService _currentUserService;
         private readonly IMapper _mapper;
+        private readonly ICacheService _cache;
 
         /// <summary>
         /// Инициализирует новый экземпляр <see cref="GetMyProfileQueryHandler"/>.
@@ -22,30 +24,31 @@ namespace MusicianFinder.Application.Queries.Profiles
         /// <param name="dbContext">Контекст базы данных.</param>
         /// <param name="currentUserService">Сервис текущего пользователя.</param>
         /// <param name="mapper">Маппер.</param>
-        public GetMyProfileQueryHandler(IReadDbContext dbContext, ICurrentUserService currentUserService, IMapper mapper)
+        /// <param name="cache">Сервис кеша.</param>
+        public GetMyProfileQueryHandler(IReadDbContext dbContext, ICurrentUserService currentUserService, IMapper mapper, ICacheService cache)
         {
             _dbContext = dbContext;
             _currentUserService = currentUserService;
             _mapper = mapper;
+            _cache = cache;
         }
 
         /// <inheritdoc />
         public async Task<ProfileDto> Handle(GetMyProfileQuery request, CancellationToken cancellationToken)
         {
-            var profile = await _dbContext.Profiles
+            string cacheKey = $"profile:me:{_currentUserService.UserId}";
+            var cached = await _cache.GetAsync<ProfileDto>(cacheKey);
+            if (cached != null) return cached;
+
+            var dto = await _dbContext.Profiles
                 .AsNoTracking()
-                .Include(nameof(Domain.Entities.MusicianProfile.City))
-                .Include(nameof(Domain.Entities.MusicianProfile.Genres))
-                .Include(nameof(Domain.Entities.MusicianProfile.Specialties))
-                .Include(nameof(Domain.Entities.MusicianProfile.CollaborationGoals))
-                .Include(nameof(Domain.Entities.MusicianProfile.DesiredGenres))
-                .Include(nameof(Domain.Entities.MusicianProfile.DesiredSpecialties))
-                .FirstOrDefaultAsync(p => p.Id == _currentUserService.UserId && !p.IsDeleted, cancellationToken)
+                .Where(p => p.Id == _currentUserService.UserId && !p.IsDeleted)
+                .ProjectTo<ProfileDto>(_mapper.ConfigurationProvider)
+                .FirstOrDefaultAsync(cancellationToken)
                 ?? throw new NotFoundException("Профиль не найден.");
 
-            var dto = _mapper.Map<ProfileDto>(profile);
             dto.IsMyProfile = true;
-
+            await _cache.SetAsync(cacheKey, dto, TimeSpan.FromMinutes(10));
             return dto;
         }
     }

@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using MusicianFinder.Application.Common.Exceptions;
+using MusicianFinder.Application.Core.Exceptions;
 using MusicianFinder.Application.DTOs.Media;
 using MusicianFinder.Application.Interfaces;
 using MusicianFinder.Domain.Enums;
@@ -36,11 +36,12 @@ namespace MusicianFinder.Application.Queries.Profiles
                 .FirstOrDefaultAsync(p => p.Id == request.ProfileId && !p.IsDeleted, cancellationToken)
                 ?? throw new NotFoundException("Профиль не найден.");
 
+            var items = profile.PortfolioItems.ToList();
             return new MediaDto
             {
-                Audio = _mapper.Map<List<AudioDto>>(profile.PortfolioItems.Where(x => x.Type == MediaType.Audio).ToList()),
-                Video = _mapper.Map<List<VideoDto>>(profile.PortfolioItems.Where(x => x.Type == MediaType.Video).ToList()),
-                Photos = _mapper.Map<List<PhotoDto>>(profile.PortfolioItems.Where(x => x.Type == MediaType.Photo).ToList())
+                Audio = _mapper.Map<List<AudioDto>>(items.Where(x => x.Type == MediaType.Audio).ToList()),
+                Video = _mapper.Map<List<VideoDto>>(items.Where(x => x.Type == MediaType.Video).ToList()),
+                Photos = _mapper.Map<List<PhotoDto>>(items.Where(x => x.Type == MediaType.Photo).ToList())
             };
         }
     }

@@ -95,7 +95,7 @@ namespace MusicianFinder.Domain.Entities
         public DateTime CreatedAt { get; private set; }
 
         /// <summary>
-        /// Профиль получателя.
+        /// Профиль получателя (навигационное свойство).
         /// </summary>
         public MusicianProfile? Profile { get; private set; }
 

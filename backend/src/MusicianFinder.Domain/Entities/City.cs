@@ -23,7 +23,7 @@
         }
 
         /// <summary>
-        /// Идентификатор.
+        /// Идентификатор города.
         /// </summary>
         public int Id { get; private set; }
 

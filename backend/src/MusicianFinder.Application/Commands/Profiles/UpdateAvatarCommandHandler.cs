@@ -1,9 +1,9 @@
 ﻿using FluentValidation.Results;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using MusicianFinder.Application.Common.Exceptions;
+using MusicianFinder.Application.Core.Exceptions;
 using MusicianFinder.Application.Interfaces;
-using ValidationException = MusicianFinder.Application.Common.Exceptions.ValidationException;
+using ValidationException = MusicianFinder.Application.Core.Exceptions.ValidationException;
 
 namespace MusicianFinder.Application.Commands.Profiles
 {
@@ -22,7 +22,10 @@ namespace MusicianFinder.Application.Commands.Profiles
         /// <param name="dbContext">Контекст базы данных.</param>
         /// <param name="currentUserService">Сервис текущего пользователя.</param>
         /// <param name="fileStorage">Сервис файлового хранилища.</param>
-        public UpdateAvatarCommandHandler(IReadDbContext dbContext, ICurrentUserService currentUserService, IFileStorage fileStorage)
+        public UpdateAvatarCommandHandler(
+            IReadDbContext dbContext,
+            ICurrentUserService currentUserService,
+            IFileStorage fileStorage)
         {
             _dbContext = dbContext;
             _currentUserService = currentUserService;
@@ -42,7 +45,8 @@ namespace MusicianFinder.Application.Commands.Profiles
             if (!string.IsNullOrEmpty(profile.AvatarUrl))
                 await _fileStorage.DeleteFileAsync(profile.AvatarUrl);
 
-            var fileUrl = await _fileStorage.SaveFileAsync(request.FileStream, request.FileName, request.ContentType);
+            using var stream = new MemoryStream(request.Content);
+            var fileUrl = await _fileStorage.SaveFileAsync(stream, request.FileName, request.ContentType);
             profile.SetAvatar(fileUrl);
             await ((DbContext)_dbContext).SaveChangesAsync(cancellationToken);
 

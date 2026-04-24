@@ -1,7 +1,8 @@
 ﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using MusicianFinder.Application.Common.Exceptions;
+using MusicianFinder.Application.Core.Exceptions;
 using MusicianFinder.Application.DTOs.Auth;
 using MusicianFinder.Application.Interfaces;
 
@@ -34,10 +35,12 @@ namespace MusicianFinder.Application.Queries.Users
         {
             var user = await _dbContext.Users
                 .AsNoTracking()
-                .FirstOrDefaultAsync(u => u.Id == _currentUserService.UserId && !u.IsDeleted, cancellationToken)
+                .Where(u => u.Id == _currentUserService.UserId && !u.IsDeleted)
+                .ProjectTo<UserDto>(_mapper.ConfigurationProvider)
+                .FirstOrDefaultAsync(cancellationToken)
                 ?? throw new NotFoundException("Пользователь не найден.");
 
-            return _mapper.Map<UserDto>(user);
+            return user;
         }
     }
 }

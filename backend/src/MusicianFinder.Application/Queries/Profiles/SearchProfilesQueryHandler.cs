@@ -1,7 +1,8 @@
 ﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using MusicianFinder.Application.Common.Pagination;
+using MusicianFinder.Application.Core.Pagination;
 using MusicianFinder.Application.DTOs.Profiles;
 using MusicianFinder.Application.Interfaces;
 using MusicianFinder.Domain.Entities;
@@ -36,12 +37,6 @@ namespace MusicianFinder.Application.Queries.Profiles
             var query = _dbContext.Profiles
                 .AsNoTracking()
                 .Where(p => !p.IsDeleted)
-                .Include(nameof(MusicianProfile.City))
-                .Include(nameof(MusicianProfile.Genres))
-                .Include(nameof(MusicianProfile.Specialties))
-                .Include(nameof(MusicianProfile.CollaborationGoals))
-                .Include(nameof(MusicianProfile.DesiredGenres))
-                .Include(nameof(MusicianProfile.DesiredSpecialties))
                 .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(request.Query))
@@ -84,9 +79,8 @@ namespace MusicianFinder.Application.Queries.Profiles
             var items = await query
                 .Skip((request.Page - 1) * request.Limit)
                 .Take(request.Limit)
+                .ProjectTo<ProfileDto>(_mapper.ConfigurationProvider)
                 .ToListAsync(cancellationToken);
-
-            var dtos = _mapper.Map<List<ProfileDto>>(items);
 
             if (_currentUserService.IsAuthenticated)
             {
@@ -102,7 +96,7 @@ namespace MusicianFinder.Application.Queries.Profiles
                         .Select(f => f.ProfileId)
                         .ToListAsync(cancellationToken);
 
-                    foreach (var dto in dtos)
+                    foreach (var dto in items)
                     {
                         dto.IsMyProfile = dto.Id == currentProfile.Id;
                         dto.IsFavorite = favoriteIds.Contains(dto.Id);
@@ -112,7 +106,7 @@ namespace MusicianFinder.Application.Queries.Profiles
 
             return new PagedResult<ProfileDto>
             {
-                Items = dtos,
+                Items = items,
                 Total = totalCount,
                 Page = request.Page,
                 Limit = request.Limit

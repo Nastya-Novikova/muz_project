@@ -1,7 +1,8 @@
 ﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using MusicianFinder.Application.Common.Pagination;
+using MusicianFinder.Application.Core.Pagination;
 using MusicianFinder.Application.DTOs.Profiles;
 using MusicianFinder.Application.Interfaces;
 
@@ -41,30 +42,22 @@ namespace MusicianFinder.Application.Queries.Users
                                 .Where(u => u.Id == userId)
                                 .SelectMany(u => u.Favorites)
                                 .Select(f => f.ProfileId)
-                                .Contains(p.Id))
-                .Include(nameof(Domain.Entities.MusicianProfile.City))
-                .Include(nameof(Domain.Entities.MusicianProfile.Genres))
-                .Include(nameof(Domain.Entities.MusicianProfile.Specialties))
-                .Include(nameof(Domain.Entities.MusicianProfile.CollaborationGoals))
-                .Include(nameof(Domain.Entities.MusicianProfile.DesiredGenres))
-                .Include(nameof(Domain.Entities.MusicianProfile.DesiredSpecialties))
-                .AsQueryable();
+                                .Contains(p.Id));
 
             var totalCount = await query.CountAsync(cancellationToken);
 
             var items = await query
                 .Skip((request.Page - 1) * request.Limit)
                 .Take(request.Limit)
+                .ProjectTo<ProfileDto>(_mapper.ConfigurationProvider)
                 .ToListAsync(cancellationToken);
 
-            var dtos = _mapper.Map<List<ProfileDto>>(items);
-
-            foreach (var dto in dtos)
+            foreach (var dto in items)
                 dto.IsFavorite = true;
 
             return new PagedResult<ProfileDto>
             {
-                Items = dtos,
+                Items = items,
                 Total = totalCount,
                 Page = request.Page,
                 Limit = request.Limit

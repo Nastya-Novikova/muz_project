@@ -67,12 +67,12 @@ namespace MusicianFinder.Domain.Entities
         public DateTime UpdatedAt { get; private set; }
 
         /// <summary>
-        /// Профиль отправителя.
+        /// Профиль отправителя (навигационное свойство).
         /// </summary>
         public MusicianProfile? FromProfile { get; private set; }
 
         /// <summary>
-        /// Профиль получателя.
+        /// Профиль получателя (навигационное свойство).
         /// </summary>
         public MusicianProfile? ToProfile { get; private set; }
 
