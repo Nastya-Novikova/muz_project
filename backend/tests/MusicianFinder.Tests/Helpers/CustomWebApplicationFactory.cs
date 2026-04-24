@@ -61,9 +61,9 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>, IAsyn
             services.RemoveAll<EventReminderBackgroundService>();
 
             // Подменяем БД
-            services.RemoveAll<DbContextOptions<MusicianFinderDbContext>>();
-            services.RemoveAll<MusicianFinderDbContext>();
-            services.AddDbContext<MusicianFinderDbContext>(options =>
+            services.RemoveAll<DbContextOptions<AppDbContext>>();
+            services.RemoveAll<AppDbContext>();
+            services.AddDbContext<AppDbContext>(options =>
                 options.UseNpgsql(_dbContainer.GetConnectionString()));
 
             // Моки для внешних сервисов
@@ -121,7 +121,7 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>, IAsyn
         await WaitForDatabaseAsync(_dbContainer.GetConnectionString(), TimeSpan.FromSeconds(30));
 
         using var scope = Services.CreateScope();
-        var dbContext = scope.ServiceProvider.GetRequiredService<MusicianFinderDbContext>();
+        var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         await dbContext.Database.MigrateAsync();
     }
 
@@ -152,7 +152,7 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>, IAsyn
     public async Task ResetDatabaseAsync()
     {
         using var scope = Services.CreateScope();
-        var dbContext = scope.ServiceProvider.GetRequiredService<MusicianFinderDbContext>();
+        var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
         await dbContext.Database.ExecuteSqlRawAsync("SET session_replication_role = 'replica';");
 

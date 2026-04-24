@@ -1,15 +1,10 @@
-﻿using System.Collections.Generic;
-
-namespace MusicianFinder.Domain.Entities
+﻿namespace MusicianFinder.Domain.Entities
 {
     /// <summary>
-    /// Музыкальный жанр.
+    /// Музыкальный жанр (справочник).
     /// </summary>
     public class Genre
     {
-        private readonly List<MusicianProfile> _profiles = [];
-        private readonly List<MusicianProfile> _profilesLookingForThisGenre = [];
-
         private Genre()
         {
             Name = string.Empty;
@@ -19,10 +14,12 @@ namespace MusicianFinder.Domain.Entities
         /// <summary>
         /// Инициализирует новый экземпляр жанра.
         /// </summary>
+        /// <param name="id">Уникальный идентификатор.</param>
         /// <param name="name">Английское название жанра.</param>
         /// <param name="localizedName">Русское название жанра.</param>
-        public Genre(string name, string localizedName)
+        public Genre(Guid id, string name, string localizedName)
         {
+            Id = id;
             Name = name;
             LocalizedName = localizedName;
         }
@@ -30,7 +27,7 @@ namespace MusicianFinder.Domain.Entities
         /// <summary>
         /// Идентификатор жанра.
         /// </summary>
-        public int Id { get; private set; }
+        public Guid Id { get; private set; }
 
         /// <summary>
         /// Английское название жанра.
@@ -41,15 +38,5 @@ namespace MusicianFinder.Domain.Entities
         /// Русское название жанра.
         /// </summary>
         public string LocalizedName { get; private set; }
-
-        /// <summary>
-        /// Профили, предлагающие этот жанр.
-        /// </summary>
-        public IReadOnlyCollection<MusicianProfile> Profiles => _profiles.AsReadOnly();
-
-        /// <summary>
-        /// Профили, которые ищут этот жанр.
-        /// </summary>
-        public IReadOnlyCollection<MusicianProfile> ProfilesLookingForThisGenre => _profilesLookingForThisGenre.AsReadOnly();
     }
 }

@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MusicianFinder.Application.Commands.Notifications;
-using MusicianFinder.Application.Core.Behaviors;
 using MusicianFinder.Application.Core.Pagination;
 using MusicianFinder.Application.DTOs.Notifications;
 using MusicianFinder.Application.Queries.Notifications;
@@ -12,22 +11,9 @@ namespace MusicianFinder.API.Controllers
     /// <summary>
     /// Контроллер для работы с уведомлениями текущего пользователя.
     /// </summary>
-    [ApiController]
-    [Route("api/me/notifications")]
     [Authorize]
-    public class MeNotificationsController : ControllerBase
+    public class MeNotificationsController : BaseApiController
     {
-        private readonly IMediator _mediator;
-
-        /// <summary>
-        /// Инициализирует новый экземпляр <see cref="MeNotificationsController"/>.
-        /// </summary>
-        /// <param name="mediator">Экземпляр <see cref="IMediator"/>.</param>
-        public MeNotificationsController(IMediator mediator)
-        {
-            _mediator = mediator;
-        }
-
         /// <summary>
         /// Получить список уведомлений текущего пользователя.
         /// </summary>
@@ -37,7 +23,7 @@ namespace MusicianFinder.API.Controllers
         [ProducesResponseType(typeof(PagedResult<NotificationDto>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetNotifications([FromQuery] GetNotificationsQuery query)
         {
-            var result = await _mediator.Send(query);
+            var result = await Mediator.Send(query);
             return Ok(result);
         }
 
@@ -54,7 +40,7 @@ namespace MusicianFinder.API.Controllers
         {
             var command = new MarkNotificationAsReadCommand { NotificationId = id };
             SetIdempotencyKey(command);
-            await _mediator.Send(command);
+            await Mediator.Send(command);
             return NoContent();
         }
 
@@ -68,7 +54,7 @@ namespace MusicianFinder.API.Controllers
         {
             var command = new MarkAllNotificationsAsReadCommand();
             SetIdempotencyKey(command);
-            await _mediator.Send(command);
+            await Mediator.Send(command);
             return NoContent();
         }
 
@@ -80,15 +66,8 @@ namespace MusicianFinder.API.Controllers
         [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetUnreadCount()
         {
-            var count = await _mediator.Send(new GetUnreadCountQuery());
+            var count = await Mediator.Send(new GetUnreadCountQuery());
             return Ok(new { unreadCount = count });
-        }
-
-        private void SetIdempotencyKey(IBaseCommand command)
-        {
-            var key = Request.Headers["Idempotency-Key"].FirstOrDefault();
-            if (!string.IsNullOrEmpty(key))
-                command.IdempotencyKey = key;
         }
     }
 }

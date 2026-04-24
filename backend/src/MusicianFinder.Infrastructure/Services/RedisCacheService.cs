@@ -15,10 +15,7 @@ namespace MusicianFinder.Infrastructure.Services
         /// Инициализирует новый экземпляр <see cref="RedisCacheService"/>.
         /// </summary>
         /// <param name="cache">Распределённый кеш.</param>
-        public RedisCacheService(IDistributedCache cache)
-        {
-            _cache = cache;
-        }
+        public RedisCacheService(IDistributedCache cache) => _cache = cache;
 
         /// <inheritdoc />
         public async Task<T?> GetAsync<T>(string key) where T : class
@@ -30,18 +27,11 @@ namespace MusicianFinder.Infrastructure.Services
         /// <inheritdoc />
         public async Task SetAsync<T>(string key, T value, TimeSpan expiration) where T : class
         {
-            var options = new DistributedCacheEntryOptions
-            {
-                AbsoluteExpirationRelativeToNow = expiration
-            };
-            var json = JsonSerializer.Serialize(value);
-            await _cache.SetStringAsync(key, json, options);
+            var options = new DistributedCacheEntryOptions { AbsoluteExpirationRelativeToNow = expiration };
+            await _cache.SetStringAsync(key, JsonSerializer.Serialize(value), options);
         }
 
         /// <inheritdoc />
-        public async Task RemoveAsync(string key)
-        {
-            await _cache.RemoveAsync(key);
-        }
+        public async Task RemoveAsync(string key) => await _cache.RemoveAsync(key);
     }
 }

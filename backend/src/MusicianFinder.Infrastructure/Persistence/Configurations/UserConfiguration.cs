@@ -13,18 +13,16 @@ namespace MusicianFinder.Infrastructure.Persistence.Configurations
         /// <inheritdoc />
         public void Configure(EntityTypeBuilder<User> builder)
         {
-            builder.ToTable("User");
+            builder.ToTable("Users");
             builder.HasKey(u => u.Id);
             builder.Property(u => u.Email).IsRequired().HasMaxLength(256);
             builder.HasIndex(u => u.Email).IsUnique();
-            builder.Property(u => u.Role).HasConversion<string>().HasDefaultValue(UserRole.User);
+            builder.Property(u => u.Role).HasConversion<string>().HasMaxLength(20).HasDefaultValue(UserRole.User);
             builder.Property(u => u.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
             builder.Property(u => u.ProfileCreated).IsRequired();
-
-            builder.HasOne(u => u.MusicianProfile)
-                .WithOne()
-                .HasForeignKey<MusicianProfile>(p => p.Id)
-                .OnDelete(DeleteBehavior.Cascade);
+            builder.Property(u => u.IsDeleted).IsRequired();
+            builder.Property(u => u.DeletedAt);
+            builder.Ignore(u => u.DomainEvents);
         }
     }
 }

@@ -1,12 +1,13 @@
 ﻿using MediatR;
-using MusicianFinder.Application.Core.Behaviors;
+using MusicianFinder.Application.Commands.Base;
+using MusicianFinder.Application.Interfaces;
 
 namespace MusicianFinder.Application.Commands.Auth
 {
     /// <summary>
     /// Команда для запроса кода подтверждения на email.
     /// </summary>
-    public class RequestCodeCommand : IRequest<Unit>, IBaseCommand
+    public class RequestCodeCommand : ICommand<Unit>, IBaseCommand
     {
         /// <summary>
         /// Email для отправки кода.

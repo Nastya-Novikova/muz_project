@@ -8,7 +8,7 @@ namespace MusicianFinder.Application.Interfaces
     public interface INotificationService
     {
         /// <summary>
-        /// Отправить уведомление профилю с учётом его настроек.
+        /// Отправляет уведомление профилю с учётом его настроек.
         /// </summary>
         /// <param name="profileId">Идентификатор профиля получателя.</param>
         /// <param name="type">Тип уведомления.</param>
@@ -16,7 +16,7 @@ namespace MusicianFinder.Application.Interfaces
         Task SendNotificationToProfileAsync(Guid profileId, NotificationType type, Dictionary<string, object> data);
 
         /// <summary>
-        /// Отправить уведомление пользователю (по userId) с учётом настроек его профиля.
+        /// Отправляет уведомление пользователю (по userId) с учётом настроек его профиля.
         /// </summary>
         /// <param name="userId">Идентификатор пользователя.</param>
         /// <param name="type">Тип уведомления.</param>

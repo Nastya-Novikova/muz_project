@@ -1,12 +1,13 @@
 ﻿using MediatR;
-using MusicianFinder.Application.Core.Behaviors;
+using MusicianFinder.Application.Commands.Base;
+using MusicianFinder.Application.Interfaces;
 
 namespace MusicianFinder.Application.Commands.Events
 {
     /// <summary>
     /// Команда для отмены мероприятия.
     /// </summary>
-    public class CancelEventCommand : IRequest<Unit>, IBaseCommand
+    public class CancelEventCommand : ICommand<Unit>, IBaseCommand
     {
         /// <summary>
         /// Идентификатор мероприятия.

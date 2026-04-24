@@ -12,17 +12,18 @@ namespace MusicianFinder.Infrastructure.Persistence.Configurations
         /// <inheritdoc />
         public void Configure(EntityTypeBuilder<Region> builder)
         {
-            builder.ToTable("Region");
+            builder.ToTable("Regions");
             builder.HasKey(r => r.Id);
+            builder.Property(r => r.Id).ValueGeneratedNever();
             builder.Property(r => r.Name).IsRequired().HasMaxLength(100);
             builder.Property(r => r.LocalizedName).IsRequired().HasMaxLength(100);
 
             builder.HasData(
-                new { Id = 1, Name = "Moscow Oblast", LocalizedName = "Московская область" },
-                new { Id = 2, Name = "Leningrad Oblast", LocalizedName = "Ленинградская область" },
-                new { Id = 3, Name = "Novosibirsk Oblast", LocalizedName = "Новосибирская область" },
-                new { Id = 4, Name = "Sverdlovsk Oblast", LocalizedName = "Свердловская область" },
-                new { Id = 5, Name = "Tatarstan", LocalizedName = "Татарстан" }
+                new Region(new Guid("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"), "Moscow Oblast", "Московская область"),
+                new Region(new Guid("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"), "Leningrad Oblast", "Ленинградская область"),
+                new Region(new Guid("cccccccc-cccc-cccc-cccc-cccccccccccc"), "Novosibirsk Oblast", "Новосибирская область"),
+                new Region(new Guid("dddddddd-dddd-dddd-dddd-dddddddddddd"), "Sverdlovsk Oblast", "Свердловская область"),
+                new Region(new Guid("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"), "Tatarstan", "Татарстан")
             );
         }
     }

@@ -9,21 +9,22 @@ namespace MusicianFinder.Application.Validators.Profiles
     public class UpdateProfileCommandValidator : AbstractValidator<UpdateProfileCommand>
     {
         /// <summary>
-        /// Инициализирует новый экземпляр <see cref="UpdateProfileCommandValidator"/>.
+        /// Инициализирует новый экземпляр валидатора.
         /// </summary>
         public UpdateProfileCommandValidator()
         {
             RuleFor(x => x.FullName)
-                .MaximumLength(100).When(x => !string.IsNullOrEmpty(x.FullName))
-                .WithMessage("Имя не должно превышать 100 символов.");
-
+                .NotNull().WithMessage("Полное имя обязательно.");
+            RuleFor(x => x.CityId)
+                .NotEmpty().WithMessage("Город обязателен.");
             RuleFor(x => x.Experience)
-                .GreaterThanOrEqualTo(0).When(x => x.Experience.HasValue)
-                .WithMessage("Опыт не может быть отрицательным.");
-
-            RuleFor(x => x.Age)
-                .InclusiveBetween(0, 150).When(x => x.Age.HasValue)
-                .WithMessage("Возраст должен быть от 0 до 150 лет.");
+                .GreaterThanOrEqualTo(0).WithMessage("Опыт не может быть отрицательным.");
+            RuleFor(x => x.Phone)
+                .MaximumLength(20).When(x => !string.IsNullOrEmpty(x.Phone))
+                .WithMessage("Телефон не должен превышать 20 символов.");
+            RuleFor(x => x.Telegram)
+                .MaximumLength(50).When(x => !string.IsNullOrEmpty(x.Telegram))
+                .WithMessage("Telegram не должен превышать 50 символов.");
         }
     }
 }

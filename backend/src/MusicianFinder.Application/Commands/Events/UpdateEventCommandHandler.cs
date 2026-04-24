@@ -1,8 +1,6 @@
 ﻿using MediatR;
-using Microsoft.EntityFrameworkCore;
-using MusicianFinder.Application.Core.Exceptions;
 using MusicianFinder.Application.Interfaces;
-using MusicianFinder.Domain.Entities;
+using MusicianFinder.Application.Interfaces.Repositories;
 
 namespace MusicianFinder.Application.Commands.Events
 {
@@ -11,44 +9,40 @@ namespace MusicianFinder.Application.Commands.Events
     /// </summary>
     public class UpdateEventCommandHandler : IRequestHandler<UpdateEventCommand, Unit>
     {
-        private readonly IReadDbContext _dbContext;
-        private readonly ICurrentUserService _currentUserService;
+        private readonly IEventRepository _eventRepository;
+        private readonly ICurrentUserService _currentUser;
+        private readonly IMusicianProfileRepository _profileRepository;
 
         /// <summary>
-        /// Инициализирует новый экземпляр <see cref="UpdateEventCommandHandler"/>.
+        /// Инициализирует новый экземпляр обработчика.
         /// </summary>
-        /// <param name="dbContext">Контекст базы данных.</param>
-        /// <param name="currentUserService">Сервис текущего пользователя.</param>
-        public UpdateEventCommandHandler(IReadDbContext dbContext, ICurrentUserService currentUserService)
+        /// <param name="eventRepository">Репозиторий мероприятий.</param>
+        /// <param name="currentUser">Сервис текущего пользователя.</param>
+        /// <param name="profileRepository">Репозиторий профилей.</param>
+        public UpdateEventCommandHandler(
+            IEventRepository eventRepository,
+            ICurrentUserService currentUser,
+            IMusicianProfileRepository profileRepository)
         {
-            _dbContext = dbContext;
-            _currentUserService = currentUserService;
+            _eventRepository = eventRepository;
+            _currentUser = currentUser;
+            _profileRepository = profileRepository;
         }
 
         /// <inheritdoc />
         public async Task<Unit> Handle(UpdateEventCommand request, CancellationToken cancellationToken)
         {
-            var eventEntity = await _dbContext.Events
-                .Include(nameof(Event.Registrations))
-                .FirstOrDefaultAsync(e => e.Id == request.EventId && !e.IsDeleted, cancellationToken)
-                ?? throw new NotFoundException(nameof(Event), request.EventId);
+            var @event = await _eventRepository.GetByIdAsync(request.EventId, cancellationToken)
+                ?? throw new Application.Core.Exceptions.NotFoundException("Мероприятие не найдено.");
 
-            var profile = await _dbContext.Profiles
-                .FirstOrDefaultAsync(p => p.Id == _currentUserService.UserId && !p.IsDeleted, cancellationToken)
-                ?? throw new NotFoundException("Профиль текущего пользователя не найден.");
+            var profile = await _profileRepository.GetByUserIdAsync(_currentUser.UserId, cancellationToken)
+                ?? throw new Application.Core.Exceptions.NotFoundException("Профиль не найден.");
 
-            eventEntity.Update(
-                request.Title ?? eventEntity.Title,
-                request.Description ?? eventEntity.Description,
-                request.RegionId ?? eventEntity.RegionId,
-                request.CityId ?? eventEntity.CityId,
-                request.Address ?? eventEntity.Address,
-                request.StartDateTime ?? eventEntity.StartDateTime,
-                request.EndDateTime ?? eventEntity.EndDateTime,
-                request.MaxParticipants ?? eventEntity.MaxParticipants,
+            @event.Update(request.Title, request.Description,
+                request.RegionId, request.CityId, request.Address,
+                request.StartDateTime, request.EndDateTime, request.MaxParticipants,
                 profile.Id);
 
-            await ((DbContext)_dbContext).SaveChangesAsync(cancellationToken);
             return Unit.Value;
         }
     }

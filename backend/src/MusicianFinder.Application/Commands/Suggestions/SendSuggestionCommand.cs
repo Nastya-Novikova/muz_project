@@ -1,20 +1,21 @@
 ﻿using MediatR;
-using MusicianFinder.Application.Core.Behaviors;
+using MusicianFinder.Application.Commands.Base;
+using MusicianFinder.Application.Interfaces;
 
 namespace MusicianFinder.Application.Commands.Suggestions
 {
     /// <summary>
     /// Команда для отправки предложения о сотрудничестве.
     /// </summary>
-    public class SendSuggestionCommand : IRequest<Unit>, IBaseCommand
+    public class SendSuggestionCommand : ICommand<Guid>, IBaseCommand
     {
         /// <summary>
-        /// Идентификатор профиля получателя.
+        /// Идентификатор получателя.
         /// </summary>
         public Guid ToProfileId { get; set; }
 
         /// <summary>
-        /// Сообщение.
+        /// Текст сообщения.
         /// </summary>
         public string? Message { get; set; }
 

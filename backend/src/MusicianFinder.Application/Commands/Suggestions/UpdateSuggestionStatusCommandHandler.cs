@@ -1,10 +1,7 @@
 ﻿using MediatR;
-using Microsoft.EntityFrameworkCore;
-using MusicianFinder.Application.Core.Exceptions;
 using MusicianFinder.Application.Interfaces;
-using MusicianFinder.Domain.Entities;
+using MusicianFinder.Application.Interfaces.Repositories;
 using MusicianFinder.Domain.Enums;
-using MusicianFinder.Domain.Exceptions;
 
 namespace MusicianFinder.Application.Commands.Suggestions
 {
@@ -13,35 +10,37 @@ namespace MusicianFinder.Application.Commands.Suggestions
     /// </summary>
     public class UpdateSuggestionStatusCommandHandler : IRequestHandler<UpdateSuggestionStatusCommand, Unit>
     {
-        private readonly IReadDbContext _dbContext;
-        private readonly ICurrentUserService _currentUserService;
+        private readonly ICollaborationSuggestionRepository _suggestionRepository;
+        private readonly ICurrentUserService _currentUser;
+        private readonly IMusicianProfileRepository _profileRepository;
 
         /// <summary>
-        /// Инициализирует новый экземпляр <see cref="UpdateSuggestionStatusCommandHandler"/>.
+        /// Инициализирует новый экземпляр обработчика.
         /// </summary>
-        /// <param name="dbContext">Контекст базы данных.</param>
-        /// <param name="currentUserService">Сервис текущего пользователя.</param>
+        /// <param name="suggestionRepository">Репозиторий предложений.</param>
+        /// <param name="currentUser">Сервис текущего пользователя.</param>
+        /// <param name="profileRepository">Репозиторий профилей.</param>
         public UpdateSuggestionStatusCommandHandler(
-            IReadDbContext dbContext,
-            ICurrentUserService currentUserService)
+            ICollaborationSuggestionRepository suggestionRepository,
+            ICurrentUserService currentUser,
+            IMusicianProfileRepository profileRepository)
         {
-            _dbContext = dbContext;
-            _currentUserService = currentUserService;
+            _suggestionRepository = suggestionRepository;
+            _currentUser = currentUser;
+            _profileRepository = profileRepository;
         }
 
         /// <inheritdoc />
         public async Task<Unit> Handle(UpdateSuggestionStatusCommand request, CancellationToken cancellationToken)
         {
-            var suggestion = await _dbContext.CollaborationSuggestions
-                .FirstOrDefaultAsync(s => s.Id == request.SuggestionId, cancellationToken)
-                ?? throw new NotFoundException(nameof(CollaborationSuggestion), request.SuggestionId);
+            var suggestion = await _suggestionRepository.GetByIdAsync(request.SuggestionId, cancellationToken)
+                ?? throw new Application.Core.Exceptions.NotFoundException("Предложение не найдено.");
 
-            var profile = await _dbContext.Profiles
-                .FirstOrDefaultAsync(p => p.Id == _currentUserService.UserId && !p.IsDeleted, cancellationToken)
-                ?? throw new NotFoundException("Профиль не найден.");
+            var profile = await _profileRepository.GetByUserIdAsync(_currentUser.UserId, cancellationToken)
+                ?? throw new Application.Core.Exceptions.NotFoundException("Профиль не найден.");
 
             if (suggestion.ToProfileId != profile.Id)
-                throw new ForbiddenException("Вы не являетесь получателем этого предложения.");
+                throw new Application.Core.Exceptions.ForbiddenException("Вы не являетесь получателем этого предложения.");
 
             switch (request.Status)
             {
@@ -52,10 +51,10 @@ namespace MusicianFinder.Application.Commands.Suggestions
                     suggestion.Reject();
                     break;
                 default:
-                    throw new DomainException("Недопустимый статус. Можно только принять или отклонить предложение.");
+                    throw new Application.Core.Exceptions.ValidationException(
+                        new[] { new FluentValidation.Results.ValidationFailure("Status", "Недопустимый статус.") });
             }
 
-            await ((DbContext)_dbContext).SaveChangesAsync(cancellationToken);
             return Unit.Value;
         }
     }

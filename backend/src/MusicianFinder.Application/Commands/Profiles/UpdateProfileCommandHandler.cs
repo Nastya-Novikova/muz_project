@@ -1,8 +1,7 @@
 ﻿using MediatR;
-using Microsoft.EntityFrameworkCore;
-using MusicianFinder.Application.Core.Exceptions;
 using MusicianFinder.Application.Interfaces;
-using MusicianFinder.Domain.Entities;
+using MusicianFinder.Application.Interfaces.Repositories;
+using MusicianFinder.Domain.ValueObjects;
 
 namespace MusicianFinder.Application.Commands.Profiles
 {
@@ -11,80 +10,39 @@ namespace MusicianFinder.Application.Commands.Profiles
     /// </summary>
     public class UpdateProfileCommandHandler : IRequestHandler<UpdateProfileCommand, Unit>
     {
-        private readonly IReadDbContext _dbContext;
-        private readonly ICurrentUserService _currentUserService;
-        private readonly IEntityExistenceValidator _existenceValidator;
+        private readonly IMusicianProfileRepository _profileRepository;
+        private readonly ICurrentUserService _currentUser;
 
         /// <summary>
-        /// Инициализирует новый экземпляр <see cref="UpdateProfileCommandHandler"/>.
+        /// Инициализирует новый экземпляр обработчика.
         /// </summary>
-        /// <param name="dbContext">Контекст базы данных.</param>
-        /// <param name="currentUserService">Сервис текущего пользователя.</param>
-        /// <param name="existenceValidator">Сервис проверки существования сущностей.</param>
+        /// <param name="profileRepository">Репозиторий профилей.</param>
+        /// <param name="currentUser">Сервис текущего пользователя.</param>
         public UpdateProfileCommandHandler(
-            IReadDbContext dbContext,
-            ICurrentUserService currentUserService,
-            IEntityExistenceValidator existenceValidator)
+            IMusicianProfileRepository profileRepository,
+            ICurrentUserService currentUser)
         {
-            _dbContext = dbContext;
-            _currentUserService = currentUserService;
-            _existenceValidator = existenceValidator;
+            _profileRepository = profileRepository;
+            _currentUser = currentUser;
         }
 
         /// <inheritdoc />
         public async Task<Unit> Handle(UpdateProfileCommand request, CancellationToken cancellationToken)
         {
-            var profile = await _dbContext.Profiles
-                .Include(nameof(MusicianProfile.Genres))
-                .Include(nameof(MusicianProfile.Specialties))
-                .Include(nameof(MusicianProfile.CollaborationGoals))
-                .Include(nameof(MusicianProfile.DesiredGenres))
-                .Include(nameof(MusicianProfile.DesiredSpecialties))
-                .FirstOrDefaultAsync(p => p.Id == _currentUserService.UserId && !p.IsDeleted, cancellationToken)
-                ?? throw new NotFoundException("Профиль текущего пользователя не найден.");
+            var profile = await _profileRepository.GetByUserIdAsync(_currentUser.UserId, cancellationToken)
+                ?? throw new Application.Core.Exceptions.NotFoundException("Профиль не найден.");
 
-            profile.UpdateBasicInfo(
-                request.ProfileType,
-                request.FullName,
-                request.Age,
-                request.Description,
-                request.Phone,
-                request.Telegram,
-                request.CityId,
-                request.Experience,
-                request.LookingFor,
-                request.NotifyByEmail,
-                request.NotifyByVk);
+            profile.UpdateCoreInfo(request.FullName, request.Age, request.Description, request.CityId);
+            profile.UpdateContacts(
+                request.Phone != null ? new PhoneNumber(request.Phone) : null,
+                request.Telegram != null ? new TelegramHandle(request.Telegram) : null);
+            profile.SetGenres(request.GenreIds);
+            profile.SetSpecialties(request.SpecialtyIds);
+            profile.SetCollaborationGoals(request.CollaborationGoalIds);
+            profile.SetDesiredGenres(request.DesiredGenreIds);
+            profile.SetDesiredSpecialties(request.DesiredSpecialtyIds);
 
-            await ApplyEntitiesAsync<Genre>(request.GenreIds, "Жанры",
-                profile.ClearGenres, g => profile.AddGenre(g), cancellationToken);
-            await ApplyEntitiesAsync<MusicalSpecialty>(request.SpecialtyIds, "Специальности",
-                profile.ClearSpecialties, s => profile.AddSpecialty(s), cancellationToken);
-            await ApplyEntitiesAsync<CollaborationGoal>(request.CollaborationGoalIds, "Цели сотрудничества",
-                profile.ClearCollaborationGoals, g => profile.AddCollaborationGoal(g), cancellationToken);
-            await ApplyEntitiesAsync<Genre>(request.DesiredGenreIds, "Искомые жанры",
-                profile.ClearDesiredGenres, g => profile.AddDesiredGenre(g), cancellationToken);
-            await ApplyEntitiesAsync<MusicalSpecialty>(request.DesiredSpecialtyIds, "Искомые специальности",
-                profile.ClearDesiredSpecialties, s => profile.AddDesiredSpecialty(s), cancellationToken);
-
-            await ((DbContext)_dbContext).SaveChangesAsync(cancellationToken);
             return Unit.Value;
-        }
-
-        private async Task ApplyEntitiesAsync<T>(
-            List<int>? ids,
-            string entityName,
-            Action clearAction,
-            Action<T> addAction,
-            CancellationToken cancellationToken)
-            where T : class
-        {
-            if (ids is null) return;
-
-            var entities = await _existenceValidator.LoadAndValidateAsync<T>(ids, entityName);
-            clearAction();
-            foreach (var entity in entities)
-                addAction(entity);
         }
     }
 }

@@ -1,68 +1,36 @@
 ﻿using MediatR;
 using MusicianFinder.Application.Core.Pagination;
 using MusicianFinder.Application.DTOs.Events;
-using MusicianFinder.Domain.Enums;
+using MusicianFinder.Application.Interfaces;
 
 namespace MusicianFinder.Application.Queries.Events
 {
     /// <summary>
     /// Запрос для получения списка мероприятий с фильтрацией и пагинацией.
     /// </summary>
-    public class GetEventsQuery : IRequest<PagedResult<EventDto>>
+    public class GetEventsQuery : IQuery<PagedResult<EventDto>>
     {
-        /// <summary>
-        /// Поисковый запрос по названию и описанию.
-        /// </summary>
+        /// <summary>Поисковый запрос.</summary>
         public string? Query { get; set; }
-
-        /// <summary>
-        /// Фильтр по региону.
-        /// </summary>
-        public int? RegionId { get; set; }
-
-        /// <summary>
-        /// Фильтр по городу.
-        /// </summary>
-        public int? CityId { get; set; }
-
-        /// <summary>
-        /// Фильтр по дате начала (с).
-        /// </summary>
+        /// <summary>Идентификатор региона.</summary>
+        public Guid? RegionId { get; set; }
+        /// <summary>Идентификатор города.</summary>
+        public Guid? CityId { get; set; }
+        /// <summary>Дата начала (с).</summary>
         public DateTime? FromDate { get; set; }
-
-        /// <summary>
-        /// Фильтр по дате начала (по).
-        /// </summary>
+        /// <summary>Дата начала (по).</summary>
         public DateTime? ToDate { get; set; }
-
-        /// <summary>
-        /// Фильтр по статусу мероприятия.
-        /// </summary>
-        public EventStatus? Status { get; set; }
-
-        /// <summary>
-        /// Фильтр по создателю.
-        /// </summary>
+        /// <summary>Статус.</summary>
+        public string? Status { get; set; }
+        /// <summary>Идентификатор создателя.</summary>
         public Guid? CreatorProfileId { get; set; }
-
-        /// <summary>
-        /// Номер страницы.
-        /// </summary>
+        /// <summary>Номер страницы.</summary>
         public int Page { get; set; } = 1;
-
-        /// <summary>
-        /// Размер страницы.
-        /// </summary>
+        /// <summary>Размер страницы.</summary>
         public int Limit { get; set; } = 20;
-
-        /// <summary>
-        /// Поле сортировки.
-        /// </summary>
+        /// <summary>Поле сортировки.</summary>
         public string? SortBy { get; set; }
-
-        /// <summary>
-        /// Направление сортировки (true — по убыванию).
-        /// </summary>
+        /// <summary>Сортировка по убыванию.</summary>
         public bool SortDesc { get; set; } = true;
     }
 }

@@ -12,20 +12,21 @@ namespace MusicianFinder.Infrastructure.Persistence.Configurations
         /// <inheritdoc />
         public void Configure(EntityTypeBuilder<Genre> builder)
         {
-            builder.ToTable("Genre");
+            builder.ToTable("Genres");
             builder.HasKey(g => g.Id);
+            builder.Property(g => g.Id).ValueGeneratedNever();
             builder.Property(g => g.Name).IsRequired().HasMaxLength(50);
             builder.Property(g => g.LocalizedName).IsRequired().HasMaxLength(50);
 
             builder.HasData(
-                new { Id = 1, Name = "jazz", LocalizedName = "Джаз" },
-                new { Id = 2, Name = "rock", LocalizedName = "Рок" },
-                new { Id = 3, Name = "classical", LocalizedName = "Классика" },
-                new { Id = 4, Name = "electronic", LocalizedName = "Электроника" },
-                new { Id = 5, Name = "pop", LocalizedName = "Поп" },
-                new { Id = 6, Name = "hip-hop", LocalizedName = "Хип-хоп" },
-                new { Id = 7, Name = "metal", LocalizedName = "Метал" },
-                new { Id = 8, Name = "blues", LocalizedName = "Блюз" }
+                new Genre(new Guid("11111111-1111-1111-1111-111111111101"), "jazz", "Джаз"),
+                new Genre(new Guid("11111111-1111-1111-1111-111111111102"), "rock", "Рок"),
+                new Genre(new Guid("11111111-1111-1111-1111-111111111103"), "classical", "Классика"),
+                new Genre(new Guid("11111111-1111-1111-1111-111111111104"), "electronic", "Электроника"),
+                new Genre(new Guid("11111111-1111-1111-1111-111111111105"), "pop", "Поп"),
+                new Genre(new Guid("11111111-1111-1111-1111-111111111106"), "hip-hop", "Хип-хоп"),
+                new Genre(new Guid("11111111-1111-1111-1111-111111111107"), "metal", "Метал"),
+                new Genre(new Guid("11111111-1111-1111-1111-111111111108"), "blues", "Блюз")
             );
         }
     }

@@ -1,7 +1,6 @@
 ﻿using MediatR;
-using Microsoft.EntityFrameworkCore;
-using MusicianFinder.Application.Core.Exceptions;
 using MusicianFinder.Application.Interfaces;
+using MusicianFinder.Application.Interfaces.Repositories;
 
 namespace MusicianFinder.Application.Commands.Media
 {
@@ -10,41 +9,37 @@ namespace MusicianFinder.Application.Commands.Media
     /// </summary>
     public class DeleteMediaCommandHandler : IRequestHandler<DeleteMediaCommand, Unit>
     {
-        private readonly IReadDbContext _dbContext;
-        private readonly ICurrentUserService _currentUserService;
+        private readonly IMusicianProfileRepository _profileRepository;
+        private readonly ICurrentUserService _currentUser;
         private readonly IFileStorage _fileStorage;
 
         /// <summary>
-        /// Инициализирует новый экземпляр <see cref="DeleteMediaCommandHandler"/>.
+        /// Инициализирует новый экземпляр обработчика.
         /// </summary>
-        /// <param name="dbContext">Контекст базы данных.</param>
-        /// <param name="currentUserService">Сервис текущего пользователя.</param>
-        /// <param name="fileStorage">Сервис файлового хранилища.</param>
+        /// <param name="profileRepository">Репозиторий профилей.</param>
+        /// <param name="currentUser">Сервис текущего пользователя.</param>
+        /// <param name="fileStorage">Файловое хранилище.</param>
         public DeleteMediaCommandHandler(
-            IReadDbContext dbContext,
-            ICurrentUserService currentUserService,
+            IMusicianProfileRepository profileRepository,
+            ICurrentUserService currentUser,
             IFileStorage fileStorage)
         {
-            _dbContext = dbContext;
-            _currentUserService = currentUserService;
+            _profileRepository = profileRepository;
+            _currentUser = currentUser;
             _fileStorage = fileStorage;
         }
 
         /// <inheritdoc />
         public async Task<Unit> Handle(DeleteMediaCommand request, CancellationToken cancellationToken)
         {
-            var profile = await _dbContext.Profiles
-                .Include(nameof(Domain.Entities.MusicianProfile.PortfolioItems))
-                .FirstOrDefaultAsync(p => p.Id == _currentUserService.UserId && !p.IsDeleted, cancellationToken)
-                ?? throw new NotFoundException("Профиль не найден.");
+            var profile = await _profileRepository.GetByUserIdAsync(_currentUser.UserId, cancellationToken)
+                ?? throw new Application.Core.Exceptions.NotFoundException("Профиль не найден.");
 
-            var mediaItem = profile.PortfolioItems.FirstOrDefault(p => p.Id == request.MediaId)
-                ?? throw new NotFoundException("Медиа не найдено.");
+            var item = profile.Portfolio.FirstOrDefault(i => i.Id == request.MediaId)
+                ?? throw new Application.Core.Exceptions.NotFoundException("Медиа не найдено.");
 
-            await _fileStorage.DeleteFileAsync(mediaItem.FileUrl);
+            await _fileStorage.DeleteFileAsync(item.FileUrl);
             profile.RemovePortfolioItem(request.MediaId);
-            await ((DbContext)_dbContext).SaveChangesAsync(cancellationToken);
-
             return Unit.Value;
         }
     }

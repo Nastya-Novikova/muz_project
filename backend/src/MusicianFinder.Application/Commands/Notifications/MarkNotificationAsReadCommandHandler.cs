@@ -1,8 +1,6 @@
 ﻿using MediatR;
-using Microsoft.EntityFrameworkCore;
-using MusicianFinder.Application.Core.Exceptions;
 using MusicianFinder.Application.Interfaces;
-using MusicianFinder.Domain.Entities;
+using MusicianFinder.Application.Interfaces.Repositories;
 
 namespace MusicianFinder.Application.Commands.Notifications
 {
@@ -11,39 +9,32 @@ namespace MusicianFinder.Application.Commands.Notifications
     /// </summary>
     public class MarkNotificationAsReadCommandHandler : IRequestHandler<MarkNotificationAsReadCommand, Unit>
     {
-        private readonly IReadDbContext _dbContext;
-        private readonly ICurrentUserService _currentUserService;
+        private readonly IMusicianProfileRepository _profileRepository;
+        private readonly ICurrentUserService _currentUser;
 
         /// <summary>
-        /// Инициализирует новый экземпляр <see cref="MarkNotificationAsReadCommandHandler"/>.
+        /// Инициализирует новый экземпляр обработчика.
         /// </summary>
-        /// <param name="dbContext">Контекст базы данных.</param>
-        /// <param name="currentUserService">Сервис текущего пользователя.</param>
+        /// <param name="profileRepository">Репозиторий профилей.</param>
+        /// <param name="currentUser">Сервис текущего пользователя.</param>
         public MarkNotificationAsReadCommandHandler(
-            IReadDbContext dbContext,
-            ICurrentUserService currentUserService)
+            IMusicianProfileRepository profileRepository,
+            ICurrentUserService currentUser)
         {
-            _dbContext = dbContext;
-            _currentUserService = currentUserService;
+            _profileRepository = profileRepository;
+            _currentUser = currentUser;
         }
 
         /// <inheritdoc />
         public async Task<Unit> Handle(MarkNotificationAsReadCommand request, CancellationToken cancellationToken)
         {
-            var profile = await _dbContext.Profiles
-                .FirstOrDefaultAsync(p => p.Id == _currentUserService.UserId && !p.IsDeleted, cancellationToken)
-                ?? throw new NotFoundException("Профиль не найден.");
+            var profile = await _profileRepository.GetByUserIdAsync(_currentUser.UserId, cancellationToken)
+                ?? throw new Application.Core.Exceptions.NotFoundException("Профиль не найден.");
 
-            var notification = await _dbContext.Notifications
-                .FirstOrDefaultAsync(n => n.Id == request.NotificationId, cancellationToken)
-                ?? throw new NotFoundException(nameof(Notification), request.NotificationId);
-
-            if (notification.ProfileId != profile.Id)
-                throw new ForbiddenException("Нет доступа к этому уведомлению.");
+            var notification = profile.Notifications.FirstOrDefault(n => n.Id == request.NotificationId)
+                ?? throw new Application.Core.Exceptions.NotFoundException("Уведомление не найдено.");
 
             notification.MarkAsRead();
-            await ((DbContext)_dbContext).SaveChangesAsync(cancellationToken);
-
             return Unit.Value;
         }
     }

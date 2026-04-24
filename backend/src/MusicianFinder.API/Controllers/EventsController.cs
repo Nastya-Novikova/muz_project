@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MusicianFinder.Application.Commands.Events;
-using MusicianFinder.Application.Core.Behaviors;
 using MusicianFinder.Application.Core.Pagination;
 using MusicianFinder.Application.DTOs.Events;
 using MusicianFinder.Application.Queries.Events;
@@ -13,21 +12,8 @@ namespace MusicianFinder.API.Controllers
     /// <summary>
     /// Контроллер для работы с мероприятиями.
     /// </summary>
-    [ApiController]
-    [Route("api/events")]
-    public class EventsController : ControllerBase
+    public class EventsController : BaseApiController
     {
-        private readonly IMediator _mediator;
-
-        /// <summary>
-        /// Инициализирует новый экземпляр <see cref="EventsController"/>.
-        /// </summary>
-        /// <param name="mediator">Экземпляр <see cref="IMediator"/>.</param>
-        public EventsController(IMediator mediator)
-        {
-            _mediator = mediator;
-        }
-
         /// <summary>
         /// Получить список мероприятий с фильтрацией и пагинацией.
         /// </summary>
@@ -37,7 +23,7 @@ namespace MusicianFinder.API.Controllers
         [ProducesResponseType(typeof(PagedResult<EventDto>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetEvents([FromQuery] GetEventsQuery query)
         {
-            var result = await _mediator.Send(query);
+            var result = await Mediator.Send(query);
             return Ok(result);
         }
 
@@ -53,7 +39,7 @@ namespace MusicianFinder.API.Controllers
         public async Task<IActionResult> Create([FromBody] CreateEventCommand command)
         {
             SetIdempotencyKey(command);
-            var eventId = await _mediator.Send(command);
+            var eventId = await Mediator.Send(command);
             return CreatedAtAction(nameof(GetById), new { id = eventId }, new CreatedEventResponse { Id = eventId });
         }
 
@@ -67,7 +53,7 @@ namespace MusicianFinder.API.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetById(Guid id)
         {
-            var result = await _mediator.Send(new GetEventByIdQuery { EventId = id });
+            var result = await Mediator.Send(new GetEventByIdQuery { EventId = id });
             return Ok(result);
         }
 
@@ -87,7 +73,7 @@ namespace MusicianFinder.API.Controllers
         {
             command.EventId = id;
             SetIdempotencyKey(command);
-            await _mediator.Send(command);
+            await Mediator.Send(command);
             return NoContent();
         }
 
@@ -105,7 +91,7 @@ namespace MusicianFinder.API.Controllers
         {
             var command = new CancelEventCommand { EventId = id };
             SetIdempotencyKey(command);
-            await _mediator.Send(command);
+            await Mediator.Send(command);
             return NoContent();
         }
 
@@ -133,7 +119,7 @@ namespace MusicianFinder.API.Controllers
                 ContentType = image.ContentType
             };
             SetIdempotencyKey(command);
-            var url = await _mediator.Send(command);
+            var url = await Mediator.Send(command);
             return Ok(new FileUploadResultDto { Url = url });
         }
 
@@ -152,7 +138,7 @@ namespace MusicianFinder.API.Controllers
         {
             var command = new RegisterToEventCommand { EventId = id };
             SetIdempotencyKey(command);
-            await _mediator.Send(command);
+            await Mediator.Send(command);
             return NoContent();
         }
 
@@ -170,15 +156,8 @@ namespace MusicianFinder.API.Controllers
         {
             var command = new UnregisterFromEventCommand { EventId = id };
             SetIdempotencyKey(command);
-            await _mediator.Send(command);
+            await Mediator.Send(command);
             return NoContent();
-        }
-
-        private void SetIdempotencyKey(IBaseCommand command)
-        {
-            var key = Request.Headers["Idempotency-Key"].FirstOrDefault();
-            if (!string.IsNullOrEmpty(key))
-                command.IdempotencyKey = key;
         }
     }
 }

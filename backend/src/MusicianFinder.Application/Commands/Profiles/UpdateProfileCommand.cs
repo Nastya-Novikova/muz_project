@@ -1,23 +1,20 @@
 ﻿using MediatR;
-using MusicianFinder.Application.Core.Behaviors;
+using MusicianFinder.Application.Commands.Base;
+using MusicianFinder.Application.Interfaces;
 using MusicianFinder.Domain.Enums;
+using MusicianFinder.Domain.ValueObjects;
 
 namespace MusicianFinder.Application.Commands.Profiles
 {
     /// <summary>
     /// Команда для обновления профиля музыканта.
     /// </summary>
-    public class UpdateProfileCommand : IRequest<Unit>, IBaseCommand
+    public class UpdateProfileCommand : ICommand<Unit>, IBaseCommand
     {
         /// <summary>
-        /// Тип профиля.
+        /// Полное имя / название.
         /// </summary>
-        public ProfileType? ProfileType { get; set; }
-
-        /// <summary>
-        /// Полное имя.
-        /// </summary>
-        public string? FullName { get; set; }
+        public ProfileName FullName { get; set; } = null!;
 
         /// <summary>
         /// Возраст.
@@ -42,52 +39,42 @@ namespace MusicianFinder.Application.Commands.Profiles
         /// <summary>
         /// Идентификатор города.
         /// </summary>
-        public int? CityId { get; set; }
+        public Guid CityId { get; set; }
 
         /// <summary>
-        /// Опыт.
+        /// Опыт в годах.
         /// </summary>
-        public int? Experience { get; set; }
+        public int Experience { get; set; }
 
         /// <summary>
         /// Кого ищет.
         /// </summary>
-        public LookingFor? LookingFor { get; set; }
+        public LookingFor LookingFor { get; set; }
 
         /// <summary>
-        /// Уведомления по email.
+        /// Новый список жанров.
         /// </summary>
-        public bool? NotifyByEmail { get; set; }
+        public List<GenreId> GenreIds { get; set; } = new();
 
         /// <summary>
-        /// Уведомления по VK.
+        /// Новый список специальностей.
         /// </summary>
-        public bool? NotifyByVk { get; set; }
+        public List<SpecialtyId> SpecialtyIds { get; set; } = new();
 
         /// <summary>
-        /// Идентификаторы жанров.
+        /// Новый список целей сотрудничества.
         /// </summary>
-        public List<int>? GenreIds { get; set; }
+        public List<CollaborationGoalId> CollaborationGoalIds { get; set; } = new();
 
         /// <summary>
-        /// Идентификаторы специальностей.
+        /// Новые искомые жанры.
         /// </summary>
-        public List<int>? SpecialtyIds { get; set; }
+        public List<GenreId> DesiredGenreIds { get; set; } = new();
 
         /// <summary>
-        /// Идентификаторы целей сотрудничества.
+        /// Новые искомые специальности.
         /// </summary>
-        public List<int>? CollaborationGoalIds { get; set; }
-
-        /// <summary>
-        /// Идентификаторы искомых жанров.
-        /// </summary>
-        public List<int>? DesiredGenreIds { get; set; }
-
-        /// <summary>
-        /// Идентификаторы искомых специальностей.
-        /// </summary>
-        public List<int>? DesiredSpecialtyIds { get; set; }
+        public List<SpecialtyId> DesiredSpecialtyIds { get; set; } = new();
 
         /// <inheritdoc />
         public string IdempotencyKey { get; set; } = string.Empty;

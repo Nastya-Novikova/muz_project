@@ -1,5 +1,4 @@
 ﻿using MusicianFinder.Application.DTOs.Metadata;
-using MusicianFinder.Domain.Enums;
 
 namespace MusicianFinder.Application.DTOs.Events
 {
@@ -8,99 +7,43 @@ namespace MusicianFinder.Application.DTOs.Events
     /// </summary>
     public class EventDto
     {
-        /// <summary>
-        /// Идентификатор мероприятия.
-        /// </summary>
+        /// <summary>Идентификатор.</summary>
         public Guid Id { get; set; }
-
-        /// <summary>
-        /// Название.
-        /// </summary>
+        /// <summary>Название.</summary>
         public string Title { get; set; } = string.Empty;
-
-        /// <summary>
-        /// Описание.
-        /// </summary>
+        /// <summary>Описание.</summary>
         public string? Description { get; set; }
-
-        /// <summary>
-        /// URL изображения.
-        /// </summary>
+        /// <summary>URL изображения.</summary>
         public string? ImageUrl { get; set; }
-
-        /// <summary>
-        /// Регион.
-        /// </summary>
+        /// <summary>Регион.</summary>
         public LookupItemDto Region { get; set; } = new();
-
-        /// <summary>
-        /// Город.
-        /// </summary>
+        /// <summary>Город.</summary>
         public LookupItemDto City { get; set; } = new();
-
-        /// <summary>
-        /// Адрес.
-        /// </summary>
+        /// <summary>Адрес.</summary>
         public string Address { get; set; } = string.Empty;
-
-        /// <summary>
-        /// Дата и время начала.
-        /// </summary>
+        /// <summary>Дата начала.</summary>
         public DateTime StartDateTime { get; set; }
-
-        /// <summary>
-        /// Дата и время окончания.
-        /// </summary>
+        /// <summary>Дата окончания.</summary>
         public DateTime? EndDateTime { get; set; }
-
-        /// <summary>
-        /// Максимальное количество участников.
-        /// </summary>
+        /// <summary>Максимальное число участников.</summary>
         public int MaxParticipants { get; set; }
-
-        /// <summary>
-        /// Текущее количество участников.
-        /// </summary>
+        /// <summary>Текущее число участников.</summary>
         public int CurrentParticipants { get; set; }
-
-        /// <summary>
-        /// Зарегистрирован ли текущий пользователь.
-        /// </summary>
+        /// <summary>Зарегистрирован ли текущий пользователь.</summary>
         public bool IsRegistered { get; set; }
-
-        /// <summary>
-        /// Является ли пользователь создателем мероприятия.
-        /// </summary>
+        /// <summary>Является ли пользователь создателем.</summary>
         public bool IsCreator { get; set; }
-
-        /// <summary>
-        /// Статус мероприятия.
-        /// </summary>
-        public EventStatus Status { get; set; }
-
-        /// <summary>
-        /// Идентификатор профиля создателя.
-        /// </summary>
+        /// <summary>Статус.</summary>
+        public string Status { get; set; } = string.Empty;
+        /// <summary>Идентификатор создателя.</summary>
         public Guid CreatorProfileId { get; set; }
-
-        /// <summary>
-        /// Полное имя создателя.
-        /// </summary>
+        /// <summary>Имя создателя.</summary>
         public string CreatorFullName { get; set; } = string.Empty;
-
-        /// <summary>
-        /// URL аватара создателя.
-        /// </summary>
+        /// <summary>URL аватара создателя.</summary>
         public string? CreatorAvatarUrl { get; set; }
-
-        /// <summary>
-        /// Дата создания.
-        /// </summary>
+        /// <summary>Дата создания.</summary>
         public DateTime CreatedAt { get; set; }
-
-        /// <summary>
-        /// Дата обновления.
-        /// </summary>
+        /// <summary>Дата обновления.</summary>
         public DateTime UpdatedAt { get; set; }
     }
 }

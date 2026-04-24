@@ -6,13 +6,14 @@ using Microsoft.OpenApi.Models;
 namespace MusicianFinder.API.Extensions
 {
     /// <summary>
-    /// Методы расширения для регистрации сервисов API.
+    /// Методы расширения для <see cref="IServiceCollection"/>.
     /// </summary>
     public static class ServiceCollectionExtensions
     {
         /// <summary>
-        /// Добавляет Swagger с поддержкой JWT.
+        /// Добавляет Swagger с поддержкой JWT-токенов.
         /// </summary>
+        /// <param name="services">Коллекция сервисов.</param>
         public static IServiceCollection AddSwaggerWithJwt(this IServiceCollection services)
         {
             services.AddSwaggerGen(c =>
@@ -44,6 +45,8 @@ namespace MusicianFinder.API.Extensions
         /// <summary>
         /// Добавляет политику CORS.
         /// </summary>
+        /// <param name="services">Коллекция сервисов.</param>
+        /// <param name="configuration">Конфигурация приложения.</param>
         public static IServiceCollection AddCorsPolicy(this IServiceCollection services, IConfiguration configuration)
         {
             var allowedOrigins = configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? Array.Empty<string>();
@@ -62,6 +65,8 @@ namespace MusicianFinder.API.Extensions
         /// <summary>
         /// Добавляет JWT-аутентификацию.
         /// </summary>
+        /// <param name="services">Коллекция сервисов.</param>
+        /// <param name="configuration">Конфигурация приложения.</param>
         public static IServiceCollection AddJwtAuthentication(this IServiceCollection services, IConfiguration configuration)
         {
             var jwtKey = configuration["Jwt:Key"] ?? throw new InvalidOperationException("JWT Key not configured");

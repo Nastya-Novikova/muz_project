@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace MusicianFinder.Application.Core.Exceptions
+﻿namespace MusicianFinder.Application.Core.Exceptions
 {
     /// <summary>
     /// Исключение, сигнализирующее о том, что запрашиваемый ресурс не найден.

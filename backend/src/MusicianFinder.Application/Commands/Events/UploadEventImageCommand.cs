@@ -1,12 +1,13 @@
 ﻿using MediatR;
-using MusicianFinder.Application.Core.Behaviors;
+using MusicianFinder.Application.Commands.Base;
+using MusicianFinder.Application.Interfaces;
 
 namespace MusicianFinder.Application.Commands.Events
 {
     /// <summary>
     /// Команда для загрузки изображения мероприятия.
     /// </summary>
-    public class UploadEventImageCommand : IRequest<string>, IBaseCommand
+    public class UploadEventImageCommand : ICommand<string>, IBaseCommand
     {
         /// <summary>
         /// Идентификатор мероприятия.

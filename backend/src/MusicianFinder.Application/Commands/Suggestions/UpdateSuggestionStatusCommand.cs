@@ -1,13 +1,14 @@
 ﻿using MediatR;
-using MusicianFinder.Application.Core.Behaviors;
+using MusicianFinder.Application.Commands.Base;
+using MusicianFinder.Application.Interfaces;
 using MusicianFinder.Domain.Enums;
 
 namespace MusicianFinder.Application.Commands.Suggestions
 {
     /// <summary>
-    /// Команда для изменения статуса предложения о сотрудничестве.
+    /// Команда для изменения статуса предложения (принять/отклонить).
     /// </summary>
-    public class UpdateSuggestionStatusCommand : IRequest<Unit>, IBaseCommand
+    public class UpdateSuggestionStatusCommand : ICommand<Unit>, IBaseCommand
     {
         /// <summary>
         /// Идентификатор предложения.

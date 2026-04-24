@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MusicianFinder.Application.Commands.Media;
-using MusicianFinder.Application.Core.Behaviors;
 using MusicianFinder.Domain.Enums;
 
 namespace MusicianFinder.API.Controllers
@@ -10,24 +9,11 @@ namespace MusicianFinder.API.Controllers
     /// <summary>
     /// Контроллер для управления медиа-файлами портфолио текущего пользователя.
     /// </summary>
-    [ApiController]
-    [Route("api/me/profile/media")]
     [Authorize]
-    public class MeMediaController : ControllerBase
+    public class MeMediaController : BaseApiController
     {
-        private readonly IMediator _mediator;
-
         /// <summary>
-        /// Инициализирует новый экземпляр <see cref="MeMediaController"/>.
-        /// </summary>
-        /// <param name="mediator">Экземпляр <see cref="IMediator"/>.</param>
-        public MeMediaController(IMediator mediator)
-        {
-            _mediator = mediator;
-        }
-
-        /// <summary>
-        /// Загрузить медиафайл в портфолио текущего пользователя.
+        /// Загрузить медиафайл в портфолио.
         /// </summary>
         /// <param name="file">Файл.</param>
         /// <param name="title">Название.</param>
@@ -55,12 +41,12 @@ namespace MusicianFinder.API.Controllers
                 Type = type
             };
             SetIdempotencyKey(command);
-            var mediaId = await _mediator.Send(command);
+            var mediaId = await Mediator.Send(command);
             return Ok(new { id = mediaId });
         }
 
         /// <summary>
-        /// Удалить медиафайл из портфолио текущего пользователя.
+        /// Удалить медиафайл из портфолио.
         /// </summary>
         /// <param name="mediaId">Идентификатор медиа.</param>
         /// <returns>Статус 204 No Content.</returns>
@@ -71,15 +57,8 @@ namespace MusicianFinder.API.Controllers
         {
             var command = new DeleteMediaCommand { MediaId = mediaId };
             SetIdempotencyKey(command);
-            await _mediator.Send(command);
+            await Mediator.Send(command);
             return NoContent();
-        }
-
-        private void SetIdempotencyKey(IBaseCommand command)
-        {
-            var key = Request.Headers["Idempotency-Key"].FirstOrDefault();
-            if (!string.IsNullOrEmpty(key))
-                command.IdempotencyKey = key;
         }
     }
 }

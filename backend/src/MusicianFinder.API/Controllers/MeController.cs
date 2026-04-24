@@ -9,22 +9,9 @@ namespace MusicianFinder.API.Controllers
     /// <summary>
     /// Контроллер для операций над текущим пользователем.
     /// </summary>
-    [ApiController]
-    [Route("api/me")]
     [Authorize]
-    public class MeController : ControllerBase
+    public class MeController : BaseApiController
     {
-        private readonly IMediator _mediator;
-
-        /// <summary>
-        /// Инициализирует новый экземпляр <see cref="MeController"/>.
-        /// </summary>
-        /// <param name="mediator">Экземпляр <see cref="IMediator"/>.</param>
-        public MeController(IMediator mediator)
-        {
-            _mediator = mediator;
-        }
-
         /// <summary>
         /// Получить базовую информацию о текущем пользователе.
         /// </summary>
@@ -33,7 +20,7 @@ namespace MusicianFinder.API.Controllers
         [ProducesResponseType(typeof(UserDto), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetCurrentUser()
         {
-            var result = await _mediator.Send(new GetCurrentUserQuery());
+            var result = await Mediator.Send(new GetCurrentUserQuery());
             return Ok(result);
         }
     }

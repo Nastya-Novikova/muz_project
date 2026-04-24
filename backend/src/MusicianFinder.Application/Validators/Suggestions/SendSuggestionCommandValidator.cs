@@ -9,13 +9,12 @@ namespace MusicianFinder.Application.Validators.Suggestions
     public class SendSuggestionCommandValidator : AbstractValidator<SendSuggestionCommand>
     {
         /// <summary>
-        /// Инициализирует новый экземпляр <see cref="SendSuggestionCommandValidator"/>.
+        /// Инициализирует новый экземпляр валидатора.
         /// </summary>
         public SendSuggestionCommandValidator()
         {
             RuleFor(x => x.ToProfileId)
-                .NotEmpty().WithMessage("ID получателя обязателен.");
-
+                .NotEmpty().WithMessage("Идентификатор получателя обязателен.");
             RuleFor(x => x.Message)
                 .MaximumLength(500).WithMessage("Сообщение не должно превышать 500 символов.");
         }

@@ -1,35 +1,21 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MusicianFinder.Application.Commands.Users;
-using MusicianFinder.Application.Core.Behaviors;
+using MusicianFinder.Application.Commands.Favorites;
 using MusicianFinder.Application.Core.Pagination;
 using MusicianFinder.Application.DTOs.Profiles;
-using MusicianFinder.Application.Queries.Users;
+using MusicianFinder.Application.Queries.Favorites;
 
 namespace MusicianFinder.API.Controllers
 {
     /// <summary>
     /// Контроллер для управления избранными профилями текущего пользователя.
     /// </summary>
-    [ApiController]
-    [Route("api/me/favorites")]
     [Authorize]
-    public class MeFavoritesController : ControllerBase
+    public class MeFavoritesController : BaseApiController
     {
-        private readonly IMediator _mediator;
-
         /// <summary>
-        /// Инициализирует новый экземпляр <see cref="MeFavoritesController"/>.
-        /// </summary>
-        /// <param name="mediator">Экземпляр <see cref="IMediator"/>.</param>
-        public MeFavoritesController(IMediator mediator)
-        {
-            _mediator = mediator;
-        }
-
-        /// <summary>
-        /// Получить список избранных профилей текущего пользователя.
+        /// Получить список избранных профилей.
         /// </summary>
         /// <param name="query">Параметры пагинации.</param>
         /// <returns>Страница с избранными профилями.</returns>
@@ -37,7 +23,7 @@ namespace MusicianFinder.API.Controllers
         [ProducesResponseType(typeof(PagedResult<ProfileDto>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetFavorites([FromQuery] GetFavoritesQuery query)
         {
-            var result = await _mediator.Send(query);
+            var result = await Mediator.Send(query);
             return Ok(result);
         }
 
@@ -52,9 +38,9 @@ namespace MusicianFinder.API.Controllers
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         public async Task<IActionResult> AddFavorite(Guid profileId)
         {
-            var command = new AddFavoriteCommand { ProfileId = profileId };
+            var command = new AddFavoriteCommand { TargetProfileId = profileId };
             SetIdempotencyKey(command);
-            await _mediator.Send(command);
+            await Mediator.Send(command);
             return NoContent();
         }
 
@@ -68,17 +54,10 @@ namespace MusicianFinder.API.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> RemoveFavorite(Guid profileId)
         {
-            var command = new RemoveFavoriteCommand { ProfileId = profileId };
+            var command = new RemoveFavoriteCommand { TargetProfileId = profileId };
             SetIdempotencyKey(command);
-            await _mediator.Send(command);
+            await Mediator.Send(command);
             return NoContent();
-        }
-
-        private void SetIdempotencyKey(IBaseCommand command)
-        {
-            var key = Request.Headers["Idempotency-Key"].FirstOrDefault();
-            if (!string.IsNullOrEmpty(key))
-                command.IdempotencyKey = key;
         }
     }
 }

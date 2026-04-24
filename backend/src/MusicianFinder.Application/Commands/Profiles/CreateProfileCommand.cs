@@ -1,26 +1,23 @@
 ﻿using MediatR;
-using MusicianFinder.Application.Core.Behaviors;
+using MusicianFinder.Application.Commands.Base;
+using MusicianFinder.Application.Interfaces;
 using MusicianFinder.Domain.Enums;
+using MusicianFinder.Domain.ValueObjects;
 
 namespace MusicianFinder.Application.Commands.Profiles
 {
     /// <summary>
     /// Команда для создания профиля музыканта.
     /// </summary>
-    public class CreateProfileCommand : IRequest<Guid>, IBaseCommand
+    public class CreateProfileCommand : ICommand<Guid>, IBaseCommand
     {
-        /// <summary>
-        /// Тип профиля.
-        /// </summary>
-        public ProfileType ProfileType { get; set; }
-
         /// <summary>
         /// Полное имя / название.
         /// </summary>
-        public string FullName { get; set; } = string.Empty;
+        public ProfileName FullName { get; set; } = null!;
 
         /// <summary>
-        /// Возраст.
+        /// Возраст (опционально).
         /// </summary>
         public int? Age { get; set; }
 
@@ -42,7 +39,7 @@ namespace MusicianFinder.Application.Commands.Profiles
         /// <summary>
         /// Идентификатор города.
         /// </summary>
-        public int CityId { get; set; }
+        public Guid CityId { get; set; }
 
         /// <summary>
         /// Опыт в годах.
@@ -55,29 +52,29 @@ namespace MusicianFinder.Application.Commands.Profiles
         public LookingFor LookingFor { get; set; }
 
         /// <summary>
-        /// Идентификаторы жанров.
+        /// Идентификаторы предлагаемых жанров.
         /// </summary>
-        public List<int>? GenreIds { get; set; }
+        public List<GenreId> GenreIds { get; set; } = new();
 
         /// <summary>
         /// Идентификаторы специальностей.
         /// </summary>
-        public List<int>? SpecialtyIds { get; set; }
+        public List<SpecialtyId> SpecialtyIds { get; set; } = new();
 
         /// <summary>
         /// Идентификаторы целей сотрудничества.
         /// </summary>
-        public List<int>? CollaborationGoalIds { get; set; }
+        public List<CollaborationGoalId> CollaborationGoalIds { get; set; } = new();
 
         /// <summary>
         /// Идентификаторы искомых жанров.
         /// </summary>
-        public List<int>? DesiredGenreIds { get; set; }
+        public List<GenreId> DesiredGenreIds { get; set; } = new();
 
         /// <summary>
         /// Идентификаторы искомых специальностей.
         /// </summary>
-        public List<int>? DesiredSpecialtyIds { get; set; }
+        public List<SpecialtyId> DesiredSpecialtyIds { get; set; } = new();
 
         /// <inheritdoc />
         public string IdempotencyKey { get; set; } = string.Empty;

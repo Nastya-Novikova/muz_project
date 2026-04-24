@@ -12,22 +12,23 @@ namespace MusicianFinder.Infrastructure.Persistence.Configurations
         /// <inheritdoc />
         public void Configure(EntityTypeBuilder<MusicalSpecialty> builder)
         {
-            builder.ToTable("MusicalSpecialty");
-            builder.HasKey(ms => ms.Id);
-            builder.Property(ms => ms.Name).IsRequired().HasMaxLength(50);
-            builder.Property(ms => ms.LocalizedName).IsRequired().HasMaxLength(50);
+            builder.ToTable("MusicalSpecialties");
+            builder.HasKey(s => s.Id);
+            builder.Property(s => s.Id).ValueGeneratedNever();
+            builder.Property(s => s.Name).IsRequired().HasMaxLength(50);
+            builder.Property(s => s.LocalizedName).IsRequired().HasMaxLength(50);
 
             builder.HasData(
-                new { Id = 1, Name = "vocalist", LocalizedName = "Вокалист" },
-                new { Id = 2, Name = "guitarist", LocalizedName = "Гитарист" },
-                new { Id = 3, Name = "bassist", LocalizedName = "Бас-гитарист" },
-                new { Id = 4, Name = "drummer", LocalizedName = "Ударник" },
-                new { Id = 5, Name = "keyboardist", LocalizedName = "Клавишник" },
-                new { Id = 6, Name = "composer", LocalizedName = "Композитор" },
-                new { Id = 7, Name = "producer", LocalizedName = "Продюсер" },
-                new { Id = 8, Name = "sound-engineer", LocalizedName = "Звукорежиссёр" },
-                new { Id = 9, Name = "dj", LocalizedName = "Диджей" },
-                new { Id = 10, Name = "violinist", LocalizedName = "Скрипач" }
+                new MusicalSpecialty(new Guid("11111111-1111-1111-1111-111111111201"), "vocalist", "Вокалист"),
+                new MusicalSpecialty(new Guid("11111111-1111-1111-1111-111111111202"), "guitarist", "Гитарист"),
+                new MusicalSpecialty(new Guid("11111111-1111-1111-1111-111111111203"), "bassist", "Бас-гитарист"),
+                new MusicalSpecialty(new Guid("11111111-1111-1111-1111-111111111204"), "drummer", "Ударник"),
+                new MusicalSpecialty(new Guid("11111111-1111-1111-1111-111111111205"), "keyboardist", "Клавишник"),
+                new MusicalSpecialty(new Guid("11111111-1111-1111-1111-111111111206"), "composer", "Композитор"),
+                new MusicalSpecialty(new Guid("11111111-1111-1111-1111-111111111207"), "producer", "Продюсер"),
+                new MusicalSpecialty(new Guid("11111111-1111-1111-1111-111111111208"), "sound-engineer", "Звукорежиссёр"),
+                new MusicalSpecialty(new Guid("11111111-1111-1111-1111-111111111209"), "dj", "Диджей"),
+                new MusicalSpecialty(new Guid("11111111-1111-1111-1111-111111111210"), "violinist", "Скрипач")
             );
         }
     }

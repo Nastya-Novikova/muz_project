@@ -11,7 +11,7 @@ namespace MusicianFinder.Infrastructure.Services
     /// </summary>
     public class NotificationService : INotificationService
     {
-        private readonly MusicianFinderDbContext _dbContext;
+        private readonly AppDbContext _dbContext;
         private readonly IEmailService _emailService;
         private readonly IVkService _vkService;
 
@@ -22,7 +22,7 @@ namespace MusicianFinder.Infrastructure.Services
         /// <param name="emailService">Сервис email.</param>
         /// <param name="vkService">Сервис VK.</param>
         public NotificationService(
-            MusicianFinderDbContext dbContext,
+            AppDbContext dbContext,
             IEmailService emailService,
             IVkService vkService)
         {
@@ -32,12 +32,9 @@ namespace MusicianFinder.Infrastructure.Services
         }
 
         /// <inheritdoc />
-        public async Task SendNotificationToProfileAsync(
-            Guid profileId,
-            NotificationType type,
-            Dictionary<string, object> data)
+        public async Task SendNotificationToProfileAsync(Guid profileId, NotificationType type, Dictionary<string, object> data)
         {
-            var profile = await _dbContext.MusicianProfiles.FindAsync(profileId);
+            var profile = await _dbContext.MusicianProfiles.FirstOrDefaultAsync(p => p.Id == profileId);
             if (profile == null) return;
 
             var (title, message) = GetNotificationText(type, data);
@@ -50,33 +47,27 @@ namespace MusicianFinder.Infrastructure.Services
                 GetEntityId(data),
                 message);
 
-            await _dbContext.Notifications.AddAsync(internalNotification);
+            profile.AddNotification(internalNotification);
             await _dbContext.SaveChangesAsync();
 
             if (profile.NotifyByEmail && !string.IsNullOrEmpty(profile.Email))
                 await _emailService.SendNotificationAsync(profile.Email, title, message);
 
-            if (profile.NotifyByVk && !string.IsNullOrEmpty(profile.VkUserId))
+            if (profile.NotifyByVk && profile.VkUserId != null)
             {
-                var user = await _dbContext.Users
-                    .FirstOrDefaultAsync(u => u.MusicianProfile != null && u.MusicianProfile.Id == profile.Id);
-                if (user != null)
-                    await _vkService.SendNotificationAsync(user.Id, message);
+                var userId = profile.UserId;
+                var vkMessage = message ?? title;
+                await _vkService.SendNotificationAsync(userId, vkMessage);
             }
         }
 
         /// <inheritdoc />
-        public async Task SendNotificationToUserAsync(
-            Guid userId,
-            NotificationType type,
-            Dictionary<string, object> data)
+        public async Task SendNotificationToUserAsync(Guid userId, NotificationType type, Dictionary<string, object> data)
         {
-            var user = await _dbContext.Users
-                .Include(u => u.MusicianProfile)
-                .FirstOrDefaultAsync(u => u.Id == userId && !u.IsDeleted);
-            if (user?.MusicianProfile == null) return;
+            var profile = await _dbContext.MusicianProfiles.FirstOrDefaultAsync(p => p.UserId == userId && !p.IsDeleted);
+            if (profile == null) return;
 
-            await SendNotificationToProfileAsync(user.MusicianProfile.Id, type, data);
+            await SendNotificationToProfileAsync(profile.Id, type, data);
         }
 
         private static (string Title, string Message) GetNotificationText(

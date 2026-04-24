@@ -1,10 +1,6 @@
-﻿using FluentValidation.Results;
-using MediatR;
-using Microsoft.EntityFrameworkCore;
-using MusicianFinder.Application.Core.Exceptions;
+﻿using MediatR;
 using MusicianFinder.Application.Interfaces;
-using MusicianFinder.Domain.Entities;
-using ValidationException = MusicianFinder.Application.Core.Exceptions.ValidationException;
+using MusicianFinder.Application.Interfaces.Repositories;
 
 namespace MusicianFinder.Application.Commands.Events
 {
@@ -13,55 +9,43 @@ namespace MusicianFinder.Application.Commands.Events
     /// </summary>
     public class UploadEventImageCommandHandler : IRequestHandler<UploadEventImageCommand, string>
     {
-        private readonly IReadDbContext _dbContext;
-        private readonly ICurrentUserService _currentUserService;
+        private readonly IEventRepository _eventRepository;
+        private readonly ICurrentUserService _currentUser;
+        private readonly IMusicianProfileRepository _profileRepository;
         private readonly IFileStorage _fileStorage;
 
         /// <summary>
-        /// Инициализирует новый экземпляр <see cref="UploadEventImageCommandHandler"/>.
+        /// Инициализирует новый экземпляр обработчика.
         /// </summary>
-        /// <param name="dbContext">Контекст базы данных.</param>
-        /// <param name="currentUserService">Сервис текущего пользователя.</param>
-        /// <param name="fileStorage">Сервис файлового хранилища.</param>
+        /// <param name="eventRepository">Репозиторий мероприятий.</param>
+        /// <param name="currentUser">Сервис текущего пользователя.</param>
+        /// <param name="profileRepository">Репозиторий профилей.</param>
+        /// <param name="fileStorage">Файловое хранилище.</param>
         public UploadEventImageCommandHandler(
-            IReadDbContext dbContext,
-            ICurrentUserService currentUserService,
+            IEventRepository eventRepository,
+            ICurrentUserService currentUser,
+            IMusicianProfileRepository profileRepository,
             IFileStorage fileStorage)
         {
-            _dbContext = dbContext;
-            _currentUserService = currentUserService;
+            _eventRepository = eventRepository;
+            _currentUser = currentUser;
+            _profileRepository = profileRepository;
             _fileStorage = fileStorage;
         }
 
         /// <inheritdoc />
         public async Task<string> Handle(UploadEventImageCommand request, CancellationToken cancellationToken)
         {
-            if (!request.ContentType.StartsWith("image/"))
-                throw new ValidationException(new[] { new ValidationFailure(nameof(request.ContentType), "Разрешены только изображения.") });
+            var @event = await _eventRepository.GetByIdAsync(request.EventId, cancellationToken)
+                ?? throw new Application.Core.Exceptions.NotFoundException("Мероприятие не найдено.");
 
-            if (request.Content.Length > 5 * 1024 * 1024)
-                throw new ValidationException(new[] { new ValidationFailure(nameof(request.Content), "Файл слишком большой (макс. 5 МБ).") });
-
-            var eventEntity = await _dbContext.Events
-                .FirstOrDefaultAsync(e => e.Id == request.EventId && !e.IsDeleted, cancellationToken)
-                ?? throw new NotFoundException(nameof(Event), request.EventId);
-
-            var profile = await _dbContext.Profiles
-                .FirstOrDefaultAsync(p => p.Id == _currentUserService.UserId && !p.IsDeleted, cancellationToken)
-                ?? throw new NotFoundException("Профиль текущего пользователя не найден.");
-
-            if (eventEntity.CreatorProfileId != profile.Id)
-                throw new ForbiddenException("Только создатель может загружать изображение.");
-
-            if (!string.IsNullOrEmpty(eventEntity.ImageUrl))
-                await _fileStorage.DeleteFileAsync(eventEntity.ImageUrl);
+            var profile = await _profileRepository.GetByUserIdAsync(_currentUser.UserId, cancellationToken)
+                ?? throw new Application.Core.Exceptions.NotFoundException("Профиль не найден.");
 
             using var stream = new MemoryStream(request.Content);
-            var fileUrl = await _fileStorage.SaveFileAsync(stream, request.FileName, request.ContentType);
-            eventEntity.SetImage(fileUrl, profile.Id);
-            await ((DbContext)_dbContext).SaveChangesAsync(cancellationToken);
-
-            return fileUrl;
+            var imageUrl = await _fileStorage.SaveFileAsync(stream, request.FileName, request.ContentType);
+            @event.SetImage(imageUrl, profile.Id);
+            return imageUrl;
         }
     }
 }

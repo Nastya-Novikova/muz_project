@@ -1,10 +1,7 @@
-﻿using AutoMapper;
-using AutoMapper.QueryableExtensions;
-using MediatR;
-using Microsoft.EntityFrameworkCore;
-using MusicianFinder.Application.Core.Exceptions;
+﻿using MediatR;
 using MusicianFinder.Application.DTOs.Profiles;
 using MusicianFinder.Application.Interfaces;
+using MusicianFinder.Application.Interfaces.ReadRepositories;
 
 namespace MusicianFinder.Application.Queries.Profiles
 {
@@ -13,42 +10,30 @@ namespace MusicianFinder.Application.Queries.Profiles
     /// </summary>
     public class GetMyProfileQueryHandler : IRequestHandler<GetMyProfileQuery, ProfileDto>
     {
-        private readonly IReadDbContext _dbContext;
+        private readonly IProfileReadRepository _profileReadRepository;
         private readonly ICurrentUserService _currentUserService;
-        private readonly IMapper _mapper;
-        private readonly ICacheService _cache;
 
         /// <summary>
-        /// Инициализирует новый экземпляр <see cref="GetMyProfileQueryHandler"/>.
+        /// Инициализирует новый экземпляр обработчика.
         /// </summary>
-        /// <param name="dbContext">Контекст базы данных.</param>
+        /// <param name="profileReadRepository">Репозиторий для чтения профилей.</param>
         /// <param name="currentUserService">Сервис текущего пользователя.</param>
-        /// <param name="mapper">Маппер.</param>
-        /// <param name="cache">Сервис кеша.</param>
-        public GetMyProfileQueryHandler(IReadDbContext dbContext, ICurrentUserService currentUserService, IMapper mapper, ICacheService cache)
+        public GetMyProfileQueryHandler(
+            IProfileReadRepository profileReadRepository,
+            ICurrentUserService currentUserService)
         {
-            _dbContext = dbContext;
+            _profileReadRepository = profileReadRepository;
             _currentUserService = currentUserService;
-            _mapper = mapper;
-            _cache = cache;
         }
 
         /// <inheritdoc />
         public async Task<ProfileDto> Handle(GetMyProfileQuery request, CancellationToken cancellationToken)
         {
-            string cacheKey = $"profile:me:{_currentUserService.UserId}";
-            var cached = await _cache.GetAsync<ProfileDto>(cacheKey);
-            if (cached != null) return cached;
-
-            var dto = await _dbContext.Profiles
-                .AsNoTracking()
-                .Where(p => p.Id == _currentUserService.UserId && !p.IsDeleted)
-                .ProjectTo<ProfileDto>(_mapper.ConfigurationProvider)
-                .FirstOrDefaultAsync(cancellationToken)
-                ?? throw new NotFoundException("Профиль не найден.");
+            var dto = await _profileReadRepository.GetByIdAsync(_currentUserService.UserId, cancellationToken)
+                ?? throw new Application.Core.Exceptions.NotFoundException("Профиль не найден.");
 
             dto.IsMyProfile = true;
-            await _cache.SetAsync(cacheKey, dto, TimeSpan.FromMinutes(10));
+
             return dto;
         }
     }

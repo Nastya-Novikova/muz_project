@@ -1,35 +1,37 @@
 ﻿using MediatR;
-using MusicianFinder.Application.Core.Behaviors;
+using MusicianFinder.Application.Commands.Base;
+using MusicianFinder.Application.Interfaces;
+using MusicianFinder.Domain.ValueObjects;
 
 namespace MusicianFinder.Application.Commands.Events
 {
     /// <summary>
-    /// Команда для создания нового мероприятия.
+    /// Команда для создания мероприятия.
     /// </summary>
-    public class CreateEventCommand : IRequest<Guid>, IBaseCommand
+    public class CreateEventCommand : ICommand<Guid>, IBaseCommand
     {
         /// <summary>
-        /// Название мероприятия.
+        /// Название.
         /// </summary>
-        public string Title { get; set; } = string.Empty;
+        public EventTitle Title { get; set; } = null!;
 
         /// <summary>
-        /// Описание мероприятия.
+        /// Описание.
         /// </summary>
         public string? Description { get; set; }
 
         /// <summary>
         /// Идентификатор региона.
         /// </summary>
-        public int RegionId { get; set; }
+        public Guid RegionId { get; set; }
 
         /// <summary>
         /// Идентификатор города.
         /// </summary>
-        public int CityId { get; set; }
+        public Guid CityId { get; set; }
 
         /// <summary>
-        /// Адрес проведения.
+        /// Адрес.
         /// </summary>
         public string Address { get; set; } = string.Empty;
 
@@ -39,7 +41,7 @@ namespace MusicianFinder.Application.Commands.Events
         public DateTime StartDateTime { get; set; }
 
         /// <summary>
-        /// Дата и время окончания (может быть не указано).
+        /// Дата и время окончания (необязательно).
         /// </summary>
         public DateTime? EndDateTime { get; set; }
 

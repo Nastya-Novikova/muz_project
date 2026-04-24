@@ -10,22 +10,9 @@ namespace MusicianFinder.API.Controllers
     /// <summary>
     /// Контроллер для работы с мероприятиями текущего пользователя.
     /// </summary>
-    [ApiController]
-    [Route("api/me/events")]
     [Authorize]
-    public class MeEventsController : ControllerBase
+    public class MeEventsController : BaseApiController
     {
-        private readonly IMediator _mediator;
-
-        /// <summary>
-        /// Инициализирует новый экземпляр <see cref="MeEventsController"/>.
-        /// </summary>
-        /// <param name="mediator">Экземпляр <see cref="IMediator"/>.</param>
-        public MeEventsController(IMediator mediator)
-        {
-            _mediator = mediator;
-        }
-
         /// <summary>
         /// Получить мероприятия, созданные текущим пользователем.
         /// </summary>
@@ -35,7 +22,7 @@ namespace MusicianFinder.API.Controllers
         [ProducesResponseType(typeof(PagedResult<EventDto>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetMyCreatedEvents([FromQuery] GetMyCreatedEventsQuery query)
         {
-            var result = await _mediator.Send(query);
+            var result = await Mediator.Send(query);
             return Ok(result);
         }
 
@@ -48,7 +35,7 @@ namespace MusicianFinder.API.Controllers
         [ProducesResponseType(typeof(PagedResult<EventDto>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetMyRegisteredEvents([FromQuery] GetMyRegisteredEventsQuery query)
         {
-            var result = await _mediator.Send(query);
+            var result = await Mediator.Send(query);
             return Ok(result);
         }
     }

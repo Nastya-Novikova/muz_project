@@ -1,15 +1,10 @@
-﻿using System.Collections.Generic;
-
-namespace MusicianFinder.Domain.Entities
+﻿namespace MusicianFinder.Domain.Entities
 {
     /// <summary>
-    /// Музыкальная специальность.
+    /// Музыкальная специальность (справочник).
     /// </summary>
     public class MusicalSpecialty
     {
-        private readonly List<MusicianProfile> _profiles = [];
-        private readonly List<MusicianProfile> _profilesLookingForThisSpecialty = [];
-
         private MusicalSpecialty()
         {
             Name = string.Empty;
@@ -19,10 +14,12 @@ namespace MusicianFinder.Domain.Entities
         /// <summary>
         /// Инициализирует новый экземпляр специальности.
         /// </summary>
+        /// <param name="id">Уникальный идентификатор.</param>
         /// <param name="name">Английское название специальности.</param>
         /// <param name="localizedName">Русское название специальности.</param>
-        public MusicalSpecialty(string name, string localizedName)
+        public MusicalSpecialty(Guid id, string name, string localizedName)
         {
+            Id = id;
             Name = name;
             LocalizedName = localizedName;
         }
@@ -30,7 +27,7 @@ namespace MusicianFinder.Domain.Entities
         /// <summary>
         /// Идентификатор специальности.
         /// </summary>
-        public int Id { get; private set; }
+        public Guid Id { get; private set; }
 
         /// <summary>
         /// Английское название специальности.
@@ -41,15 +38,5 @@ namespace MusicianFinder.Domain.Entities
         /// Русское название специальности.
         /// </summary>
         public string LocalizedName { get; private set; }
-
-        /// <summary>
-        /// Профили, предлагающие эту специальность.
-        /// </summary>
-        public IReadOnlyCollection<MusicianProfile> Profiles => _profiles.AsReadOnly();
-
-        /// <summary>
-        /// Профили, которые ищут эту специальность.
-        /// </summary>
-        public IReadOnlyCollection<MusicianProfile> ProfilesLookingForThisSpecialty => _profilesLookingForThisSpecialty.AsReadOnly();
     }
 }

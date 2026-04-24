@@ -1,11 +1,8 @@
-﻿using AutoMapper;
-using AutoMapper.QueryableExtensions;
-using MediatR;
-using Microsoft.EntityFrameworkCore;
-using MusicianFinder.Application.Core.Exceptions;
+﻿using MediatR;
 using MusicianFinder.Application.Core.Pagination;
 using MusicianFinder.Application.DTOs.Notifications;
 using MusicianFinder.Application.Interfaces;
+using MusicianFinder.Application.Interfaces.ReadRepositories;
 
 namespace MusicianFinder.Application.Queries.Notifications
 {
@@ -14,53 +11,26 @@ namespace MusicianFinder.Application.Queries.Notifications
     /// </summary>
     public class GetNotificationsQueryHandler : IRequestHandler<GetNotificationsQuery, PagedResult<NotificationDto>>
     {
-        private readonly IReadDbContext _dbContext;
-        private readonly ICurrentUserService _currentUserService;
-        private readonly IMapper _mapper;
+        private readonly INotificationReadRepository _notificationReadRepository;
+        private readonly ICurrentUserService _currentUser;
 
         /// <summary>
-        /// Инициализирует новый экземпляр <see cref="GetNotificationsQueryHandler"/>.
+        /// Инициализирует новый экземпляр обработчика.
         /// </summary>
-        /// <param name="dbContext">Контекст базы данных.</param>
-        /// <param name="currentUserService">Сервис текущего пользователя.</param>
-        /// <param name="mapper">Маппер.</param>
-        public GetNotificationsQueryHandler(IReadDbContext dbContext, ICurrentUserService currentUserService, IMapper mapper)
+        /// <param name="notificationReadRepository">Репозиторий для чтения уведомлений.</param>
+        /// <param name="currentUser">Сервис текущего пользователя.</param>
+        public GetNotificationsQueryHandler(
+            INotificationReadRepository notificationReadRepository,
+            ICurrentUserService currentUser)
         {
-            _dbContext = dbContext;
-            _currentUserService = currentUserService;
-            _mapper = mapper;
+            _notificationReadRepository = notificationReadRepository;
+            _currentUser = currentUser;
         }
 
         /// <inheritdoc />
         public async Task<PagedResult<NotificationDto>> Handle(GetNotificationsQuery request, CancellationToken cancellationToken)
         {
-            var profile = await _dbContext.Profiles
-                .AsNoTracking()
-                .FirstOrDefaultAsync(p => p.Id == _currentUserService.UserId && !p.IsDeleted, cancellationToken)
-                ?? throw new NotFoundException("Профиль не найден.");
-
-            var thirtyDaysAgo = DateTime.UtcNow.AddDays(-30);
-
-            var query = _dbContext.Notifications
-                .AsNoTracking()
-                .Where(n => n.ProfileId == profile.Id && n.CreatedAt >= thirtyDaysAgo);
-
-            var totalCount = await query.CountAsync(cancellationToken);
-
-            var items = await query
-                .OrderByDescending(n => n.CreatedAt)
-                .Skip((request.Page - 1) * request.Limit)
-                .Take(request.Limit)
-                .ProjectTo<NotificationDto>(_mapper.ConfigurationProvider)
-                .ToListAsync(cancellationToken);
-
-            return new PagedResult<NotificationDto>
-            {
-                Items = items,
-                Total = totalCount,
-                Page = request.Page,
-                Limit = request.Limit
-            };
+            return await _notificationReadRepository.GetForProfileAsync(_currentUser.UserId, request.Page, request.Limit, cancellationToken);
         }
     }
 }

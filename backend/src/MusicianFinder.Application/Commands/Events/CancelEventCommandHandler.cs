@@ -1,8 +1,6 @@
 ﻿using MediatR;
-using Microsoft.EntityFrameworkCore;
-using MusicianFinder.Application.Core.Exceptions;
 using MusicianFinder.Application.Interfaces;
-using MusicianFinder.Domain.Entities;
+using MusicianFinder.Application.Interfaces.Repositories;
 
 namespace MusicianFinder.Application.Commands.Events
 {
@@ -11,30 +9,36 @@ namespace MusicianFinder.Application.Commands.Events
     /// </summary>
     public class CancelEventCommandHandler : IRequestHandler<CancelEventCommand, Unit>
     {
-        private readonly IReadDbContext _dbContext;
-        private readonly ICurrentUserService _currentUserService;
+        private readonly IEventRepository _eventRepository;
+        private readonly ICurrentUserService _currentUser;
+        private readonly IMusicianProfileRepository _profileRepository;
 
         /// <summary>
-        /// Инициализирует новый экземпляр <see cref="CancelEventCommandHandler"/>.
+        /// Инициализирует новый экземпляр обработчика.
         /// </summary>
-        /// <param name="dbContext">Контекст базы данных.</param>
-        /// <param name="currentUserService">Сервис текущего пользователя.</param>
-        public CancelEventCommandHandler(IReadDbContext dbContext, ICurrentUserService currentUserService)
+        /// <param name="eventRepository">Репозиторий мероприятий.</param>
+        /// <param name="currentUser">Сервис текущего пользователя.</param>
+        /// <param name="profileRepository">Репозиторий профилей.</param>
+        public CancelEventCommandHandler(
+            IEventRepository eventRepository,
+            ICurrentUserService currentUser,
+            IMusicianProfileRepository profileRepository)
         {
-            _dbContext = dbContext;
-            _currentUserService = currentUserService;
+            _eventRepository = eventRepository;
+            _currentUser = currentUser;
+            _profileRepository = profileRepository;
         }
 
         /// <inheritdoc />
         public async Task<Unit> Handle(CancelEventCommand request, CancellationToken cancellationToken)
         {
-            var eventEntity = await _dbContext.Events
-                .FirstOrDefaultAsync(e => e.Id == request.EventId && !e.IsDeleted, cancellationToken)
-                ?? throw new NotFoundException(nameof(Event), request.EventId);
+            var @event = await _eventRepository.GetByIdAsync(request.EventId, cancellationToken)
+                ?? throw new Application.Core.Exceptions.NotFoundException("Мероприятие не найдено.");
 
-            eventEntity.Cancel(_currentUserService.UserId);
-            await ((DbContext)_dbContext).SaveChangesAsync(cancellationToken);
+            var profile = await _profileRepository.GetByUserIdAsync(_currentUser.UserId, cancellationToken)
+                ?? throw new Application.Core.Exceptions.NotFoundException("Профиль не найден.");
 
+            @event.Cancel(profile.Id);
             return Unit.Value;
         }
     }

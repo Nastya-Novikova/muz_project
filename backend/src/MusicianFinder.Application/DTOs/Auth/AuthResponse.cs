@@ -5,19 +5,11 @@
     /// </summary>
     public class AuthResponse
     {
-        /// <summary>
-        /// Успешность операции.
-        /// </summary>
+        /// <summary>Успешность операции.</summary>
         public bool Success { get; set; }
-
-        /// <summary>
-        /// JWT-токен.
-        /// </summary>
+        /// <summary>JWT-токен.</summary>
         public string Token { get; set; } = string.Empty;
-
-        /// <summary>
-        /// Данные пользователя.
-        /// </summary>
+        /// <summary>Данные пользователя.</summary>
         public UserDto User { get; set; } = new();
     }
 }

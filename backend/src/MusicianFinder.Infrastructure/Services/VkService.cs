@@ -1,9 +1,10 @@
-﻿using System.Text.Json;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using MusicianFinder.Application.Interfaces;
+using MusicianFinder.Domain.ValueObjects;
 using MusicianFinder.Infrastructure.Persistence;
 
 namespace MusicianFinder.Infrastructure.Services
@@ -13,7 +14,7 @@ namespace MusicianFinder.Infrastructure.Services
     /// </summary>
     public class VkService : IVkService
     {
-        private readonly MusicianFinderDbContext _dbContext;
+        private readonly AppDbContext _dbContext;
         private readonly HttpClient _httpClient;
         private readonly IConfiguration _configuration;
         private readonly ILogger<VkService> _logger;
@@ -24,10 +25,7 @@ namespace MusicianFinder.Infrastructure.Services
         /// <param name="dbContext">Контекст базы данных.</param>
         /// <param name="configuration">Конфигурация приложения.</param>
         /// <param name="logger">Логгер.</param>
-        public VkService(
-            MusicianFinderDbContext dbContext,
-            IConfiguration configuration,
-            ILogger<VkService> logger)
+        public VkService(AppDbContext dbContext, IConfiguration configuration, ILogger<VkService> logger)
         {
             _dbContext = dbContext;
             _httpClient = new HttpClient();
@@ -39,15 +37,14 @@ namespace MusicianFinder.Infrastructure.Services
         public async Task ConnectVkAsync(Guid userId, string code, string codeVerifier, string deviceId)
         {
             var profile = await _dbContext.MusicianProfiles
-                .FirstOrDefaultAsync(p => p.Id == userId && !p.IsDeleted);
-            if (profile == null)
-                throw new InvalidOperationException("Профиль не найден.");
+                .FirstOrDefaultAsync(p => p.UserId == userId && !p.IsDeleted)
+                ?? throw new InvalidOperationException("Профиль не найден.");
 
             var vkUserId = await ExchangeCodeAsync(code, codeVerifier, deviceId);
             if (!vkUserId.HasValue)
                 throw new InvalidOperationException("Не удалось получить идентификатор пользователя VK.");
 
-            profile.SetVkUserId(vkUserId.Value.ToString());
+            profile.SetVkUserId(new VkUserId(vkUserId.Value));
             await _dbContext.SaveChangesAsync();
         }
 
@@ -89,14 +86,15 @@ namespace MusicianFinder.Infrastructure.Services
         public async Task<bool> SendNotificationAsync(Guid userId, string message)
         {
             var profile = await _dbContext.MusicianProfiles
-                .FirstOrDefaultAsync(p => p.Id == userId && !p.IsDeleted);
-            if (profile == null || string.IsNullOrEmpty(profile.VkUserId))
+                .FirstOrDefaultAsync(p => p.UserId == userId && !p.IsDeleted);
+
+            if (profile == null || profile.VkUserId == null)
                 return false;
 
             var communityToken = _configuration["VkSettings:CommunityToken"];
             var parameters = new Dictionary<string, string>
             {
-                ["user_id"] = profile.VkUserId,
+                ["user_id"] = profile.VkUserId.Value,
                 ["message"] = message,
                 ["random_id"] = new Random().Next().ToString(),
                 ["access_token"] = communityToken!,

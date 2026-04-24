@@ -1,10 +1,6 @@
-﻿using AutoMapper;
-using MediatR;
-using Microsoft.EntityFrameworkCore;
-using MusicianFinder.Application.Core.Exceptions;
+﻿using MediatR;
 using MusicianFinder.Application.DTOs.Media;
-using MusicianFinder.Application.Interfaces;
-using MusicianFinder.Domain.Enums;
+using MusicianFinder.Application.Interfaces.ReadRepositories;
 
 namespace MusicianFinder.Application.Queries.Profiles
 {
@@ -13,36 +9,23 @@ namespace MusicianFinder.Application.Queries.Profiles
     /// </summary>
     public class GetMediaQueryHandler : IRequestHandler<GetMediaQuery, MediaDto>
     {
-        private readonly IReadDbContext _dbContext;
-        private readonly IMapper _mapper;
+        private readonly IProfileReadRepository _profileReadRepository;
 
         /// <summary>
-        /// Инициализирует новый экземпляр <see cref="GetMediaQueryHandler"/>.
+        /// Инициализирует новый экземпляр обработчика.
         /// </summary>
-        /// <param name="dbContext">Контекст базы данных.</param>
-        /// <param name="mapper">Маппер.</param>
-        public GetMediaQueryHandler(IReadDbContext dbContext, IMapper mapper)
+        /// <param name="profileReadRepository">Репозиторий для чтения профилей.</param>
+        public GetMediaQueryHandler(IProfileReadRepository profileReadRepository)
         {
-            _dbContext = dbContext;
-            _mapper = mapper;
+            _profileReadRepository = profileReadRepository;
         }
 
         /// <inheritdoc />
         public async Task<MediaDto> Handle(GetMediaQuery request, CancellationToken cancellationToken)
         {
-            var profile = await _dbContext.Profiles
-                .AsNoTracking()
-                .Include(nameof(Domain.Entities.MusicianProfile.PortfolioItems))
-                .FirstOrDefaultAsync(p => p.Id == request.ProfileId && !p.IsDeleted, cancellationToken)
-                ?? throw new NotFoundException("Профиль не найден.");
-
-            var items = profile.PortfolioItems.ToList();
-            return new MediaDto
-            {
-                Audio = _mapper.Map<List<AudioDto>>(items.Where(x => x.Type == MediaType.Audio).ToList()),
-                Video = _mapper.Map<List<VideoDto>>(items.Where(x => x.Type == MediaType.Video).ToList()),
-                Photos = _mapper.Map<List<PhotoDto>>(items.Where(x => x.Type == MediaType.Photo).ToList())
-            };
+            var media = await _profileReadRepository.GetMediaAsync(request.ProfileId, cancellationToken)
+                ?? throw new Application.Core.Exceptions.NotFoundException("Медиа не найдены.");
+            return media;
         }
     }
 }

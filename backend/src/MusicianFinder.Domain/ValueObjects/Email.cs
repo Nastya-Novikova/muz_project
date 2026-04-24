@@ -1,72 +1,38 @@
-﻿using System;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
+using MusicianFinder.SharedKernel;
 
 namespace MusicianFinder.Domain.ValueObjects
 {
     /// <summary>
-    /// Value Object, представляющий email-адрес.
+    /// Value Object для электронной почты.
     /// </summary>
-    public sealed partial class Email : IEquatable<Email>
+    public sealed class Email : ValueObject
     {
-        [GeneratedRegex(@"^(?("")("".+?(?<!\\)""@)|(([0-9a-z]((\.(?!\.))|[-!#\$%&'\*\+/=\?\^`\{\}\|~\w])*)(?<=[0-9a-z])@))(?(\[)(\[(\d{1,3}\.){3}\d{1,3}\])|(([0-9a-z][-0-9a-z]*[0-9a-z]*\.)+[a-z0-9][\-a-z0-9]{0,22}[a-z0-9]))$", RegexOptions.IgnoreCase | RegexOptions.Compiled, "ru-RU")]
-        private static partial Regex EmailRegex();
+        private static readonly Regex EmailRegex = new(
+            @"^(?("")("".+?(?<!\\)""@)|(([0-9a-z]((\.(?!\.))|[-!#\$%&'\*\+/=\?\^`\{\}\|~\w])*)(?<=[0-9a-z])@))" +
+            @"(?(\[)(\[(\d{1,3}\.){3}\d{1,3}\])|(([0-9a-z][-0-9a-z]*[0-9a-z]*\.)+[a-z0-9][\-a-z0-9]{0,22}[a-z0-9]))$",
+            RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
         /// <summary>
-        /// Строковое представление email-адреса.
+        /// Строковое представление email (нижний регистр).
         /// </summary>
         public string Value { get; }
 
         /// <summary>
         /// Инициализирует новый экземпляр <see cref="Email"/>.
         /// </summary>
-        /// <param name="value">Строка email-адреса.</param>
-        /// <exception cref="ArgumentException">Выбрасывается, если строка пуста или имеет неверный формат.</exception>
+        /// <param name="value">Email-адрес.</param>
+        /// <exception cref="DomainException">Выбрасывается при пустом или некорректном значении.</exception>
         public Email(string value)
         {
             if (string.IsNullOrWhiteSpace(value))
-                throw new ArgumentException("Email не может быть пустым.", nameof(value));
-
-            if (!EmailRegex().IsMatch(value))
-                throw new ArgumentException("Некорректный формат email.", nameof(value));
-
+                throw new DomainException("Email не может быть пустым.");
+            if (!EmailRegex.IsMatch(value))
+                throw new DomainException("Некорректный формат email.");
             Value = value.ToLowerInvariant();
         }
 
         /// <inheritdoc />
-        public override bool Equals(object? obj) => Equals(obj as Email);
-
-        /// <inheritdoc />
-        public bool Equals(Email? other)
-        {
-            if (other is null) return false;
-            if (ReferenceEquals(this, other)) return true;
-            return string.Equals(Value, other.Value, StringComparison.OrdinalIgnoreCase);
-        }
-
-        /// <inheritdoc />
-        public override int GetHashCode() => Value.ToLowerInvariant().GetHashCode();
-
-        /// <inheritdoc />
-        public override string ToString() => Value;
-
-        /// <summary>
-        /// Оператор равенства.
-        /// </summary>
-        public static bool operator ==(Email? left, Email? right) => Equals(left, right);
-
-        /// <summary>
-        /// Оператор неравенства.
-        /// </summary>
-        public static bool operator !=(Email? left, Email? right) => !Equals(left, right);
-
-        /// <summary>
-        /// Неявное преобразование из строки в <see cref="Email"/>.
-        /// </summary>
-        public static implicit operator Email(string value) => new(value);
-
-        /// <summary>
-        /// Неявное преобразование из <see cref="Email"/> в строку.
-        /// </summary>
-        public static implicit operator string(Email email) => email.Value;
+        protected override IEnumerable<object> GetEqualityComponents() { yield return Value; }
     }
 }

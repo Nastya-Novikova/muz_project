@@ -1,12 +1,13 @@
 ﻿using MediatR;
-using MusicianFinder.Application.Core.Behaviors;
+using MusicianFinder.Application.Commands.Base;
+using MusicianFinder.Application.Interfaces;
 
 namespace MusicianFinder.Application.Commands.Profiles
 {
     /// <summary>
     /// Команда для обновления аватара профиля.
     /// </summary>
-    public class UpdateAvatarCommand : IRequest<string>, IBaseCommand
+    public class UpdateAvatarCommand : ICommand<string>, IBaseCommand
     {
         /// <summary>
         /// Содержимое изображения.

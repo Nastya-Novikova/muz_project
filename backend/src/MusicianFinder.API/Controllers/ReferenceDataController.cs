@@ -8,83 +8,65 @@ namespace MusicianFinder.API.Controllers
     /// <summary>
     /// Контроллер справочных данных.
     /// </summary>
-    [ApiController]
-    [Route("api")]
-    public class ReferenceDataController : ControllerBase
+    public class ReferenceDataController : BaseApiController
     {
-        private readonly IMediator _mediator;
-
-        /// <summary>
-        /// Инициализирует новый экземпляр <see cref="ReferenceDataController"/>.
-        /// </summary>
-        /// <param name="mediator">Экземпляр <see cref="IMediator"/>.</param>
-        public ReferenceDataController(IMediator mediator)
-        {
-            _mediator = mediator;
-        }
-
         /// <summary>
         /// Получить список городов.
         /// </summary>
-        /// <param name="query">Параметры поиска и сортировки.</param>
         /// <returns>Список городов.</returns>
         [HttpGet("cities")]
         [ProducesResponseType(typeof(List<LookupItemDto>), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetCities([FromQuery] GetCitiesQuery query)
+        public async Task<IActionResult> GetCities()
         {
-            var result = await _mediator.Send(query);
+            var result = await Mediator.Send(new GetCitiesQuery());
             return Ok(result);
         }
 
         /// <summary>
         /// Получить список регионов.
         /// </summary>
-        /// <param name="query">Параметры поиска и сортировки.</param>
         /// <returns>Список регионов.</returns>
         [HttpGet("regions")]
         [ProducesResponseType(typeof(List<LookupItemDto>), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetRegions([FromQuery] GetRegionsQuery query)
+        public async Task<IActionResult> GetRegions()
         {
-            var result = await _mediator.Send(query);
+            var result = await Mediator.Send(new GetRegionsQuery());
             return Ok(result);
         }
 
         /// <summary>
         /// Получить список жанров.
         /// </summary>
-        /// <param name="query">Параметры поиска и сортировки.</param>
         /// <returns>Список жанров.</returns>
         [HttpGet("genres")]
         [ProducesResponseType(typeof(List<LookupItemDto>), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetGenres([FromQuery] GetGenresQuery query)
+        public async Task<IActionResult> GetGenres()
         {
-            var result = await _mediator.Send(query);
+            var result = await Mediator.Send(new GetGenresQuery());
             return Ok(result);
         }
 
         /// <summary>
         /// Получить список музыкальных специальностей.
         /// </summary>
-        /// <param name="query">Параметры поиска и сортировки.</param>
         /// <returns>Список специальностей.</returns>
         [HttpGet("specialties")]
         [ProducesResponseType(typeof(List<LookupItemDto>), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetSpecialties([FromQuery] GetSpecialtiesQuery query)
+        public async Task<IActionResult> GetSpecialties()
         {
-            var result = await _mediator.Send(query);
+            var result = await Mediator.Send(new GetSpecialtiesQuery());
             return Ok(result);
         }
 
         /// <summary>
         /// Получить список целей сотрудничества.
         /// </summary>
-        /// <param name="query">Параметры поиска и сортировки.</param>
         /// <returns>Список целей.</returns>
         [HttpGet("goals")]
         [ProducesResponseType(typeof(List<LookupItemDto>), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetCollaborationGoals([FromQuery] GetCollaborationGoalsQuery query)
+        public async Task<IActionResult> GetCollaborationGoals()
         {
-            var result = await _mediator.Send(query);
+            var result = await Mediator.Send(new GetCollaborationGoalsQuery());
             return Ok(result);
         }
     }

@@ -6,7 +6,7 @@
     public interface IFileStorage
     {
         /// <summary>
-        /// Сохранить файл в хранилище и вернуть публичный URL.
+        /// Сохраняет файл в хранилище и возвращает публичный URL.
         /// </summary>
         /// <param name="fileStream">Поток с содержимым файла.</param>
         /// <param name="fileName">Имя файла.</param>
@@ -15,7 +15,7 @@
         Task<string> SaveFileAsync(Stream fileStream, string fileName, string contentType);
 
         /// <summary>
-        /// Удалить файл из хранилища по его URL.
+        /// Удаляет файл из хранилища по его URL.
         /// </summary>
         /// <param name="fileUrl">URL файла.</param>
         Task DeleteFileAsync(string fileUrl);

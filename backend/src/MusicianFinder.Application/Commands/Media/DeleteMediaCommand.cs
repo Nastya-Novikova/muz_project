@@ -1,12 +1,13 @@
 ﻿using MediatR;
-using MusicianFinder.Application.Core.Behaviors;
+using MusicianFinder.Application.Commands.Base;
+using MusicianFinder.Application.Interfaces;
 
 namespace MusicianFinder.Application.Commands.Media
 {
     /// <summary>
-    /// Команда для удаления медиа из портфолио текущего пользователя.
+    /// Команда для удаления медиа из портфолио.
     /// </summary>
-    public class DeleteMediaCommand : IRequest<Unit>, IBaseCommand
+    public class DeleteMediaCommand : ICommand<Unit>, IBaseCommand
     {
         /// <summary>
         /// Идентификатор медиа.

@@ -1,12 +1,14 @@
 ﻿using MediatR;
-using MusicianFinder.Application.Core.Behaviors;
+using MusicianFinder.Application.Commands.Base;
+using MusicianFinder.Application.Interfaces;
+using MusicianFinder.Domain.ValueObjects;
 
 namespace MusicianFinder.Application.Commands.Events
 {
     /// <summary>
     /// Команда для обновления мероприятия.
     /// </summary>
-    public class UpdateEventCommand : IRequest<Unit>, IBaseCommand
+    public class UpdateEventCommand : ICommand<Unit>, IBaseCommand
     {
         /// <summary>
         /// Идентификатор мероприятия.
@@ -14,44 +16,44 @@ namespace MusicianFinder.Application.Commands.Events
         public Guid EventId { get; set; }
 
         /// <summary>
-        /// Новое название.
+        /// Название.
         /// </summary>
-        public string? Title { get; set; }
+        public EventTitle Title { get; set; } = null!;
 
         /// <summary>
-        /// Новое описание.
+        /// Описание.
         /// </summary>
         public string? Description { get; set; }
 
         /// <summary>
-        /// Новый идентификатор региона.
+        /// Идентификатор региона.
         /// </summary>
-        public int? RegionId { get; set; }
+        public Guid RegionId { get; set; }
 
         /// <summary>
-        /// Новый идентификатор города.
+        /// Идентификатор города.
         /// </summary>
-        public int? CityId { get; set; }
+        public Guid CityId { get; set; }
 
         /// <summary>
-        /// Новый адрес.
+        /// Адрес.
         /// </summary>
-        public string? Address { get; set; }
+        public string Address { get; set; } = string.Empty;
 
         /// <summary>
-        /// Новая дата начала.
+        /// Дата начала.
         /// </summary>
-        public DateTime? StartDateTime { get; set; }
+        public DateTime StartDateTime { get; set; }
 
         /// <summary>
-        /// Новая дата окончания.
+        /// Дата окончания.
         /// </summary>
         public DateTime? EndDateTime { get; set; }
 
         /// <summary>
-        /// Новое максимальное количество участников.
+        /// Максимальное количество участников.
         /// </summary>
-        public int? MaxParticipants { get; set; }
+        public int MaxParticipants { get; set; }
 
         /// <inheritdoc />
         public string IdempotencyKey { get; set; } = string.Empty;

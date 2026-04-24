@@ -1,20 +1,20 @@
 ﻿namespace MusicianFinder.Application.Interfaces
 {
     /// <summary>
-    /// Сервис для работы с кешем (Cache-Aside).
+    /// Сервис для работы с распределённым кешем.
     /// </summary>
     public interface ICacheService
     {
         /// <summary>
-        /// Получить данные из кеша.
+        /// Получает данные из кеша.
         /// </summary>
         /// <typeparam name="T">Тип данных.</typeparam>
         /// <param name="key">Ключ кеша.</param>
-        /// <returns>Данные из кеша или default, если ключ не найден.</returns>
+        /// <returns>Данные или null.</returns>
         Task<T?> GetAsync<T>(string key) where T : class;
 
         /// <summary>
-        /// Установить значение в кеш.
+        /// Сохраняет значение в кеш.
         /// </summary>
         /// <typeparam name="T">Тип данных.</typeparam>
         /// <param name="key">Ключ кеша.</param>
@@ -23,7 +23,7 @@
         Task SetAsync<T>(string key, T value, TimeSpan expiration) where T : class;
 
         /// <summary>
-        /// Удалить значение из кеша.
+        /// Удаляет запись из кеша.
         /// </summary>
         /// <param name="key">Ключ кеша.</param>
         Task RemoveAsync(string key);

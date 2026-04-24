@@ -1,12 +1,8 @@
-﻿using AutoMapper;
-using AutoMapper.QueryableExtensions;
-using MediatR;
-using Microsoft.EntityFrameworkCore;
-using MusicianFinder.Application.Core.Exceptions;
+﻿using MediatR;
 using MusicianFinder.Application.Core.Pagination;
 using MusicianFinder.Application.DTOs.Suggestions;
 using MusicianFinder.Application.Interfaces;
-using MusicianFinder.Domain.Entities;
+using MusicianFinder.Application.Interfaces.ReadRepositories;
 
 namespace MusicianFinder.Application.Queries.Suggestions
 {
@@ -15,61 +11,26 @@ namespace MusicianFinder.Application.Queries.Suggestions
     /// </summary>
     public class GetSentSuggestionsQueryHandler : IRequestHandler<GetSentSuggestionsQuery, PagedResult<SuggestionDto>>
     {
-        private readonly IReadDbContext _dbContext;
-        private readonly ICurrentUserService _currentUserService;
-        private readonly IMapper _mapper;
+        private readonly ICollaborationSuggestionReadRepository _suggestionReadRepository;
+        private readonly ICurrentUserService _currentUser;
 
         /// <summary>
-        /// Инициализирует новый экземпляр <see cref="GetSentSuggestionsQueryHandler"/>.
+        /// Инициализирует новый экземпляр обработчика.
         /// </summary>
-        /// <param name="dbContext">Контекст базы данных.</param>
-        /// <param name="currentUserService">Сервис текущего пользователя.</param>
-        /// <param name="mapper">Маппер.</param>
-        public GetSentSuggestionsQueryHandler(IReadDbContext dbContext, ICurrentUserService currentUserService, IMapper mapper)
+        /// <param name="suggestionReadRepository">Репозиторий для чтения предложений.</param>
+        /// <param name="currentUser">Сервис текущего пользователя.</param>
+        public GetSentSuggestionsQueryHandler(
+            ICollaborationSuggestionReadRepository suggestionReadRepository,
+            ICurrentUserService currentUser)
         {
-            _dbContext = dbContext;
-            _currentUserService = currentUserService;
-            _mapper = mapper;
+            _suggestionReadRepository = suggestionReadRepository;
+            _currentUser = currentUser;
         }
 
         /// <inheritdoc />
         public async Task<PagedResult<SuggestionDto>> Handle(GetSentSuggestionsQuery request, CancellationToken cancellationToken)
         {
-            var profile = await _dbContext.Profiles
-                .AsNoTracking()
-                .FirstOrDefaultAsync(p => p.Id == _currentUserService.UserId && !p.IsDeleted, cancellationToken)
-                ?? throw new NotFoundException("Профиль не найден.");
-
-            var query = _dbContext.CollaborationSuggestions
-                .AsNoTracking()
-                .Where(s => s.FromProfileId == profile.Id);
-
-            query = ApplySorting(query, request.SortBy, request.SortDesc);
-
-            var totalCount = await query.CountAsync(cancellationToken);
-            var items = await query
-                .Skip((request.Page - 1) * request.Limit)
-                .Take(request.Limit)
-                .ProjectTo<SuggestionDto>(_mapper.ConfigurationProvider)
-                .ToListAsync(cancellationToken);
-
-            return new PagedResult<SuggestionDto>
-            {
-                Items = items,
-                Total = totalCount,
-                Page = request.Page,
-                Limit = request.Limit
-            };
-        }
-
-        private static IQueryable<CollaborationSuggestion> ApplySorting(IQueryable<CollaborationSuggestion> query, string? sortBy, bool sortDesc)
-        {
-            return sortBy?.ToLower() switch
-            {
-                "status" => sortDesc ? query.OrderByDescending(s => s.Status) : query.OrderBy(s => s.Status),
-                "createdat" => sortDesc ? query.OrderByDescending(s => s.CreatedAt) : query.OrderBy(s => s.CreatedAt),
-                _ => query.OrderByDescending(s => s.CreatedAt)
-            };
+            return await _suggestionReadRepository.GetSentAsync(_currentUser.UserId, request.Page, request.Limit, cancellationToken);
         }
     }
 }

@@ -20,63 +20,58 @@ namespace MusicianFinder.Application.Core.Mapping
         /// </summary>
         public MappingProfile()
         {
+            // Справочники
             CreateMap<City, LookupItemDto>();
             CreateMap<Region, LookupItemDto>();
             CreateMap<Genre, LookupItemDto>();
             CreateMap<MusicalSpecialty, LookupItemDto>();
             CreateMap<CollaborationGoal, LookupItemDto>();
 
+            // Профили
             CreateMap<MusicianProfile, ProfileDto>()
-                .ForMember(dto => dto.City, opt => opt.MapFrom(src => src.City))
-                .ForMember(dto => dto.Genres, opt => opt.MapFrom(src => src.Genres))
-                .ForMember(dto => dto.Specialties, opt => opt.MapFrom(src => src.Specialties))
-                .ForMember(dto => dto.CollaborationGoals, opt => opt.MapFrom(src => src.CollaborationGoals))
-                .ForMember(dto => dto.DesiredGenres, opt => opt.MapFrom(src => src.DesiredGenres))
-                .ForMember(dto => dto.DesiredSpecialties, opt => opt.MapFrom(src => src.DesiredSpecialties));
+                .ForMember(dto => dto.City, opt => opt.Ignore())
+                .ForMember(dto => dto.Genres, opt => opt.Ignore())
+                .ForMember(dto => dto.Specialties, opt => opt.Ignore())
+                .ForMember(dto => dto.CollaborationGoals, opt => opt.Ignore())
+                .ForMember(dto => dto.DesiredGenres, opt => opt.Ignore())
+                .ForMember(dto => dto.DesiredSpecialties, opt => opt.Ignore())
+                .ForMember(dto => dto.IsMyProfile, opt => opt.Ignore())
+                .ForMember(dto => dto.IsFavorite, opt => opt.Ignore())
+                .ForMember(dto => dto.IsCollaborated, opt => opt.Ignore());
 
             CreateMap<MusicianProfile, ProfileShortDto>()
-                .ForMember(dto => dto.City, opt => opt.MapFrom(src => src.City))
-                .ForMember(dto => dto.Genres, opt => opt.MapFrom(src => src.Genres))
-                .ForMember(dto => dto.Specialties, opt => opt.MapFrom(src => src.Specialties));
+                .ForMember(dto => dto.City, opt => opt.Ignore())
+                .ForMember(dto => dto.Genres, opt => opt.Ignore())
+                .ForMember(dto => dto.Specialties, opt => opt.Ignore());
 
+            // Мероприятия
             CreateMap<Event, EventDto>()
-                .ForMember(dto => dto.Region, opt => opt.MapFrom(src => src.Region))
-                .ForMember(dto => dto.City, opt => opt.MapFrom(src => src.City))
-                .ForMember(dto => dto.CreatorFullName, opt => opt.MapFrom(src => src.CreatorProfile != null ? src.CreatorProfile.FullName : string.Empty))
-                .ForMember(dto => dto.CreatorAvatarUrl, opt => opt.MapFrom(src => src.CreatorProfile != null ? src.CreatorProfile.AvatarUrl : null))
+                .ForMember(dto => dto.Region, opt => opt.Ignore())
+                .ForMember(dto => dto.City, opt => opt.Ignore())
+                .ForMember(dto => dto.CreatorFullName, opt => opt.Ignore())
+                .ForMember(dto => dto.CreatorAvatarUrl, opt => opt.Ignore())
                 .ForMember(dto => dto.CurrentParticipants, opt => opt.Ignore())
                 .ForMember(dto => dto.IsRegistered, opt => opt.Ignore())
                 .ForMember(dto => dto.IsCreator, opt => opt.Ignore());
 
-            CreateMap<PortfolioItem, AudioDto>()
-                .ForMember(dto => dto.Id, opt => opt.MapFrom(src => src.Id))
-                .ForMember(dto => dto.Title, opt => opt.MapFrom(src => src.Title))
-                .ForMember(dto => dto.Description, opt => opt.MapFrom(src => src.Description))
-                .ForMember(dto => dto.FileUrl, opt => opt.MapFrom(src => src.FileUrl))
-                .ForMember(dto => dto.MimeType, opt => opt.MapFrom(src => src.MimeType))
-                .ForMember(dto => dto.Duration, opt => opt.MapFrom(src => src.Duration))
-                .ForMember(dto => dto.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt));
+            // Медиа
+            CreateMap<PortfolioItem, AudioDto>();
+            CreateMap<PortfolioItem, VideoDto>();
+            CreateMap<PortfolioItem, PhotoDto>();
 
-            CreateMap<PortfolioItem, VideoDto>()
-                .ForMember(dto => dto.Id, opt => opt.MapFrom(src => src.Id))
-                .ForMember(dto => dto.Title, opt => opt.MapFrom(src => src.Title))
-                .ForMember(dto => dto.Description, opt => opt.MapFrom(src => src.Description))
-                .ForMember(dto => dto.FileUrl, opt => opt.MapFrom(src => src.FileUrl))
-                .ForMember(dto => dto.MimeType, opt => opt.MapFrom(src => src.MimeType))
-                .ForMember(dto => dto.Duration, opt => opt.MapFrom(src => src.Duration))
-                .ForMember(dto => dto.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt));
+            // Предложения
+            CreateMap<CollaborationSuggestion, SuggestionDto>()
+                .ForMember(dto => dto.FromProfile, opt => opt.Ignore())
+                .ForMember(dto => dto.ToProfile, opt => opt.Ignore());
 
-            CreateMap<PortfolioItem, PhotoDto>()
-                .ForMember(dto => dto.Id, opt => opt.MapFrom(src => src.Id))
-                .ForMember(dto => dto.Title, opt => opt.MapFrom(src => src.Title))
-                .ForMember(dto => dto.Description, opt => opt.MapFrom(src => src.Description))
-                .ForMember(dto => dto.FileUrl, opt => opt.MapFrom(src => src.FileUrl))
-                .ForMember(dto => dto.MimeType, opt => opt.MapFrom(src => src.MimeType))
-                .ForMember(dto => dto.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt));
+            // Уведомления
+            CreateMap<Notification, NotificationDto>()
+                .ForMember(dto => dto.Type, opt => opt.MapFrom(src => src.Type.ToString()))
+                .ForMember(dto => dto.EntityType, opt => opt.MapFrom(src => src.EntityType.ToString()));
 
-            CreateMap<CollaborationSuggestion, SuggestionDto>();
-            CreateMap<Notification, NotificationDto>();
-            CreateMap<User, UserDto>();
+            // Пользователи
+            CreateMap<User, UserDto>()
+                .ForMember(dto => dto.Role, opt => opt.MapFrom(src => src.Role.ToString()));
         }
     }
 }

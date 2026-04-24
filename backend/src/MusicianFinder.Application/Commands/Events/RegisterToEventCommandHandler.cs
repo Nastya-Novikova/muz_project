@@ -1,9 +1,6 @@
 ﻿using MediatR;
-using Microsoft.EntityFrameworkCore;
-using MusicianFinder.Application.Core.Exceptions;
 using MusicianFinder.Application.Interfaces;
-using MusicianFinder.Domain.Entities;
-using MusicianFinder.Domain.Enums;
+using MusicianFinder.Application.Interfaces.Repositories;
 
 namespace MusicianFinder.Application.Commands.Events
 {
@@ -12,51 +9,36 @@ namespace MusicianFinder.Application.Commands.Events
     /// </summary>
     public class RegisterToEventCommandHandler : IRequestHandler<RegisterToEventCommand, Unit>
     {
-        private readonly IReadDbContext _dbContext;
-        private readonly ICurrentUserService _currentUserService;
-        private readonly INotificationService _notificationService;
+        private readonly IEventRepository _eventRepository;
+        private readonly ICurrentUserService _currentUser;
+        private readonly IMusicianProfileRepository _profileRepository;
 
         /// <summary>
-        /// Инициализирует новый экземпляр <see cref="RegisterToEventCommandHandler"/>.
+        /// Инициализирует новый экземпляр обработчика.
         /// </summary>
-        /// <param name="dbContext">Контекст базы данных.</param>
-        /// <param name="currentUserService">Сервис текущего пользователя.</param>
-        /// <param name="notificationService">Сервис уведомлений.</param>
+        /// <param name="eventRepository">Репозиторий мероприятий.</param>
+        /// <param name="currentUser">Сервис текущего пользователя.</param>
+        /// <param name="profileRepository">Репозиторий профилей.</param>
         public RegisterToEventCommandHandler(
-            IReadDbContext dbContext,
-            ICurrentUserService currentUserService,
-            INotificationService notificationService)
+            IEventRepository eventRepository,
+            ICurrentUserService currentUser,
+            IMusicianProfileRepository profileRepository)
         {
-            _dbContext = dbContext;
-            _currentUserService = currentUserService;
-            _notificationService = notificationService;
+            _eventRepository = eventRepository;
+            _currentUser = currentUser;
+            _profileRepository = profileRepository;
         }
 
         /// <inheritdoc />
         public async Task<Unit> Handle(RegisterToEventCommand request, CancellationToken cancellationToken)
         {
-            var eventEntity = await _dbContext.Events
-                .Include(nameof(Event.Registrations))
-                .FirstOrDefaultAsync(e => e.Id == request.EventId && !e.IsDeleted, cancellationToken)
-                ?? throw new NotFoundException(nameof(Event), request.EventId);
+            var @event = await _eventRepository.GetByIdAsync(request.EventId, cancellationToken)
+                ?? throw new Application.Core.Exceptions.NotFoundException("Мероприятие не найдено.");
 
-            var profile = await _dbContext.Profiles
-                .FirstOrDefaultAsync(p => p.Id == _currentUserService.UserId && !p.IsDeleted, cancellationToken)
-                ?? throw new NotFoundException("Профиль текущего пользователя не найден.");
+            var profile = await _profileRepository.GetByUserIdAsync(_currentUser.UserId, cancellationToken)
+                ?? throw new Application.Core.Exceptions.NotFoundException("Профиль не найден.");
 
-            eventEntity.Register(profile.Id);
-            await ((DbContext)_dbContext).SaveChangesAsync(cancellationToken);
-
-            await _notificationService.SendNotificationToProfileAsync(
-                eventEntity.CreatorProfileId,
-                NotificationType.EventRegistration,
-                new Dictionary<string, object>
-                {
-                    ["eventId"] = eventEntity.Id,
-                    ["eventTitle"] = eventEntity.Title,
-                    ["participantName"] = profile.FullName
-                });
-
+            @event.Register(profile.Id);
             return Unit.Value;
         }
     }

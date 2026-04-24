@@ -1,51 +1,38 @@
-﻿using System;
-
-namespace MusicianFinder.Domain.Entities
+﻿namespace MusicianFinder.Domain.Entities
 {
     /// <summary>
-    /// Избранный профиль пользователя.
+    /// Запись в избранном: связь между двумя музыкальными профилями.
+    /// Принадлежит агрегату MusicianProfile того, кто добавил в избранное.
     /// </summary>
     public class Favorite
     {
-        private Favorite()
-        {
-        }
+        private Favorite() { }
 
         /// <summary>
-        /// Инициализирует новый экземпляр избранного.
+        /// Инициализирует новую запись избранного.
         /// </summary>
-        /// <param name="userId">Идентификатор пользователя.</param>
-        /// <param name="profileId">Идентификатор профиля.</param>
-        public Favorite(Guid userId, Guid profileId)
+        /// <param name="addedByProfileId">Идентификатор профиля, который добавил в избранное.</param>
+        /// <param name="targetProfileId">Идентификатор профиля, добавленного в избранное.</param>
+        public Favorite(Guid addedByProfileId, Guid targetProfileId)
         {
-            UserId = userId;
-            ProfileId = profileId;
+            AddedByProfileId = addedByProfileId;
+            TargetProfileId = targetProfileId;
             CreatedAt = DateTime.UtcNow;
         }
 
         /// <summary>
-        /// Идентификатор пользователя.
+        /// Идентификатор профиля, добавившего в избранное.
         /// </summary>
-        public Guid UserId { get; private set; }
+        public Guid AddedByProfileId { get; private set; }
 
         /// <summary>
-        /// Идентификатор профиля.
+        /// Идентификатор профиля, добавленного в избранное.
         /// </summary>
-        public Guid ProfileId { get; private set; }
+        public Guid TargetProfileId { get; private set; }
 
         /// <summary>
         /// Дата добавления.
         /// </summary>
         public DateTime CreatedAt { get; private set; }
-
-        /// <summary>
-        /// Пользователь (навигационное свойство).
-        /// </summary>
-        public User? User { get; private set; }
-
-        /// <summary>
-        /// Профиль (навигационное свойство).
-        /// </summary>
-        public MusicianProfile? Profile { get; private set; }
     }
 }

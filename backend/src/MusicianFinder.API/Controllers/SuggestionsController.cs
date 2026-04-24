@@ -2,29 +2,15 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MusicianFinder.Application.Commands.Suggestions;
-using MusicianFinder.Application.Core.Behaviors;
 
 namespace MusicianFinder.API.Controllers
 {
     /// <summary>
     /// Контроллер для работы с предложениями о сотрудничестве.
     /// </summary>
-    [ApiController]
-    [Route("api/suggestions")]
     [Authorize]
-    public class SuggestionsController : ControllerBase
+    public class SuggestionsController : BaseApiController
     {
-        private readonly IMediator _mediator;
-
-        /// <summary>
-        /// Инициализирует новый экземпляр <see cref="SuggestionsController"/>.
-        /// </summary>
-        /// <param name="mediator">Экземпляр <see cref="IMediator"/>.</param>
-        public SuggestionsController(IMediator mediator)
-        {
-            _mediator = mediator;
-        }
-
         /// <summary>
         /// Отправить предложение о сотрудничестве.
         /// </summary>
@@ -38,7 +24,7 @@ namespace MusicianFinder.API.Controllers
         public async Task<IActionResult> SendSuggestion([FromBody] SendSuggestionCommand command)
         {
             SetIdempotencyKey(command);
-            await _mediator.Send(command);
+            await Mediator.Send(command);
             return NoContent();
         }
 
@@ -57,15 +43,8 @@ namespace MusicianFinder.API.Controllers
         {
             command.SuggestionId = id;
             SetIdempotencyKey(command);
-            await _mediator.Send(command);
+            await Mediator.Send(command);
             return NoContent();
-        }
-
-        private void SetIdempotencyKey(IBaseCommand command)
-        {
-            var key = Request.Headers["Idempotency-Key"].FirstOrDefault();
-            if (!string.IsNullOrEmpty(key))
-                command.IdempotencyKey = key;
         }
     }
 }

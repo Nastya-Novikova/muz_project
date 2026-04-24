@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace MusicianFinder.Domain.Entities
+﻿namespace MusicianFinder.Domain.Entities
 {
     /// <summary>
     /// Код подтверждения email.
@@ -14,7 +12,7 @@ namespace MusicianFinder.Domain.Entities
         }
 
         /// <summary>
-        /// Инициализирует новый экземпляр кода подтверждения.
+        /// Инициализирует новый код подтверждения.
         /// </summary>
         /// <param name="email">Email, для которого сгенерирован код.</param>
         /// <param name="code">Шестизначный код.</param>
@@ -33,7 +31,7 @@ namespace MusicianFinder.Domain.Entities
         public Guid Id { get; private set; }
 
         /// <summary>
-        /// Email, для которого сгенерирован код.
+        /// Email.
         /// </summary>
         public string Email { get; private set; }
 

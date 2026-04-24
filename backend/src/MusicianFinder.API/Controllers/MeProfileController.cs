@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MusicianFinder.Application.Commands.Profiles;
-using MusicianFinder.Application.Core.Behaviors;
 using MusicianFinder.Application.DTOs.Profiles;
 using MusicianFinder.Application.Queries.Profiles;
 using MusicianFinder.API.Contracts.Responses;
@@ -12,22 +11,9 @@ namespace MusicianFinder.API.Controllers
     /// <summary>
     /// Контроллер для управления профилем текущего пользователя.
     /// </summary>
-    [ApiController]
-    [Route("api/me/profile")]
     [Authorize]
-    public class MeProfileController : ControllerBase
+    public class MeProfileController : BaseApiController
     {
-        private readonly IMediator _mediator;
-
-        /// <summary>
-        /// Инициализирует новый экземпляр <see cref="MeProfileController"/>.
-        /// </summary>
-        /// <param name="mediator">Экземпляр <see cref="IMediator"/>.</param>
-        public MeProfileController(IMediator mediator)
-        {
-            _mediator = mediator;
-        }
-
         /// <summary>
         /// Получить профиль текущего пользователя.
         /// </summary>
@@ -37,7 +23,7 @@ namespace MusicianFinder.API.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetMyProfile()
         {
-            var result = await _mediator.Send(new GetMyProfileQuery());
+            var result = await Mediator.Send(new GetMyProfileQuery());
             return Ok(result);
         }
 
@@ -53,7 +39,7 @@ namespace MusicianFinder.API.Controllers
         public async Task<IActionResult> UpdateMyProfile([FromBody] UpdateProfileCommand command)
         {
             SetIdempotencyKey(command);
-            await _mediator.Send(command);
+            await Mediator.Send(command);
             return NoContent();
         }
 
@@ -68,7 +54,7 @@ namespace MusicianFinder.API.Controllers
         {
             var command = new DeleteProfileCommand();
             SetIdempotencyKey(command);
-            await _mediator.Send(command);
+            await Mediator.Send(command);
             return NoContent();
         }
 
@@ -91,15 +77,8 @@ namespace MusicianFinder.API.Controllers
                 ContentType = avatar.ContentType
             };
             SetIdempotencyKey(command);
-            var url = await _mediator.Send(command);
+            var url = await Mediator.Send(command);
             return Ok(new FileUploadResultDto { Url = url });
-        }
-
-        private void SetIdempotencyKey(IBaseCommand command)
-        {
-            var key = Request.Headers["Idempotency-Key"].FirstOrDefault();
-            if (!string.IsNullOrEmpty(key))
-                command.IdempotencyKey = key;
         }
     }
 }

@@ -1,13 +1,14 @@
 ﻿using MediatR;
-using MusicianFinder.Application.Core.Behaviors;
+using MusicianFinder.Application.Commands.Base;
+using MusicianFinder.Application.Interfaces;
 using MusicianFinder.Domain.Enums;
 
 namespace MusicianFinder.Application.Commands.Media
 {
     /// <summary>
-    /// Команда для загрузки медиафайла в портфолио текущего пользователя.
+    /// Команда для загрузки медиафайла в портфолио.
     /// </summary>
-    public class UploadMediaCommand : IRequest<Guid>, IBaseCommand
+    public class UploadMediaCommand : ICommand<Guid>, IBaseCommand
     {
         /// <summary>
         /// Содержимое файла.
@@ -20,7 +21,7 @@ namespace MusicianFinder.Application.Commands.Media
         public string FileName { get; set; } = string.Empty;
 
         /// <summary>
-        /// MIME-тип файла.
+        /// MIME-тип.
         /// </summary>
         public string ContentType { get; set; } = string.Empty;
 

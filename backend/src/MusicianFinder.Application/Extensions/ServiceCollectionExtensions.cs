@@ -1,8 +1,8 @@
 ﻿using System.Reflection;
 using FluentValidation;
-using Microsoft.Extensions.DependencyInjection;
 using MediatR;
-using MusicianFinder.Application.Core.Behaviors;
+using Microsoft.Extensions.DependencyInjection;
+using MusicianFinder.Application.Behaviors;
 
 namespace MusicianFinder.Application.Extensions
 {
@@ -15,16 +15,19 @@ namespace MusicianFinder.Application.Extensions
         /// Добавляет сервисы слоя Application: MediatR, FluentValidation, AutoMapper и pipeline behaviors.
         /// </summary>
         /// <param name="services">Коллекция сервисов.</param>
-        /// <returns>Коллекция сервисов с добавленными зависимостями Application.</returns>
+        /// <returns>Коллекция сервисов с добавленными зависимостями.</returns>
         public static IServiceCollection AddApplication(this IServiceCollection services)
         {
             services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
             services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
-            services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
-            services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
-            services.AddTransient(typeof(IPipelineBehavior<,>), typeof(TransactionBehavior<,>));
-            services.AddTransient(typeof(IPipelineBehavior<,>), typeof(IdempotencyBehavior<,>));
             services.AddAutoMapper(cfg => cfg.AddMaps(typeof(Core.Mapping.MappingProfile).Assembly));
+
+            // Порядок важен: сначала валидация, затем идемпотентность, потом транзакция
+            services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+            services.AddTransient(typeof(IPipelineBehavior<,>), typeof(IdempotencyBehavior<,>));
+            services.AddTransient(typeof(IPipelineBehavior<,>), typeof(TransactionBehavior<,>));
+            services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
+
             return services;
         }
     }

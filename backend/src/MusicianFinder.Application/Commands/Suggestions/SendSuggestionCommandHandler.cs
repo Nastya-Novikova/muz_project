@@ -1,68 +1,44 @@
 ﻿using MediatR;
-using Microsoft.EntityFrameworkCore;
-using MusicianFinder.Application.Core.Exceptions;
 using MusicianFinder.Application.Interfaces;
+using MusicianFinder.Application.Interfaces.Repositories;
 using MusicianFinder.Domain.Entities;
-using MusicianFinder.Domain.Enums;
 
 namespace MusicianFinder.Application.Commands.Suggestions
 {
     /// <summary>
     /// Обработчик команды <see cref="SendSuggestionCommand"/>.
     /// </summary>
-    public class SendSuggestionCommandHandler : IRequestHandler<SendSuggestionCommand, Unit>
+    public class SendSuggestionCommandHandler : IRequestHandler<SendSuggestionCommand, Guid>
     {
-        private readonly IReadDbContext _dbContext;
-        private readonly ICurrentUserService _currentUserService;
-        private readonly INotificationService _notificationService;
+        private readonly IMusicianProfileRepository _profileRepository;
+        private readonly ICollaborationSuggestionRepository _suggestionRepository;
+        private readonly ICurrentUserService _currentUser;
 
         /// <summary>
-        /// Инициализирует новый экземпляр <see cref="SendSuggestionCommandHandler"/>.
+        /// Инициализирует новый экземпляр обработчика.
         /// </summary>
-        /// <param name="dbContext">Контекст базы данных.</param>
-        /// <param name="currentUserService">Сервис текущего пользователя.</param>
-        /// <param name="notificationService">Сервис уведомлений.</param>
+        /// <param name="profileRepository">Репозиторий профилей.</param>
+        /// <param name="suggestionRepository">Репозиторий предложений.</param>
+        /// <param name="currentUser">Сервис текущего пользователя.</param>
         public SendSuggestionCommandHandler(
-            IReadDbContext dbContext,
-            ICurrentUserService currentUserService,
-            INotificationService notificationService)
+            IMusicianProfileRepository profileRepository,
+            ICollaborationSuggestionRepository suggestionRepository,
+            ICurrentUserService currentUser)
         {
-            _dbContext = dbContext;
-            _currentUserService = currentUserService;
-            _notificationService = notificationService;
+            _profileRepository = profileRepository;
+            _suggestionRepository = suggestionRepository;
+            _currentUser = currentUser;
         }
 
         /// <inheritdoc />
-        public async Task<Unit> Handle(SendSuggestionCommand request, CancellationToken cancellationToken)
+        public async Task<Guid> Handle(SendSuggestionCommand request, CancellationToken cancellationToken)
         {
-            var fromProfile = await _dbContext.Profiles
-                .FirstOrDefaultAsync(p => p.Id == _currentUserService.UserId && !p.IsDeleted, cancellationToken)
-                ?? throw new NotFoundException("Ваш профиль не найден.");
+            var fromProfile = await _profileRepository.GetByUserIdAsync(_currentUser.UserId, cancellationToken)
+                ?? throw new Application.Core.Exceptions.NotFoundException("Профиль отправителя не найден.");
 
-            var toProfile = await _dbContext.Profiles
-                .FirstOrDefaultAsync(p => p.Id == request.ToProfileId && !p.IsDeleted, cancellationToken)
-                ?? throw new NotFoundException(nameof(MusicianProfile), request.ToProfileId);
-
-            var existing = await _dbContext.CollaborationSuggestions
-                .AnyAsync(s => s.FromProfileId == fromProfile.Id && s.ToProfileId == toProfile.Id, cancellationToken);
-            if (existing)
-                throw new ConflictException("Предложение этому пользователю уже отправлено.");
-
-            var suggestion = new CollaborationSuggestion(fromProfile.Id, toProfile.Id, request.Message);
-            await ((DbContext)_dbContext).AddAsync(suggestion, cancellationToken);
-            await ((DbContext)_dbContext).SaveChangesAsync(cancellationToken);
-
-            await _notificationService.SendNotificationToProfileAsync(
-                toProfile.Id,
-                NotificationType.CollaborationReceived,
-                new Dictionary<string, object>
-                {
-                    ["fromProfileName"] = fromProfile.FullName,
-                    ["suggestionId"] = suggestion.Id,
-                    ["message"] = suggestion.Message ?? string.Empty
-                });
-
-            return Unit.Value;
+            var suggestion = new CollaborationSuggestion(fromProfile.Id, request.ToProfileId, request.Message);
+            _suggestionRepository.Add(suggestion);
+            return suggestion.Id;
         }
     }
 }

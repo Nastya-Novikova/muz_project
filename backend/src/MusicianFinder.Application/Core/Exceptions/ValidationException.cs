@@ -5,7 +5,7 @@ namespace MusicianFinder.Application.Core.Exceptions
     /// <summary>
     /// Исключение, сигнализирующее об ошибках валидации запроса.
     /// </summary>
-    public class ValidationException : System.Exception
+    public class ValidationException : Exception
     {
         /// <summary>
         /// Словарь ошибок валидации, где ключ — имя свойства, значение — массив сообщений.

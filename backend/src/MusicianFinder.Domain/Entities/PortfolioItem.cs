@@ -1,4 +1,4 @@
-﻿using System;
+﻿using MusicianFinder.SharedKernel;
 using MusicianFinder.Domain.Enums;
 
 namespace MusicianFinder.Domain.Entities
@@ -6,7 +6,7 @@ namespace MusicianFinder.Domain.Entities
     /// <summary>
     /// Элемент портфолио (аудио, видео, фото). Принадлежит агрегату MusicianProfile.
     /// </summary>
-    public class PortfolioItem
+    public class PortfolioItem : Entity
     {
         private PortfolioItem()
         {
@@ -16,12 +16,12 @@ namespace MusicianFinder.Domain.Entities
         }
 
         /// <summary>
-        /// Инициализирует новый экземпляр элемента портфолио.
+        /// Инициализирует новый элемент портфолио.
         /// </summary>
         /// <param name="title">Название.</param>
         /// <param name="fileUrl">URL файла.</param>
         /// <param name="mimeType">MIME-тип.</param>
-        /// <param name="type">Тип медиа.</param>
+        /// <param name="type">Тип медиа (аудио, видео, фото).</param>
         /// <param name="duration">Длительность в секундах (для аудио/видео).</param>
         public PortfolioItem(string title, string fileUrl, string mimeType, MediaType type, int? duration = null)
         {
@@ -33,11 +33,6 @@ namespace MusicianFinder.Domain.Entities
             Duration = duration;
             CreatedAt = DateTime.UtcNow;
         }
-
-        /// <summary>
-        /// Уникальный идентификатор элемента.
-        /// </summary>
-        public Guid Id { get; private set; }
 
         /// <summary>
         /// Название элемента.
@@ -60,12 +55,12 @@ namespace MusicianFinder.Domain.Entities
         public string MimeType { get; private set; }
 
         /// <summary>
-        /// Тип медиа (аудио, видео, фото).
+        /// Тип медиа.
         /// </summary>
         public MediaType Type { get; private set; }
 
         /// <summary>
-        /// Длительность в секундах (для аудио/видео).
+        /// Длительность в секундах.
         /// </summary>
         public int? Duration { get; private set; }
 

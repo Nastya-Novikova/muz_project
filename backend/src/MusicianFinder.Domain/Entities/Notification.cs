@@ -1,5 +1,4 @@
-﻿using System;
-using MusicianFinder.Domain.Enums;
+﻿using MusicianFinder.Domain.Enums;
 
 namespace MusicianFinder.Domain.Entities
 {
@@ -14,9 +13,9 @@ namespace MusicianFinder.Domain.Entities
         }
 
         /// <summary>
-        /// Инициализирует новый экземпляр уведомления.
+        /// Инициализирует новое уведомление.
         /// </summary>
-        /// <param name="profileId">Идентификатор профиля получателя.</param>
+        /// <param name="profileId">Идентификатор профиля-получателя.</param>
         /// <param name="type">Тип уведомления.</param>
         /// <param name="title">Заголовок.</param>
         /// <param name="entityType">Тип связанной сущности.</param>
@@ -85,7 +84,7 @@ namespace MusicianFinder.Domain.Entities
         public Guid EntityId { get; private set; }
 
         /// <summary>
-        /// Флаг прочтения.
+        /// Признак прочтения.
         /// </summary>
         public bool IsRead { get; private set; }
 
@@ -93,11 +92,6 @@ namespace MusicianFinder.Domain.Entities
         /// Дата создания.
         /// </summary>
         public DateTime CreatedAt { get; private set; }
-
-        /// <summary>
-        /// Профиль получателя (навигационное свойство).
-        /// </summary>
-        public MusicianProfile? Profile { get; private set; }
 
         /// <summary>
         /// Отмечает уведомление как прочитанное.

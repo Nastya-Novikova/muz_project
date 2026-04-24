@@ -1,12 +1,13 @@
 ﻿using MediatR;
-using MusicianFinder.Application.Core.Behaviors;
+using MusicianFinder.Application.Commands.Base;
+using MusicianFinder.Application.Interfaces;
 
 namespace MusicianFinder.Application.Commands.Notifications
 {
     /// <summary>
     /// Команда для отметки одного уведомления как прочитанного.
     /// </summary>
-    public class MarkNotificationAsReadCommand : IRequest<Unit>, IBaseCommand
+    public class MarkNotificationAsReadCommand : ICommand<Unit>, IBaseCommand
     {
         /// <summary>
         /// Идентификатор уведомления.

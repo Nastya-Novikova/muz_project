@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace MusicianFinder.Application.Core.Exceptions
+﻿namespace MusicianFinder.Application.Core.Exceptions
 {
     /// <summary>
     /// Исключение, сигнализирующее о недостатке прав для выполнения операции.

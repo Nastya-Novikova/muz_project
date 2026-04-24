@@ -10,4 +10,8 @@
     <PackageReference Include="MediatR" Version="14.1.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\MusicianFinder.SharedKernel\MusicianFinder.SharedKernel.csproj" />
+  </ItemGroup>
+
 </Project>

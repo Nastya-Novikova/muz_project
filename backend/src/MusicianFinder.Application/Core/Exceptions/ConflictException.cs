@@ -1,9 +1,7 @@
-﻿using System;
-
-namespace MusicianFinder.Application.Core.Exceptions
+﻿namespace MusicianFinder.Application.Core.Exceptions
 {
     /// <summary>
-    /// Исключение, сигнализирующее о конфликте данных (например, дублирование уникального поля).
+    /// Исключение, сигнализирующее о конфликте данных (например, дублировании уникального поля).
     /// </summary>
     public class ConflictException : Exception
     {

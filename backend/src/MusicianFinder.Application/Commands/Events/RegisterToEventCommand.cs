@@ -1,12 +1,13 @@
 ﻿using MediatR;
-using MusicianFinder.Application.Core.Behaviors;
+using MusicianFinder.Application.Commands.Base;
+using MusicianFinder.Application.Interfaces;
 
 namespace MusicianFinder.Application.Commands.Events
 {
     /// <summary>
     /// Команда для регистрации на мероприятие.
     /// </summary>
-    public class RegisterToEventCommand : IRequest<Unit>, IBaseCommand
+    public class RegisterToEventCommand : ICommand<Unit>, IBaseCommand
     {
         /// <summary>
         /// Идентификатор мероприятия.

@@ -1,9 +1,6 @@
-﻿using FluentValidation.Results;
-using MediatR;
-using Microsoft.EntityFrameworkCore;
-using MusicianFinder.Application.Core.Exceptions;
+﻿using MediatR;
 using MusicianFinder.Application.Interfaces;
-using ValidationException = MusicianFinder.Application.Core.Exceptions.ValidationException;
+using MusicianFinder.Application.Interfaces.Repositories;
 
 namespace MusicianFinder.Application.Commands.Profiles
 {
@@ -12,45 +9,36 @@ namespace MusicianFinder.Application.Commands.Profiles
     /// </summary>
     public class UpdateAvatarCommandHandler : IRequestHandler<UpdateAvatarCommand, string>
     {
-        private readonly IReadDbContext _dbContext;
-        private readonly ICurrentUserService _currentUserService;
+        private readonly IMusicianProfileRepository _profileRepository;
+        private readonly ICurrentUserService _currentUser;
         private readonly IFileStorage _fileStorage;
 
         /// <summary>
-        /// Инициализирует новый экземпляр <see cref="UpdateAvatarCommandHandler"/>.
+        /// Инициализирует новый экземпляр обработчика.
         /// </summary>
-        /// <param name="dbContext">Контекст базы данных.</param>
-        /// <param name="currentUserService">Сервис текущего пользователя.</param>
-        /// <param name="fileStorage">Сервис файлового хранилища.</param>
+        /// <param name="profileRepository">Репозиторий профилей.</param>
+        /// <param name="currentUser">Сервис текущего пользователя.</param>
+        /// <param name="fileStorage">Файловое хранилище.</param>
         public UpdateAvatarCommandHandler(
-            IReadDbContext dbContext,
-            ICurrentUserService currentUserService,
+            IMusicianProfileRepository profileRepository,
+            ICurrentUserService currentUser,
             IFileStorage fileStorage)
         {
-            _dbContext = dbContext;
-            _currentUserService = currentUserService;
+            _profileRepository = profileRepository;
+            _currentUser = currentUser;
             _fileStorage = fileStorage;
         }
 
         /// <inheritdoc />
         public async Task<string> Handle(UpdateAvatarCommand request, CancellationToken cancellationToken)
         {
-            if (!request.ContentType.StartsWith("image/"))
-                throw new ValidationException(new[] { new ValidationFailure(nameof(request.ContentType), "Разрешены только изображения.") });
-
-            var profile = await _dbContext.Profiles
-                .FirstOrDefaultAsync(p => p.Id == _currentUserService.UserId && !p.IsDeleted, cancellationToken)
-                ?? throw new NotFoundException("Профиль текущего пользователя не найден.");
-
-            if (!string.IsNullOrEmpty(profile.AvatarUrl))
-                await _fileStorage.DeleteFileAsync(profile.AvatarUrl);
+            var profile = await _profileRepository.GetByUserIdAsync(_currentUser.UserId, cancellationToken)
+                ?? throw new Application.Core.Exceptions.NotFoundException("Профиль не найден.");
 
             using var stream = new MemoryStream(request.Content);
-            var fileUrl = await _fileStorage.SaveFileAsync(stream, request.FileName, request.ContentType);
-            profile.SetAvatar(fileUrl);
-            await ((DbContext)_dbContext).SaveChangesAsync(cancellationToken);
-
-            return fileUrl;
+            var url = await _fileStorage.SaveFileAsync(stream, request.FileName, request.ContentType);
+            profile.SetAvatar(url);
+            return url;
         }
     }
 }

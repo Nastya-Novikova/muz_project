@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using MusicianFinder.Domain.Entities;
 using MusicianFinder.Domain.Enums;
+using MusicianFinder.Domain.ValueObjects;
 
 namespace MusicianFinder.Infrastructure.Persistence.Configurations
 {
@@ -13,31 +14,36 @@ namespace MusicianFinder.Infrastructure.Persistence.Configurations
         /// <inheritdoc />
         public void Configure(EntityTypeBuilder<Event> builder)
         {
-            builder.ToTable("Event");
+            builder.ToTable("Events");
             builder.HasKey(e => e.Id);
-            builder.Property(e => e.Title).IsRequired().HasMaxLength(200);
-            builder.Property(e => e.Address).HasMaxLength(200);
-            builder.Property(e => e.Status).HasConversion<string>().HasDefaultValue(EventStatus.Scheduled);
+            builder.Property(e => e.Title)
+                .HasConversion(title => title.Value, value => new EventTitle(value))
+                .IsRequired()
+                .HasMaxLength(200);
+            builder.Property(e => e.Description);
+            builder.Property(e => e.ImageUrl);
+            builder.Property(e => e.RegionId).IsRequired();
+            builder.Property(e => e.CityId).IsRequired();
+            builder.Property(e => e.Address).IsRequired().HasMaxLength(200);
+            builder.Property(e => e.StartDateTime).IsRequired();
+            builder.Property(e => e.EndDateTime);
+            builder.Property(e => e.MaxParticipants).IsRequired();
+            builder.Property(e => e.Status).HasConversion<string>().HasMaxLength(20).HasDefaultValue(EventStatus.Scheduled);
+            builder.Property(e => e.CreatorProfileId).IsRequired();
             builder.Property(e => e.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
             builder.Property(e => e.UpdatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+            builder.Property(e => e.IsDeleted).IsRequired();
+            builder.Property(e => e.DeletedAt);
 
-            builder.HasOne(e => e.Region)
-                .WithMany()
-                .HasForeignKey(e => e.RegionId)
-                .OnDelete(DeleteBehavior.Restrict);
+            builder.OwnsMany(e => e.Registrations, r =>
+            {
+                r.ToTable("EventRegistrations");
+                r.WithOwner().HasForeignKey("EventId");
+                r.HasKey("EventId", "ProfileId");
+                r.Property(x => x.RegisteredAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
+            });
 
-            builder.HasOne(e => e.City)
-                .WithMany()
-                .HasForeignKey(e => e.CityId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            builder.HasOne(e => e.CreatorProfile)
-                .WithMany()
-                .HasForeignKey(e => e.CreatorProfileId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            builder.Metadata.FindNavigation(nameof(Event.Registrations))!
-                .SetPropertyAccessMode(PropertyAccessMode.Field);
+            builder.Ignore(e => e.DomainEvents);
         }
     }
 }

@@ -8,20 +8,12 @@ namespace MusicianFinder.API.Controllers
     /// <summary>
     /// Контроллер аутентификации.
     /// </summary>
-    [ApiController]
-    [Route("api/auth")]
-    public class AuthController : ControllerBase
+    public class AuthController : BaseApiController
     {
-        private readonly IMediator _mediator;
-
         /// <summary>
         /// Инициализирует новый экземпляр <see cref="AuthController"/>.
         /// </summary>
-        /// <param name="mediator">Экземпляр <see cref="IMediator"/>.</param>
-        public AuthController(IMediator mediator)
-        {
-            _mediator = mediator;
-        }
+        public AuthController() { }
 
         /// <summary>
         /// Запрос кода подтверждения на email.
@@ -33,7 +25,7 @@ namespace MusicianFinder.API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> RequestCode([FromBody] RequestCodeCommand command)
         {
-            await _mediator.Send(command);
+            await Mediator.Send(command);
             return Ok(new { success = true });
         }
 
@@ -47,7 +39,7 @@ namespace MusicianFinder.API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Login([FromBody] LoginCommand command)
         {
-            var response = await _mediator.Send(command);
+            var response = await Mediator.Send(command);
             return Ok(response);
         }
     }

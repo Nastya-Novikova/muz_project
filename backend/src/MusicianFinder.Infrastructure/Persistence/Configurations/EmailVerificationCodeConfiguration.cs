@@ -12,12 +12,14 @@ namespace MusicianFinder.Infrastructure.Persistence.Configurations
         /// <inheritdoc />
         public void Configure(EntityTypeBuilder<EmailVerificationCode> builder)
         {
-            builder.ToTable("EmailVerificationCode");
+            builder.ToTable("EmailVerificationCodes");
             builder.HasKey(e => e.Id);
+            builder.Property(e => e.Id).ValueGeneratedNever();
             builder.Property(e => e.Email).IsRequired().HasMaxLength(256);
             builder.Property(e => e.Code).IsRequired().HasMaxLength(6);
             builder.Property(e => e.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
-            builder.HasIndex(e => new { e.Email, e.Code, e.IsUsed });
+            builder.Property(e => e.IsUsed).IsRequired();
+            builder.HasIndex(e => new { e.Email, e.IsUsed });
         }
     }
 }

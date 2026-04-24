@@ -1,7 +1,7 @@
 ﻿namespace MusicianFinder.Domain.Entities
 {
     /// <summary>
-    /// Справочник городов.
+    /// Город (справочник).
     /// </summary>
     public class City
     {
@@ -14,10 +14,12 @@
         /// <summary>
         /// Инициализирует новый экземпляр города.
         /// </summary>
+        /// <param name="id">Уникальный идентификатор.</param>
         /// <param name="name">Английское название.</param>
         /// <param name="localizedName">Локализованное название.</param>
-        public City(string name, string localizedName)
+        public City(Guid id, string name, string localizedName)
         {
+            Id = id;
             Name = name;
             LocalizedName = localizedName;
         }
@@ -25,7 +27,7 @@
         /// <summary>
         /// Идентификатор города.
         /// </summary>
-        public int Id { get; private set; }
+        public Guid Id { get; private set; }
 
         /// <summary>
         /// Английское название.

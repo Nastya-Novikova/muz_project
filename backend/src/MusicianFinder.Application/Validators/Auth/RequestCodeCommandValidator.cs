@@ -9,7 +9,7 @@ namespace MusicianFinder.Application.Validators.Auth
     public class RequestCodeCommandValidator : AbstractValidator<RequestCodeCommand>
     {
         /// <summary>
-        /// Инициализирует новый экземпляр <see cref="RequestCodeCommandValidator"/>.
+        /// Инициализирует новый экземпляр валидатора.
         /// </summary>
         public RequestCodeCommandValidator()
         {

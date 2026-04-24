@@ -1,10 +1,7 @@
-﻿using AutoMapper;
-using AutoMapper.QueryableExtensions;
-using MediatR;
-using Microsoft.EntityFrameworkCore;
-using MusicianFinder.Application.Core.Exceptions;
+﻿using MediatR;
 using MusicianFinder.Application.DTOs.Auth;
 using MusicianFinder.Application.Interfaces;
+using MusicianFinder.Application.Interfaces.ReadRepositories;
 
 namespace MusicianFinder.Application.Queries.Users
 {
@@ -13,34 +10,26 @@ namespace MusicianFinder.Application.Queries.Users
     /// </summary>
     public class GetCurrentUserQueryHandler : IRequestHandler<GetCurrentUserQuery, UserDto>
     {
-        private readonly IReadDbContext _dbContext;
-        private readonly ICurrentUserService _currentUserService;
-        private readonly IMapper _mapper;
+        private readonly IUserReadRepository _userReadRepository;
+        private readonly ICurrentUserService _currentUser;
 
         /// <summary>
-        /// Инициализирует новый экземпляр <see cref="GetCurrentUserQueryHandler"/>.
+        /// Инициализирует новый экземпляр обработчика.
         /// </summary>
-        /// <param name="dbContext">Контекст базы данных.</param>
-        /// <param name="currentUserService">Сервис текущего пользователя.</param>
-        /// <param name="mapper">Маппер.</param>
-        public GetCurrentUserQueryHandler(IReadDbContext dbContext, ICurrentUserService currentUserService, IMapper mapper)
+        /// <param name="userReadRepository">Репозиторий для чтения пользователей.</param>
+        /// <param name="currentUser">Сервис текущего пользователя.</param>
+        public GetCurrentUserQueryHandler(IUserReadRepository userReadRepository, ICurrentUserService currentUser)
         {
-            _dbContext = dbContext;
-            _currentUserService = currentUserService;
-            _mapper = mapper;
+            _userReadRepository = userReadRepository;
+            _currentUser = currentUser;
         }
 
         /// <inheritdoc />
         public async Task<UserDto> Handle(GetCurrentUserQuery request, CancellationToken cancellationToken)
         {
-            var user = await _dbContext.Users
-                .AsNoTracking()
-                .Where(u => u.Id == _currentUserService.UserId && !u.IsDeleted)
-                .ProjectTo<UserDto>(_mapper.ConfigurationProvider)
-                .FirstOrDefaultAsync(cancellationToken)
-                ?? throw new NotFoundException("Пользователь не найден.");
-
-            return user;
+            var userDto = await _userReadRepository.GetByIdAsync(_currentUser.UserId, cancellationToken)
+                ?? throw new Application.Core.Exceptions.NotFoundException("Пользователь не найден.");
+            return userDto;
         }
     }
 }

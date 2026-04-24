@@ -1,14 +1,10 @@
-﻿using System.Collections.Generic;
-
-namespace MusicianFinder.Domain.Entities
+﻿namespace MusicianFinder.Domain.Entities
 {
     /// <summary>
-    /// Цель сотрудничества.
+    /// Цель сотрудничества (справочник).
     /// </summary>
     public class CollaborationGoal
     {
-        private readonly List<MusicianProfile> _profiles = [];
-
         private CollaborationGoal()
         {
             Name = string.Empty;
@@ -18,10 +14,12 @@ namespace MusicianFinder.Domain.Entities
         /// <summary>
         /// Инициализирует новый экземпляр цели сотрудничества.
         /// </summary>
+        /// <param name="id">Уникальный идентификатор.</param>
         /// <param name="name">Английское название цели.</param>
         /// <param name="localizedName">Русское название цели.</param>
-        public CollaborationGoal(string name, string localizedName)
+        public CollaborationGoal(Guid id, string name, string localizedName)
         {
+            Id = id;
             Name = name;
             LocalizedName = localizedName;
         }
@@ -29,7 +27,7 @@ namespace MusicianFinder.Domain.Entities
         /// <summary>
         /// Идентификатор цели.
         /// </summary>
-        public int Id { get; private set; }
+        public Guid Id { get; private set; }
 
         /// <summary>
         /// Английское название цели.
@@ -40,10 +38,5 @@ namespace MusicianFinder.Domain.Entities
         /// Русское название цели.
         /// </summary>
         public string LocalizedName { get; private set; }
-
-        /// <summary>
-        /// Связанные профили.
-        /// </summary>
-        public IReadOnlyCollection<MusicianProfile> Profiles => _profiles.AsReadOnly();
     }
 }

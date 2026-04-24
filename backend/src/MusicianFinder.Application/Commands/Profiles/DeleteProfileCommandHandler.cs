@@ -1,8 +1,6 @@
 ﻿using MediatR;
-using Microsoft.EntityFrameworkCore;
-using MusicianFinder.Application.Core.Exceptions;
 using MusicianFinder.Application.Interfaces;
-using MusicianFinder.Domain.Entities;
+using MusicianFinder.Application.Interfaces.Repositories;
 
 namespace MusicianFinder.Application.Commands.Profiles
 {
@@ -11,37 +9,28 @@ namespace MusicianFinder.Application.Commands.Profiles
     /// </summary>
     public class DeleteProfileCommandHandler : IRequestHandler<DeleteProfileCommand, Unit>
     {
-        private readonly IReadDbContext _dbContext;
-        private readonly ICurrentUserService _currentUserService;
+        private readonly IMusicianProfileRepository _profileRepository;
+        private readonly ICurrentUserService _currentUser;
 
         /// <summary>
-        /// Инициализирует новый экземпляр <see cref="DeleteProfileCommandHandler"/>.
+        /// Инициализирует новый экземпляр обработчика.
         /// </summary>
-        /// <param name="dbContext">Контекст базы данных.</param>
-        /// <param name="currentUserService">Сервис текущего пользователя.</param>
+        /// <param name="profileRepository">Репозиторий профилей.</param>
+        /// <param name="currentUser">Сервис текущего пользователя.</param>
         public DeleteProfileCommandHandler(
-            IReadDbContext dbContext,
-            ICurrentUserService currentUserService)
+            IMusicianProfileRepository profileRepository,
+            ICurrentUserService currentUser)
         {
-            _dbContext = dbContext;
-            _currentUserService = currentUserService;
+            _profileRepository = profileRepository;
+            _currentUser = currentUser;
         }
 
         /// <inheritdoc />
         public async Task<Unit> Handle(DeleteProfileCommand request, CancellationToken cancellationToken)
         {
-            var user = await _dbContext.Users
-                .Include(nameof(User.MusicianProfile))
-                .FirstOrDefaultAsync(u => u.Id == _currentUserService.UserId && !u.IsDeleted, cancellationToken)
-                ?? throw new NotFoundException(nameof(User), _currentUserService.UserId);
-
-            if (user.MusicianProfile == null)
-                throw new NotFoundException("Профиль не найден.");
-
-            user.MusicianProfile.MarkAsDeleted();
-            user.ClearMusicianProfile();
-            await ((DbContext)_dbContext).SaveChangesAsync(cancellationToken);
-
+            var profile = await _profileRepository.GetByUserIdAsync(_currentUser.UserId, cancellationToken)
+                ?? throw new Application.Core.Exceptions.NotFoundException("Профиль не найден.");
+            profile.MarkAsDeleted();
             return Unit.Value;
         }
     }

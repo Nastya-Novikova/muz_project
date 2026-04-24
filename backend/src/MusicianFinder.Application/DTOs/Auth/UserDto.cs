@@ -5,24 +5,13 @@
     /// </summary>
     public class UserDto
     {
-        /// <summary>
-        /// Идентификатор пользователя.
-        /// </summary>
+        /// <summary>Идентификатор пользователя.</summary>
         public Guid Id { get; set; }
-
-        /// <summary>
-        /// Email.
-        /// </summary>
+        /// <summary>Email.</summary>
         public string Email { get; set; } = string.Empty;
-
-        /// <summary>
-        /// Создан ли профиль.
-        /// </summary>
+        /// <summary>Создан ли профиль.</summary>
         public bool ProfileCreated { get; set; }
-
-        /// <summary>
-        /// Роль пользователя.
-        /// </summary>
+        /// <summary>Роль.</summary>
         public string Role { get; set; } = string.Empty;
     }
 }
