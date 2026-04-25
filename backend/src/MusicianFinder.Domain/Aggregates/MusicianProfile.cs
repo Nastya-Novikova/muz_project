@@ -26,13 +26,13 @@ namespace MusicianFinder.Domain.Entities
             Email = null!;
         }
 
-        private MusicianProfile(Guid userId, ProfileName fullName, Guid cityId)
+        private MusicianProfile(Guid userId, ProfileName fullName, int cityId, string email)
         {
             Id = Guid.NewGuid();
             UserId = userId;
             FullName = fullName;
             CityId = cityId;
-            Email = string.Empty;
+            Email = email ?? throw new ArgumentNullException(nameof(email));
             CreatedAt = DateTime.UtcNow;
         }
 
@@ -46,7 +46,7 @@ namespace MusicianFinder.Domain.Entities
         public int? Age { get; private set; }
 
         /// <summary>Идентификатор города.</summary>
-        public Guid CityId { get; private set; }
+        public int CityId { get; private set; }
 
         /// <summary>Контактный телефон.</summary>
         public PhoneNumber? Phone { get; private set; }
@@ -120,9 +120,9 @@ namespace MusicianFinder.Domain.Entities
         /// <param name="userId">Идентификатор пользователя-владельца.</param>
         /// <param name="fullName">Полное имя / название.</param>
         /// <param name="cityId">Идентификатор города.</param>
-        public static MusicianProfile Create(Guid userId, ProfileName fullName, Guid cityId)
+        public static MusicianProfile Create(Guid userId, ProfileName fullName, int cityId, string email)
         {
-            var profile = new MusicianProfile(userId, fullName, cityId);
+            var profile = new MusicianProfile(userId, fullName, cityId, email);
             profile.AddDomainEvent(new ProfileCreated(profile.Id, profile.UserId));
             return profile;
         }
@@ -134,7 +134,7 @@ namespace MusicianFinder.Domain.Entities
         /// <param name="age">Новый возраст.</param>
         /// <param name="description">Новое описание.</param>
         /// <param name="cityId">Новый идентификатор города.</param>
-        public void UpdateCoreInfo(ProfileName fullName, int? age, string? description, Guid cityId)
+        public void UpdateCoreInfo(ProfileName fullName, int? age, string? description, int cityId)
         {
             FullName = fullName;
             Age = age;
@@ -156,6 +156,9 @@ namespace MusicianFinder.Domain.Entities
             UpdatedAt = DateTime.UtcNow;
             AddDomainEvent(new ProfileContactsUpdated(Id));
         }
+
+        public void SetExperience(int experience) => Experience = experience;
+        public void SetLookingFor(LookingFor lookingFor) => LookingFor = lookingFor;
 
         /// <summary>
         /// Заменяет набор предлагаемых жанров.
@@ -224,7 +227,7 @@ namespace MusicianFinder.Domain.Entities
         public void AddPortfolioItem(PortfolioItem item)
         {
             _portfolio.Add(item);
-            UpdatedAt = DateTime.UtcNow;
+            //UpdatedAt = DateTime.UtcNow;
             AddDomainEvent(new PortfolioItemAdded(Id, item.Id));
         }
 

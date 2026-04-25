@@ -14,7 +14,7 @@ namespace MusicianFinder.Application.Commands.Profiles
         /// <summary>
         /// Полное имя / название.
         /// </summary>
-        public ProfileName FullName { get; set; } = null!;
+        public string FullName { get; set; } = null!;
 
         /// <summary>
         /// Возраст (опционально).
@@ -39,7 +39,7 @@ namespace MusicianFinder.Application.Commands.Profiles
         /// <summary>
         /// Идентификатор города.
         /// </summary>
-        public Guid CityId { get; set; }
+        public int CityId { get; set; }
 
         /// <summary>
         /// Опыт в годах.
@@ -54,27 +54,27 @@ namespace MusicianFinder.Application.Commands.Profiles
         /// <summary>
         /// Идентификаторы предлагаемых жанров.
         /// </summary>
-        public List<GenreId> GenreIds { get; set; } = new();
+        public List<int> GenreIds { get; set; } = new();
 
         /// <summary>
         /// Идентификаторы специальностей.
         /// </summary>
-        public List<SpecialtyId> SpecialtyIds { get; set; } = new();
+        public List<int> SpecialtyIds { get; set; } = new();
 
         /// <summary>
         /// Идентификаторы целей сотрудничества.
         /// </summary>
-        public List<CollaborationGoalId> CollaborationGoalIds { get; set; } = new();
+        public List<int> CollaborationGoalIds { get; set; } = new();
 
         /// <summary>
         /// Идентификаторы искомых жанров.
         /// </summary>
-        public List<GenreId> DesiredGenreIds { get; set; } = new();
+        public List<int> DesiredGenreIds { get; set; } = new();
 
         /// <summary>
         /// Идентификаторы искомых специальностей.
         /// </summary>
-        public List<SpecialtyId> DesiredSpecialtyIds { get; set; } = new();
+        public List<int> DesiredSpecialtyIds { get; set; } = new();
 
         /// <inheritdoc />
         public string IdempotencyKey { get; set; } = string.Empty;

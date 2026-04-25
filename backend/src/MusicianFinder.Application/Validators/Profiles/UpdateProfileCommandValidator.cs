@@ -13,18 +13,11 @@ namespace MusicianFinder.Application.Validators.Profiles
         /// </summary>
         public UpdateProfileCommandValidator()
         {
-            RuleFor(x => x.FullName)
-                .NotNull().WithMessage("Полное имя обязательно.");
-            RuleFor(x => x.CityId)
-                .NotEmpty().WithMessage("Город обязателен.");
-            RuleFor(x => x.Experience)
-                .GreaterThanOrEqualTo(0).WithMessage("Опыт не может быть отрицательным.");
-            RuleFor(x => x.Phone)
-                .MaximumLength(20).When(x => !string.IsNullOrEmpty(x.Phone))
-                .WithMessage("Телефон не должен превышать 20 символов.");
-            RuleFor(x => x.Telegram)
-                .MaximumLength(50).When(x => !string.IsNullOrEmpty(x.Telegram))
-                .WithMessage("Telegram не должен превышать 50 символов.");
+            RuleFor(x => x.FullName).MaximumLength(100).When(x => !string.IsNullOrEmpty(x.FullName));
+            RuleFor(x => x.CityId).NotEmpty().When(x => x.CityId.HasValue);
+            RuleFor(x => x.Experience).GreaterThanOrEqualTo(0).When(x => x.Experience.HasValue);
+            RuleFor(x => x.Phone).MaximumLength(20).When(x => !string.IsNullOrEmpty(x.Phone));
+            RuleFor(x => x.Telegram).MaximumLength(50).When(x => !string.IsNullOrEmpty(x.Telegram));
         }
     }
 }

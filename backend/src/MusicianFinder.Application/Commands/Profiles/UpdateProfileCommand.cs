@@ -14,7 +14,7 @@ namespace MusicianFinder.Application.Commands.Profiles
         /// <summary>
         /// Полное имя / название.
         /// </summary>
-        public ProfileName FullName { get; set; } = null!;
+        public string? FullName { get; set; } = null!;
 
         /// <summary>
         /// Возраст.
@@ -39,42 +39,42 @@ namespace MusicianFinder.Application.Commands.Profiles
         /// <summary>
         /// Идентификатор города.
         /// </summary>
-        public Guid CityId { get; set; }
+        public int? CityId { get; set; }
 
         /// <summary>
         /// Опыт в годах.
         /// </summary>
-        public int Experience { get; set; }
+        public int? Experience { get; set; }
 
         /// <summary>
         /// Кого ищет.
         /// </summary>
-        public LookingFor LookingFor { get; set; }
+        public LookingFor? LookingFor { get; set; }
 
         /// <summary>
         /// Новый список жанров.
         /// </summary>
-        public List<GenreId> GenreIds { get; set; } = new();
+        public List<int>? GenreIds { get; set; } = new();
 
         /// <summary>
         /// Новый список специальностей.
         /// </summary>
-        public List<SpecialtyId> SpecialtyIds { get; set; } = new();
+        public List<int>? SpecialtyIds { get; set; } = new();
 
         /// <summary>
         /// Новый список целей сотрудничества.
         /// </summary>
-        public List<CollaborationGoalId> CollaborationGoalIds { get; set; } = new();
+        public List<int>? CollaborationGoalIds { get; set; } = new();
 
         /// <summary>
         /// Новые искомые жанры.
         /// </summary>
-        public List<GenreId> DesiredGenreIds { get; set; } = new();
+        public List<int>? DesiredGenreIds { get; set; } = new();
 
         /// <summary>
         /// Новые искомые специальности.
         /// </summary>
-        public List<SpecialtyId> DesiredSpecialtyIds { get; set; } = new();
+        public List<int>? DesiredSpecialtyIds { get; set; } = new();
 
         /// <inheritdoc />
         public string IdempotencyKey { get; set; } = string.Empty;

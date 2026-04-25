@@ -17,7 +17,7 @@
         /// <param name="id">Уникальный идентификатор.</param>
         /// <param name="name">Английское название цели.</param>
         /// <param name="localizedName">Русское название цели.</param>
-        public CollaborationGoal(Guid id, string name, string localizedName)
+        public CollaborationGoal(int id, string name, string localizedName)
         {
             Id = id;
             Name = name;
@@ -27,7 +27,7 @@
         /// <summary>
         /// Идентификатор цели.
         /// </summary>
-        public Guid Id { get; private set; }
+        public int Id { get; private set; }
 
         /// <summary>
         /// Английское название цели.

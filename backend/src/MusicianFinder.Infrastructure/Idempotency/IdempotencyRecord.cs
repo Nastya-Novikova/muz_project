@@ -1,9 +1,11 @@
-﻿namespace MusicianFinder.Infrastructure.Idempotency
+﻿using MusicianFinder.SharedKernel;
+
+namespace MusicianFinder.Infrastructure.Idempotency
 {
     /// <summary>
     /// Запись идемпотентности для проверки повторных запросов.
     /// </summary>
-    public class IdempotencyRecord
+    public class IdempotencyRecord : IInfrastructureEntity
     {
         /// <summary>Ключ идемпотентности.</summary>
         public string Key { get; set; } = default!;

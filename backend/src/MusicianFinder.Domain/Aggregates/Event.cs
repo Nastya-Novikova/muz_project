@@ -33,8 +33,8 @@ namespace MusicianFinder.Domain.Entities
         /// <param name="maxParticipants">Максимальное количество участников (0 — без ограничений).</param>
         public Event(
             EventTitle title,
-            Guid regionId,
-            Guid cityId,
+            int regionId,
+            int cityId,
             string address,
             DateTime startDateTime,
             Guid creatorProfileId,
@@ -52,8 +52,11 @@ namespace MusicianFinder.Domain.Entities
             RegionId = regionId;
             CityId = cityId;
             Address = address;
-            StartDateTime = startDateTime;
-            EndDateTime = endDateTime;
+            StartDateTime = DateTime.SpecifyKind(startDateTime, DateTimeKind.Unspecified);
+            if (endDateTime != null)
+            {
+                EndDateTime = DateTime.SpecifyKind((DateTime)endDateTime, DateTimeKind.Unspecified);
+            }
             MaxParticipants = maxParticipants;
             CreatorProfileId = creatorProfileId;
             Description = description;
@@ -75,10 +78,10 @@ namespace MusicianFinder.Domain.Entities
         public string? ImageUrl { get; private set; }
 
         /// <summary>Идентификатор региона.</summary>
-        public Guid RegionId { get; private set; }
+        public int RegionId { get; private set; }
 
         /// <summary>Идентификатор города.</summary>
-        public Guid CityId { get; private set; }
+        public int CityId { get; private set; }
 
         /// <summary>Адрес.</summary>
         public string Address { get; private set; }
@@ -177,8 +180,8 @@ namespace MusicianFinder.Domain.Entities
         public void Update(
             EventTitle title,
             string? description,
-            Guid regionId,
-            Guid cityId,
+            int regionId,
+            int cityId,
             string address,
             DateTime startDateTime,
             DateTime? endDateTime,
@@ -197,8 +200,11 @@ namespace MusicianFinder.Domain.Entities
             RegionId = regionId;
             CityId = cityId;
             Address = address;
-            StartDateTime = startDateTime;
-            EndDateTime = endDateTime;
+            StartDateTime = DateTime.SpecifyKind(startDateTime, DateTimeKind.Unspecified);
+            if (endDateTime != null)
+            {
+                EndDateTime = DateTime.SpecifyKind((DateTime)endDateTime, DateTimeKind.Unspecified);
+            }
             MaxParticipants = maxParticipants;
             UpdatedAt = DateTime.UtcNow;
             AddDomainEvent(new EventUpdated(Id));

@@ -1,9 +1,11 @@
-﻿namespace MusicianFinder.Infrastructure.Outbox
+﻿using MusicianFinder.SharedKernel;
+
+namespace MusicianFinder.Infrastructure.Outbox
 {
     /// <summary>
     /// Сообщение Dead Letter Queue — событие, которое не удалось обработать после нескольких попыток.
     /// </summary>
-    public class DeadLetter
+    public class DeadLetter : IInfrastructureEntity
     {
         /// <summary>Идентификатор записи.</summary>
         public Guid Id { get; set; }

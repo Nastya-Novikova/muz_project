@@ -9,7 +9,7 @@ namespace MusicianFinder.Application.EventHandlers
     /// Обработчик доменного события <see cref="UserUnregisteredFromEvent"/>.
     /// Записывает интеграционное событие <see cref="UserUnregisteredFromEventIntegrationEvent"/> в Outbox.
     /// </summary>
-    public class UserUnregisteredFromEventHandler : INotificationHandler<UserUnregisteredFromEvent>
+    public class UserUnregisteredFromEventHandler : INotificationHandler<DomainEventNotification<UserUnregisteredFromEvent>>
     {
         private readonly IOutboxWriter _outboxWriter;
 
@@ -23,9 +23,9 @@ namespace MusicianFinder.Application.EventHandlers
         }
 
         /// <inheritdoc />
-        public Task Handle(UserUnregisteredFromEvent notification, CancellationToken cancellationToken)
+        public Task Handle(DomainEventNotification<UserUnregisteredFromEvent> notification, CancellationToken cancellationToken)
         {
-            var integrationEvent = new UserUnregisteredFromEventIntegrationEvent(notification.EventId, notification.ProfileId);
+            var integrationEvent = new UserUnregisteredFromEventIntegrationEvent(notification.DomainEvent.EventId, notification.DomainEvent.ProfileId);
             return _outboxWriter.WriteAsync(integrationEvent, cancellationToken);
         }
     }

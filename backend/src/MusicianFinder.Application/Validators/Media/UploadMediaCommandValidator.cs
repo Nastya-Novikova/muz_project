@@ -28,11 +28,39 @@ namespace MusicianFinder.Application.Validators.Media
                 .NotEmpty().WithMessage("Название медиа обязательно.")
                 .MaximumLength(100).WithMessage("Название не должно превышать 100 символов.");
 
-            RuleFor(x => x.Type)
-                .IsInEnum().WithMessage("Указан недопустимый тип медиа.");
-
             RuleFor(x => x.ContentType)
-                .NotEmpty().WithMessage("Content-Type обязателен.");
+            .NotEmpty().WithMessage("Content-Type обязателен.")
+            .Must((cmd, ct) => IsValidContentType(cmd.Type, ct))
+            .WithMessage("Content-Type не соответствует выбранному типу медиа.");
+
+            // Дополнительная проверка расширения (опционально)
+            RuleFor(x => x.FileName)
+                .Must((cmd, name) => IsValidExtension(cmd.Type, name))
+                .WithMessage("Расширение файла не соответствует выбранному типу.");
+        }
+
+        private static bool IsValidContentType(MediaType type, string contentType)
+        {
+            return type switch
+            {
+                MediaType.Audio => contentType.StartsWith("audio/", StringComparison.OrdinalIgnoreCase),
+                MediaType.Video => contentType.StartsWith("video/", StringComparison.OrdinalIgnoreCase),
+                MediaType.Photo => contentType.StartsWith("image/", StringComparison.OrdinalIgnoreCase),
+                _ => false
+            };
+        }
+
+        private static bool IsValidExtension(MediaType type, string fileName)
+        {
+            var ext = Path.GetExtension(fileName)?.ToLowerInvariant();
+            if (string.IsNullOrEmpty(ext)) return false;
+            return type switch
+            {
+                MediaType.Audio => new[] { ".mp3", ".wav", ".ogg", ".flac", ".aac" }.Contains(ext),
+                MediaType.Video => new[] { ".mp4", ".mov", ".avi", ".mkv" }.Contains(ext),
+                MediaType.Photo => new[] { ".jpg", ".jpeg", ".png", ".gif", ".bmp" }.Contains(ext),
+                _ => false
+            };
         }
 
         private static long GetMaxFileSize(MediaType type) => type switch

@@ -13,7 +13,7 @@ namespace MusicianFinder.Infrastructure.Persistence.Configurations
         /// <inheritdoc />
         public void Configure(EntityTypeBuilder<User> builder)
         {
-            builder.ToTable("Users");
+            builder.ToTable("User");
             builder.HasKey(u => u.Id);
             builder.Property(u => u.Email).IsRequired().HasMaxLength(256);
             builder.HasIndex(u => u.Email).IsUnique();
@@ -22,6 +22,7 @@ namespace MusicianFinder.Infrastructure.Persistence.Configurations
             builder.Property(u => u.ProfileCreated).IsRequired();
             builder.Property(u => u.IsDeleted).IsRequired();
             builder.Property(u => u.DeletedAt);
+
             builder.Ignore(u => u.DomainEvents);
         }
     }

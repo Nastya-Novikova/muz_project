@@ -22,8 +22,12 @@ namespace MusicianFinder.Infrastructure.Extensions
         /// </summary>
         public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
+            services.AddDistributedMemoryCache();
+
             services.AddDbContext<AppDbContext>(options =>
                 options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
+
+            services.AddScoped<DbContext>(sp => sp.GetRequiredService<AppDbContext>());
 
             // Write-репозитории
             services.AddScoped<IMusicianProfileRepository, MusicianProfileRepository>();
@@ -42,6 +46,7 @@ namespace MusicianFinder.Infrastructure.Extensions
 
             // Сервисы
             services.AddScoped<ICurrentUserService, CurrentUserService>();
+            services.AddScoped<IVerificationCodeService, VerificationCodeService>();
             services.AddScoped<IOutboxWriter, OutboxWriter>();
             services.AddScoped<IDomainEventDispatcher, DomainEventDispatcher>();
             services.AddScoped<IEmailService, EmailService>();
@@ -52,6 +57,7 @@ namespace MusicianFinder.Infrastructure.Extensions
             services.AddSingleton<IIntegrationEventTypeRegistry, IntegrationEventTypeRegistry>();
             services.AddSingleton<IExternalBusPublisher, ExternalBusPublisher>();
             services.AddScoped<IIdempotencyStore, DatabaseIdempotencyStore>();
+            services.AddScoped<IReferenceDataValidationService, ReferenceDataValidationService>();
 
             // Фоновые процессы
             services.AddHostedService<OutboxProcessor>();

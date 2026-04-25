@@ -17,7 +17,7 @@
         /// <param name="id">Уникальный идентификатор.</param>
         /// <param name="name">Английское название.</param>
         /// <param name="localizedName">Локализованное название.</param>
-        public City(Guid id, string name, string localizedName)
+        public City(int id, string name, string localizedName)
         {
             Id = id;
             Name = name;
@@ -27,7 +27,7 @@
         /// <summary>
         /// Идентификатор города.
         /// </summary>
-        public Guid Id { get; private set; }
+        public int Id { get; private set; }
 
         /// <summary>
         /// Английское название.

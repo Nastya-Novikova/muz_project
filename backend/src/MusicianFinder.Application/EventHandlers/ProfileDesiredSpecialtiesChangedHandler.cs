@@ -9,7 +9,7 @@ namespace MusicianFinder.Application.EventHandlers
     /// Обработчик доменного события <see cref="ProfileDesiredSpecialtiesChanged"/>.
     /// Записывает интеграционное событие <see cref="ProfileDesiredSpecialtiesChangedIntegrationEvent"/> в Outbox.
     /// </summary>
-    public class ProfileDesiredSpecialtiesChangedHandler : INotificationHandler<ProfileDesiredSpecialtiesChanged>
+    public class ProfileDesiredSpecialtiesChangedHandler : INotificationHandler<DomainEventNotification<ProfileDesiredSpecialtiesChanged>>
     {
         private readonly IOutboxWriter _outboxWriter;
 
@@ -23,9 +23,9 @@ namespace MusicianFinder.Application.EventHandlers
         }
 
         /// <inheritdoc />
-        public Task Handle(ProfileDesiredSpecialtiesChanged notification, CancellationToken cancellationToken)
+        public Task Handle(DomainEventNotification<ProfileDesiredSpecialtiesChanged> notification, CancellationToken cancellationToken)
         {
-            var integrationEvent = new ProfileDesiredSpecialtiesChangedIntegrationEvent(notification.ProfileId);
+            var integrationEvent = new ProfileDesiredSpecialtiesChangedIntegrationEvent(notification.DomainEvent.ProfileId);
             return _outboxWriter.WriteAsync(integrationEvent, cancellationToken);
         }
     }

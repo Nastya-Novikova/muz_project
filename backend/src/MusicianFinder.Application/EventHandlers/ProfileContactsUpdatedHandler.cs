@@ -9,7 +9,7 @@ namespace MusicianFinder.Application.EventHandlers
     /// Обработчик доменного события <see cref="ProfileContactsUpdated"/>.
     /// Записывает интеграционное событие <see cref="ProfileContactsUpdatedIntegrationEvent"/> в Outbox.
     /// </summary>
-    public class ProfileContactsUpdatedHandler : INotificationHandler<ProfileContactsUpdated>
+    public class ProfileContactsUpdatedHandler : INotificationHandler<DomainEventNotification<ProfileContactsUpdated>>
     {
         private readonly IOutboxWriter _outboxWriter;
 
@@ -23,9 +23,9 @@ namespace MusicianFinder.Application.EventHandlers
         }
 
         /// <inheritdoc />
-        public Task Handle(ProfileContactsUpdated notification, CancellationToken cancellationToken)
+        public Task Handle(DomainEventNotification<ProfileContactsUpdated> notification, CancellationToken cancellationToken)
         {
-            var integrationEvent = new ProfileContactsUpdatedIntegrationEvent(notification.ProfileId);
+            var integrationEvent = new ProfileContactsUpdatedIntegrationEvent(notification.DomainEvent.ProfileId);
             return _outboxWriter.WriteAsync(integrationEvent, cancellationToken);
         }
     }

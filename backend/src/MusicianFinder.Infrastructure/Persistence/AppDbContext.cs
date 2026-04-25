@@ -55,6 +55,32 @@ namespace MusicianFinder.Infrastructure.Persistence
             modelBuilder.ApplyConfiguration(new OutboxMessageConfiguration());
             modelBuilder.ApplyConfiguration(new DeadLetterConfiguration());
             modelBuilder.ApplyConfiguration(new IdempotencyRecordConfiguration());
+
+
+            modelBuilder.Entity<MusicianProfile>().Ignore("xmin");
+            modelBuilder.Entity<MusicianProfile>().Ignore("RowVersion");
+
+            modelBuilder.Entity<Event>().Ignore("xmin");
+            modelBuilder.Entity<Event>().Ignore("RowVersion");
+
+            modelBuilder.Entity<User>().Ignore("xmin");
+            modelBuilder.Entity<User>().Ignore("RowVersion");
+
+            modelBuilder.Entity<CollaborationSuggestion>().Ignore("xmin");
+            modelBuilder.Entity<CollaborationSuggestion>().Ignore("RowVersion");
+
+            modelBuilder.Entity<MusicianProfile>().OwnsMany(p => p.Portfolio, a => a.Ignore("xmin"));
+            modelBuilder.Entity<Event>().OwnsMany(e => e.Registrations, r => r.Ignore("xmin"));
+
+
+            foreach (var entity in modelBuilder.Model.GetEntityTypes())
+            {
+                var xminProp = entity.FindProperty("xmin");
+                if (xminProp != null)
+                    entity.RemoveProperty(xminProp);
+            }
+
+
         }
     }
 }

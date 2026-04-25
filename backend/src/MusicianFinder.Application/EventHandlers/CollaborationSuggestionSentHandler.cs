@@ -9,7 +9,7 @@ namespace MusicianFinder.Application.EventHandlers
     /// Обработчик доменного события <see cref="CollaborationSuggestionSent"/>.
     /// Записывает интеграционное событие <see cref="CollaborationSuggestionSentIntegrationEvent"/> в Outbox.
     /// </summary>
-    public class CollaborationSuggestionSentHandler : INotificationHandler<CollaborationSuggestionSent>
+    public class CollaborationSuggestionSentHandler : INotificationHandler<DomainEventNotification<CollaborationSuggestionSent>>
     {
         private readonly IOutboxWriter _outboxWriter;
 
@@ -23,10 +23,10 @@ namespace MusicianFinder.Application.EventHandlers
         }
 
         /// <inheritdoc />
-        public Task Handle(CollaborationSuggestionSent notification, CancellationToken cancellationToken)
+        public Task Handle(DomainEventNotification<CollaborationSuggestionSent> notification, CancellationToken cancellationToken)
         {
             var integrationEvent = new CollaborationSuggestionSentIntegrationEvent(
-                notification.SuggestionId, notification.FromProfileId, notification.ToProfileId);
+                notification.DomainEvent.SuggestionId, notification.DomainEvent.FromProfileId, notification.DomainEvent.ToProfileId);
             return _outboxWriter.WriteAsync(integrationEvent, cancellationToken);
         }
     }

@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using MusicianFinder.Application.Core.Exceptions;
 using MusicianFinder.Application.Core.Pagination;
 using MusicianFinder.Application.DTOs.Notifications;
 using MusicianFinder.Application.Interfaces;
@@ -13,6 +14,7 @@ namespace MusicianFinder.Application.Queries.Notifications
     {
         private readonly INotificationReadRepository _notificationReadRepository;
         private readonly ICurrentUserService _currentUser;
+        private readonly IProfileReadRepository _profileReadRepository;
 
         /// <summary>
         /// Инициализирует новый экземпляр обработчика.
@@ -21,16 +23,20 @@ namespace MusicianFinder.Application.Queries.Notifications
         /// <param name="currentUser">Сервис текущего пользователя.</param>
         public GetNotificationsQueryHandler(
             INotificationReadRepository notificationReadRepository,
-            ICurrentUserService currentUser)
+            ICurrentUserService currentUser,
+            IProfileReadRepository profileReadRepository)
         {
             _notificationReadRepository = notificationReadRepository;
             _currentUser = currentUser;
+            _profileReadRepository = profileReadRepository;
         }
 
         /// <inheritdoc />
         public async Task<PagedResult<NotificationDto>> Handle(GetNotificationsQuery request, CancellationToken cancellationToken)
         {
-            return await _notificationReadRepository.GetForProfileAsync(_currentUser.UserId, request.Page, request.Limit, cancellationToken);
+            var profile = await _profileReadRepository.GetByUserIdAsync(_currentUser.UserId, cancellationToken)
+                      ?? throw new NotFoundException("Профиль не найден.");
+            return await _notificationReadRepository.GetForProfileAsync(profile.Id, request.Page, request.Limit, cancellationToken);
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using MusicianFinder.Application.DTOs.Metadata;
+﻿using MusicianFinder.Application.DTOs.Media;
+using MusicianFinder.Application.DTOs.Metadata;
 
 namespace MusicianFinder.Application.DTOs.Profiles
 {
@@ -63,5 +64,9 @@ namespace MusicianFinder.Application.DTOs.Profiles
 
         /// <summary>Отправлено ли текущим пользователем предложение о сотрудничестве.</summary>
         public bool IsCollaborated { get; set; }
+
+        public List<AudioDto> Audio { get; set; } = new();
+        public List<VideoDto> Video { get; set; } = new();
+        public List<PhotoDto> Photos { get; set; } = new();
     }
 }

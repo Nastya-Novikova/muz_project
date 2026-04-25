@@ -13,13 +13,13 @@ namespace MusicianFinder.Application.Queries.Profiles
         /// <summary>Поисковый запрос.</summary>
         public string? Query { get; set; }
         /// <summary>Идентификатор города.</summary>
-        public Guid? CityId { get; set; }
+        public int? CityId { get; set; }
         /// <summary>Идентификаторы жанров.</summary>
-        public List<Guid>? GenreIds { get; set; }
+        public List<int>? GenreIds { get; set; }
         /// <summary>Идентификаторы специальностей.</summary>
-        public List<Guid>? SpecialtyIds { get; set; }
+        public List<int>? SpecialtyIds { get; set; }
         /// <summary>Идентификаторы целей.</summary>
-        public List<Guid>? GoalIds { get; set; }
+        public List<int>? GoalIds { get; set; }
         /// <summary>Минимальный опыт.</summary>
         public int? ExperienceMin { get; set; }
         /// <summary>Максимальный опыт.</summary>

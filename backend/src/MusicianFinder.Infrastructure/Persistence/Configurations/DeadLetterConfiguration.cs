@@ -12,7 +12,7 @@ namespace MusicianFinder.Infrastructure.Persistence.Configurations
         /// <inheritdoc />
         public void Configure(EntityTypeBuilder<DeadLetter> builder)
         {
-            builder.ToTable("DeadLetters");
+            builder.ToTable("DeadLetter");
             builder.HasKey(d => d.Id);
             builder.Property(d => d.Id).ValueGeneratedNever();
             builder.Property(d => d.OutboxMessageId).IsRequired();

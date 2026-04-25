@@ -7,7 +7,7 @@ namespace MusicianFinder.SharedKernel
     /// Маркерный интерфейс для доменных событий.
     /// Наследует <see cref="INotification"/> для интеграции с MediatR.
     /// </summary>
-    public interface IDomainEvent : INotification
+    public interface IDomainEvent
     {
     }
 }

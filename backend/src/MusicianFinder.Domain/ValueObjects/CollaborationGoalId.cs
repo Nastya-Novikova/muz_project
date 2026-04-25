@@ -3,5 +3,5 @@
     /// <summary>
     /// Value Object, представляющий идентификатор цели сотрудничества.
     /// </summary>
-    public sealed record CollaborationGoalId(Guid Value);
+    public sealed record CollaborationGoalId(int Value);
 }

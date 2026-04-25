@@ -42,7 +42,7 @@ namespace MusicianFinder.Domain.Entities
         /// <summary>
         /// Описание элемента.
         /// </summary>
-        public string? Description { get; set; }
+        public string? Description { get; private set; }
 
         /// <summary>
         /// URL файла.
@@ -68,5 +68,14 @@ namespace MusicianFinder.Domain.Entities
         /// Дата создания записи.
         /// </summary>
         public DateTime CreatedAt { get; private set; }
+
+        /// <summary>
+        /// Устанавливает описание элемента портфолио.
+        /// </summary>
+        /// <param name="description">Новое описание.</param>
+        public void SetDescription(string? description)
+        {
+            Description = description;
+        }
     }
 }

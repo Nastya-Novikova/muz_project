@@ -40,17 +40,17 @@ namespace MusicianFinder.Application.Commands.Profiles
             if (user.ProfileCreated)
                 throw new Application.Core.Exceptions.ConflictException("Профиль уже создан.");
 
-            var profile = MusicianProfile.Create(user.Id, request.FullName, request.CityId);
+            var profile = MusicianProfile.Create(user.Id, new ProfileName(request.FullName), request.CityId, user.Email);
 
-            profile.UpdateCoreInfo(request.FullName, request.Age, request.Description, request.CityId);
+            profile.UpdateCoreInfo(new ProfileName(request.FullName), request.Age, request.Description, request.CityId);
             profile.UpdateContacts(
                 request.Phone != null ? new PhoneNumber(request.Phone) : null,
                 request.Telegram != null ? new TelegramHandle(request.Telegram) : null);
-            profile.SetGenres(request.GenreIds);
-            profile.SetSpecialties(request.SpecialtyIds);
-            profile.SetCollaborationGoals(request.CollaborationGoalIds);
-            profile.SetDesiredGenres(request.DesiredGenreIds);
-            profile.SetDesiredSpecialties(request.DesiredSpecialtyIds);
+            profile.SetGenres(request.GenreIds.Select(id => new GenreId(id)));
+            profile.SetSpecialties(request.SpecialtyIds.Select(id => new SpecialtyId(id)));
+            profile.SetCollaborationGoals(request.CollaborationGoalIds.Select(id => new CollaborationGoalId(id)));
+            profile.SetDesiredGenres(request.DesiredGenreIds.Select(id => new GenreId(id)));
+            profile.SetDesiredSpecialties(request.DesiredSpecialtyIds.Select(id => new SpecialtyId(id)));
 
             _profileRepository.Add(profile);
             user.MarkProfileAsCreated();

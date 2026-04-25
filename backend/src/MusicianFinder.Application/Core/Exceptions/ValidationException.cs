@@ -21,6 +21,15 @@ namespace MusicianFinder.Application.Core.Exceptions
         }
 
         /// <summary>
+        /// Инициализирует новый экземпляр <see cref="ValidationException"/> с указанным сообщением.
+        /// </summary>
+        /// <param name="message">Сообщение об ошибке.</param>
+        public ValidationException(string message) : base(message)
+        {
+            Errors = new Dictionary<string, string[]>();
+        }
+
+        /// <summary>
         /// Инициализирует новый экземпляр <see cref="ValidationException"/> на основе списка ошибок FluentValidation.
         /// </summary>
         /// <param name="failures">Список ошибок валидации.</param>

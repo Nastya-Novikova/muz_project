@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using MusicianFinder.Application;
 using MusicianFinder.Application.Interfaces;
 using MusicianFinder.SharedKernel;
 
@@ -22,8 +23,13 @@ namespace MusicianFinder.Infrastructure.Services
         {
             var events = aggregateRoot.DomainEvents.ToList();
             aggregateRoot.ClearDomainEvents();
+
             foreach (var domainEvent in events)
-                await _mediator.Publish(domainEvent, cancellationToken);
+            {
+                var notificationType = typeof(DomainEventNotification<>).MakeGenericType(domainEvent.GetType());
+                var notification = (INotification)Activator.CreateInstance(notificationType, domainEvent);
+                await _mediator.Publish(notification, cancellationToken);
+            }
         }
     }
 }

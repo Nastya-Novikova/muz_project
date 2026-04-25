@@ -1,6 +1,9 @@
 ﻿using MediatR;
+using MusicianFinder.Application.Core.Exceptions;
 using MusicianFinder.Application.Interfaces;
 using MusicianFinder.Application.Interfaces.Repositories;
+using MusicianFinder.Domain.Entities;
+using MusicianFinder.SharedKernel;
 
 namespace MusicianFinder.Application.Commands.Favorites
 {
@@ -31,7 +34,15 @@ namespace MusicianFinder.Application.Commands.Favorites
             var profile = await _profileRepository.GetByUserIdAsync(_currentUser.UserId, cancellationToken)
                 ?? throw new Application.Core.Exceptions.NotFoundException("Профиль не найден.");
 
-            profile.AddToFavorites(request.TargetProfileId);
+            try
+            {
+                await _profileRepository.AddFavoriteAsync(_currentUser.UserId, request.TargetProfileId, cancellationToken);
+            }
+            catch (DomainException ex) when (ex.Message.Contains("Этот профиль уже в избранном"))
+            {
+                throw new ConflictException("Профиль уже добавлен в избранное.");
+            }
+
             return Unit.Value;
         }
     }

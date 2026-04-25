@@ -8,9 +8,9 @@
         /// <summary>Поисковый запрос.</summary>
         public string? Query { get; set; }
         /// <summary>Идентификатор региона.</summary>
-        public Guid? RegionId { get; set; }
+        public int? RegionId { get; set; }
         /// <summary>Идентификатор города.</summary>
-        public Guid? CityId { get; set; }
+        public int? CityId { get; set; }
         /// <summary>Дата начала (с).</summary>
         public DateTime? FromDate { get; set; }
         /// <summary>Дата начала (по).</summary>

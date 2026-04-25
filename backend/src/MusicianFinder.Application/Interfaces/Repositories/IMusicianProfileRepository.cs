@@ -20,5 +20,9 @@ namespace MusicianFinder.Application.Interfaces.Repositories
         /// </summary>
         /// <param name="profile">Экземпляр профиля.</param>
         void Add(MusicianProfile profile);
+
+        Task AddPortfolioItemAsync(Guid userId, PortfolioItem item, CancellationToken ct = default);
+
+        Task AddFavoriteAsync(Guid userId, Guid targetProfileId, CancellationToken ct = default);
     }
 }

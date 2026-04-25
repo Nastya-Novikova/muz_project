@@ -27,5 +27,14 @@ namespace MusicianFinder.Application.Interfaces.ReadRepositories
         /// <param name="ct">Токен отмены.</param>
         /// <returns>Страница с предложениями.</returns>
         Task<PagedResult<SuggestionDto>> GetSentAsync(Guid profileId, int page, int limit, CancellationToken ct);
+
+        /// <summary>
+        /// Возвращает идентификаторы профилей, которым указанный профиль уже отправил предложения о сотрудничестве.
+        /// </summary>
+        /// <param name="fromProfileId">Профиль отправителя.</param>
+        /// <param name="toProfileIds">Проверяемые профили получателей.</param>
+        /// <param name="ct">Токен отмены.</param>
+        /// <returns>Множество идентификаторов профилей, куда было отправлено предложение.</returns>
+        Task<HashSet<Guid>> GetSentSuggestionToProfileIdsAsync(Guid fromProfileId, IEnumerable<Guid> toProfileIds, CancellationToken ct);
     }
 }

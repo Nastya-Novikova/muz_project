@@ -18,7 +18,7 @@ namespace MusicianFinder.Application.Commands.Events
         /// <summary>
         /// Название.
         /// </summary>
-        public EventTitle Title { get; set; } = null!;
+        public string? Title { get; set; }
 
         /// <summary>
         /// Описание.
@@ -28,12 +28,12 @@ namespace MusicianFinder.Application.Commands.Events
         /// <summary>
         /// Идентификатор региона.
         /// </summary>
-        public Guid RegionId { get; set; }
+        public int RegionId { get; set; }
 
         /// <summary>
         /// Идентификатор города.
         /// </summary>
-        public Guid CityId { get; set; }
+        public int CityId { get; set; }
 
         /// <summary>
         /// Адрес.

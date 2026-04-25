@@ -9,7 +9,7 @@ namespace MusicianFinder.Application.EventHandlers
     /// Обработчик доменного события <see cref="CollaborationSuggestionRejected"/>.
     /// Записывает интеграционное событие <see cref="CollaborationSuggestionRejectedIntegrationEvent"/> в Outbox.
     /// </summary>
-    public class CollaborationSuggestionRejectedHandler : INotificationHandler<CollaborationSuggestionRejected>
+    public class CollaborationSuggestionRejectedHandler : INotificationHandler<DomainEventNotification<CollaborationSuggestionRejected>>
     {
         private readonly IOutboxWriter _outboxWriter;
 
@@ -23,9 +23,9 @@ namespace MusicianFinder.Application.EventHandlers
         }
 
         /// <inheritdoc />
-        public Task Handle(CollaborationSuggestionRejected notification, CancellationToken cancellationToken)
+        public Task Handle(DomainEventNotification<CollaborationSuggestionRejected> notification, CancellationToken cancellationToken)
         {
-            var integrationEvent = new CollaborationSuggestionRejectedIntegrationEvent(notification.SuggestionId);
+            var integrationEvent = new CollaborationSuggestionRejectedIntegrationEvent(notification.DomainEvent.SuggestionId);
             return _outboxWriter.WriteAsync(integrationEvent, cancellationToken);
         }
     }

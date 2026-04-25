@@ -9,7 +9,7 @@ namespace MusicianFinder.Application.EventHandlers
     /// Обработчик доменного события <see cref="PortfolioItemAdded"/>.
     /// Записывает интеграционное событие <see cref="PortfolioItemAddedIntegrationEvent"/> в Outbox.
     /// </summary>
-    public class PortfolioItemAddedHandler : INotificationHandler<PortfolioItemAdded>
+    public class PortfolioItemAddedHandler : INotificationHandler<DomainEventNotification<PortfolioItemAdded>>
     {
         private readonly IOutboxWriter _outboxWriter;
 
@@ -23,9 +23,9 @@ namespace MusicianFinder.Application.EventHandlers
         }
 
         /// <inheritdoc />
-        public Task Handle(PortfolioItemAdded notification, CancellationToken cancellationToken)
+        public Task Handle(DomainEventNotification<PortfolioItemAdded> notification, CancellationToken cancellationToken)
         {
-            var integrationEvent = new PortfolioItemAddedIntegrationEvent(notification.ProfileId, notification.PortfolioItemId);
+            var integrationEvent = new PortfolioItemAddedIntegrationEvent(notification.DomainEvent.ProfileId, notification.DomainEvent.PortfolioItemId);
             return _outboxWriter.WriteAsync(integrationEvent, cancellationToken);
         }
     }

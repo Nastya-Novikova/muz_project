@@ -16,7 +16,7 @@ COPY ["backend/src/MusicianFinder.API/MusicianFinder.API.csproj", "backend/src/M
 COPY ["backend/src/MusicianFinder.Application/MusicianFinder.Application.csproj", "backend/src/MusicianFinder.Application/"]
 COPY ["backend/src/MusicianFinder.Domain/MusicianFinder.Domain.csproj", "backend/src/MusicianFinder.Domain/"]
 COPY ["backend/src/MusicianFinder.Infrastructure/MusicianFinder.Infrastructure.csproj", "backend/src/MusicianFinder.Infrastructure/"]
-COPY ["backend/src/MusicianFinder.Shared/MusicianFinder.Shared.csproj", "backend/src/MusicianFinder.Shared/"]
+COPY ["backend/src/MusicianFinder.SharedKernel/MusicianFinder.SharedKernel.csproj", "backend/src/MusicianFinder.SharedKernel/"]
 
 # Восстанавливаем зависимости
 RUN dotnet restore "backend/src/MusicianFinder.API/MusicianFinder.API.csproj"

@@ -6,7 +6,7 @@
     public class LookupItemDto
     {
         /// <summary>Идентификатор.</summary>
-        public Guid Id { get; set; }
+        public int Id { get; set; }
         /// <summary>Английское название.</summary>
         public string Name { get; set; } = string.Empty;
         /// <summary>Локализованное название.</summary>

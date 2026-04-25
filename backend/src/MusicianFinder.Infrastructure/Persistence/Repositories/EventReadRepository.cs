@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
-using AutoMapper.QueryableExtensions;
 using Microsoft.EntityFrameworkCore;
 using MusicianFinder.Application.Core.Pagination;
 using MusicianFinder.Application.DTOs.Events;
+using MusicianFinder.Application.DTOs.Metadata;
 using MusicianFinder.Application.Interfaces.ReadRepositories;
 
 namespace MusicianFinder.Infrastructure.Persistence.Repositories
@@ -14,32 +14,36 @@ namespace MusicianFinder.Infrastructure.Persistence.Repositories
     {
         private readonly AppDbContext _dbContext;
         private readonly IMapper _mapper;
+        private readonly IReferenceDataReadRepository _referenceRepository;
 
         /// <summary>
         /// Инициализирует новый экземпляр <see cref="EventReadRepository"/>.
         /// </summary>
-        /// <param name="dbContext">Контекст базы данных.</param>
-        /// <param name="mapper">Маппер.</param>
-        public EventReadRepository(AppDbContext dbContext, IMapper mapper)
+        public EventReadRepository(AppDbContext dbContext, IMapper mapper, IReferenceDataReadRepository referenceRepository)
         {
             _dbContext = dbContext;
             _mapper = mapper;
+            _referenceRepository = referenceRepository;
         }
 
         /// <inheritdoc />
         public async Task<EventDto?> GetByIdAsync(Guid id, CancellationToken ct = default)
         {
-            return await _dbContext.Events
+            var @event = await _dbContext.Events
                 .AsNoTracking()
-                .Where(e => e.Id == id && !e.IsDeleted)
-                .ProjectTo<EventDto>(_mapper.ConfigurationProvider)
-                .FirstOrDefaultAsync(ct);
+                .Include(e => e.Registrations)
+                .FirstOrDefaultAsync(e => e.Id == id && !e.IsDeleted, ct);
+
+            return @event == null ? null : await EnrichEventDtoAsync(@event, ct);
         }
 
         /// <inheritdoc />
         public async Task<PagedResult<EventDto>> SearchAsync(EventFilterDto filter, CancellationToken ct = default)
         {
-            var query = _dbContext.Events.AsNoTracking().Where(e => !e.IsDeleted);
+            var query = _dbContext.Events
+                .AsNoTracking()
+                .Include(e => e.Registrations)
+                .Where(e => !e.IsDeleted);
 
             if (!string.IsNullOrEmpty(filter.Query))
                 query = query.Where(e => e.Title.Value.Contains(filter.Query));
@@ -64,12 +68,15 @@ namespace MusicianFinder.Infrastructure.Persistence.Repositories
 
             var totalCount = await query.CountAsync(ct);
 
-            var items = await query
+            var events = await query
                 .OrderByDescending(e => e.StartDateTime)
                 .Skip((filter.Page - 1) * filter.Limit)
                 .Take(filter.Limit)
-                .ProjectTo<EventDto>(_mapper.ConfigurationProvider)
                 .ToListAsync(ct);
+
+            var items = new List<EventDto>(events.Count);
+            foreach (var evt in events)
+                items.Add(await EnrichEventDtoAsync(evt, ct));
 
             return new PagedResult<EventDto>
             {
@@ -83,37 +90,73 @@ namespace MusicianFinder.Infrastructure.Persistence.Repositories
         /// <inheritdoc />
         public async Task<PagedResult<EventDto>> GetCreatedEventsAsync(Guid creatorProfileId, int page, int limit, CancellationToken ct = default)
         {
-            var query = _dbContext.Events.AsNoTracking()
-                .Where(e => e.CreatorProfileId == creatorProfileId && !e.IsDeleted)
-                .OrderByDescending(e => e.CreatedAt);
-
-            var totalCount = await query.CountAsync(ct);
-
-            var items = await query
-                .Skip((page - 1) * limit)
-                .Take(limit)
-                .ProjectTo<EventDto>(_mapper.ConfigurationProvider)
-                .ToListAsync(ct);
-
-            return new PagedResult<EventDto> { Items = items, Total = totalCount, Page = page, Limit = limit };
+            return await SearchAsync(new EventFilterDto { CreatorProfileId = creatorProfileId, Page = page, Limit = limit }, ct);
         }
 
         /// <inheritdoc />
         public async Task<PagedResult<EventDto>> GetRegisteredEventsAsync(Guid profileId, int page, int limit, CancellationToken ct = default)
         {
-            var query = _dbContext.Events.AsNoTracking()
+            var query = _dbContext.Events
+                .AsNoTracking()
+                .Include(e => e.Registrations)
                 .Where(e => e.Registrations.Any(r => r.ProfileId == profileId) && !e.IsDeleted)
                 .OrderByDescending(e => e.StartDateTime);
 
             var totalCount = await query.CountAsync(ct);
 
-            var items = await query
+            var events = await query
                 .Skip((page - 1) * limit)
                 .Take(limit)
-                .ProjectTo<EventDto>(_mapper.ConfigurationProvider)
                 .ToListAsync(ct);
 
-            return new PagedResult<EventDto> { Items = items, Total = totalCount, Page = page, Limit = limit };
+            var items = new List<EventDto>(events.Count);
+            foreach (var evt in events)
+                items.Add(await EnrichEventDtoAsync(evt, ct));
+
+            return new PagedResult<EventDto>
+            {
+                Items = items,
+                Total = totalCount,
+                Page = page,
+                Limit = limit
+            };
+        }
+
+        /// <inheritdoc />
+        public async Task<bool> IsProfileRegisteredAsync(Guid eventId, Guid profileId, CancellationToken ct = default)
+        {
+            return await _dbContext.Events
+                .AsNoTracking()
+                .Where(e => e.Id == eventId && !e.IsDeleted)
+                .SelectMany(e => e.Registrations)
+                .AnyAsync(r => r.ProfileId == profileId, ct);
+        }
+
+        /// <summary>
+        /// Обогащает DTO мероприятия: справочники, информация о создателе, количество участников.
+        /// </summary>
+        private async Task<EventDto> EnrichEventDtoAsync(Domain.Entities.Event evt, CancellationToken ct)
+        {
+            var dto = _mapper.Map<EventDto>(evt);
+
+            var cities = await _referenceRepository.GetCitiesAsync(ct);
+            var regions = await _referenceRepository.GetRegionsAsync(ct);
+
+            dto.City = cities.FirstOrDefault(c => c.Id == evt.CityId) ?? new LookupItemDto();
+            dto.Region = regions.FirstOrDefault(r => r.Id == evt.RegionId) ?? new LookupItemDto();
+
+            var creator = await _dbContext.MusicianProfiles
+                .AsNoTracking()
+                .FirstOrDefaultAsync(p => p.Id == evt.CreatorProfileId && !p.IsDeleted, ct);
+
+            if (creator != null)
+            {
+                dto.CreatorFullName = creator.FullName.Value;
+                dto.CreatorAvatarUrl = creator.AvatarUrl;
+            }
+
+            dto.CurrentParticipants = evt.Registrations.Count;
+            return dto;
         }
     }
 }

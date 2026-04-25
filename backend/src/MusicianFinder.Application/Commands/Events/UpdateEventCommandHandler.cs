@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using MusicianFinder.Application.Interfaces;
 using MusicianFinder.Application.Interfaces.Repositories;
+using MusicianFinder.Domain.ValueObjects;
 
 namespace MusicianFinder.Application.Commands.Events
 {
@@ -38,7 +39,7 @@ namespace MusicianFinder.Application.Commands.Events
             var profile = await _profileRepository.GetByUserIdAsync(_currentUser.UserId, cancellationToken)
                 ?? throw new Application.Core.Exceptions.NotFoundException("Профиль не найден.");
 
-            @event.Update(request.Title, request.Description,
+            @event.Update(new EventTitle(request.Title), request.Description,
                 request.RegionId, request.CityId, request.Address,
                 request.StartDateTime, request.EndDateTime, request.MaxParticipants,
                 profile.Id);

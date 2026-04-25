@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using MusicianFinder.Application.Core.Exceptions;
 using MusicianFinder.Application.Core.Pagination;
 using MusicianFinder.Application.DTOs.Suggestions;
 using MusicianFinder.Application.Interfaces;
@@ -13,6 +14,7 @@ namespace MusicianFinder.Application.Queries.Suggestions
     {
         private readonly ICollaborationSuggestionReadRepository _suggestionReadRepository;
         private readonly ICurrentUserService _currentUser;
+        private readonly IProfileReadRepository _profileReadRepository;
 
         /// <summary>
         /// Инициализирует новый экземпляр обработчика.
@@ -21,16 +23,20 @@ namespace MusicianFinder.Application.Queries.Suggestions
         /// <param name="currentUser">Сервис текущего пользователя.</param>
         public GetSentSuggestionsQueryHandler(
             ICollaborationSuggestionReadRepository suggestionReadRepository,
-            ICurrentUserService currentUser)
+            ICurrentUserService currentUser,
+            IProfileReadRepository profileReadRepository)
         {
             _suggestionReadRepository = suggestionReadRepository;
             _currentUser = currentUser;
+            _profileReadRepository = profileReadRepository;
         }
 
         /// <inheritdoc />
         public async Task<PagedResult<SuggestionDto>> Handle(GetSentSuggestionsQuery request, CancellationToken cancellationToken)
         {
-            return await _suggestionReadRepository.GetSentAsync(_currentUser.UserId, request.Page, request.Limit, cancellationToken);
+            var profile = await _profileReadRepository.GetByUserIdAsync(_currentUser.UserId, cancellationToken)
+                      ?? throw new NotFoundException("Профиль не найден.");
+            return await _suggestionReadRepository.GetSentAsync(profile.Id, request.Page, request.Limit, cancellationToken);
         }
     }
 }

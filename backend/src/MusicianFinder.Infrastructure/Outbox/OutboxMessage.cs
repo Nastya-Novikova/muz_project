@@ -1,9 +1,12 @@
-﻿namespace MusicianFinder.Infrastructure.Outbox
+﻿using Microsoft.EntityFrameworkCore.Infrastructure;
+using MusicianFinder.SharedKernel;
+
+namespace MusicianFinder.Infrastructure.Outbox
 {
     /// <summary>
     /// Сообщение Outbox для гарантированной доставки интеграционных событий.
     /// </summary>
-    public class OutboxMessage
+    public class OutboxMessage : IInfrastructureEntity
     {
         /// <summary>Идентификатор сообщения.</summary>
         public Guid Id { get; set; }

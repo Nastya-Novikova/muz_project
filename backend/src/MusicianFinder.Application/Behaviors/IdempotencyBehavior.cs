@@ -1,6 +1,7 @@
 ﻿using System.Text.Json;
 using MediatR;
 using MusicianFinder.Application.Commands.Base;
+using MusicianFinder.Application.Core.Exceptions;
 using MusicianFinder.Application.Interfaces;
 
 namespace MusicianFinder.Application.Behaviors
@@ -45,12 +46,11 @@ namespace MusicianFinder.Application.Behaviors
                 return response;
             }
 
-            // Если запись уже существует, проверяем хеш
             if (record!.RequestHash != requestHash)
-                throw new InvalidOperationException("Несовпадение хеша запроса – ключ идемпотентности уже использован для другого запроса.");
+                throw new IdempotencyConflictException("Несовпадение хеша запроса – ключ идемпотентности уже использован для другого запроса.");
 
             if (record.Status == "InProgress")
-                throw new InvalidOperationException("Запрос с этим ключом уже выполняется."); // 409 Conflict
+                throw new IdempotencyConflictException("Запрос с этим ключом уже выполняется.");
 
             return JsonSerializer.Deserialize<TResponse>(record.Response!)!;
         }

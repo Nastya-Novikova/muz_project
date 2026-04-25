@@ -2,6 +2,7 @@
 using MusicianFinder.Application.Interfaces;
 using MusicianFinder.Application.Interfaces.Repositories;
 using MusicianFinder.Domain.Entities;
+using MusicianFinder.Domain.ValueObjects;
 
 namespace MusicianFinder.Application.Commands.Events
 {
@@ -37,7 +38,7 @@ namespace MusicianFinder.Application.Commands.Events
                 ?? throw new Application.Core.Exceptions.NotFoundException("Профиль не найден.");
 
             var newEvent = new Event(
-                request.Title,
+                new EventTitle(request.Title),
                 request.RegionId,
                 request.CityId,
                 request.Address,

@@ -7,6 +7,7 @@ using MusicianFinder.Application.DTOs.Notifications;
 using MusicianFinder.Application.DTOs.Profiles;
 using MusicianFinder.Application.DTOs.Suggestions;
 using MusicianFinder.Domain.Entities;
+using MusicianFinder.Domain.ValueObjects;
 
 namespace MusicianFinder.Application.Core.Mapping
 {
@@ -20,6 +21,16 @@ namespace MusicianFinder.Application.Core.Mapping
         /// </summary>
         public MappingProfile()
         {
+            // Value Objects → строки
+            CreateMap<ProfileName, string>().ConvertUsing(src => src.Value);
+            CreateMap<string, ProfileName>().ConvertUsing(src => new ProfileName(src));
+            CreateMap<PhoneNumber, string>().ConvertUsing(src => src.Value);
+            CreateMap<string, PhoneNumber>().ConvertUsing(src => new PhoneNumber(src));
+            CreateMap<TelegramHandle, string>().ConvertUsing(src => src.Value);
+            CreateMap<string, TelegramHandle>().ConvertUsing(src => new TelegramHandle(src));
+            CreateMap<EventTitle, string>().ConvertUsing(src => src.Value);
+            CreateMap<string, EventTitle>().ConvertUsing(src => new EventTitle(src));
+
             // Справочники
             CreateMap<City, LookupItemDto>();
             CreateMap<Region, LookupItemDto>();
@@ -29,6 +40,9 @@ namespace MusicianFinder.Application.Core.Mapping
 
             // Профили
             CreateMap<MusicianProfile, ProfileDto>()
+                .ForMember(dto => dto.FullName, opt => opt.MapFrom(src => src.FullName.Value))
+                .ForMember(dto => dto.Phone, opt => opt.MapFrom(src => src.Phone != null ? src.Phone.Value : null))
+                .ForMember(dto => dto.Telegram, opt => opt.MapFrom(src => src.Telegram != null ? src.Telegram.Value : null))
                 .ForMember(dto => dto.City, opt => opt.Ignore())
                 .ForMember(dto => dto.Genres, opt => opt.Ignore())
                 .ForMember(dto => dto.Specialties, opt => opt.Ignore())
@@ -40,12 +54,14 @@ namespace MusicianFinder.Application.Core.Mapping
                 .ForMember(dto => dto.IsCollaborated, opt => opt.Ignore());
 
             CreateMap<MusicianProfile, ProfileShortDto>()
+                .ForMember(dto => dto.FullName, opt => opt.MapFrom(src => src.FullName.Value))
                 .ForMember(dto => dto.City, opt => opt.Ignore())
                 .ForMember(dto => dto.Genres, opt => opt.Ignore())
                 .ForMember(dto => dto.Specialties, opt => opt.Ignore());
 
             // Мероприятия
             CreateMap<Event, EventDto>()
+                .ForMember(dto => dto.Title, opt => opt.MapFrom(src => src.Title.Value))
                 .ForMember(dto => dto.Region, opt => opt.Ignore())
                 .ForMember(dto => dto.City, opt => opt.Ignore())
                 .ForMember(dto => dto.CreatorFullName, opt => opt.Ignore())

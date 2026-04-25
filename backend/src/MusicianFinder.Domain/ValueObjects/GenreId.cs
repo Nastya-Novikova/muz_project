@@ -3,5 +3,5 @@
     /// <summary>
     /// Value Object, представляющий идентификатор музыкального жанра.
     /// </summary>
-    public sealed record GenreId(Guid Value);
+    public sealed record GenreId(int Value);
 }

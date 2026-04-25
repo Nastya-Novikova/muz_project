@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using MusicianFinder.Application.Core.Exceptions;
 using MusicianFinder.Application.Interfaces;
 using MusicianFinder.Application.Interfaces.Repositories;
 using MusicianFinder.Domain.ValueObjects;
@@ -30,17 +31,37 @@ namespace MusicianFinder.Application.Commands.Profiles
         public async Task<Unit> Handle(UpdateProfileCommand request, CancellationToken cancellationToken)
         {
             var profile = await _profileRepository.GetByUserIdAsync(_currentUser.UserId, cancellationToken)
-                ?? throw new Application.Core.Exceptions.NotFoundException("Профиль не найден.");
+                ?? throw new NotFoundException("Профиль не найден.");
 
-            profile.UpdateCoreInfo(request.FullName, request.Age, request.Description, request.CityId);
-            profile.UpdateContacts(
-                request.Phone != null ? new PhoneNumber(request.Phone) : null,
-                request.Telegram != null ? new TelegramHandle(request.Telegram) : null);
-            profile.SetGenres(request.GenreIds);
-            profile.SetSpecialties(request.SpecialtyIds);
-            profile.SetCollaborationGoals(request.CollaborationGoalIds);
-            profile.SetDesiredGenres(request.DesiredGenreIds);
-            profile.SetDesiredSpecialties(request.DesiredSpecialtyIds);
+            if (!string.IsNullOrWhiteSpace(request.FullName) || request.Age.HasValue ||
+                !string.IsNullOrWhiteSpace(request.Description) || request.CityId.HasValue)
+            {
+                profile.UpdateCoreInfo(
+                    request.FullName != null ? new ProfileName(request.FullName) : profile.FullName,
+                    request.Age ?? profile.Age,
+                    request.Description ?? profile.Description,
+                    request.CityId ?? profile.CityId);
+            }
+            if (!string.IsNullOrWhiteSpace(request.Phone) || !string.IsNullOrWhiteSpace(request.Telegram))
+            {
+                profile.UpdateContacts(
+                    request.Phone != null ? new PhoneNumber(request.Phone) : profile.Phone,
+                    request.Telegram != null ? new TelegramHandle(request.Telegram) : profile.Telegram);
+            }
+            if (request.GenreIds != null)
+                profile.SetGenres(request.GenreIds.Select(id => new GenreId(id)));
+            if (request.SpecialtyIds != null)
+                profile.SetSpecialties(request.SpecialtyIds.Select(id => new SpecialtyId(id)));
+            if (request.CollaborationGoalIds != null)
+                profile.SetCollaborationGoals(request.CollaborationGoalIds.Select(id => new CollaborationGoalId(id)));
+            if (request.DesiredGenreIds != null)
+                profile.SetDesiredGenres(request.DesiredGenreIds.Select(id => new GenreId(id)));
+            if (request.DesiredSpecialtyIds != null)
+                profile.SetDesiredSpecialties(request.DesiredSpecialtyIds.Select(id => new SpecialtyId(id)));
+            if (request.Experience.HasValue)
+                profile.SetExperience(request.Experience.Value);
+            if (request.LookingFor.HasValue)
+                profile.SetLookingFor(request.LookingFor.Value);
 
             return Unit.Value;
         }

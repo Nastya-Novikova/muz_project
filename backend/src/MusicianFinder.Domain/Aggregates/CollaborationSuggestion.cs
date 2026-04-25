@@ -1,6 +1,7 @@
 ﻿using MusicianFinder.SharedKernel;
 using MusicianFinder.Domain.DomainEvents;
 using MusicianFinder.Domain.Enums;
+using MusicianFinder.Domain.Entities;
 
 namespace MusicianFinder.Domain.Entities
 {
@@ -11,7 +12,6 @@ namespace MusicianFinder.Domain.Entities
     {
         private CollaborationSuggestion()
         {
-            // Поля инициализируются через публичные конструкторы
         }
 
         /// <summary>
@@ -50,6 +50,12 @@ namespace MusicianFinder.Domain.Entities
 
         /// <summary>Дата последнего обновления.</summary>
         public DateTime UpdatedAt { get; private set; }
+
+        /// <summary>Навигационное свойство: профиль отправителя.</summary>
+        public MusicianProfile FromProfile { get; private set; } = null!;
+
+        /// <summary>Навигационное свойство: профиль получателя.</summary>
+        public MusicianProfile ToProfile { get; private set; } = null!;
 
         /// <summary>
         /// Принимает предложение.

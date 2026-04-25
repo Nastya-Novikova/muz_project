@@ -14,26 +14,41 @@ namespace MusicianFinder.Application.Commands.Auth
 {
     /// <summary>
     /// Обработчик команды <see cref="LoginCommand"/>.
+    /// Выполняет вход или регистрацию по коду подтверждения.
     /// </summary>
     public class LoginCommandHandler : IRequestHandler<LoginCommand, AuthResponse>
     {
         private readonly IUserRepository _userRepository;
         private readonly IConfiguration _configuration;
+        private readonly IVerificationCodeService _verificationCodeService;
 
         /// <summary>
         /// Инициализирует новый экземпляр обработчика.
         /// </summary>
         /// <param name="userRepository">Репозиторий пользователей.</param>
         /// <param name="configuration">Конфигурация приложения.</param>
-        public LoginCommandHandler(IUserRepository userRepository, IConfiguration configuration)
+        /// <param name="verificationCodeService">Сервис для проверки кодов.</param>
+        public LoginCommandHandler(
+            IUserRepository userRepository,
+            IConfiguration configuration,
+            IVerificationCodeService verificationCodeService)
         {
             _userRepository = userRepository;
             _configuration = configuration;
+            _verificationCodeService = verificationCodeService;
         }
 
         /// <inheritdoc />
         public async Task<AuthResponse> Handle(LoginCommand request, CancellationToken cancellationToken)
         {
+            // Проверяем код через выделенный сервис
+            var isValid = await _verificationCodeService.ValidateCodeAsync(
+                request.Email, request.Code, cancellationToken);
+
+            if (!isValid)
+                throw new ValidationException("Неверный, просроченный или уже использованный код подтверждения.");
+
+            // Ищем или создаём пользователя
             var user = await _userRepository.GetByEmailAsync(request.Email, cancellationToken);
             if (user == null)
             {
@@ -41,13 +56,18 @@ namespace MusicianFinder.Application.Commands.Auth
                 _userRepository.Add(user);
             }
 
-            // Проверка кода опущена для краткости (должна сверяться с EmailVerificationCode)
             var token = GenerateJwtToken(user);
             return new AuthResponse
             {
                 Success = true,
                 Token = token,
-                User = new UserDto { Id = user.Id, Email = user.Email, Role = user.Role.ToString(), ProfileCreated = user.ProfileCreated }
+                User = new UserDto
+                {
+                    Id = user.Id,
+                    Email = user.Email,
+                    Role = user.Role.ToString(),
+                    ProfileCreated = user.ProfileCreated
+                }
             };
         }
 
@@ -65,7 +85,8 @@ namespace MusicianFinder.Application.Commands.Auth
                 Expires = DateTime.UtcNow.AddDays(7),
                 Issuer = _configuration["Jwt:Issuer"],
                 Audience = _configuration["Jwt:Audience"],
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+                SigningCredentials = new SigningCredentials(
+                    new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
             var tokenHandler = new JwtSecurityTokenHandler();
             return tokenHandler.WriteToken(tokenHandler.CreateToken(tokenDescriptor));

@@ -12,7 +12,7 @@ namespace MusicianFinder.Infrastructure.Persistence.Configurations
         /// <inheritdoc />
         public void Configure(EntityTypeBuilder<IdempotencyRecord> builder)
         {
-            builder.ToTable("IdempotencyRecords");
+            builder.ToTable("IdempotencyRecord");
             builder.HasKey(r => r.Key);
             builder.Property(r => r.Key).HasMaxLength(200);
             builder.Property(r => r.RequestHash).IsRequired().HasMaxLength(500);

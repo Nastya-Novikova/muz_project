@@ -12,7 +12,7 @@ namespace MusicianFinder.Infrastructure.Persistence.Configurations
         /// <inheritdoc />
         public void Configure(EntityTypeBuilder<OutboxMessage> builder)
         {
-            builder.ToTable("OutboxMessages");
+            builder.ToTable("OutboxMessage");
             builder.HasKey(m => m.Id);
             builder.Property(m => m.Id).ValueGeneratedNever();
             builder.Property(m => m.EventName).IsRequired().HasMaxLength(200);

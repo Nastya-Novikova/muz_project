@@ -52,7 +52,7 @@ namespace MusicianFinder.Infrastructure.Outbox
             var publisher = scope.ServiceProvider.GetRequiredService<IExternalBusPublisher>();
 
             var messages = await db.Set<OutboxMessage>()
-                .FromSqlRaw(@"SELECT * FROM ""OutboxMessages""
+                .FromSqlRaw(@"SELECT * FROM ""OutboxMessage""
                               WHERE ""ProcessedAt"" IS NULL AND ""NextAttemptAt"" <= NOW()
                               ORDER BY ""OccurredAt""
                               LIMIT 50 FOR UPDATE SKIP LOCKED")

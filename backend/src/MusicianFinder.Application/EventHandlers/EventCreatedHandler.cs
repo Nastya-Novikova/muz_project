@@ -9,7 +9,7 @@ namespace MusicianFinder.Application.EventHandlers
     /// Обработчик доменного события <see cref="EventCreated"/>.
     /// Записывает интеграционное событие <see cref="EventCreatedIntegrationEvent"/> в Outbox.
     /// </summary>
-    public class EventCreatedHandler : INotificationHandler<EventCreated>
+    public class EventCreatedHandler : INotificationHandler<DomainEventNotification<EventCreated>>
     {
         private readonly IOutboxWriter _outboxWriter;
 
@@ -23,9 +23,9 @@ namespace MusicianFinder.Application.EventHandlers
         }
 
         /// <inheritdoc />
-        public Task Handle(EventCreated notification, CancellationToken cancellationToken)
+        public Task Handle(DomainEventNotification<EventCreated> notification, CancellationToken cancellationToken)
         {
-            var integrationEvent = new EventCreatedIntegrationEvent(notification.EventId);
+            var integrationEvent = new EventCreatedIntegrationEvent(notification.DomainEvent.EventId);
             return _outboxWriter.WriteAsync(integrationEvent, cancellationToken);
         }
     }

@@ -17,7 +17,7 @@
         /// <param name="id">Уникальный идентификатор.</param>
         /// <param name="name">Английское название региона.</param>
         /// <param name="localizedName">Русское название региона.</param>
-        public Region(Guid id, string name, string localizedName)
+        public Region(int id, string name, string localizedName)
         {
             Id = id;
             Name = name;
@@ -27,7 +27,7 @@
         /// <summary>
         /// Идентификатор региона.
         /// </summary>
-        public Guid Id { get; private set; }
+        public int Id { get; private set; }
 
         /// <summary>
         /// Английское название региона.

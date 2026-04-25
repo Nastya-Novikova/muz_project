@@ -17,7 +17,7 @@
         /// <param name="id">Уникальный идентификатор.</param>
         /// <param name="name">Английское название жанра.</param>
         /// <param name="localizedName">Русское название жанра.</param>
-        public Genre(Guid id, string name, string localizedName)
+        public Genre(int id, string name, string localizedName)
         {
             Id = id;
             Name = name;
@@ -27,7 +27,7 @@
         /// <summary>
         /// Идентификатор жанра.
         /// </summary>
-        public Guid Id { get; private set; }
+        public int Id { get; private set; }
 
         /// <summary>
         /// Английское название жанра.

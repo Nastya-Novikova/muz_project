@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using MusicianFinder.Application.Core.Pagination;
 using MusicianFinder.Application.DTOs.Profiles;
 using MusicianFinder.Application.Interfaces.ReadRepositories;
-using MusicianFinder.Domain.Entities;
 
 namespace MusicianFinder.Infrastructure.Persistence.Repositories
 {
@@ -19,8 +18,6 @@ namespace MusicianFinder.Infrastructure.Persistence.Repositories
         /// <summary>
         /// Инициализирует новый экземпляр <see cref="FavoriteReadRepository"/>.
         /// </summary>
-        /// <param name="dbContext">Контекст базы данных.</param>
-        /// <param name="mapper">Маппер.</param>
         public FavoriteReadRepository(AppDbContext dbContext, IMapper mapper)
         {
             _dbContext = dbContext;
@@ -35,11 +32,27 @@ namespace MusicianFinder.Infrastructure.Persistence.Repositories
                 .Where(p => p.Favorites.Any(f => f.TargetProfileId == profileId));
 
             var total = await query.CountAsync(ct);
+
             var items = await query.Skip((page - 1) * limit).Take(limit)
                 .ProjectTo<ProfileDto>(_mapper.ConfigurationProvider)
                 .ToListAsync(ct);
 
             return new PagedResult<ProfileDto> { Items = items, Total = total, Page = page, Limit = limit };
+        }
+
+        /// <inheritdoc />
+        public async Task<HashSet<Guid>> GetFavoritedProfileIdsAsync(Guid addedByProfileId, IEnumerable<Guid> targetProfileIds, CancellationToken ct)
+        {
+            var ids = await _dbContext.MusicianProfiles
+                .AsNoTracking()
+                .Where(p => p.Id == addedByProfileId)
+                .SelectMany(p => p.Favorites)
+                .Where(f => targetProfileIds.Contains(f.TargetProfileId))
+                .Select(f => f.TargetProfileId)
+                .Distinct()
+                .ToListAsync(ct);
+
+            return new HashSet<Guid>(ids);
         }
     }
 }

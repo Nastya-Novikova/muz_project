@@ -9,7 +9,7 @@ namespace MusicianFinder.Application.EventHandlers
     /// Обработчик доменного события <see cref="FavoriteAdded"/>.
     /// Записывает интеграционное событие <see cref="FavoriteAddedIntegrationEvent"/> в Outbox.
     /// </summary>
-    public class FavoriteAddedHandler : INotificationHandler<FavoriteAdded>
+    public class FavoriteAddedHandler : INotificationHandler<DomainEventNotification<FavoriteAdded>>
     {
         private readonly IOutboxWriter _outboxWriter;
 
@@ -23,9 +23,9 @@ namespace MusicianFinder.Application.EventHandlers
         }
 
         /// <inheritdoc />
-        public Task Handle(FavoriteAdded notification, CancellationToken cancellationToken)
+        public Task Handle(DomainEventNotification<FavoriteAdded> notification, CancellationToken cancellationToken)
         {
-            var integrationEvent = new FavoriteAddedIntegrationEvent(notification.AddedByProfileId, notification.TargetProfileId);
+            var integrationEvent = new FavoriteAddedIntegrationEvent(notification.DomainEvent.AddedByProfileId, notification.DomainEvent.TargetProfileId);
             return _outboxWriter.WriteAsync(integrationEvent, cancellationToken);
         }
     }

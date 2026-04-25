@@ -14,7 +14,7 @@ namespace MusicianFinder.Infrastructure.Persistence.Configurations
         /// <inheritdoc />
         public void Configure(EntityTypeBuilder<MusicianProfile> builder)
         {
-            builder.ToTable("MusicianProfiles");
+            builder.ToTable("MusicianProfile");
             builder.HasKey(p => p.Id);
 
             builder.Property(p => p.FullName)
@@ -53,9 +53,10 @@ namespace MusicianFinder.Infrastructure.Persistence.Configurations
 
             builder.OwnsMany(p => p.Portfolio, a =>
             {
-                a.ToTable("PortfolioItems");
+                a.ToTable("PortfolioItem");
                 a.WithOwner().HasForeignKey("ProfileId");
                 a.HasKey("Id");
+                a.Ignore("xmin");
                 a.Property(x => x.Title).HasMaxLength(100).IsRequired();
                 a.Property(x => x.Description).HasMaxLength(500);
                 a.Property(x => x.FileUrl).IsRequired();
@@ -67,7 +68,7 @@ namespace MusicianFinder.Infrastructure.Persistence.Configurations
 
             builder.OwnsMany(p => p.Favorites, b =>
             {
-                b.ToTable("Favorites");
+                b.ToTable("Favorite");
                 b.WithOwner().HasForeignKey("AddedByProfileId");
                 b.HasKey("AddedByProfileId", "TargetProfileId");
                 b.Property(x => x.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
@@ -75,7 +76,7 @@ namespace MusicianFinder.Infrastructure.Persistence.Configurations
 
             builder.OwnsMany(p => p.Notifications, b =>
             {
-                b.ToTable("Notifications");
+                b.ToTable("Notification");
                 b.WithOwner().HasForeignKey("ProfileId");
                 b.HasKey(x => x.Id);
                 b.Property(x => x.Title).IsRequired().HasMaxLength(200);
@@ -86,46 +87,50 @@ namespace MusicianFinder.Infrastructure.Persistence.Configurations
                 b.Property(x => x.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
             });
 
-            // Примитивные коллекции идентификаторов
+            // Удалите старый код для GenreIds, SpecialtyIds и т.д. и вставьте этот:
             builder.OwnsMany(p => p.GenreIds, b =>
             {
-                b.ToTable("MusicianProfileGenres");
+                b.ToTable("MusicianProfileGenre");
                 b.WithOwner().HasForeignKey("MusicianProfileId");
-                b.Property<Guid>("Value").HasColumnName("GenreId");
-                b.HasKey("Value");
+                b.Property<int>("GenreId");
             });
 
             builder.OwnsMany(p => p.SpecialtyIds, b =>
             {
-                b.ToTable("MusicianProfileSpecialties");
+                b.ToTable("MusicianProfileSpecialty");
                 b.WithOwner().HasForeignKey("MusicianProfileId");
-                b.Property<Guid>("Value").HasColumnName("SpecialtyId");
-                b.HasKey("Value");
+                b.Property<int>("SpecialtyId");
             });
 
             builder.OwnsMany(p => p.CollaborationGoalIds, b =>
             {
-                b.ToTable("MusicianProfileCollaborationGoals");
+                b.ToTable("MusicianProfileCollaborationGoal");
                 b.WithOwner().HasForeignKey("MusicianProfileId");
-                b.Property<Guid>("Value").HasColumnName("CollaborationGoalId");
-                b.HasKey("Value");
+                b.Property<int>("CollaborationGoalId");
             });
 
             builder.OwnsMany(p => p.DesiredGenreIds, b =>
             {
-                b.ToTable("MusicianProfileDesiredGenres");
+                b.ToTable("MusicianProfileDesiredGenre");
                 b.WithOwner().HasForeignKey("MusicianProfileId");
-                b.Property<Guid>("Value").HasColumnName("GenreId");
-                b.HasKey("Value");
+                b.Property<int>("GenreId");
             });
 
             builder.OwnsMany(p => p.DesiredSpecialtyIds, b =>
             {
-                b.ToTable("MusicianProfileDesiredSpecialties");
+                b.ToTable("MusicianProfileDesiredSpecialty");
                 b.WithOwner().HasForeignKey("MusicianProfileId");
-                b.Property<Guid>("Value").HasColumnName("SpecialtyId");
-                b.HasKey("Value");
+                b.Property<int>("SpecialtyId");
             });
+
+            builder.Navigation(p => p.GenreIds).AutoInclude(false);
+            builder.Navigation(p => p.SpecialtyIds).AutoInclude(false);
+            builder.Navigation(p => p.CollaborationGoalIds).AutoInclude(false);
+            builder.Navigation(p => p.DesiredGenreIds).AutoInclude(false);
+            builder.Navigation(p => p.DesiredSpecialtyIds).AutoInclude(false);
+            builder.Navigation(p => p.Portfolio).AutoInclude(false);
+            builder.Navigation(p => p.Favorites).AutoInclude(false);
+            builder.Navigation(p => p.Notifications).AutoInclude(false);
 
             builder.Ignore(p => p.DomainEvents);
         }
