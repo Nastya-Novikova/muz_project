@@ -435,8 +435,8 @@ bin/
 obj/
 Debug/
 Release/
-/backend/Migrations/
-backend/Migrations/
+/backend/src/MusicianFinder.Infrastructure/Migrations/
+backend/src/MusicianFinder.Infrastructure/Migrations/
 *.sln
 *.suo
 *.user
@@ -444,3 +444,4 @@ backend/Migrations/
 *.vs/
 *.vscode/
 /init.sql
+/backend/src/MusicianFinder.Infrastructure/Migrations/MusicianFinderDbContextModelSnapshot.cs

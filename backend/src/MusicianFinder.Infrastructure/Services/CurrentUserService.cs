@@ -1,16 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using MusicianFinder.Application.Interfaces;
-using System.Security.Claims;
 
 namespace MusicianFinder.Infrastructure.Services
 {
     /// <summary>
-    /// Сервис для получения информации о текущем аутентифицированном пользователе.
+    /// Сервис получения информации о текущем пользователе из JWT-токена.
     /// </summary>
     public class CurrentUserService : ICurrentUserService
     {
@@ -19,7 +14,7 @@ namespace MusicianFinder.Infrastructure.Services
         /// <summary>
         /// Инициализирует новый экземпляр <see cref="CurrentUserService"/>.
         /// </summary>
-        /// <param name="httpContextAccessor">Аксессор HTTP-контекста.</param>
+        /// <param name="httpContextAccessor">Аксессор HttpContext.</param>
         public CurrentUserService(IHttpContextAccessor httpContextAccessor)
         {
             _httpContextAccessor = httpContextAccessor;
@@ -30,8 +25,8 @@ namespace MusicianFinder.Infrastructure.Services
         {
             get
             {
-                var userIdClaim = _httpContextAccessor.HttpContext?.User.FindFirst("userId")?.Value;
-                return Guid.TryParse(userIdClaim, out var userId) ? userId : Guid.Empty;
+                var claim = _httpContextAccessor.HttpContext?.User.FindFirst("userId");
+                return claim != null ? Guid.Parse(claim.Value) : Guid.Empty;
             }
         }
 
@@ -40,7 +35,8 @@ namespace MusicianFinder.Infrastructure.Services
         {
             get
             {
-                return _httpContextAccessor.HttpContext?.User.FindFirst("email")?.Value ?? string.Empty;
+                var claim = _httpContextAccessor.HttpContext?.User.FindFirst("email");
+                return claim?.Value ?? string.Empty;
             }
         }
 
@@ -49,17 +45,13 @@ namespace MusicianFinder.Infrastructure.Services
         {
             get
             {
-                return _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.Role)?.Value ?? string.Empty;
+                var claim = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.Role);
+                return claim?.Value ?? string.Empty;
             }
         }
 
         /// <inheritdoc />
-        public bool IsAuthenticated
-        {
-            get
-            {
-                return _httpContextAccessor.HttpContext?.User.Identity?.IsAuthenticated ?? false;
-            }
-        }
+        public bool IsAuthenticated =>
+            _httpContextAccessor.HttpContext?.User.Identity?.IsAuthenticated ?? false;
     }
 }

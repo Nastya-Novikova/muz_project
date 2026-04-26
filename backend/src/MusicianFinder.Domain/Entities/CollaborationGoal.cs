@@ -1,28 +1,31 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace MusicianFinder.Domain.Entities
+﻿namespace MusicianFinder.Domain.Entities
 {
     /// <summary>
-    /// Цель сотрудничества.
+    /// Цель сотрудничества (справочник).
     /// </summary>
     public class CollaborationGoal
     {
-        private readonly List<MusicianProfile> _profiles = new();
-
-        private CollaborationGoal() { }
-
-        public CollaborationGoal(string name, string localizedName)
+        private CollaborationGoal()
         {
+            Name = string.Empty;
+            LocalizedName = string.Empty;
+        }
+
+        /// <summary>
+        /// Инициализирует новый экземпляр цели сотрудничества.
+        /// </summary>
+        /// <param name="id">Уникальный идентификатор.</param>
+        /// <param name="name">Английское название цели.</param>
+        /// <param name="localizedName">Русское название цели.</param>
+        public CollaborationGoal(int id, string name, string localizedName)
+        {
+            Id = id;
             Name = name;
             LocalizedName = localizedName;
         }
 
         /// <summary>
-        /// Идентификатор.
+        /// Идентификатор цели.
         /// </summary>
         public int Id { get; private set; }
 
@@ -35,10 +38,5 @@ namespace MusicianFinder.Domain.Entities
         /// Русское название цели.
         /// </summary>
         public string LocalizedName { get; private set; }
-
-        /// <summary>
-        /// Связанные профили.
-        /// </summary>
-        public IReadOnlyCollection<MusicianProfile> Profiles => _profiles.AsReadOnly();
     }
 }

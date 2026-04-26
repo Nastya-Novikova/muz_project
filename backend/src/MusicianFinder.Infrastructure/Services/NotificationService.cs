@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Microsoft.EntityFrameworkCore;
 using MusicianFinder.Application.Interfaces;
+using MusicianFinder.Application.Interfaces.Repositories;
 using MusicianFinder.Domain.Entities;
 using MusicianFinder.Domain.Enums;
-using MusicianFinder.Domain.Interfaces;
+using MusicianFinder.Infrastructure.Persistence;
 
 namespace MusicianFinder.Infrastructure.Services
 {
@@ -15,81 +12,71 @@ namespace MusicianFinder.Infrastructure.Services
     /// </summary>
     public class NotificationService : INotificationService
     {
-        private readonly INotificationRepository _notificationRepository;
-        private readonly IProfileRepository _profileRepository;
-        private readonly IUserRepository _userRepository;
+        private readonly AppDbContext _dbContext;
         private readonly IEmailService _emailService;
         private readonly IVkService _vkService;
+        private readonly IMusicianProfileRepository _profileRepository;
 
         /// <summary>
         /// Инициализирует новый экземпляр <see cref="NotificationService"/>.
         /// </summary>
-        /// <param name="notificationRepository">Репозиторий уведомлений.</param>
-        /// <param name="profileRepository">Репозиторий профилей.</param>
-        /// <param name="userRepository">Репозиторий пользователей.</param>
+        /// <param name="dbContext">Контекст базы данных.</param>
         /// <param name="emailService">Сервис email.</param>
         /// <param name="vkService">Сервис VK.</param>
         public NotificationService(
-            INotificationRepository notificationRepository,
-            IProfileRepository profileRepository,
-            IUserRepository userRepository,
+            AppDbContext dbContext,
             IEmailService emailService,
-            IVkService vkService)
+            IVkService vkService,
+            IMusicianProfileRepository musicianProfileRepository)
         {
-            _notificationRepository = notificationRepository;
-            _profileRepository = profileRepository;
-            _userRepository = userRepository;
+            _dbContext = dbContext;
             _emailService = emailService;
             _vkService = vkService;
+            _profileRepository = musicianProfileRepository;
         }
 
         /// <inheritdoc />
-        public async Task SendNotificationToProfileAsync(Guid profileId, NotificationType type, Dictionary<string, object> data)
+        public async Task SendNotificationToProfileAsync(MusicianProfile profile, NotificationType type, Dictionary<string, object> data)
         {
-            var profile = await _profileRepository.GetByIdAsync(profileId);
-            if (profile == null)
-                return;
-
             var (title, message) = GetNotificationText(type, data);
-
-            var internalNotification = new Notification(
-                profileId,
+            var notification = new Notification(
+                profile.Id,
                 type,
                 title,
                 GetEntityType(type),
                 GetEntityId(data),
                 message);
 
-            await _notificationRepository.AddAsync(internalNotification);
+            await _profileRepository.AddNotificationAsync(profile.Id, notification);
 
+            //var profile = await _profileRepository.
+
+            // Email/VK можно отправить, прочитав настройки из того же профиля (он в памяти)
             if (profile.NotifyByEmail && !string.IsNullOrEmpty(profile.Email))
                 await _emailService.SendNotificationAsync(profile.Email, title, message);
-
-            if (profile.NotifyByVk && !string.IsNullOrEmpty(profile.VkUserId))
-            {
-                var user = await _userRepository.GetByMusicianProfileIdAsync(profile.Id);
-                if (user != null)
-                    await _vkService.SendNotificationAsync(user.Id, message);
-            }
+            if (profile.NotifyByVk && profile.VkUserId != null)
+                await _vkService.SendNotificationAsync(profile.UserId, message ?? title);
         }
 
         /// <inheritdoc />
         public async Task SendNotificationToUserAsync(Guid userId, NotificationType type, Dictionary<string, object> data)
         {
-            var user = await _userRepository.GetByIdAsync(userId);
-            if (user?.MusicianProfile == null)
-                return;
+            var profile = await _dbContext.MusicianProfiles.FirstOrDefaultAsync(p => p.UserId == userId && !p.IsDeleted);
+            if (profile == null) return;
 
-            await SendNotificationToProfileAsync(user.MusicianProfile.Id, type, data);
+            await SendNotificationToProfileAsync(profile, type, data);
         }
 
-        private static (string Title, string Message) GetNotificationText(NotificationType type, Dictionary<string, object> data)
+        private static (string Title, string Message) GetNotificationText(
+            NotificationType type, Dictionary<string, object> data)
         {
             return type switch
             {
                 NotificationType.CollaborationReceived => (
                     $"Пользователь {data["fromProfileName"]} отправил вам предложение о сотрудничестве",
-                    data.TryGetValue("message", out var msg) ? msg?.ToString() ?? "У вас новое предложение о сотрудничестве" : "У вас новое предложение о сотрудничестве"
+                    data.TryGetValue("message", out var msg)
+                        ? msg?.ToString() ?? "У вас новое предложение о сотрудничестве"
+                        : "У вас новое предложение о сотрудничестве"
                 ),
                 NotificationType.EventRegistration => (
                     "Регистрация подтверждена",

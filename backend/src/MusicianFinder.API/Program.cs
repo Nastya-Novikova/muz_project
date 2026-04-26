@@ -1,12 +1,11 @@
 using MusicianFinder.API.Extensions;
 using MusicianFinder.API.Middleware;
-using MusicianFinder.Application;               // Для метода AddApplication
-using MusicianFinder.Infrastructure.Extensions; // Для метода AddInfrastructure
+using MusicianFinder.Application.Extensions;
+using MusicianFinder.Infrastructure.Extensions;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Настройка Serilog
 Log.Logger = new LoggerConfiguration()
     .ReadFrom.Configuration(builder.Configuration)
     .Enrich.FromLogContext()
@@ -16,7 +15,6 @@ Log.Logger = new LoggerConfiguration()
 
 builder.Host.UseSerilog();
 
-// Регистрация сервисов
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
@@ -25,34 +23,26 @@ builder.Services.AddControllers()
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerWithJwt();
-
 builder.Services.AddCorsPolicy(builder.Configuration);
-
-builder.Services.AddApplication();                // Регистрация слоя Application
-builder.Services.AddInfrastructure(builder.Configuration); // Регистрация слоя Infrastructure
-
+builder.Services.AddApplication();
+builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddJwtAuthentication(builder.Configuration);
 builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
-// Middleware
-app.UseMiddleware<ExceptionHandlingMiddleware>();
+app.UseMiddleware<CorrelationIdMiddleware>();
+app.UseMiddleware<ErrorHandlingMiddleware>();
 app.UseMiddleware<RequestLoggingMiddleware>();
 
 app.UseSwagger();
 app.UseSwaggerUI();
 
-app.UseHttpsRedirection();
-
-app.UseCors("AllowAll");
+app.UseCors("DefaultCorsPolicy");
 
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-
-// Применение миграций
-app.ApplyMigrations();
 
 app.Run();

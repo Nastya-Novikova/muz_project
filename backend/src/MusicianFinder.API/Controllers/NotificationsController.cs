@@ -1,69 +1,99 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MusicianFinder.Application.Features.Notifications.GetNotifications;
-using MusicianFinder.Application.Features.Notifications.GetUnreadCount;
-using MusicianFinder.Application.Features.Notifications.MarkAllNotificationsAsRead;
-using MusicianFinder.Application.Features.Notifications.MarkNotificationAsRead;
+using MusicianFinder.Application.Commands.Notifications;
+using MusicianFinder.Application.Core.Pagination;
+using MusicianFinder.Application.DTOs.Notifications;
+using MusicianFinder.Application.Queries.Notifications;
 
 namespace MusicianFinder.API.Controllers
 {
     /// <summary>
-    /// Контроллер уведомлений.
+    /// Контроллер для работы с уведомлениями текущего пользователя.
     /// </summary>
-    [ApiController]
-    [Route("api/[controller]")]
     [Authorize]
-    public class NotificationsController : ControllerBase
+    [ApiController]
+    [Route("api/notifications")]
+    public class NotificationsController : BaseApiController
     {
-        private readonly IMediator _mediator;
-
         /// <summary>
-        /// Инициализирует новый экземпляр <see cref="NotificationsController"/>.
+        /// Получить список уведомлений текущего пользователя.
         /// </summary>
-        public NotificationsController(IMediator mediator)
-        {
-            _mediator = mediator;
-        }
-
-        /// <summary>
-        /// Получить уведомления.
-        /// </summary>
+        /// <param name="query">Параметры пагинации.</param>
+        /// <returns>Страница с уведомлениями.</returns>
         [HttpGet]
+        [ProducesResponseType(typeof(PagedResult<NotificationDto>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetNotifications([FromQuery] GetNotificationsQuery query)
         {
-            var result = await _mediator.Send(query);
+            var result = await Mediator.Send(query);
             return Ok(result);
         }
 
         /// <summary>
-        /// Отметить уведомление прочитанным.
+        /// Отметить одно уведомление как прочитанное.
         /// </summary>
-        [HttpPatch("{id}/read")]
-        public async Task<IActionResult> MarkAsRead(Guid id)
+        /// <param name="id">Идентификатор уведомления.</param>
+        /// <returns>Статус 204 No Content.</returns>
+        [HttpPatch("{id:guid}/read")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> MarkNotificationAsRead(Guid id)
         {
-            await _mediator.Send(new MarkNotificationAsReadCommand { NotificationId = id });
-            return Ok(new { success = true });
+            var command = new MarkNotificationAsReadCommand { NotificationId = id };
+            SetIdempotencyKey(command);
+            await Mediator.Send(command);
+            return NoContent();
         }
 
         /// <summary>
-        /// Отметить все уведомления прочитанными.
+        /// Отметить все уведомления как прочитанные.
         /// </summary>
-        [HttpPost("mark-all-read")]
-        public async Task<IActionResult> MarkAllAsRead()
+        /// <returns>Статус 204 No Content.</returns>
+        [HttpPost("read-all")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        public async Task<IActionResult> MarkAllNotificationsAsRead()
         {
-            await _mediator.Send(new MarkAllNotificationsAsReadCommand());
-            return Ok(new { success = true });
+            var command = new MarkAllNotificationsAsReadCommand();
+            SetIdempotencyKey(command);
+            await Mediator.Send(command);
+            return NoContent();
         }
 
         /// <summary>
-        /// Получить количество непрочитанных.
+        /// Получить количество непрочитанных уведомлений.
         /// </summary>
+        /// <returns>Количество непрочитанных уведомлений.</returns>
         [HttpGet("unread-count")]
+        [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetUnreadCount()
         {
-            var count = await _mediator.Send(new GetUnreadCountQuery());
+            var count = await Mediator.Send(new GetUnreadCountQuery());
             return Ok(new { unreadCount = count });
+        }
+
+        /// <summary>
+        /// Получить текущие настройки уведомлений.
+        /// </summary>
+        [HttpGet("settings")]
+        [ProducesResponseType(typeof(NotificationSettingsDto), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetNotificationSettings()
+        {
+            var result = await Mediator.Send(new GetNotificationSettingsQuery());
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Обновить настройки уведомлений.
+        /// </summary>
+        [HttpPatch("settings")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> UpdateNotificationSettings([FromBody] UpdateNotificationSettingsCommand command)
+        {
+            SetIdempotencyKey(command);
+            await Mediator.Send(command);
+            return NoContent();
         }
     }
 }

@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using MusicianFinder.Application.Features.VkIntegration.DTOs;
-
-namespace MusicianFinder.Application.Interfaces
+﻿namespace MusicianFinder.Application.Interfaces
 {
     /// <summary>
     /// Сервис для взаимодействия с API ВКонтакте.
@@ -13,17 +6,16 @@ namespace MusicianFinder.Application.Interfaces
     public interface IVkService
     {
         /// <summary>
-        /// Привязать аккаунт ВКонтакте к профилю пользователя.
+        /// Привязывает аккаунт ВКонтакте к профилю пользователя.
         /// </summary>
-        /// <param name="userId">Идентификатор пользователя.</param>
+        /// <param name="userId">Идентификатор пользователя системы.</param>
         /// <param name="code">Код авторизации OAuth.</param>
         /// <param name="codeVerifier">Верификатор кода (PKCE).</param>
         /// <param name="deviceId">Идентификатор устройства.</param>
-        /// <returns>Результат операции.</returns>
         Task ConnectVkAsync(Guid userId, string code, string codeVerifier, string deviceId);
 
         /// <summary>
-        /// Обменять временный код на идентификатор пользователя ВКонтакте.
+        /// Обменивает временный код на идентификатор пользователя ВКонтакте.
         /// </summary>
         /// <param name="code">Код авторизации.</param>
         /// <param name="codeVerifier">Верификатор кода.</param>
@@ -32,7 +24,7 @@ namespace MusicianFinder.Application.Interfaces
         Task<long?> ExchangeCodeAsync(string code, string codeVerifier, string deviceId);
 
         /// <summary>
-        /// Отправить сообщение пользователю ВКонтакте.
+        /// Отправляет сообщение пользователю ВКонтакте.
         /// </summary>
         /// <param name="userId">Идентификатор пользователя системы.</param>
         /// <param name="message">Текст сообщения.</param>

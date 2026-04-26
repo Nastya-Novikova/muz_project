@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using MusicianFinder.Domain.Entities;
+using MusicianFinder.Domain.Enums;
 
 namespace MusicianFinder.Infrastructure.Persistence.Configurations
 {
@@ -19,8 +15,10 @@ namespace MusicianFinder.Infrastructure.Persistence.Configurations
         {
             builder.ToTable("CollaborationSuggestion");
             builder.HasKey(cs => cs.Id);
+            builder.Property(cs => cs.FromProfileId).IsRequired();
+            builder.Property(cs => cs.ToProfileId).IsRequired();
             builder.Property(cs => cs.Message).HasMaxLength(500);
-            builder.Property(cs => cs.Status).IsRequired().HasMaxLength(20);
+            builder.Property(cs => cs.Status).HasConversion<string>().HasMaxLength(20);
             builder.Property(cs => cs.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
             builder.Property(cs => cs.UpdatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
 
@@ -33,6 +31,8 @@ namespace MusicianFinder.Infrastructure.Persistence.Configurations
                 .WithMany()
                 .HasForeignKey(cs => cs.ToProfileId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Ignore(cs => cs.DomainEvents);
         }
     }
 }

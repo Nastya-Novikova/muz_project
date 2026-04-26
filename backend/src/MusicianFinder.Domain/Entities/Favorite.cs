@@ -1,42 +1,38 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace MusicianFinder.Domain.Entities
+﻿namespace MusicianFinder.Domain.Entities
 {
     /// <summary>
-    /// Избранный профиль пользователя.
+    /// Запись в избранном: связь между двумя музыкальными профилями.
+    /// Принадлежит агрегату MusicianProfile того, кто добавил в избранное.
     /// </summary>
     public class Favorite
     {
         private Favorite() { }
 
-        public Favorite(Guid userId, Guid profileId)
+        /// <summary>
+        /// Инициализирует новую запись избранного.
+        /// </summary>
+        /// <param name="addedByProfileId">Идентификатор профиля, который добавил в избранное.</param>
+        /// <param name="targetProfileId">Идентификатор профиля, добавленного в избранное.</param>
+        public Favorite(Guid addedByProfileId, Guid targetProfileId)
         {
-            UserId = userId;
-            ProfileId = profileId;
+            AddedByProfileId = addedByProfileId;
+            TargetProfileId = targetProfileId;
             CreatedAt = DateTime.UtcNow;
         }
 
         /// <summary>
-        /// Идентификатор пользователя, добавившего в избранное.
+        /// Идентификатор профиля, добавившего в избранное.
         /// </summary>
-        public Guid UserId { get; private set; }
+        public Guid AddedByProfileId { get; private set; }
 
         /// <summary>
         /// Идентификатор профиля, добавленного в избранное.
         /// </summary>
-        public Guid ProfileId { get; private set; }
+        public Guid TargetProfileId { get; private set; }
 
         /// <summary>
         /// Дата добавления.
         /// </summary>
         public DateTime CreatedAt { get; private set; }
-
-        // Навигационные свойства
-        public User? User { get; private set; }
-        public MusicianProfile? Profile { get; private set; }
     }
 }

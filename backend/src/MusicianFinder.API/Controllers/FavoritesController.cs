@@ -1,69 +1,65 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MusicianFinder.Application.Features.Favorites.AddFavorite;
-using MusicianFinder.Application.Features.Favorites.CheckIsFavorite;
-using MusicianFinder.Application.Features.Favorites.GetFavorites;
-using MusicianFinder.Application.Features.Favorites.RemoveFavorite;
+using MusicianFinder.Application.Commands.Favorites;
+using MusicianFinder.Application.Core.Pagination;
+using MusicianFinder.Application.DTOs.Profiles;
+using MusicianFinder.Application.Queries.Favorites;
 
 namespace MusicianFinder.API.Controllers
 {
     /// <summary>
-    /// Контроллер избранного.
+    /// Контроллер для управления избранными профилями текущего пользователя.
     /// </summary>
-    [ApiController]
-    [Route("api/[controller]")]
     [Authorize]
-    public class FavoritesController : ControllerBase
+    [ApiController]
+    [Route("api")]
+    public class FavoritesController : BaseApiController
     {
-        private readonly IMediator _mediator;
-
         /// <summary>
-        /// Инициализирует новый экземпляр <see cref="FavoritesController"/>.
+        /// Получить список избранных профилей.
         /// </summary>
-        public FavoritesController(IMediator mediator)
-        {
-            _mediator = mediator;
-        }
-
-        /// <summary>
-        /// Получить избранные профили.
-        /// </summary>
-        [HttpGet]
+        /// <param name="query">Параметры пагинации.</param>
+        /// <returns>Страница с избранными профилями.</returns>
+        [HttpGet("me/favorites")]
+        [ProducesResponseType(typeof(PagedResult<ProfileDto>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetFavorites([FromQuery] GetFavoritesQuery query)
         {
-            var result = await _mediator.Send(query);
+            var result = await Mediator.Send(query);
             return Ok(result);
         }
 
         /// <summary>
-        /// Добавить в избранное.
+        /// Добавить профиль в избранное.
         /// </summary>
-        [HttpPost("{profileId}")]
-        public async Task<IActionResult> Add(Guid profileId)
+        /// <param name="profileId">Идентификатор профиля.</param>
+        /// <returns>Статус 204 No Content.</returns>
+        [HttpPut("{profileId:guid}/favorite")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        public async Task<IActionResult> AddFavorite(Guid profileId)
         {
-            await _mediator.Send(new AddFavoriteCommand { ProfileId = profileId });
-            return Ok(new { success = true });
+            var command = new AddFavoriteCommand { TargetProfileId = profileId };
+            SetIdempotencyKey(command);
+            await Mediator.Send(command);
+            return NoContent();
         }
 
         /// <summary>
-        /// Удалить из избранного.
+        /// Удалить профиль из избранного.
         /// </summary>
-        [HttpDelete("{profileId}")]
-        public async Task<IActionResult> Remove(Guid profileId)
+        /// <param name="profileId">Идентификатор профиля.</param>
+        /// <returns>Статус 204 No Content.</returns>
+        [HttpDelete("{profileId:guid}/favorite")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> RemoveFavorite(Guid profileId)
         {
-            await _mediator.Send(new RemoveFavoriteCommand { ProfileId = profileId });
-            return Ok(new { success = true });
-        }
-
-        /// <summary>
-        /// Проверить, в избранном ли профиль.
-        /// </summary>
-        [HttpGet("{profileId}/is-favorite")]
-        public async Task<IActionResult> CheckIsFavorite(Guid profileId)
-        {
-            var result = await _mediator.Send(new CheckIsFavoriteQuery { ProfileId = profileId });
-            return Ok(new { isFavorite = result });
+            var command = new RemoveFavoriteCommand { TargetProfileId = profileId };
+            SetIdempotencyKey(command);
+            await Mediator.Send(command);
+            return NoContent();
         }
     }
 }

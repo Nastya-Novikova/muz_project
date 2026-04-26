@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MusicianFinder.Application.Interfaces;
-using MusicianFinder.Domain.Interfaces;
-using MusicianFinder.Infrastructure.BackgroundServices;
+using MusicianFinder.Application.Interfaces.ReadRepositories;
+using MusicianFinder.Application.Interfaces.Repositories;
+using MusicianFinder.Infrastructure.Idempotency;
+using MusicianFinder.Infrastructure.Outbox;
 using MusicianFinder.Infrastructure.Persistence;
 using MusicianFinder.Infrastructure.Persistence.Repositories;
 using MusicianFinder.Infrastructure.Services;
@@ -16,48 +13,56 @@ using MusicianFinder.Infrastructure.Services;
 namespace MusicianFinder.Infrastructure.Extensions
 {
     /// <summary>
-    /// Методы расширения для регистрации сервисов слоя Infrastructure.
+    /// Регистрация всех зависимостей слоя Infrastructure.
     /// </summary>
     public static class ServiceCollectionExtensions
     {
         /// <summary>
-        /// Добавляет сервисы слоя Infrastructure в контейнер DI.
+        /// Добавляет службы Infrastructure в DI-контейнер.
         /// </summary>
-        /// <param name="services">Коллекция сервисов.</param>
-        /// <param name="configuration">Конфигурация приложения.</param>
-        /// <returns>Коллекция сервисов с добавленными зависимостями.</returns>
         public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddDbContext<MusicianFinderDbContext>(options =>
+            services.AddDistributedMemoryCache();
+
+            services.AddDbContext<AppDbContext>(options =>
                 options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
 
-            services.AddScoped<DbContext>(sp => sp.GetRequiredService<MusicianFinderDbContext>());
+            services.AddScoped<DbContext>(sp => sp.GetRequiredService<AppDbContext>());
 
-            services.AddScoped<ICityRepository, CityRepository>();
-            services.AddScoped<IRegionRepository, RegionRepository>();
-            services.AddScoped<IGenreRepository, GenreRepository>();
-            services.AddScoped<IMusicalSpecialtyRepository, MusicalSpecialtyRepository>();
-            services.AddScoped<ICollaborationGoalRepository, CollaborationGoalRepository>();
-            services.AddScoped<IUserRepository, UserRepository>();
-            services.AddScoped<IProfileRepository, ProfileRepository>();
+            // Write-репозитории
+            services.AddScoped<IMusicianProfileRepository, MusicianProfileRepository>();
             services.AddScoped<IEventRepository, EventRepository>();
-            services.AddScoped<IFavoriteRepository, FavoriteRepository>();
+            services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<ICollaborationSuggestionRepository, CollaborationSuggestionRepository>();
-            services.AddScoped<INotificationRepository, NotificationRepository>();
-            services.AddScoped<IPortfolioAudioRepository, PortfolioAudioRepository>();
-            services.AddScoped<IPortfolioVideoRepository, PortfolioVideoRepository>();
-            services.AddScoped<IPortfolioPhotoRepository, PortfolioPhotoRepository>();
-            services.AddScoped<IEmailVerificationCodeRepository, EmailVerificationCodeRepository>();
 
+            // Read-репозитории
+            services.AddScoped<IProfileReadRepository, ProfileReadRepository>();
+            services.AddScoped<IEventReadRepository, EventReadRepository>();
+            services.AddScoped<IUserReadRepository, UserReadRepository>();
+            services.AddScoped<ICollaborationSuggestionReadRepository, CollaborationSuggestionReadRepository>();
+            services.AddScoped<IFavoriteReadRepository, FavoriteReadRepository>();
+            services.AddScoped<INotificationReadRepository, NotificationReadRepository>();
+            services.AddScoped<IReferenceDataReadRepository, ReferenceDataReadRepository>();
+
+            // Сервисы
+            services.AddScoped<ICurrentUserService, CurrentUserService>();
+            services.AddScoped<IVerificationCodeService, VerificationCodeService>();
+            services.AddScoped<IOutboxWriter, OutboxWriter>();
+            services.AddScoped<IDomainEventDispatcher, DomainEventDispatcher>();
             services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<IFileStorage, MinioFileStorage>();
             services.AddScoped<IVkService, VkService>();
             services.AddScoped<INotificationService, NotificationService>();
-            services.AddScoped<ICurrentUserService, CurrentUserService>();
+            services.AddScoped<ICacheService, RedisCacheService>();
+            services.AddSingleton<IIntegrationEventTypeRegistry, IntegrationEventTypeRegistry>();
+            services.AddSingleton<IExternalBusPublisher, ExternalBusPublisher>();
+            services.AddScoped<IIdempotencyStore, DatabaseIdempotencyStore>();
+            services.AddScoped<IReferenceDataValidationService, ReferenceDataValidationService>();
+
+            // Фоновые процессы
+            services.AddHostedService<OutboxProcessor>();
 
             services.AddHttpContextAccessor();
-
-            services.AddHostedService<EventReminderBackgroundService>();
 
             return services;
         }

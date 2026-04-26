@@ -1,36 +1,41 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace MusicianFinder.Domain.Entities
+﻿namespace MusicianFinder.Domain.Entities
 {
     /// <summary>
-    /// Справочник городов.
+    /// Город (справочник).
     /// </summary>
     public class City
     {
-        private City() { }
-
-        public City(string name, string localizedName)
+        private City()
         {
+            Name = string.Empty;
+            LocalizedName = string.Empty;
+        }
+
+        /// <summary>
+        /// Инициализирует новый экземпляр города.
+        /// </summary>
+        /// <param name="id">Уникальный идентификатор.</param>
+        /// <param name="name">Английское название.</param>
+        /// <param name="localizedName">Локализованное название.</param>
+        public City(int id, string name, string localizedName)
+        {
+            Id = id;
             Name = name;
             LocalizedName = localizedName;
         }
 
         /// <summary>
-        /// Идентификатор.
+        /// Идентификатор города.
         /// </summary>
         public int Id { get; private set; }
 
         /// <summary>
-        /// Английское название города.
+        /// Английское название.
         /// </summary>
         public string Name { get; private set; }
 
         /// <summary>
-        /// Русское название города.
+        /// Русское название.
         /// </summary>
         public string LocalizedName { get; private set; }
     }

@@ -5,7 +5,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
-using MusicianFinder.Application.Common.Pagination;
+using MusicianFinder.Application.Core.Pagination;
 using MusicianFinder.Application.Features.Auth.DTOs;
 using MusicianFinder.Application.Features.Collaborations.DTOs;
 using MusicianFinder.Application.Features.Collaborations.SendSuggestion;

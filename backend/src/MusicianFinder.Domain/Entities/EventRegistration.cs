@@ -1,18 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace MusicianFinder.Domain.Entities
+﻿namespace MusicianFinder.Domain.Entities
 {
     /// <summary>
-    /// Связь многие-ко-многим между мероприятием и профилем музыканта (участники).
+    /// Регистрация профиля музыканта на мероприятие. Является частью агрегата Event.
     /// </summary>
     public class EventRegistration
     {
         private EventRegistration() { }
 
+        /// <summary>
+        /// Инициализирует новый экземпляр регистрации.
+        /// </summary>
+        /// <param name="eventId">Идентификатор мероприятия.</param>
+        /// <param name="profileId">Идентификатор регистрируемого профиля.</param>
         public EventRegistration(Guid eventId, Guid profileId)
         {
             EventId = eventId;
@@ -34,9 +33,5 @@ namespace MusicianFinder.Domain.Entities
         /// Дата и время регистрации.
         /// </summary>
         public DateTime RegisteredAt { get; private set; }
-
-        // Навигационные свойства
-        public Event? Event { get; private set; }
-        public MusicianProfile? Profile { get; private set; }
     }
 }

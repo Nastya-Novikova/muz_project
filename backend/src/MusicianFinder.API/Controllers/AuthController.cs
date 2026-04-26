@@ -1,7 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using MusicianFinder.Application.Features.Auth.Login;
-using MusicianFinder.Application.Features.Auth.RequestCode;
+using MusicianFinder.Application.Commands.Auth;
+using MusicianFinder.Application.DTOs.Auth;
 
 namespace MusicianFinder.API.Controllers
 {
@@ -9,36 +9,39 @@ namespace MusicianFinder.API.Controllers
     /// Контроллер аутентификации.
     /// </summary>
     [ApiController]
-    [Route("api/[controller]")]
-    public class AuthController : ControllerBase
+    [Route("api/auth")]
+    public class AuthController : BaseApiController
     {
-        private readonly IMediator _mediator;
-
         /// <summary>
         /// Инициализирует новый экземпляр <see cref="AuthController"/>.
         /// </summary>
-        public AuthController(IMediator mediator)
-        {
-            _mediator = mediator;
-        }
+        public AuthController() { }
 
         /// <summary>
         /// Запрос кода подтверждения на email.
         /// </summary>
-        [HttpPost("request-code")]
+        /// <param name="command">Команда с email.</param>
+        /// <returns>Статус 200 OK.</returns>
+        [HttpPost("code")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> RequestCode([FromBody] RequestCodeCommand command)
         {
-            await _mediator.Send(command);
+            await Mediator.Send(command);
             return Ok(new { success = true });
         }
 
         /// <summary>
-        /// Вход/регистрация по коду.
+        /// Вход/регистрация по коду подтверждения.
         /// </summary>
-        [HttpPost("login")]
+        /// <param name="command">Команда с email и кодом.</param>
+        /// <returns>Данные аутентификации.</returns>
+        [HttpPost("session")]
+        [ProducesResponseType(typeof(AuthResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Login([FromBody] LoginCommand command)
         {
-            var response = await _mediator.Send(command);
+            var response = await Mediator.Send(command);
             return Ok(response);
         }
     }

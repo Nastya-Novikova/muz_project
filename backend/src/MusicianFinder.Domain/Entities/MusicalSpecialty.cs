@@ -1,29 +1,31 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace MusicianFinder.Domain.Entities
+﻿namespace MusicianFinder.Domain.Entities
 {
     /// <summary>
-    /// Музыкальная специальность (вокалист, гитарист, композитор и т.д.).
+    /// Музыкальная специальность (справочник).
     /// </summary>
     public class MusicalSpecialty
     {
-        private readonly List<MusicianProfile> _profiles = new();
-        private readonly List<MusicianProfile> _profilesLookingForThisSpecialty = new();
-
-        private MusicalSpecialty() { }
-
-        public MusicalSpecialty(string name, string localizedName)
+        private MusicalSpecialty()
         {
+            Name = string.Empty;
+            LocalizedName = string.Empty;
+        }
+
+        /// <summary>
+        /// Инициализирует новый экземпляр специальности.
+        /// </summary>
+        /// <param name="id">Уникальный идентификатор.</param>
+        /// <param name="name">Английское название специальности.</param>
+        /// <param name="localizedName">Русское название специальности.</param>
+        public MusicalSpecialty(int id, string name, string localizedName)
+        {
+            Id = id;
             Name = name;
             LocalizedName = localizedName;
         }
 
         /// <summary>
-        /// Идентификатор.
+        /// Идентификатор специальности.
         /// </summary>
         public int Id { get; private set; }
 
@@ -36,15 +38,5 @@ namespace MusicianFinder.Domain.Entities
         /// Русское название специальности.
         /// </summary>
         public string LocalizedName { get; private set; }
-
-        /// <summary>
-        /// Профили, предлагающие эту специальность.
-        /// </summary>
-        public IReadOnlyCollection<MusicianProfile> Profiles => _profiles.AsReadOnly();
-
-        /// <summary>
-        /// Профили, которые ищут эту специальность.
-        /// </summary>
-        public IReadOnlyCollection<MusicianProfile> ProfilesLookingForThisSpecialty => _profilesLookingForThisSpecialty.AsReadOnly();
     }
 }
