@@ -182,5 +182,18 @@ namespace MusicianFinder.API.Controllers
             await Mediator.Send(command);
             return NoContent();
         }
+
+        /// <summary>
+        /// Привязать аккаунт ВКонтакте к профилю текущего пользователя.
+        /// </summary>
+        [HttpPost("me/connect-vk")]
+        [Authorize]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> ConnectVk([FromBody] ConnectVkCommand command)
+        {
+            await Mediator.Send(command);
+            return NoContent();
+        }
     }
 }

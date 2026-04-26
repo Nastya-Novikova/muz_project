@@ -68,5 +68,9 @@ namespace MusicianFinder.Application.DTOs.Profiles
         public List<AudioDto> Audio { get; set; } = new();
         public List<VideoDto> Video { get; set; } = new();
         public List<PhotoDto> Photos { get; set; } = new();
+
+        public bool NotifyByEmail { get; set; }
+
+        public bool NotifyByVk { get; set; }
     }
 }

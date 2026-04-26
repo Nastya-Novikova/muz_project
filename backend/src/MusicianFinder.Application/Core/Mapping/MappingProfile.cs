@@ -51,7 +51,13 @@ namespace MusicianFinder.Application.Core.Mapping
                 .ForMember(dto => dto.DesiredSpecialties, opt => opt.Ignore())
                 .ForMember(dto => dto.IsMyProfile, opt => opt.Ignore())
                 .ForMember(dto => dto.IsFavorite, opt => opt.Ignore())
-                .ForMember(dto => dto.IsCollaborated, opt => opt.Ignore());
+                .ForMember(dto => dto.IsCollaborated, opt => opt.Ignore())
+                .ForMember(dto => dto.NotifyByEmail, opt => opt.Ignore())
+                .ForMember(dto => dto.NotifyByVk, opt => opt.Ignore());
+            
+            CreateMap<MusicianProfile, NotificationSettingsDto>()
+                .ForMember(dto => dto.NotifyByEmail, opt => opt.Ignore())
+                .ForMember(dto => dto.NotifyByVk, opt => opt.Ignore());
 
             CreateMap<MusicianProfile, ProfileShortDto>()
                 .ForMember(dto => dto.FullName, opt => opt.MapFrom(src => src.FullName.Value))

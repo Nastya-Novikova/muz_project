@@ -73,7 +73,7 @@ namespace MusicianFinder.Domain.Entities
         public string Email { get; private set; }
 
         /// <summary>Согласие на email-уведомления.</summary>
-        public bool NotifyByEmail { get; private set; }
+        public bool NotifyByEmail { get; private set; } = true;
 
         /// <summary>Согласие на VK-уведомления.</summary>
         public bool NotifyByVk { get; private set; }
@@ -255,7 +255,12 @@ namespace MusicianFinder.Domain.Entities
         /// Устанавливает идентификатор ВКонтакте.
         /// </summary>
         /// <param name="vkUserId">Идентификатор VK.</param>
-        public void SetVkUserId(VkUserId vkUserId) => VkUserId = vkUserId;
+        public void SetVkUserId(VkUserId vkUserId)
+        {
+
+            VkUserId = vkUserId;
+            NotifyByVk = true;
+        }
 
         /// <summary>
         /// Добавляет профиль в избранное.
@@ -288,6 +293,12 @@ namespace MusicianFinder.Domain.Entities
         public void AddNotification(Notification notification)
         {
             _notifications.Add(notification);
+        }
+
+        public void UpdateNotificationPreferences(bool notifyByEmail, bool notifyByVk)
+        {
+            NotifyByEmail = notifyByEmail;
+            NotifyByVk = notifyByVk;
         }
 
         /// <summary>

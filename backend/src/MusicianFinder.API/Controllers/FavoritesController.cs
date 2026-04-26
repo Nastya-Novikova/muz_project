@@ -13,6 +13,7 @@ namespace MusicianFinder.API.Controllers
     /// </summary>
     [Authorize]
     [ApiController]
+    [Route("api")]
     public class FavoritesController : BaseApiController
     {
         /// <summary>

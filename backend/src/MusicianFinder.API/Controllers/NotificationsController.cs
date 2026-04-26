@@ -71,5 +71,29 @@ namespace MusicianFinder.API.Controllers
             var count = await Mediator.Send(new GetUnreadCountQuery());
             return Ok(new { unreadCount = count });
         }
+
+        /// <summary>
+        /// Получить текущие настройки уведомлений.
+        /// </summary>
+        [HttpGet("settings")]
+        [ProducesResponseType(typeof(NotificationSettingsDto), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetNotificationSettings()
+        {
+            var result = await Mediator.Send(new GetNotificationSettingsQuery());
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Обновить настройки уведомлений.
+        /// </summary>
+        [HttpPatch("settings")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> UpdateNotificationSettings([FromBody] UpdateNotificationSettingsCommand command)
+        {
+            SetIdempotencyKey(command);
+            await Mediator.Send(command);
+            return NoContent();
+        }
     }
 }
