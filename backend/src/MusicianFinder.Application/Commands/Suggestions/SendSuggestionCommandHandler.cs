@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using MusicianFinder.Application.Core.Exceptions;
 using MusicianFinder.Application.Interfaces;
 using MusicianFinder.Application.Interfaces.Repositories;
 using MusicianFinder.Domain.Entities;
@@ -38,13 +39,16 @@ namespace MusicianFinder.Application.Commands.Suggestions
         public async Task<Guid> Handle(SendSuggestionCommand request, CancellationToken cancellationToken)
         {
             var fromProfile = await _profileRepository.GetByUserIdAsync(_currentUser.UserId, cancellationToken)
-                ?? throw new Application.Core.Exceptions.NotFoundException("Профиль отправителя не найден.");
+                ?? throw new NotFoundException("Профиль отправителя не найден.");
+
+            var ToProfile = await _profileRepository.GetByIdWithNotificationsAsync(request.ToProfileId, cancellationToken)
+                ?? throw new NotFoundException("Профиль отправителя не найден.");
 
             var suggestion = new CollaborationSuggestion(fromProfile.Id, request.ToProfileId, request.Message);
             _suggestionRepository.Add(suggestion);
 
             await _notificationService.SendNotificationToProfileAsync(
-                request.ToProfileId,
+                ToProfile,
                 NotificationType.CollaborationReceived,
                 new Dictionary<string, object>
                 {

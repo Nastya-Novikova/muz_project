@@ -12,14 +12,15 @@ namespace MusicianFinder.API.Controllers
     /// Контроллер для управления избранными профилями текущего пользователя.
     /// </summary>
     [Authorize]
-    public class MeFavoritesController : BaseApiController
+    [ApiController]
+    public class FavoritesController : BaseApiController
     {
         /// <summary>
         /// Получить список избранных профилей.
         /// </summary>
         /// <param name="query">Параметры пагинации.</param>
         /// <returns>Страница с избранными профилями.</returns>
-        [HttpGet]
+        [HttpGet("me/favorites")]
         [ProducesResponseType(typeof(PagedResult<ProfileDto>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetFavorites([FromQuery] GetFavoritesQuery query)
         {
@@ -32,7 +33,7 @@ namespace MusicianFinder.API.Controllers
         /// </summary>
         /// <param name="profileId">Идентификатор профиля.</param>
         /// <returns>Статус 204 No Content.</returns>
-        [HttpPost("{profileId:guid}")]
+        [HttpPut("{profileId:guid}/favorite")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
@@ -49,7 +50,7 @@ namespace MusicianFinder.API.Controllers
         /// </summary>
         /// <param name="profileId">Идентификатор профиля.</param>
         /// <returns>Статус 204 No Content.</returns>
-        [HttpDelete("{profileId:guid}")]
+        [HttpDelete("{profileId:guid}/favorite")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> RemoveFavorite(Guid profileId)

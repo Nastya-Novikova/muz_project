@@ -12,7 +12,9 @@ namespace MusicianFinder.API.Controllers
     /// Контроллер для работы с уведомлениями текущего пользователя.
     /// </summary>
     [Authorize]
-    public class MeNotificationsController : BaseApiController
+    [ApiController]
+    [Route("api/notifications")]
+    public class NotificationsController : BaseApiController
     {
         /// <summary>
         /// Получить список уведомлений текущего пользователя.
@@ -32,7 +34,7 @@ namespace MusicianFinder.API.Controllers
         /// </summary>
         /// <param name="id">Идентификатор уведомления.</param>
         /// <returns>Статус 204 No Content.</returns>
-        [HttpPatch("{id:guid}")]
+        [HttpPatch("{id:guid}/read")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -48,7 +50,7 @@ namespace MusicianFinder.API.Controllers
         /// Отметить все уведомления как прочитанные.
         /// </summary>
         /// <returns>Статус 204 No Content.</returns>
-        [HttpPatch("read")]
+        [HttpPost("read-all")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         public async Task<IActionResult> MarkAllNotificationsAsRead()
         {

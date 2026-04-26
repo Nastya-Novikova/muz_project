@@ -1,4 +1,5 @@
-﻿using MusicianFinder.Domain.Enums;
+﻿using MusicianFinder.Domain.Entities;
+using MusicianFinder.Domain.Enums;
 
 namespace MusicianFinder.Application.Interfaces
 {
@@ -8,12 +9,12 @@ namespace MusicianFinder.Application.Interfaces
     public interface INotificationService
     {
         /// <summary>
-        /// Отправляет уведомление профилю с учётом его настроек.
+        /// Создаёт и добавляет уведомление для указанного профиля (профиль должен быть загружен с Include Notifications).
         /// </summary>
         /// <param name="profileId">Идентификатор профиля получателя.</param>
         /// <param name="type">Тип уведомления.</param>
         /// <param name="data">Данные для формирования текста уведомления.</param>
-        Task SendNotificationToProfileAsync(Guid profileId, NotificationType type, Dictionary<string, object> data);
+        Task SendNotificationToProfileAsync(MusicianProfile profile, NotificationType type, Dictionary<string, object> data);
 
         /// <summary>
         /// Отправляет уведомление пользователю (по userId) с учётом настроек его профиля.

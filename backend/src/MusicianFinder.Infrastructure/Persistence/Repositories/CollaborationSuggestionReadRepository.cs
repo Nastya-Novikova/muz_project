@@ -50,7 +50,7 @@ namespace MusicianFinder.Infrastructure.Persistence.Repositories
                     .ThenInclude(p => p.DesiredGenreIds)
                 .Include(cs => cs.FromProfile)
                     .ThenInclude(p => p.DesiredSpecialtyIds)
-                .Where(cs => cs.ToProfileId == profileId)
+                .Where(cs => cs.ToProfileId == profileId && cs.Status != Domain.Enums.SuggestionStatus.Rejected && cs.Status != Domain.Enums.SuggestionStatus.Withdrawn)
                 .OrderByDescending(cs => cs.CreatedAt);
 
             var total = await query.CountAsync(ct);
@@ -90,7 +90,7 @@ namespace MusicianFinder.Infrastructure.Persistence.Repositories
                     .ThenInclude(p => p.DesiredGenreIds)
                 .Include(cs => cs.ToProfile)
                     .ThenInclude(p => p.DesiredSpecialtyIds)
-                .Where(cs => cs.FromProfileId == profileId)
+                .Where(cs => cs.FromProfileId == profileId && cs.Status != Domain.Enums.SuggestionStatus.Rejected && cs.Status != Domain.Enums.SuggestionStatus.Withdrawn)
                 .OrderByDescending(cs => cs.CreatedAt);
 
             var total = await query.CountAsync(ct);

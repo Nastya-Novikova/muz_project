@@ -10,7 +10,9 @@ namespace MusicianFinder.API.Controllers
     /// Контроллер для операций над текущим пользователем.
     /// </summary>
     [Authorize]
-    public class MeController : BaseApiController
+    [ApiController]
+    [Route("api/user")]
+    public class UserController : BaseApiController
     {
         /// <summary>
         /// Получить базовую информацию о текущем пользователе.

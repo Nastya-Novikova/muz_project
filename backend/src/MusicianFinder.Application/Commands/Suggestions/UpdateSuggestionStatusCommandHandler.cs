@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using MusicianFinder.Application.Core.Exceptions;
 using MusicianFinder.Application.Interfaces;
 using MusicianFinder.Application.Interfaces.Repositories;
 using MusicianFinder.Domain.Enums;
@@ -39,8 +40,20 @@ namespace MusicianFinder.Application.Commands.Suggestions
             var profile = await _profileRepository.GetByUserIdAsync(_currentUser.UserId, cancellationToken)
                 ?? throw new Application.Core.Exceptions.NotFoundException("Профиль не найден.");
 
-            if (suggestion.ToProfileId != profile.Id)
-                throw new Application.Core.Exceptions.ForbiddenException("Вы не являетесь получателем этого предложения.");
+            switch (request.Status)
+            {
+                case SuggestionStatus.Accepted:
+                case SuggestionStatus.Rejected:
+                    if (suggestion.ToProfileId != profile.Id)
+                        throw new ForbiddenException("Только получатель может принять или отклонить предложение.");
+                    break;
+                case SuggestionStatus.Withdrawn:
+                    if (suggestion.FromProfileId != profile.Id)
+                        throw new ForbiddenException("Только отправитель может отозвать предложение.");
+                    break;
+                default:
+                    throw new ValidationException(new[] { new FluentValidation.Results.ValidationFailure("Status", "Недопустимый статус.") });
+            }
 
             switch (request.Status)
             {

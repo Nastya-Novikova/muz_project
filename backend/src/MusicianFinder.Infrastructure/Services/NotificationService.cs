@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MusicianFinder.Application.Interfaces;
+using MusicianFinder.Application.Interfaces.Repositories;
 using MusicianFinder.Domain.Entities;
 using MusicianFinder.Domain.Enums;
 using MusicianFinder.Infrastructure.Persistence;
@@ -14,6 +15,7 @@ namespace MusicianFinder.Infrastructure.Services
         private readonly AppDbContext _dbContext;
         private readonly IEmailService _emailService;
         private readonly IVkService _vkService;
+        private readonly IMusicianProfileRepository _profileRepository;
 
         /// <summary>
         /// Инициализирует новый экземпляр <see cref="NotificationService"/>.
@@ -24,41 +26,36 @@ namespace MusicianFinder.Infrastructure.Services
         public NotificationService(
             AppDbContext dbContext,
             IEmailService emailService,
-            IVkService vkService)
+            IVkService vkService,
+            IMusicianProfileRepository musicianProfileRepository)
         {
             _dbContext = dbContext;
             _emailService = emailService;
             _vkService = vkService;
+            _profileRepository = musicianProfileRepository;
         }
 
         /// <inheritdoc />
-        public async Task SendNotificationToProfileAsync(Guid profileId, NotificationType type, Dictionary<string, object> data)
+        public async Task SendNotificationToProfileAsync(MusicianProfile profile, NotificationType type, Dictionary<string, object> data)
         {
-            var profile = await _dbContext.MusicianProfiles.FirstOrDefaultAsync(p => p.Id == profileId);
-            if (profile == null) return;
-
             var (title, message) = GetNotificationText(type, data);
-
-            var internalNotification = new Notification(
-                profileId,
+            var notification = new Notification(
+                profile.Id,
                 type,
                 title,
                 GetEntityType(type),
                 GetEntityId(data),
                 message);
 
-            profile.AddNotification(internalNotification);
-            await _dbContext.SaveChangesAsync();
+            await _profileRepository.AddNotificationAsync(profile.Id, notification);
 
+            //var profile = await _profileRepository.
+
+            // Email/VK можно отправить, прочитав настройки из того же профиля (он в памяти)
             if (profile.NotifyByEmail && !string.IsNullOrEmpty(profile.Email))
                 await _emailService.SendNotificationAsync(profile.Email, title, message);
-
             if (profile.NotifyByVk && profile.VkUserId != null)
-            {
-                var userId = profile.UserId;
-                var vkMessage = message ?? title;
-                await _vkService.SendNotificationAsync(userId, vkMessage);
-            }
+                await _vkService.SendNotificationAsync(profile.UserId, message ?? title);
         }
 
         /// <inheritdoc />
@@ -67,7 +64,7 @@ namespace MusicianFinder.Infrastructure.Services
             var profile = await _dbContext.MusicianProfiles.FirstOrDefaultAsync(p => p.UserId == userId && !p.IsDeleted);
             if (profile == null) return;
 
-            await SendNotificationToProfileAsync(profile.Id, type, data);
+            await SendNotificationToProfileAsync(profile, type, data);
         }
 
         private static (string Title, string Message) GetNotificationText(

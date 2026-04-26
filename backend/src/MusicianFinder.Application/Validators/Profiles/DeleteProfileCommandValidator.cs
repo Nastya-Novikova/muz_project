@@ -11,8 +11,8 @@ namespace MusicianFinder.Application.Validators.Profiles
     {
         public DeleteProfileCommandValidator()
         {
-            RuleFor(x => x.IdempotencyKey)
-                .NotEmpty().WithMessage("Ключ идемпотентности обязателен.");
+            /*RuleFor(x => x.IdempotencyKey)
+                .NotEmpty().WithMessage("Ключ идемпотентности обязателен.");*/
         }
     }
 }

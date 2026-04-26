@@ -53,5 +53,51 @@ namespace MusicianFinder.Infrastructure.Persistence.Repositories
             if (favorite != null)
                 _dbContext.Entry(favorite).State = EntityState.Added;
         }
+
+        public async Task AddNotificationToProfileAsync(Guid profileId, Notification notification, CancellationToken ct = default)
+        {
+            var profile = await _dbContext.MusicianProfiles
+                .Include(p => p.Notifications)
+                .FirstOrDefaultAsync(p => p.Id == profileId && !p.IsDeleted, ct)
+                ?? throw new NotFoundException("Профиль не найден.");
+
+            profile.AddNotification(notification);
+
+            // Явно указываем, что это новый owned-объект
+            var added = _dbContext.Entry(profile)
+                .Collection(p => p.Notifications)
+                .CurrentValue?
+                .LastOrDefault();
+
+            if (added != null)
+                _dbContext.Entry(added).State = EntityState.Added;
+        }
+
+        public async Task<MusicianProfile?> GetByUserIdWithNotificationsAsync(Guid userId, CancellationToken ct = default)
+            => await _dbContext.MusicianProfiles
+                .Include(p => p.Notifications)
+                .FirstOrDefaultAsync(p => p.UserId == userId && !p.IsDeleted, ct);
+
+        public async Task<MusicianProfile?> GetByIdWithNotificationsAsync(Guid profileId, CancellationToken ct = default)
+            => await _dbContext.MusicianProfiles
+                .Include(p => p.Notifications)
+                .FirstOrDefaultAsync(p => p.Id == profileId && !p.IsDeleted, ct);
+
+        public async Task AddNotificationAsync(Guid profileId, Notification notification, CancellationToken ct = default)
+        {
+            var profile = await _dbContext.MusicianProfiles
+                .Include(p => p.Notifications)
+                .FirstOrDefaultAsync(p => p.Id == profileId && !p.IsDeleted, ct)
+                ?? throw new NotFoundException("Профиль не найден.");
+
+            profile.AddNotification(notification);
+
+            var added = _dbContext.Entry(profile)
+                .Collection(p => p.Notifications)
+                .CurrentValue?
+                .LastOrDefault();
+            if (added != null)
+                _dbContext.Entry(added).State = EntityState.Added;
+        }
     }
 }

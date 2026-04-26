@@ -28,22 +28,22 @@ namespace MusicianFinder.Application.Commands.Events
         /// <summary>
         /// Идентификатор региона.
         /// </summary>
-        public int RegionId { get; set; }
+        public int? RegionId { get; set; }
 
         /// <summary>
         /// Идентификатор города.
         /// </summary>
-        public int CityId { get; set; }
+        public int? CityId { get; set; }
 
         /// <summary>
         /// Адрес.
         /// </summary>
-        public string Address { get; set; } = string.Empty;
+        public string? Address { get; set; } = string.Empty;
 
         /// <summary>
         /// Дата начала.
         /// </summary>
-        public DateTime StartDateTime { get; set; }
+        public DateTime? StartDateTime { get; set; }
 
         /// <summary>
         /// Дата окончания.
@@ -53,7 +53,7 @@ namespace MusicianFinder.Application.Commands.Events
         /// <summary>
         /// Максимальное количество участников.
         /// </summary>
-        public int MaxParticipants { get; set; }
+        public int? MaxParticipants { get; set; }
 
         /// <inheritdoc />
         public string IdempotencyKey { get; set; } = string.Empty;

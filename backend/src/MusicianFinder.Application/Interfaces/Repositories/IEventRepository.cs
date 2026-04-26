@@ -20,5 +20,7 @@ namespace MusicianFinder.Application.Interfaces.Repositories
         /// </summary>
         /// <param name="event">Экземпляр мероприятия.</param>
         void Add(Event @event);
+
+        Task AttachRegistrationAsync(EventRegistration registration, CancellationToken ct = default);
     }
 }

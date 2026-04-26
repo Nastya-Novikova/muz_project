@@ -23,7 +23,9 @@ namespace MusicianFinder.Infrastructure.Persistence.Configurations
                 .HasMaxLength(100);
 
             builder.Property(p => p.Email).IsRequired().HasMaxLength(256);
-            builder.HasIndex(p => p.Email).IsUnique();
+            builder.HasIndex(p => p.Email)
+               .IsUnique()
+               .HasFilter("\"IsDeleted\" = false");
 
             builder.Property(p => p.Age);
             builder.Property(p => p.CityId).IsRequired();

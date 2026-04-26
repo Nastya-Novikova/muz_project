@@ -1,6 +1,8 @@
 ﻿using MediatR;
+using MusicianFinder.Application.Core.Exceptions;
 using MusicianFinder.Application.Interfaces;
 using MusicianFinder.Application.Interfaces.Repositories;
+using MusicianFinder.Domain.Entities;
 
 namespace MusicianFinder.Application.Commands.Profiles
 {
@@ -11,6 +13,7 @@ namespace MusicianFinder.Application.Commands.Profiles
     {
         private readonly IMusicianProfileRepository _profileRepository;
         private readonly ICurrentUserService _currentUser;
+        private readonly IUserRepository _userRepository;
 
         /// <summary>
         /// Инициализирует новый экземпляр обработчика.
@@ -19,10 +22,12 @@ namespace MusicianFinder.Application.Commands.Profiles
         /// <param name="currentUser">Сервис текущего пользователя.</param>
         public DeleteProfileCommandHandler(
             IMusicianProfileRepository profileRepository,
-            ICurrentUserService currentUser)
+            ICurrentUserService currentUser,
+            IUserRepository userRepository)
         {
             _profileRepository = profileRepository;
             _currentUser = currentUser;
+            _userRepository = userRepository;
         }
 
         /// <inheritdoc />
@@ -30,6 +35,11 @@ namespace MusicianFinder.Application.Commands.Profiles
         {
             var profile = await _profileRepository.GetByUserIdAsync(_currentUser.UserId, cancellationToken)
                 ?? throw new Application.Core.Exceptions.NotFoundException("Профиль не найден.");
+
+            var user = await _userRepository.GetByIdAsync(_currentUser.UserId, cancellationToken)
+                ?? throw new NotFoundException("Пользователь не найден.");
+
+            user.ClearMusicianProfile();
             profile.MarkAsDeleted();
             return Unit.Value;
         }

@@ -13,7 +13,9 @@ namespace MusicianFinder.API.Controllers
     /// Все методы требуют авторизации и используют профиль текущего пользователя.
     /// </summary>
     [Authorize]
-    public class MeSuggestionsController : BaseApiController
+    [ApiController]
+    [Route("api/suggestions")]
+    public class SuggestionsController : BaseApiController
     {
         /// <summary>
         /// Получить входящие предложения о сотрудничестве.
@@ -54,7 +56,7 @@ namespace MusicianFinder.API.Controllers
         /// <summary>
         /// Изменить статус предложения (принять или отклонить).
         /// </summary>
-        [HttpPatch("{id:guid}")]
+        [HttpPatch("{id:guid}/status")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status403Forbidden)]

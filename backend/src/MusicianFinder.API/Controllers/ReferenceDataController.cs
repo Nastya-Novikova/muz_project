@@ -8,6 +8,8 @@ namespace MusicianFinder.API.Controllers
     /// <summary>
     /// Контроллер справочных данных.
     /// </summary>
+    [ApiController]
+    [Route("api/metadata")]
     public class ReferenceDataController : BaseApiController
     {
         /// <summary>

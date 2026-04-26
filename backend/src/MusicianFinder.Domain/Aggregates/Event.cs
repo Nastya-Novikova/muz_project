@@ -122,6 +122,8 @@ namespace MusicianFinder.Domain.Entities
         /// <param name="profileId">Идентификатор регистрируемого профиля.</param>
         public void Register(Guid profileId)
         {
+            if (CreatorProfileId == profileId)
+                throw new DomainException("Создатель мероприятия не может зарегистрироваться как участник.");
             if (Status != EventStatus.Scheduled)
                 throw new DomainException("Нельзя зарегистрироваться на отменённое или завершённое мероприятие.");
             if (_registrations.Any(r => r.ProfileId == profileId))

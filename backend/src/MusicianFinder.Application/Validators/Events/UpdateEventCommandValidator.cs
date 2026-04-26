@@ -13,18 +13,18 @@ namespace MusicianFinder.Application.Validators.Events
         /// </summary>
         public UpdateEventCommandValidator()
         {
-            RuleFor(x => x.EventId)
-                .NotEmpty().WithMessage("Идентификатор мероприятия обязателен.");
-            RuleFor(x => x.Title)
-                .NotNull().WithMessage("Название обязательно.");
-            RuleFor(x => x.Address)
-                .MaximumLength(200).WithMessage("Адрес не должен превышать 200 символов.");
-            RuleFor(x => x.StartDateTime)
-                .GreaterThan(DateTime.UtcNow).When(x => x.StartDateTime != default)
-                .WithMessage("Дата начала должна быть в будущем.");
-            RuleFor(x => x.EndDateTime)
-                .GreaterThan(x => x.StartDateTime).When(x => x.EndDateTime.HasValue && x.StartDateTime != default)
-                .WithMessage("Дата окончания должна быть позже даты начала.");
+            RuleFor(x => x.EventId).NotEmpty();
+
+            When(x => !string.IsNullOrEmpty(x.Title), () =>
+                RuleFor(x => x.Title).MaximumLength(200));
+            When(x => !string.IsNullOrEmpty(x.Address), () =>
+                RuleFor(x => x.Address).MaximumLength(200));
+            When(x => x.StartDateTime.HasValue, () =>
+                RuleFor(x => x.StartDateTime).GreaterThan(DateTime.UtcNow));
+            When(x => x.EndDateTime.HasValue && x.StartDateTime.HasValue, () =>
+                RuleFor(x => x.EndDateTime).GreaterThan(x => x.StartDateTime));
+            When(x => x.MaxParticipants.HasValue, () =>
+                RuleFor(x => x.MaxParticipants).GreaterThanOrEqualTo(0));
         }
     }
 }

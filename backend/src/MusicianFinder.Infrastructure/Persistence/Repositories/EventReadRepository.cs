@@ -4,6 +4,7 @@ using MusicianFinder.Application.Core.Pagination;
 using MusicianFinder.Application.DTOs.Events;
 using MusicianFinder.Application.DTOs.Metadata;
 using MusicianFinder.Application.Interfaces.ReadRepositories;
+using MusicianFinder.Domain.Enums;
 
 namespace MusicianFinder.Infrastructure.Persistence.Repositories
 {
@@ -32,6 +33,7 @@ namespace MusicianFinder.Infrastructure.Persistence.Repositories
             var @event = await _dbContext.Events
                 .AsNoTracking()
                 .Include(e => e.Registrations)
+                .Where(e => e.Status != EventStatus.Cancelled)
                 .FirstOrDefaultAsync(e => e.Id == id && !e.IsDeleted, ct);
 
             return @event == null ? null : await EnrichEventDtoAsync(@event, ct);
@@ -44,6 +46,15 @@ namespace MusicianFinder.Infrastructure.Persistence.Repositories
                 .AsNoTracking()
                 .Include(e => e.Registrations)
                 .Where(e => !e.IsDeleted);
+
+            if (string.IsNullOrEmpty(filter.Status))
+            {
+                query = query.Where(e => e.Status != EventStatus.Cancelled);
+            }
+            else
+            {
+                query = query.Where(e => e.Status == Enum.Parse<EventStatus>(filter.Status));
+            }
 
             if (!string.IsNullOrEmpty(filter.Query))
                 query = query.Where(e => e.Title.Value.Contains(filter.Query));
@@ -100,6 +111,7 @@ namespace MusicianFinder.Infrastructure.Persistence.Repositories
                 .AsNoTracking()
                 .Include(e => e.Registrations)
                 .Where(e => e.Registrations.Any(r => r.ProfileId == profileId) && !e.IsDeleted)
+                .Where(e => e.Status != EventStatus.Cancelled)
                 .OrderByDescending(e => e.StartDateTime);
 
             var totalCount = await query.CountAsync(ct);

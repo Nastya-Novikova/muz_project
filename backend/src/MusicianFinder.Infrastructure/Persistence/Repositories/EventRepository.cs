@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using MusicianFinder.Application.Core.Exceptions;
 using MusicianFinder.Application.Interfaces.Repositories;
 using MusicianFinder.Domain.Entities;
 
@@ -19,9 +20,16 @@ namespace MusicianFinder.Infrastructure.Persistence.Repositories
 
         /// <inheritdoc />
         public async Task<Event?> GetByIdAsync(Guid eventId, CancellationToken ct = default)
-            => await _dbContext.Events.FirstOrDefaultAsync(e => e.Id == eventId && !e.IsDeleted, ct);
+            => await _dbContext.Events.Include(e => e.Registrations).FirstOrDefaultAsync(e => e.Id == eventId && !e.IsDeleted, ct);
 
         /// <inheritdoc />
         public void Add(Event @event) => _dbContext.Events.Add(@event);
+
+        public Task AttachRegistrationAsync(EventRegistration registration, CancellationToken ct = default)
+        {
+            _dbContext.Entry(registration).State = EntityState.Added;
+            return Task.CompletedTask;
+        }
+
     }
 }

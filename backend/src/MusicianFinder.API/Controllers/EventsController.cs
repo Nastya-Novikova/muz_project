@@ -10,15 +10,15 @@ using MusicianFinder.API.Contracts.Responses;
 namespace MusicianFinder.API.Controllers
 {
     /// <summary>
-    /// Контроллер для работы с мероприятиями.
+    /// Управление мероприятиями.
     /// </summary>
+    [ApiController]
+    [Route("api/events")]
     public class EventsController : BaseApiController
     {
         /// <summary>
         /// Получить список мероприятий с фильтрацией и пагинацией.
         /// </summary>
-        /// <param name="query">Параметры фильтрации и пагинации.</param>
-        /// <returns>Страница с мероприятиями.</returns>
         [HttpGet]
         [ProducesResponseType(typeof(PagedResult<EventDto>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetEvents([FromQuery] GetEventsQuery query)
@@ -30,8 +30,6 @@ namespace MusicianFinder.API.Controllers
         /// <summary>
         /// Создать новое мероприятие.
         /// </summary>
-        /// <param name="command">Данные мероприятия.</param>
-        /// <returns>Идентификатор созданного мероприятия.</returns>
         [HttpPost]
         [Authorize]
         [ProducesResponseType(typeof(CreatedEventResponse), StatusCodes.Status201Created)]
@@ -46,8 +44,6 @@ namespace MusicianFinder.API.Controllers
         /// <summary>
         /// Получить мероприятие по идентификатору.
         /// </summary>
-        /// <param name="id">Идентификатор мероприятия.</param>
-        /// <returns>Мероприятие.</returns>
         [HttpGet("{id:guid}")]
         [ProducesResponseType(typeof(EventDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -58,12 +54,9 @@ namespace MusicianFinder.API.Controllers
         }
 
         /// <summary>
-        /// Полностью обновить мероприятие.
+        /// Частичное обновление мероприятия.
         /// </summary>
-        /// <param name="id">Идентификатор мероприятия.</param>
-        /// <param name="command">Данные для обновления.</param>
-        /// <returns>Статус 204 No Content.</returns>
-        [HttpPut("{id:guid}")]
+        [HttpPatch("{id:guid}")]
         [Authorize]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -80,8 +73,6 @@ namespace MusicianFinder.API.Controllers
         /// <summary>
         /// Отменить мероприятие (мягкое удаление).
         /// </summary>
-        /// <param name="id">Идентификатор мероприятия.</param>
-        /// <returns>Статус 204 No Content.</returns>
         [HttpDelete("{id:guid}")]
         [Authorize]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -98,10 +89,7 @@ namespace MusicianFinder.API.Controllers
         /// <summary>
         /// Загрузить или обновить изображение мероприятия.
         /// </summary>
-        /// <param name="id">Идентификатор мероприятия.</param>
-        /// <param name="image">Файл изображения.</param>
-        /// <returns>URL загруженного изображения.</returns>
-        [HttpPost("{id:guid}/image")]
+        [HttpPut("{id:guid}/image")]
         [Authorize]
         [ProducesResponseType(typeof(FileUploadResultDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -124,11 +112,9 @@ namespace MusicianFinder.API.Controllers
         }
 
         /// <summary>
-        /// Записаться на мероприятие.
+        /// Зарегистрироваться на мероприятие.
         /// </summary>
-        /// <param name="id">Идентификатор мероприятия.</param>
-        /// <returns>Статус 204 No Content.</returns>
-        [HttpPost("{id:guid}/registrations")]
+        [HttpPost("{id:guid}/registration")]
         [Authorize]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -145,9 +131,7 @@ namespace MusicianFinder.API.Controllers
         /// <summary>
         /// Отменить свою регистрацию на мероприятие.
         /// </summary>
-        /// <param name="id">Идентификатор мероприятия.</param>
-        /// <returns>Статус 204 No Content.</returns>
-        [HttpDelete("{id:guid}/registrations/me")]
+        [HttpDelete("{id:guid}/registration")]
         [Authorize]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -158,6 +142,30 @@ namespace MusicianFinder.API.Controllers
             SetIdempotencyKey(command);
             await Mediator.Send(command);
             return NoContent();
+        }
+
+        /// <summary>
+        /// Получить мероприятия, созданные текущим пользователем.
+        /// </summary>
+        [HttpGet("created")]
+        [Authorize]
+        [ProducesResponseType(typeof(PagedResult<EventDto>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetMyCreatedEvents([FromQuery] GetMyCreatedEventsQuery query)
+        {
+            var result = await Mediator.Send(query);
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Получить мероприятия, на которые зарегистрирован текущий пользователь.
+        /// </summary>
+        [HttpGet("registered")]
+        [Authorize]
+        [ProducesResponseType(typeof(PagedResult<EventDto>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetMyRegisteredEvents([FromQuery] GetMyRegisteredEventsQuery query)
+        {
+            var result = await Mediator.Send(query);
+            return Ok(result);
         }
     }
 }

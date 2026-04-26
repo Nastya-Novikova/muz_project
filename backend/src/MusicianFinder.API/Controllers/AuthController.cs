@@ -8,6 +8,8 @@ namespace MusicianFinder.API.Controllers
     /// <summary>
     /// Контроллер аутентификации.
     /// </summary>
+    [ApiController]
+    [Route("api/auth")]
     public class AuthController : BaseApiController
     {
         /// <summary>
@@ -20,7 +22,7 @@ namespace MusicianFinder.API.Controllers
         /// </summary>
         /// <param name="command">Команда с email.</param>
         /// <returns>Статус 200 OK.</returns>
-        [HttpPost("request-code")]
+        [HttpPost("code")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> RequestCode([FromBody] RequestCodeCommand command)
@@ -34,7 +36,7 @@ namespace MusicianFinder.API.Controllers
         /// </summary>
         /// <param name="command">Команда с email и кодом.</param>
         /// <returns>Данные аутентификации.</returns>
-        [HttpPost("login")]
+        [HttpPost("session")]
         [ProducesResponseType(typeof(AuthResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Login([FromBody] LoginCommand command)
