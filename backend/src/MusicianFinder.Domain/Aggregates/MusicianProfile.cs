@@ -26,7 +26,7 @@ namespace MusicianFinder.Domain.Entities
             Email = null!;
         }
 
-        private MusicianProfile(Guid userId, ProfileName fullName, int cityId, string email)
+        private MusicianProfile(Guid userId, ProfileName fullName, int cityId, string email, ProfileType profileType)
         {
             Id = Guid.NewGuid();
             UserId = userId;
@@ -34,7 +34,10 @@ namespace MusicianFinder.Domain.Entities
             CityId = cityId;
             Email = email ?? throw new ArgumentNullException(nameof(email));
             CreatedAt = DateTime.UtcNow;
+            ProfileType = profileType;
         }
+
+        public ProfileType ProfileType { get; private set; }
 
         /// <summary>Идентификатор связанного пользователя.</summary>
         public Guid UserId { get; private set; }
@@ -120,9 +123,9 @@ namespace MusicianFinder.Domain.Entities
         /// <param name="userId">Идентификатор пользователя-владельца.</param>
         /// <param name="fullName">Полное имя / название.</param>
         /// <param name="cityId">Идентификатор города.</param>
-        public static MusicianProfile Create(Guid userId, ProfileName fullName, int cityId, string email)
+        public static MusicianProfile Create(Guid userId, ProfileName fullName, int cityId, string email, ProfileType profileType)
         {
-            var profile = new MusicianProfile(userId, fullName, cityId, email);
+            var profile = new MusicianProfile(userId, fullName, cityId, email, profileType);
             profile.AddDomainEvent(new ProfileCreated(profile.Id, profile.UserId));
             return profile;
         }
@@ -158,7 +161,10 @@ namespace MusicianFinder.Domain.Entities
         }
 
         public void SetExperience(int experience) => Experience = experience;
+
         public void SetLookingFor(LookingFor lookingFor) => LookingFor = lookingFor;
+
+        public void SetProfileType(ProfileType type) => ProfileType = type;
 
         /// <summary>
         /// Заменяет набор предлагаемых жанров.

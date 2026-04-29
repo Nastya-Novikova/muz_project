@@ -11,6 +11,8 @@ namespace MusicianFinder.Application.Commands.Profiles
     /// </summary>
     public class CreateProfileCommand : ICommand<Guid>, IBaseCommand
     {
+        public ProfileType ProfileType { get; set; }
+
         /// <summary>
         /// Полное имя / название.
         /// </summary>

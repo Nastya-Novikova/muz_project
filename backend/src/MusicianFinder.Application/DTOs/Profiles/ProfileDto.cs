@@ -11,6 +11,8 @@ namespace MusicianFinder.Application.DTOs.Profiles
         /// <summary>Идентификатор профиля.</summary>
         public Guid Id { get; set; }
 
+        public string? ProfileType { get; set; }
+
         /// <summary>Полное имя / название.</summary>
         public string FullName { get; set; } = string.Empty;
 

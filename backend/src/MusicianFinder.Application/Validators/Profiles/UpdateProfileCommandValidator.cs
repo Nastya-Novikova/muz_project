@@ -18,6 +18,7 @@ namespace MusicianFinder.Application.Validators.Profiles
             RuleFor(x => x.Experience).GreaterThanOrEqualTo(0).When(x => x.Experience.HasValue);
             RuleFor(x => x.Phone).MaximumLength(20).When(x => !string.IsNullOrEmpty(x.Phone));
             RuleFor(x => x.Telegram).MaximumLength(50).When(x => !string.IsNullOrEmpty(x.Telegram));
+            RuleFor(x => x.ProfileType).IsInEnum().When(x => x.ProfileType.HasValue);
         }
     }
 }
