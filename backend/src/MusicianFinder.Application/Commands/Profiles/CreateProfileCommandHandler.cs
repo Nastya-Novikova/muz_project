@@ -40,7 +40,7 @@ namespace MusicianFinder.Application.Commands.Profiles
             if (user.ProfileCreated)
                 throw new Application.Core.Exceptions.ConflictException("Профиль уже создан.");
 
-            var profile = MusicianProfile.Create(user.Id, new ProfileName(request.FullName), request.CityId, user.Email);
+            var profile = MusicianProfile.Create(user.Id, new ProfileName(request.FullName), request.CityId, user.Email, request.ProfileType);
 
             profile.UpdateCoreInfo(new ProfileName(request.FullName), request.Age, request.Description, request.CityId);
             profile.UpdateContacts(

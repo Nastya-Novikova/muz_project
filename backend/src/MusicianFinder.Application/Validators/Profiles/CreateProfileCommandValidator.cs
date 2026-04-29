@@ -25,6 +25,7 @@ namespace MusicianFinder.Application.Validators.Profiles
             RuleFor(x => x.Telegram)
                 .MaximumLength(50).When(x => !string.IsNullOrEmpty(x.Telegram))
                 .WithMessage("Telegram не должен превышать 50 символов.");
+            RuleFor(x => x.ProfileType).IsInEnum();
         }
     }
 }

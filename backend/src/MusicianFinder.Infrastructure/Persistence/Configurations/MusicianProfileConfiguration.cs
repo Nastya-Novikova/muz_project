@@ -42,6 +42,10 @@ namespace MusicianFinder.Infrastructure.Persistence.Configurations
                 .HasConversion(vk => vk != null ? vk.Value : null, value => value != null ? new VkUserId(value) : null)
                 .HasMaxLength(255);
 
+            builder.Property(p => p.ProfileType)
+               .HasConversion<string>()
+               .HasMaxLength(50);
+
             builder.Property(p => p.Description);
             builder.Property(p => p.AvatarUrl);
             builder.Property(p => p.Experience).HasDefaultValue(0);

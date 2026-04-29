@@ -62,6 +62,8 @@ namespace MusicianFinder.Application.Commands.Profiles
                 profile.SetExperience(request.Experience.Value);
             if (request.LookingFor.HasValue)
                 profile.SetLookingFor(request.LookingFor.Value);
+            if (request.ProfileType.HasValue)
+                profile.SetProfileType(request.ProfileType.Value);
 
             return Unit.Value;
         }

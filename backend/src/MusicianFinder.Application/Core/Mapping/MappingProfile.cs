@@ -40,6 +40,7 @@ namespace MusicianFinder.Application.Core.Mapping
 
             // Профили
             CreateMap<MusicianProfile, ProfileDto>()
+                .ForMember(dto => dto.ProfileType, opt => opt.MapFrom(src => src.ProfileType.ToString()))
                 .ForMember(dto => dto.FullName, opt => opt.MapFrom(src => src.FullName.Value))
                 .ForMember(dto => dto.Phone, opt => opt.MapFrom(src => src.Phone != null ? src.Phone.Value : null))
                 .ForMember(dto => dto.Telegram, opt => opt.MapFrom(src => src.Telegram != null ? src.Telegram.Value : null))
