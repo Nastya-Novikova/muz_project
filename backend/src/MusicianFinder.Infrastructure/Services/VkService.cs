@@ -34,10 +34,10 @@ namespace MusicianFinder.Infrastructure.Services
         }
 
         /// <inheritdoc />
-        public async Task ConnectVkAsync(Guid userId, string code, string codeVerifier, string deviceId)
+        public async Task ConnectVkAsync(Guid profileId, string code, string codeVerifier, string deviceId)
         {
             var profile = await _dbContext.MusicianProfiles
-                .FirstOrDefaultAsync(p => p.UserId == userId && !p.IsDeleted)
+                .FirstOrDefaultAsync(p => p.Id == profileId && !p.IsDeleted)
                 ?? throw new InvalidOperationException("Профиль не найден.");
 
             var vkUserId = await ExchangeCodeAsync(code, codeVerifier, deviceId);

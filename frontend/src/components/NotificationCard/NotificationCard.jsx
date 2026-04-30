@@ -35,23 +35,7 @@ const NotificationCard = ({ notification, onMarkAsRead }) => {
     if (!notification.isRead && onMarkAsRead) {
       onMarkAsRead(notification.id);
     }
-
-    switch (notification.type) {
-      case 'CollaborationReceived':
-        navigate('/suggestions', { state: { activeTab: 'received' } });
-        break;
-      
-      /*case 'EventRegistration':
-      case 'EventReminder':
-        if (notification.entityId) {
-          navigate(`/events/${notification.entityId}`);
-        }
-        break;*/
-      
-      default:
-        break;
-    }
-  };
+  }
 
   return (
     <div 

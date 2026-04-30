@@ -59,7 +59,7 @@ function SuggestionsPage() {
           
           if (tabName === 'favorites') {
             return response.items.map(item => ({
-              ...item.profile,
+              ...item,
               isFavorite: true
             }));
           }

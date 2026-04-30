@@ -12,7 +12,7 @@
         /// <param name="code">Код авторизации OAuth.</param>
         /// <param name="codeVerifier">Верификатор кода (PKCE).</param>
         /// <param name="deviceId">Идентификатор устройства.</param>
-        Task ConnectVkAsync(Guid userId, string code, string codeVerifier, string deviceId);
+        Task ConnectVkAsync(Guid profileId, string code, string codeVerifier, string deviceId);
 
         /// <summary>
         /// Обменивает временный код на идентификатор пользователя ВКонтакте.

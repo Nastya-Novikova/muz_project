@@ -97,8 +97,8 @@ function EventFormPage() {
         regionId: parseInt(formData.regionId, 10),
         cityId: parseInt(formData.cityId, 10),
         maxParticipants: parseInt(formData.maxParticipants, 10),
-        startDateTime: new Date(formData.startDateTime).toISOString(),
-        endDateTime: formData.endDateTime ? new Date(formData.endDateTime).toISOString() : null,
+        startDateTime: formData.startDateTime,
+        endDateTime: formData.endDateTime || null,
       };
 
       let savedEvent;

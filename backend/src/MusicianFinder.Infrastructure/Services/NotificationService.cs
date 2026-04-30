@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using MusicianFinder.Application.Interfaces;
 using MusicianFinder.Application.Interfaces.Repositories;
 using MusicianFinder.Domain.Entities;
@@ -16,6 +17,7 @@ namespace MusicianFinder.Infrastructure.Services
         private readonly IEmailService _emailService;
         private readonly IVkService _vkService;
         private readonly IMusicianProfileRepository _profileRepository;
+        private readonly ILogger<NotificationService> _logger;
 
         /// <summary>
         /// Инициализирует новый экземпляр <see cref="NotificationService"/>.
@@ -27,12 +29,13 @@ namespace MusicianFinder.Infrastructure.Services
             AppDbContext dbContext,
             IEmailService emailService,
             IVkService vkService,
-            IMusicianProfileRepository musicianProfileRepository)
+            IMusicianProfileRepository musicianProfileRepository, ILogger<NotificationService> logger)
         {
             _dbContext = dbContext;
             _emailService = emailService;
             _vkService = vkService;
             _profileRepository = musicianProfileRepository;
+            _logger = logger; 
         }
 
         /// <inheritdoc />
@@ -52,10 +55,25 @@ namespace MusicianFinder.Infrastructure.Services
             //var profile = await _profileRepository.
 
             // Email/VK можно отправить, прочитав настройки из того же профиля (он в памяти)
-            if (profile.NotifyByEmail && !string.IsNullOrEmpty(profile.Email))
-                await _emailService.SendNotificationAsync(profile.Email, title, message);
-            if (profile.NotifyByVk && profile.VkUserId != null)
-                await _vkService.SendNotificationAsync(profile.UserId, message ?? title);
+            try
+            {
+                if (profile.NotifyByEmail && !string.IsNullOrEmpty(profile.Email))
+                    await _emailService.SendNotificationAsync(profile.Email, title, message);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Не удалось отправить email-уведомление профилю {ProfileId}", profile.Id);
+            }
+
+            try
+            {
+                if (profile.NotifyByVk && profile.VkUserId != null)
+                    await _vkService.SendNotificationAsync(profile.UserId, message ?? title);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Не удалось отправить VK-уведомление профилю {ProfileId}", profile.Id);
+            }
         }
 
         /// <inheritdoc />

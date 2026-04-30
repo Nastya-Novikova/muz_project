@@ -1,5 +1,23 @@
 const API_URL = '/api';
 
+const handleUnauthorized = () => {
+  localStorage.removeItem('musicianFinder_token');
+  localStorage.removeItem('user_email');
+  localStorage.removeItem('userRole');
+  window.location.href = '/login';
+};
+
+// Функция-обёртка для fetch с проверкой статуса
+const authFetch = async (url, options = {}) => {
+  const response = await fetch(url, options);
+  
+  if (response.status === 401) {
+    handleUnauthorized();
+    throw new Error('Unauthorized');
+  }
+  
+  return response;
+};
 const getAuthHeaders = (token) => ({
     'Content-Type': 'application/json',
     'Authorization': `Bearer ${token}`
@@ -14,7 +32,7 @@ const uploadMedia= async (file, title, type, description, token) => {
     formData.append('title', title);
     formData.append('type', type);
     if (description) formData.append('description', description);
-    const response = await fetch(`${API_URL}/profiles/me/media`, {
+    const response = await authFetch(`${API_URL}/profiles/me/media`, {
         method: 'POST',
         headers: {
             'Authorization': `Bearer ${token}`,
@@ -85,7 +103,7 @@ export const api = {
 
     // Получить профиль текущего пользователя
     async getProfile(token) {
-        const response = await fetch(`${API_URL}/profiles/me`, {
+        const response = await authFetch(`${API_URL}/profiles/me`, {
             headers: getAuthHeaders(token)
         });
         if (!response.ok) {
@@ -97,7 +115,7 @@ export const api = {
 
     // Создать профиль
     async createProfile(profileData, token) {
-        const response = await fetch(`${API_URL}/profiles`, {
+        const response = await authFetch(`${API_URL}/profiles`, {
             method: 'POST',
             headers: {
                 ...getAuthHeaders(token),
@@ -114,7 +132,7 @@ export const api = {
 
     // Частичное обновление профиля
     async updateProfile(profileData, token) {
-        const response = await fetch(`${API_URL}/profiles/me`, {
+        const response = await authFetch(`${API_URL}/profiles/me`, {
             method: 'PATCH',
             headers: {
                 ...getAuthHeaders(token),
@@ -122,16 +140,20 @@ export const api = {
             },
             body: JSON.stringify(profileData)
         });
+
+        if (response.status === 204 || response.status === 201) {
+          return { success: true };
+        }
+
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({ message: 'HTTP error!' }));
             throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
         }
-        return response.json();
     },
 
     // Удалить профиль
     async deleteProfile(token) {
-        const response = await fetch(`${API_URL}/profiles/me`, {
+        const response = await authFetch(`${API_URL}/profiles/me`, {
             method: 'DELETE',
             headers: {
                 ...getAuthHeaders(token),
@@ -149,7 +171,7 @@ export const api = {
     async uploadAvatar(file, token) {
         const formData = new FormData();
         formData.append('avatar', file);
-        const response = await fetch(`${API_URL}/profiles/me/avatar`, {
+        const response = await authFetch(`${API_URL}/profiles/me/avatar`, {
             method: 'PUT',
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -178,20 +200,24 @@ export const api = {
 
     // Удалить медиа из портфолио
     async deleteMedia(mediaId, token) {
-        const response = await fetch(`${API_URL}/profiles/me/media/${mediaId}`, {
+        const response = await authFetch(`${API_URL}/profiles/me/media/${mediaId}`, {
             method: 'DELETE',
             headers: {
                 ...getAuthHeaders(token),
                 'Idempotency-Key': generateIdempotencyKey()
             }
         });
+
+        if (response.status === 204 || response.status === 201) {
+          return { success: true };
+        }
+
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-        return response.json();
     },
 
     // Временный метод получения медиа (через профиль)
     async getMedia(profileId, token) {
-        const response = await fetch(`${API_URL}/profiles/${profileId}`, {
+        const response = await authFetch(`${API_URL}/profiles/${profileId}`, {
             headers: getAuthHeaders(token)
         });
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -245,7 +271,7 @@ export const api = {
 
     // Получить профиль по ID
     async getProfileById(userId) {
-        const response = await fetch(`${API_URL}/profiles/${userId}`);
+        const response = await authFetch(`${API_URL}/profiles/${userId}`);
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({ message: 'HTTP error!' }));
             throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
@@ -255,7 +281,7 @@ export const api = {
 
     // Отправить предложение о сотрудничестве
     async sendSuggestion(toProfileId, message, token) {
-        const response = await fetch(`${API_URL}/suggestions`, {
+        const response = await authFetch(`${API_URL}/suggestions`, {
             method: 'POST',
             headers: {
                 ...getAuthHeaders(token),
@@ -263,6 +289,11 @@ export const api = {
             },
             body: JSON.stringify({ toProfileId, message })
         });
+
+        if (response.status === 204 || response.status === 201) {
+          return { success: true };
+        }
+
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({ message: 'HTTP error!' }));
             throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
@@ -273,7 +304,7 @@ export const api = {
     // Получить входящие предложения
     async getReceivedSuggestions(token, page = 1, limit = 20) {
         const params = new URLSearchParams({ page, limit });
-        const response = await fetch(`${API_URL}/suggestions/received?${params}`, {
+        const response = await authFetch(`${API_URL}/suggestions/received?${params}`, {
             headers: getAuthHeaders(token)
         });
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -283,7 +314,7 @@ export const api = {
     // Получить исходящие предложения
     async getSentSuggestions(token, page = 1, limit = 20) {
         const params = new URLSearchParams({ page, limit });
-        const response = await fetch(`${API_URL}/suggestions/sent?${params}`, {
+        const response = await authFetch(`${API_URL}/suggestions/sent?${params}`, {
             headers: getAuthHeaders(token)
         });
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -293,7 +324,7 @@ export const api = {
     // Получить избранные профили
     async getFavorites(token, page = 1, limit = 20) {
         const params = new URLSearchParams({ page, limit });
-        const response = await fetch(`${API_URL}/me/favorites?${params}`, {
+        const response = await authFetch(`${API_URL}/me/favorites?${params}`, {
             headers: getAuthHeaders(token)
         });
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -302,26 +333,36 @@ export const api = {
 
     // Добавить в избранное
     async addToFavorites(profileId, token) {
-        const response = await fetch(`${API_URL}/${profileId}/favorite`, {
+        const response = await authFetch(`${API_URL}/${profileId}/favorite`, {
             method: 'PUT',
             headers: {
                 ...getAuthHeaders(token),
                 'Idempotency-Key': generateIdempotencyKey()
             }
         });
+
+        if (response.status === 204 || response.status === 201) {
+          return { success: true };
+        }
+        
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         return response.json();
     },
 
     // Удалить из избранного
     async removeFromFavorites(profileId, token) {
-        const response = await fetch(`${API_URL}/${profileId}/favorite`, {
+        const response = await authFetch(`${API_URL}/${profileId}/favorite`, {
             method: 'DELETE',
             headers: {
                 ...getAuthHeaders(token),
                 'Idempotency-Key': generateIdempotencyKey()
             }
         });
+
+        if (response.status === 204 || response.status === 201) {
+          return { success: true };
+        }
+
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         return response.json();
     },
@@ -329,7 +370,7 @@ export const api = {
     // Получить уведомления
     async getNotifications(token, page = 1, limit = 20) {
         const params = new URLSearchParams({ page, limit });
-        const response = await fetch(`${API_URL}/notifications?${params}`, {
+        const response = await authFetch(`${API_URL}/notifications?${params}`, {
             headers: getAuthHeaders(token)
         });
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -338,33 +379,43 @@ export const api = {
 
     // Отметить уведомление как прочитанное
     async markNotificationAsRead(notificationId, token) {
-        const response = await fetch(`${API_URL}/notifications/${notificationId}/read`, {
+        const response = await authFetch(`${API_URL}/notifications/${notificationId}/read`, {
             method: 'PATCH',
             headers: {
                 ...getAuthHeaders(token),
                 'Idempotency-Key': generateIdempotencyKey()
             }
         });
+
+        if (response.status === 204 || response.status === 201) {
+          return { success: true };
+        }
+
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         return response.json();
     },
 
     // Отметить все уведомления как прочитанные
     async markAllNotificationsAsRead(token) {
-        const response = await fetch(`${API_URL}/notifications/read-all`, {
+        const response = await authFetch(`${API_URL}/notifications/read-all`, {
             method: 'POST',
             headers: {
                 ...getAuthHeaders(token),
                 'Idempotency-Key': generateIdempotencyKey()
             }
         });
+
+        if (response.status === 204 || response.status === 201) {
+          return { success: true };
+        }
+
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         return response.json();
     },
 
     // Получить количество непрочитанных уведомлений
     async getUnreadNotificationsCount(token) {
-        const response = await fetch(`${API_URL}/notifications/unread-count`, {
+        const response = await authFetch(`${API_URL}/notifications/unread-count`, {
             headers: getAuthHeaders(token)
         });
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -373,7 +424,7 @@ export const api = {
 
     // Получить настройки уведомлений
     async getNotificationSettings(token) {
-        const response = await fetch(`${API_URL}/notifications/settings`, {
+        const response = await authFetch(`${API_URL}/notifications/settings`, {
             headers: getAuthHeaders(token)
         });
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -382,7 +433,7 @@ export const api = {
 
     // Обновить настройки уведомлений
     async updateNotificationSettings(settings, token) {
-        const response = await fetch(`${API_URL}/notifications/settings`, {
+        const response = await authFetch(`${API_URL}/notifications/settings`, {
             method: 'PUT',
             headers: {
                 ...getAuthHeaders(token),
@@ -390,13 +441,18 @@ export const api = {
             },
             body: JSON.stringify(settings)
         });
+
+        if (response.status === 204 || response.status === 201) {
+          return { success: true };
+        }
+
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         return response.json();
     },
 
     // Привязать аккаунт ВКонтакте
     async connectVk(code, codeVerifier, deviceId, token) {
-        const response = await fetch(`${API_URL}/profiles/me/connect-vk`, {
+        const response = await authFetch(`${API_URL}/profiles/me/connect-vk`, {
             method: 'POST',
             headers: {
                 ...getAuthHeaders(token),
@@ -404,6 +460,11 @@ export const api = {
             },
             body: JSON.stringify({ code, codeVerifier, deviceId })
         });
+
+        if (response.status === 204 || response.status === 201) {
+          return { success: true };
+        }
+
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({ message: 'HTTP error!' }));
             throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
@@ -425,7 +486,7 @@ export const api = {
         });
         const query = params.toString();
         const url = `${API_URL}/events${query ? '?' + query : ''}`;
-        const response = await fetch(url);
+        const response = await authFetch(url);
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         return response.json();
     },
@@ -433,14 +494,14 @@ export const api = {
     // Получить мероприятие по ID
     async getEventById(eventId, token) {
         const headers = token ? getAuthHeaders(token) : {};
-        const response = await fetch(`${API_URL}/events/${eventId}`, { headers });
+        const response = await authFetch(`${API_URL}/events/${eventId}`, { headers });
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         return response.json();
     },
 
     // Создать мероприятие
     async createEvent(eventData, token) {
-        const response = await fetch(`${API_URL}/events`, {
+        const response = await authFetch(`${API_URL}/events`, {
             method: 'POST',
             headers: {
                 ...getAuthHeaders(token),
@@ -448,13 +509,14 @@ export const api = {
             },
             body: JSON.stringify(eventData)
         });
+        
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         return response.json();
     },
 
     // Обновить мероприятие
     async updateEvent(eventId, eventData, token) {
-        const response = await fetch(`${API_URL}/events/${eventId}`, {
+        const response = await authFetch(`${API_URL}/events/${eventId}`, {
             method: 'PATCH',
             headers: {
                 ...getAuthHeaders(token),
@@ -462,45 +524,61 @@ export const api = {
             },
             body: JSON.stringify(eventData)
         });
+
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         return response.json();
     },
 
     // Отменить мероприятие
     async cancelEvent(eventId, token) {
-        const response = await fetch(`${API_URL}/events/${eventId}`, {
+        const response = await authFetch(`${API_URL}/events/${eventId}`, {
             method: 'DELETE',
             headers: {
                 ...getAuthHeaders(token),
                 'Idempotency-Key': generateIdempotencyKey()
             }
         });
+
+        if (response.status === 204 || response.status === 201) {
+          return { success: true };
+        }
+
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         return response.json();
     },
 
     // Записаться на мероприятие
     async registerForEvent(eventId, token) {
-        const response = await fetch(`${API_URL}/events/${eventId}/registration`, {
+        const response = await authFetch(`${API_URL}/events/${eventId}/registration`, {
             method: 'POST',
             headers: {
                 ...getAuthHeaders(token),
                 'Idempotency-Key': generateIdempotencyKey()
             }
         });
+
+        if (response.status === 204 || response.status === 201) {
+          return { success: true };
+        }
+
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         return response.json();
     },
 
     // Отменить запись на мероприятие
     async unregisterFromEvent(eventId, token) {
-        const response = await fetch(`${API_URL}/events/${eventId}/registration`, {
+        const response = await authFetch(`${API_URL}/events/${eventId}/registration`, {
             method: 'DELETE',
             headers: {
                 ...getAuthHeaders(token),
                 'Idempotency-Key': generateIdempotencyKey()
             }
         });
+
+        if (response.status === 204 || response.status === 201) {
+          return { success: true };
+        }
+
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         return response.json();
     },
@@ -508,7 +586,7 @@ export const api = {
     // Получить мероприятия, созданные пользователем
     async getMyCreatedEvents(token, page = 1, limit = 20) {
         const params = new URLSearchParams({ page, limit });
-        const response = await fetch(`${API_URL}/events/created?${params}`, {
+        const response = await authFetch(`${API_URL}/events/created?${params}`, {
             headers: getAuthHeaders(token)
         });
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -518,7 +596,7 @@ export const api = {
     // Получить мероприятия, на которые записан пользователь
     async getMyRegisteredEvents(token, page = 1, limit = 20) {
         const params = new URLSearchParams({ page, limit });
-        const response = await fetch(`${API_URL}/events/registered?${params}`, {
+        const response = await authFetch(`${API_URL}/events/registered?${params}`, {
             headers: getAuthHeaders(token)
         });
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -529,7 +607,7 @@ export const api = {
     async uploadEventImage(eventId, file, token) {
         const formData = new FormData();
         formData.append('image', file);
-        const response = await fetch(`${API_URL}/events/${eventId}/image`, {
+        const response = await authFetch(`${API_URL}/events/${eventId}/image`, {
             method: 'PUT',
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -537,6 +615,11 @@ export const api = {
             },
             body: formData
         });
+
+        if (response.status === 204 || response.status === 201) {
+          return { success: true };
+        }
+
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         return response.json();
     }
