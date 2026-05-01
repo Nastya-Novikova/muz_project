@@ -9,6 +9,9 @@ namespace MusicianFinder.Application.Validators.Suggestions
     /// </summary>
     public class UpdateSuggestionStatusCommandValidator : AbstractValidator<UpdateSuggestionStatusCommand>
     {
+        /// <summary>
+        /// Инициализирует новый экземпляр валидатора.
+        /// </summary>
         public UpdateSuggestionStatusCommandValidator()
         {
             RuleFor(x => x.SuggestionId)

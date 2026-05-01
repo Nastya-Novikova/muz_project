@@ -47,7 +47,7 @@ namespace MusicianFinder.Application.Commands.Suggestions
             var suggestion = new CollaborationSuggestion(fromProfile.Id, request.ToProfileId, request.Message);
             _suggestionRepository.Add(suggestion);
 
-            await _notificationService.SendNotificationToProfileAsync(
+            /*await _notificationService.SendNotificationToProfileAsync(
                 ToProfile,
                 NotificationType.CollaborationReceived,
                 new Dictionary<string, object>
@@ -55,7 +55,7 @@ namespace MusicianFinder.Application.Commands.Suggestions
                     ["fromProfileName"] = fromProfile.FullName.Value,
                     ["message"] = request.Message ?? "Запрос на сотрудничество",
                     ["suggestionId"] = suggestion.Id
-                });
+                });*/
 
             return suggestion.Id;
         }

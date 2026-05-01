@@ -49,7 +49,7 @@ namespace MusicianFinder.Application.Commands.Events
             var registration = @event.Registrations.Last();
             await _eventRepository.AttachRegistrationAsync(registration, cancellationToken);
 
-            await _notificationService.SendNotificationToProfileAsync(
+            /*await _notificationService.SendNotificationToProfileAsync(
                 profile,
                 NotificationType.EventRegistration,
                 new Dictionary<string, object>
@@ -57,7 +57,7 @@ namespace MusicianFinder.Application.Commands.Events
                     ["eventTitle"] = @event.Title.Value,
                     ["profileName"] = profile.FullName.Value,
                     ["eventId"] = @event.Id
-                });
+                });*/
 
             return Unit.Value;
         }

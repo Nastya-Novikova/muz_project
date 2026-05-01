@@ -8,6 +8,9 @@ namespace MusicianFinder.Application.Validators.Media
     /// </summary>
     public class DeleteMediaCommandValidator : AbstractValidator<DeleteMediaCommand>
     {
+        /// <summary>
+        /// Инициализирует новый экземпляр валидатора.
+        /// </summary>
         public DeleteMediaCommandValidator()
         {
             RuleFor(x => x.MediaId)

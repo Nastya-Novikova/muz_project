@@ -52,12 +52,14 @@ namespace MusicianFinder.Infrastructure.Extensions
             services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<IFileStorage, MinioFileStorage>();
             services.AddScoped<IVkService, VkService>();
-            services.AddScoped<INotificationService, NotificationService>();
+            //services.AddScoped<INotificationService, NotificationService>();
             services.AddScoped<ICacheService, RedisCacheService>();
             services.AddSingleton<IIntegrationEventTypeRegistry, IntegrationEventTypeRegistry>();
             services.AddSingleton<IExternalBusPublisher, ExternalBusPublisher>();
             services.AddScoped<IIdempotencyStore, DatabaseIdempotencyStore>();
             services.AddScoped<IReferenceDataValidationService, ReferenceDataValidationService>();
+            services.AddScoped<INotificationWriter, NotificationWriter>();
+            services.AddScoped<IExternalNotificationSender, ExternalNotificationSender>();
 
             // Фоновые процессы
             services.AddHostedService<OutboxProcessor>();

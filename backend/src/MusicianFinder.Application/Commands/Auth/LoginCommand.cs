@@ -11,12 +11,12 @@ namespace MusicianFinder.Application.Commands.Auth
     public class LoginCommand : ICommand<AuthResponse>, IBaseCommand
     {
         /// <summary>
-        /// Email пользователя.
+        /// Email пользователя для входа.
         /// </summary>
         public string Email { get; set; } = string.Empty;
 
         /// <summary>
-        /// Код подтверждения.
+        /// Шестизначный код подтверждения, отправленный на email.
         /// </summary>
         public string Code { get; set; } = string.Empty;
 

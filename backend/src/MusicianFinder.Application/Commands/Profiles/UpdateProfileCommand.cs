@@ -11,6 +11,9 @@ namespace MusicianFinder.Application.Commands.Profiles
     /// </summary>
     public class UpdateProfileCommand : ICommand<Unit>, IBaseCommand
     {
+        /// <summary>
+        /// Вид профиля.
+        /// </summary>
         public ProfileType? ProfileType { get; set; }
 
         /// <summary>
