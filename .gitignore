@@ -444,4 +444,4 @@ backend/src/MusicianFinder.Infrastructure/Migrations/
 *.vs/
 *.vscode/
 /init.sql
-/backend/src/MusicianFinder.Infrastructure/Migrations/MusicianFinderDbContextModelSnapshot.cs
+/backend/src/MusicianFinder.Infrastructure/Migrations/

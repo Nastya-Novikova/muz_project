@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
 import HomePage from './pages/Home/HomePage';
 import LoginOTP from './pages/Login/LoginPage';
 import ProfilePage from './pages/Profile/ProfilePage/ProfilePage';
@@ -18,15 +19,33 @@ function App() {
         <Routes>
           <Route path="/login" element={<LoginOTP />} />
           <Route path="/" element={<HomePage />} />
-          <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/profile/edit" element={<EditProfilePage />} />
-          <Route path="/suggestions" element={<SuggestionsPage />} />
-          <Route path="/notifications" element={<NotificationsPage />} />
-          <Route path="/profile/:userId" element={<ProfilePage />} />
-          <Route path="/events" element={<EventsPage />} />
-          <Route path="/events/create" element={<EventFormPage />} />
-          <Route path="/events/:eventId/edit" element={<EventFormPage />} />
-          <Route path="/events/:eventId" element={<EventDetailPage />} />
+          <Route path="/profile" element={
+            <ProtectedRoute><ProfilePage /></ProtectedRoute>
+          } />
+          <Route path="/profile/edit" element={
+            <ProtectedRoute><EditProfilePage /></ProtectedRoute>
+          } />
+          <Route path="/suggestions" element={
+            <ProtectedRoute><SuggestionsPage /></ProtectedRoute>
+          } />
+          <Route path="/notifications" element={
+            <ProtectedRoute><NotificationsPage /></ProtectedRoute>
+          } />
+          <Route path="/profile/:userId" element={
+            <ProtectedRoute><ProfilePage /></ProtectedRoute>
+          } />
+          <Route path="/events" element={
+            <ProtectedRoute><EventsPage /></ProtectedRoute>
+          } />
+          <Route path="/events/create" element={
+            <ProtectedRoute><EventFormPage /></ProtectedRoute>
+          } />
+          <Route path="/events/:eventId/edit" element={
+            <ProtectedRoute><EventFormPage /></ProtectedRoute>
+          } />
+          <Route path="/events/:eventId" element={
+            <ProtectedRoute><EventDetailPage /></ProtectedRoute>
+          } />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </AuthProvider>

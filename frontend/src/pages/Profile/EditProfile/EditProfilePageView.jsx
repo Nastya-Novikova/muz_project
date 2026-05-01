@@ -37,6 +37,8 @@ function EditProfilePageView({
   onRemoveAudioFile,
   onRemoveVideoFile,
   onRemoveExistingAudio,
+  onRemoveExistingPhoto,
+  onRemoveExistingVideo, 
   onNotifyByEmailChange,
   onSubmit,
   onCancel
@@ -156,7 +158,9 @@ function EditProfilePageView({
                     value={formData.telegram}
                     onChange={onInputChange}
                     placeholder="@username"
-                    maxLength={50}
+                    minLength={0}  // разрешаем пустое
+                    maxLength={32}
+                    pattern="(^$|@?[a-zA-Z0-9_]{5,32})"
                   />
                 </div>
               </div>

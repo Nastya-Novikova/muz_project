@@ -45,7 +45,10 @@ function EditProfilePage() {
   const [existingAudios, setExistingAudios] = useState([]); 
   const [existingPhotos, setExistingPhotos] = useState([]);
   const [existingVideos, setExistingVideos] = useState([]);
-  const [audiosToDelete, setAudiosToDelete] = useState([]); 
+
+  const [audiosToDelete, setAudiosToDelete] = useState([]);
+  const [photosToDelete, setPhotosToDelete] = useState([]);
+  const [videosToDelete, setVideosToDelete] = useState([]); 
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -270,6 +273,16 @@ function EditProfilePage() {
     setAudiosToDelete(prev => [...prev, audioId]);
   };
 
+  const removeExistingPhoto = (photoId) => {
+    setExistingPhotos(prev => prev.filter(photo => photo.id !== photoId));
+    setPhotosToDelete(prev => [...prev, photoId]);
+  };
+
+  const removeExistingVideo = (videoId) => {
+    setExistingVideos(prev => prev.filter(video => video.id !== videoId));
+    setVideosToDelete(prev => [...prev, videoId]);
+  };
+
   const handleNotifyByEmailChange = (checked) => {
     setFormData(prev => ({
       ...prev,
@@ -306,6 +319,36 @@ function EditProfilePage() {
         await api.createProfile(profileData, token);
       } else {
         await api.updateProfile(profileData, token);
+      }
+
+      if (!isCreating) {
+
+        for (const audioId of audiosToDelete) {
+          try {
+              await api.deleteMedia(audioId, token);
+              console.log(`Аудио ${audioId} удалено`);
+          } catch (err) {
+              console.error(`Ошибка удаления аудио ${audioId}:`, err);
+          }
+        }
+        
+        for (const photoId of photosToDelete) {
+          try {
+              await api.deleteMedia(photoId, token);
+              console.log(`Фото ${photoId} удалено`);
+          } catch (err) {
+              console.error(`Ошибка удаления фото ${photoId}:`, err);
+          }
+        }
+
+        for (const videoId of videosToDelete) {
+          try {
+              await api.deleteMedia(videoId, token);
+              console.log(`Видео ${videoId} удалено`);
+          } catch (err) {
+              console.error(`Ошибка удаления видео ${videoId}:`, err);
+          }
+        }
       }
 
       if (avatarFile) {
@@ -385,6 +428,8 @@ function EditProfilePage() {
       onRemoveAudioFile={removeAudioFile}
       onRemoveVideoFile={removeVideoFile}
       onRemoveExistingAudio={removeExistingAudio}
+      onRemoveExistingPhoto={removeExistingPhoto}
+      onRemoveExistingVideo={removeExistingVideo} 
       onSubmit={handleSubmit}
       onNotifyByEmailChange={handleNotifyByEmailChange}
       onCancel={() => navigate('/profile')}

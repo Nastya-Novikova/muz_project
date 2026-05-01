@@ -72,26 +72,35 @@ namespace MusicianFinder.Infrastructure.Services
         /// <inheritdoc />
         public async Task SendNotificationAsync(string toEmail, string subject, string body)
         {
-            var message = new MimeMessage();
-            message.From.Add(new MailboxAddress(_senderName, _senderEmail));
-            message.To.Add(MailboxAddress.Parse(toEmail));
-            message.Subject = subject;
-
-            var bodyBuilder = new BodyBuilder
+            try
             {
-                HtmlBody = $"<div style='font-family: Arial, sans-serif;'><h3>{subject}</h3><p>{body}</p></div>",
-                TextBody = $"{subject}\n\n{body}"
-            };
-            message.Body = bodyBuilder.ToMessageBody();
+                var message = new MimeMessage();
+                message.From.Add(new MailboxAddress(_senderName, _senderEmail));
+                message.To.Add(MailboxAddress.Parse(toEmail));
+                message.Subject = subject;
 
-            using var client = new SmtpClient();
-            await client.ConnectAsync(_smtpServer, _smtpPort, SecureSocketOptions.StartTls);
-            if (!string.IsNullOrEmpty(_smtpUsername) && !string.IsNullOrEmpty(_smtpPassword))
-                await client.AuthenticateAsync(_smtpUsername, _smtpPassword);
-            await client.SendAsync(message);
-            await client.DisconnectAsync(true);
+                var bodyBuilder = new BodyBuilder
+                {
+                    HtmlBody = $"<div style='font-family: Arial, sans-serif;'><h3>{subject}</h3><p>{body}</p></div>",
+                    TextBody = $"{subject}\n\n{body}"
+                };
+                message.Body = bodyBuilder.ToMessageBody();
 
-            _logger.LogInformation("Уведомление отправлено на {Email}", toEmail);
+                using var client = new SmtpClient();
+                await client.ConnectAsync(_smtpServer, _smtpPort, SecureSocketOptions.Auto);
+                
+                if (!string.IsNullOrEmpty(_smtpUsername) && !string.IsNullOrEmpty(_smtpPassword))
+                    await client.AuthenticateAsync(_smtpUsername, _smtpPassword);
+                
+                await client.SendAsync(message);
+                await client.DisconnectAsync(true);
+
+                _logger.LogInformation("Уведомление отправлено на {Email}", toEmail);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Не удалось отправить уведомление на {Email}. Тема: {Subject}", toEmail, subject);
+            }
         }
     }
 }
