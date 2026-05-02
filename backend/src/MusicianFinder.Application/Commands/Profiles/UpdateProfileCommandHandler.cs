@@ -9,29 +9,24 @@ namespace MusicianFinder.Application.Commands.Profiles
     /// <summary>
     /// Обработчик команды <see cref="UpdateProfileCommand"/>.
     /// </summary>
-    public class UpdateProfileCommandHandler : IRequestHandler<UpdateProfileCommand, Unit>
+    public class UpdateProfileCommandHandler : IRequestHandler<UpdateProfileCommand, Guid>
     {
-        private readonly IMusicianProfileRepository _profileRepository;
-        private readonly ICurrentUserService _currentUser;
+        private readonly ICurrentProfileProvider _profileProvider;
 
         /// <summary>
         /// Инициализирует новый экземпляр обработчика.
         /// </summary>
-        /// <param name="profileRepository">Репозиторий профилей.</param>
+        /// <param name="profileProvider">Репозиторий профилей.</param>
         /// <param name="currentUser">Сервис текущего пользователя.</param>
-        public UpdateProfileCommandHandler(
-            IMusicianProfileRepository profileRepository,
-            ICurrentUserService currentUser)
+        public UpdateProfileCommandHandler(ICurrentProfileProvider profileProvider)
         {
-            _profileRepository = profileRepository;
-            _currentUser = currentUser;
+            _profileProvider = profileProvider;
         }
 
         /// <inheritdoc />
-        public async Task<Unit> Handle(UpdateProfileCommand request, CancellationToken cancellationToken)
+        public async Task<Guid> Handle(UpdateProfileCommand request, CancellationToken cancellationToken)
         {
-            var profile = await _profileRepository.GetByUserIdAsync(_currentUser.UserId, cancellationToken)
-                ?? throw new NotFoundException("Профиль не найден.");
+            var profile = await _profileProvider.GetCurrentProfileAsync(cancellationToken);
 
             if (!string.IsNullOrWhiteSpace(request.FullName) || request.Age.HasValue ||
                 !string.IsNullOrWhiteSpace(request.Description) || request.CityId.HasValue)
@@ -65,7 +60,7 @@ namespace MusicianFinder.Application.Commands.Profiles
             if (request.ProfileType.HasValue)
                 profile.SetProfileType(request.ProfileType.Value);
 
-            return Unit.Value;
+            return profile.Id;
         }
     }
 }

@@ -9,7 +9,7 @@ namespace MusicianFinder.Application.Commands.Profiles
     /// <summary>
     /// Команда для обновления профиля музыканта.
     /// </summary>
-    public class UpdateProfileCommand : ICommand<Unit>, IBaseCommand
+    public class UpdateProfileCommand : ICommand<Guid>, IBaseCommand
     {
         /// <summary>
         /// Вид профиля.

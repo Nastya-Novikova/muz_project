@@ -106,17 +106,24 @@ namespace MusicianFinder.Infrastructure.Outbox
             switch (ev)
             {
                 case UserRegisteredToEventIntegrationEvent reg:
-                    // Загружаем название мероприятия
                     var eventEntity = await db.Events.AsNoTracking().FirstOrDefaultAsync(e => e.Id == reg.EventId, cancellationToken);
                     if (eventEntity != null)
                     {
-                        var data = new Dictionary<string, object> { ["eventTitle"] = eventEntity.Title.Value };
+                        var city = await db.Cities.AsNoTracking().FirstOrDefaultAsync(c => c.Id == eventEntity.CityId, cancellationToken);
+                        var region = await db.Regions.AsNoTracking().FirstOrDefaultAsync(r => r.Id == eventEntity.RegionId, cancellationToken);
+                        var data = new Dictionary<string, object>
+                        {
+                            ["eventTitle"] = eventEntity.Title.Value,
+                            ["address"] = eventEntity.Address,
+                            ["cityName"] = city?.Name ?? "Не указан",
+                            ["regionName"] = region?.Name ?? "Не указан",
+                            ["startDateTime"] = eventEntity.StartDateTime
+                        };
                         await sender.SendAsync(reg.ProfileId, NotificationType.EventRegistration, data, cancellationToken);
                     }
                     break;
 
                 case CollaborationSuggestionSentIntegrationEvent sug:
-                    // Загружаем сообщение предложения и имя отправителя
                     var suggestion = await db.CollaborationSuggestions.AsNoTracking()
                         .FirstOrDefaultAsync(cs => cs.Id == sug.SuggestionId, cancellationToken);
                     var fromProfile = await db.MusicianProfiles.AsNoTracking()
@@ -125,7 +132,7 @@ namespace MusicianFinder.Infrastructure.Outbox
                     var dataSug = new Dictionary<string, object>
                     {
                         ["fromProfileName"] = fromProfile?.FullName.Value ?? "Пользователь",
-                        ["message"] = suggestion?.Message ?? "У вас новое предложение о сотрудничестве"
+                        ["message"] = suggestion?.Message
                     };
                     await sender.SendAsync(sug.ToProfileId, NotificationType.CollaborationReceived, dataSug, cancellationToken);
                     break;

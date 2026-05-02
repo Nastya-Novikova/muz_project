@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using MusicianFinder.Application.Interfaces;
 using MusicianFinder.Application.Interfaces.Repositories;
+using MusicianFinder.Application.Core.Exceptions;
 using MusicianFinder.Domain.Entities;
 using MusicianFinder.Domain.ValueObjects;
 
@@ -35,10 +36,10 @@ namespace MusicianFinder.Application.Commands.Profiles
         public async Task<Guid> Handle(CreateProfileCommand request, CancellationToken cancellationToken)
         {
             var user = await _userRepository.GetByIdAsync(_currentUser.UserId, cancellationToken)
-                ?? throw new Application.Core.Exceptions.NotFoundException("Пользователь не найден.");
+                ?? throw new NotFoundException("Пользователь не найден.");
 
             if (user.ProfileCreated)
-                throw new Application.Core.Exceptions.ConflictException("Профиль уже создан.");
+                throw new ConflictException("Профиль уже создан.");
 
             var profile = MusicianProfile.Create(user.Id, new ProfileName(request.FullName), request.CityId, user.Email, request.ProfileType);
 

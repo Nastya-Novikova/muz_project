@@ -10,23 +10,20 @@ namespace MusicianFinder.Application.Commands.Events
     public class CancelEventCommandHandler : IRequestHandler<CancelEventCommand, Unit>
     {
         private readonly IEventRepository _eventRepository;
-        private readonly ICurrentUserService _currentUser;
-        private readonly IMusicianProfileRepository _profileRepository;
+        private readonly ICurrentProfileProvider _profileProvider;
 
         /// <summary>
         /// Инициализирует новый экземпляр обработчика.
         /// </summary>
         /// <param name="eventRepository">Репозиторий мероприятий.</param>
         /// <param name="currentUser">Сервис текущего пользователя.</param>
-        /// <param name="profileRepository">Репозиторий профилей.</param>
+        /// <param name="profileProvider">Репозиторий профилей.</param>
         public CancelEventCommandHandler(
             IEventRepository eventRepository,
-            ICurrentUserService currentUser,
-            IMusicianProfileRepository profileRepository)
+            ICurrentProfileProvider profileProvider)
         {
             _eventRepository = eventRepository;
-            _currentUser = currentUser;
-            _profileRepository = profileRepository;
+            _profileProvider = profileProvider;
         }
 
         /// <inheritdoc />
@@ -35,8 +32,7 @@ namespace MusicianFinder.Application.Commands.Events
             var @event = await _eventRepository.GetByIdAsync(request.EventId, cancellationToken)
                 ?? throw new Application.Core.Exceptions.NotFoundException("Мероприятие не найдено.");
 
-            var profile = await _profileRepository.GetByUserIdAsync(_currentUser.UserId, cancellationToken)
-                ?? throw new Application.Core.Exceptions.NotFoundException("Профиль не найден.");
+            var profile = await _profileProvider.GetCurrentProfileAsync(cancellationToken);
 
             @event.Cancel(profile.Id);
             return Unit.Value;

@@ -20,11 +20,13 @@ namespace MusicianFinder.Application.Helpers
             {
                 NotificationType.CollaborationReceived => (
                     $"Пользователь {data["fromProfileName"]} отправил вам предложение о сотрудничестве",
-                    data.TryGetValue("message", out var msg) ? msg?.ToString() ?? "У вас новое предложение" : "У вас новое предложение"
+                    data.TryGetValue("message", out var msg) && msg != null
+                        ? $"Сообщение: {msg}"
+                        : "У вас новое предложение"
                 ),
                 NotificationType.EventRegistration => (
                     "Регистрация подтверждена",
-                    $"Вы успешно зарегистрировались на мероприятие \"{data["eventTitle"]}\""
+                    BuildEventRegistrationMessage(data)
                 ),
                 NotificationType.EventReminder => (
                     $"Через {data["daysLeft"]} дн. состоится мероприятие \"{data["eventTitle"]}\"",
@@ -32,6 +34,26 @@ namespace MusicianFinder.Application.Helpers
                 ),
                 _ => ("Новое уведомление", string.Empty)
             };
+        }
+
+        private static string BuildEventRegistrationMessage(IReadOnlyDictionary<string, object> data)
+        {
+            var title = data.TryGetValue("eventTitle", out var t) ? t?.ToString() : "Мероприятие";
+            var address = data.TryGetValue("address", out var a) ? a?.ToString() : "";
+            var city = data.TryGetValue("cityName", out var c) ? c?.ToString() : "";
+            var region = data.TryGetValue("regionName", out var r) ? r?.ToString() : "";
+            var startDateTime = data.TryGetValue("startDateTime", out var sdt) ? sdt : null;
+
+            var locationParts = new List<string>();
+            if (!string.IsNullOrWhiteSpace(address)) locationParts.Add(address);
+            if (!string.IsNullOrWhiteSpace(city)) locationParts.Add(city);
+            if (!string.IsNullOrWhiteSpace(region)) locationParts.Add(region);
+            var location = locationParts.Count > 0 ? string.Join(", ", locationParts) : null;
+
+            var datePart = startDateTime is DateTime dt ? $" {dt:dd.MM.yyyy HH:mm}" : "";
+
+            return $"Вы успешно зарегистрировались на мероприятие \"{title}\".{datePart}." +
+                   (location != null ? $" Оно будет проходить по адресу: {location}." : "");
         }
     }
 }

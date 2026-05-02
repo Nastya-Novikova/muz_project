@@ -11,32 +11,28 @@ namespace MusicianFinder.Application.Commands.Profiles
     /// </summary>
     public class DeleteProfileCommandHandler : IRequestHandler<DeleteProfileCommand, Unit>
     {
-        private readonly IMusicianProfileRepository _profileRepository;
-        private readonly ICurrentUserService _currentUser;
+        private readonly ICurrentProfileProvider _profileProvider;
         private readonly IUserRepository _userRepository;
 
         /// <summary>
         /// Инициализирует новый экземпляр обработчика.
         /// </summary>
-        /// <param name="profileRepository">Репозиторий профилей.</param>
+        /// <param name="profileProvider">Репозиторий профилей.</param>
         /// <param name="currentUser">Сервис текущего пользователя.</param>
         public DeleteProfileCommandHandler(
-            IMusicianProfileRepository profileRepository,
-            ICurrentUserService currentUser,
+            ICurrentProfileProvider profileProvider,
             IUserRepository userRepository)
         {
-            _profileRepository = profileRepository;
-            _currentUser = currentUser;
+            _profileProvider = profileProvider;
             _userRepository = userRepository;
         }
 
         /// <inheritdoc />
         public async Task<Unit> Handle(DeleteProfileCommand request, CancellationToken cancellationToken)
         {
-            var profile = await _profileRepository.GetByUserIdAsync(_currentUser.UserId, cancellationToken)
-                ?? throw new Application.Core.Exceptions.NotFoundException("Профиль не найден.");
+            var profile = await _profileProvider.GetCurrentProfileAsync(cancellationToken);
 
-            var user = await _userRepository.GetByIdAsync(_currentUser.UserId, cancellationToken)
+            var user = await _userRepository.GetByIdAsync(profile.UserId, cancellationToken)
                 ?? throw new NotFoundException("Пользователь не найден.");
 
             user.ClearMusicianProfile();

@@ -46,6 +46,7 @@ namespace MusicianFinder.Infrastructure.Extensions
 
             // Сервисы
             services.AddScoped<ICurrentUserService, CurrentUserService>();
+            services.AddScoped<ICurrentProfileProvider, CurrentProfileProvider>();
             services.AddScoped<IVerificationCodeService, VerificationCodeService>();
             services.AddScoped<IOutboxWriter, OutboxWriter>();
             services.AddScoped<IDomainEventDispatcher, DomainEventDispatcher>();

@@ -66,8 +66,8 @@ namespace MusicianFinder.API.Controllers
         {
             command.EventId = id;
             SetIdempotencyKey(command);
-            await Mediator.Send(command);
-            return NoContent();
+            var eventId = await Mediator.Send(command);
+            return Ok(new { id = eventId });
         }
 
         /// <summary>

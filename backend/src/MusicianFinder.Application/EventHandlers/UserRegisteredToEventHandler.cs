@@ -36,17 +36,22 @@ namespace MusicianFinder.Application.EventHandlers
         {
             var domainEvent = notification.DomainEvent;
 
-            // 1. Интеграционное событие
             var integrationEvent = new UserRegisteredToEventIntegrationEvent(domainEvent.EventId, domainEvent.ProfileId);
             await _outboxWriter.WriteAsync(integrationEvent, cancellationToken);
 
-            // 2. Внутреннее уведомление участнику
             var @event = await _eventRepository.GetByIdAsync(domainEvent.EventId, cancellationToken);
             if (@event != null)
             {
                 var (title, message) = NotificationTextBuilder.Build(
                     NotificationType.EventRegistration,
-                    new Dictionary<string, object> { ["eventTitle"] = @event.Title.Value }
+                    new Dictionary<string, object>
+                    {
+                        ["eventTitle"] = @event.Title.Value,
+                        ["address"] = @event.Address,
+                        ["cityId"] = @event.CityId,
+                        ["regionId"] = @event.RegionId,
+                        ["startDateTime"] = @event.StartDateTime
+                    }
                 );
 
                 var notif = new Notification(

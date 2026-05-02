@@ -120,7 +120,10 @@ namespace MusicianFinder.Infrastructure.Persistence.Repositories
         {
             var ids = await _dbContext.CollaborationSuggestions
                 .AsNoTracking()
-                .Where(cs => cs.FromProfileId == fromProfileId && toProfileIds.Contains(cs.ToProfileId))
+                .Where(cs => cs.FromProfileId == fromProfileId
+                            && toProfileIds.Contains(cs.ToProfileId)
+                            && cs.Status != Domain.Enums.SuggestionStatus.Rejected
+                            && cs.Status != Domain.Enums.SuggestionStatus.Withdrawn)
                 .Select(cs => cs.ToProfileId)
                 .Distinct()
                 .ToListAsync(ct);

@@ -12,30 +12,26 @@ namespace MusicianFinder.Application.Commands.Events
     public class CreateEventCommandHandler : IRequestHandler<CreateEventCommand, Guid>
     {
         private readonly IEventRepository _eventRepository;
-        private readonly ICurrentUserService _currentUser;
-        private readonly IMusicianProfileRepository _profileRepository;
+        private readonly ICurrentProfileProvider _profileProvider;
 
         /// <summary>
         /// Инициализирует новый экземпляр обработчика.
         /// </summary>
         /// <param name="eventRepository">Репозиторий мероприятий.</param>
         /// <param name="currentUser">Сервис текущего пользователя.</param>
-        /// <param name="profileRepository">Репозиторий профилей.</param>
+        /// <param name="profileProvider">Репозиторий профилей.</param>
         public CreateEventCommandHandler(
             IEventRepository eventRepository,
-            ICurrentUserService currentUser,
-            IMusicianProfileRepository profileRepository)
+            ICurrentProfileProvider profileProvider)
         {
             _eventRepository = eventRepository;
-            _currentUser = currentUser;
-            _profileRepository = profileRepository;
+            _profileProvider = profileProvider;
         }
 
         /// <inheritdoc />
         public async Task<Guid> Handle(CreateEventCommand request, CancellationToken cancellationToken)
         {
-            var profile = await _profileRepository.GetByUserIdAsync(_currentUser.UserId, cancellationToken)
-                ?? throw new Application.Core.Exceptions.NotFoundException("Профиль не найден.");
+            var profile = await _profileProvider.GetCurrentProfileAsync(cancellationToken);
 
             var newEvent = new Event(
                 new EventTitle(request.Title),

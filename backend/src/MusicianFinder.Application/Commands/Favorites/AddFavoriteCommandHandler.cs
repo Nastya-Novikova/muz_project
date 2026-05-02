@@ -13,30 +13,29 @@ namespace MusicianFinder.Application.Commands.Favorites
     public class AddFavoriteCommandHandler : IRequestHandler<AddFavoriteCommand, Unit>
     {
         private readonly IMusicianProfileRepository _profileRepository;
-        private readonly ICurrentUserService _currentUser;
+        private readonly ICurrentProfileProvider _profileProvider;
 
         /// <summary>
         /// Инициализирует новый экземпляр обработчика.
         /// </summary>
         /// <param name="profileRepository">Репозиторий профилей.</param>
-        /// <param name="currentUser">Сервис текущего пользователя.</param>
+        /// <param name="profileProvider">Сервис текущего пользователя.</param>
         public AddFavoriteCommandHandler(
             IMusicianProfileRepository profileRepository,
-            ICurrentUserService currentUser)
+            ICurrentProfileProvider profileProvider)
         {
             _profileRepository = profileRepository;
-            _currentUser = currentUser;
+            _profileProvider = profileProvider;
         }
 
         /// <inheritdoc />
         public async Task<Unit> Handle(AddFavoriteCommand request, CancellationToken cancellationToken)
         {
-            var profile = await _profileRepository.GetByUserIdAsync(_currentUser.UserId, cancellationToken)
-                ?? throw new Application.Core.Exceptions.NotFoundException("Профиль не найден.");
+            var profile = await _profileProvider.GetCurrentProfileAsync(cancellationToken);
 
             try
             {
-                await _profileRepository.AddFavoriteAsync(_currentUser.UserId, request.TargetProfileId, cancellationToken);
+                await _profileRepository.AddFavoriteAsync(profile.UserId, request.TargetProfileId, cancellationToken);
             }
             catch (DomainException ex) when (ex.Message.Contains("Этот профиль уже в избранном"))
             {

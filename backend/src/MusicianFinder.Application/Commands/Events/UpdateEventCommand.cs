@@ -8,7 +8,7 @@ namespace MusicianFinder.Application.Commands.Events
     /// <summary>
     /// Команда для обновления мероприятия.
     /// </summary>
-    public class UpdateEventCommand : ICommand<Unit>, IBaseCommand
+    public class UpdateEventCommand : ICommand<Guid>, IBaseCommand
     {
         /// <summary>
         /// Идентификатор мероприятия.

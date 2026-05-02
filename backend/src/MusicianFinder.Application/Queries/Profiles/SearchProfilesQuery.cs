@@ -20,6 +20,8 @@ namespace MusicianFinder.Application.Queries.Profiles
         public List<int>? SpecialtyIds { get; set; }
         /// <summary>Идентификаторы целей.</summary>
         public List<int>? GoalIds { get; set; }
+        /// <summary>Тип профиля (Individual или Band).</summary>
+        public string? ProfileType { get; set; }
         /// <summary>Минимальный опыт.</summary>
         public int? ExperienceMin { get; set; }
         /// <summary>Максимальный опыт.</summary>
