@@ -44,7 +44,7 @@ namespace MusicianFinder.Application.EventHandlers
             await _outboxWriter.WriteAsync(integrationEvent, cancellationToken);
 
             // 2. Уведомление получателю
-            var fromProfile = await _profileRepository.GetByUserIdAsync(domainEvent.FromProfileId, cancellationToken);
+            var fromProfile = await _profileRepository.GetByIdAsync(domainEvent.FromProfileId, cancellationToken);
             if (fromProfile != null)
             {
                 var suggestion = await _suggestionRepository.GetByIdAsync(domainEvent.SuggestionId, cancellationToken);

@@ -2,6 +2,7 @@
 using MusicianFinder.Application.Core.Exceptions;
 using MusicianFinder.Application.Interfaces.Repositories;
 using MusicianFinder.Domain.Entities;
+using MusicianFinder.SharedKernel;
 
 namespace MusicianFinder.Infrastructure.Persistence.Repositories
 {
@@ -20,7 +21,11 @@ namespace MusicianFinder.Infrastructure.Persistence.Repositories
 
         /// <inheritdoc />
         public async Task<MusicianProfile?> GetByUserIdAsync(Guid userId, CancellationToken ct = default)
-            => await _dbContext.MusicianProfiles.IgnoreAutoIncludes().Include(p => p.Portfolio).Include(p => p.Favorites).FirstOrDefaultAsync(p => p.UserId == userId && !p.IsDeleted, ct);
+            => await _dbContext.MusicianProfiles.IgnoreAutoIncludes().Include(p => p.Portfolio).Include(p => p.Favorites).Include(p => p.Notifications).FirstOrDefaultAsync(p => p.UserId == userId && !p.IsDeleted, ct);
+
+        public async Task<MusicianProfile?> GetByIdAsync(Guid profileId, CancellationToken ct = default)
+            => await _dbContext.MusicianProfiles.IgnoreAutoIncludes().Include(p => p.Portfolio).Include(p => p.Favorites).Include(p => p.Notifications).FirstOrDefaultAsync(p => p.Id == profileId && !p.IsDeleted, ct);
+
 
         /// <inheritdoc />
         public void Add(MusicianProfile profile) => _dbContext.MusicianProfiles.Add(profile);
@@ -98,6 +103,42 @@ namespace MusicianFinder.Infrastructure.Persistence.Repositories
                 .LastOrDefault();
             if (added != null)
                 _dbContext.Entry(added).State = EntityState.Added;
+        }
+
+        /// <inheritdoc />
+        public async Task<MusicianProfile?> GetByUserIdForEditAsync(Guid userId, CancellationToken ct = default)
+            => await _dbContext.MusicianProfiles
+                .Include(p => p.Favorites)
+                .FirstOrDefaultAsync(p => p.UserId == userId && !p.IsDeleted, ct);
+
+        /// <inheritdoc />
+        public async Task ExecuteAndTrackNewOwnedAsync<T>(
+            Guid userId,
+            Func<MusicianProfile, T> domainOperation,
+            CancellationToken ct = default)
+            where T : class
+        {
+            var profile = await GetByUserIdAsync(userId, ct)
+                ?? throw new NotFoundException("Профиль не найден.");
+
+            var newEntity = domainOperation(profile);
+            _dbContext.Entry(newEntity).State = EntityState.Added;
+        }
+
+        /// <inheritdoc />
+        public async Task ExecuteAndTrackNewOwnedWithNotificationsAsync<T>(
+            Guid userId,
+            Func<MusicianProfile, T> domainOperation,
+            CancellationToken ct = default)
+            where T : class
+        {
+            var profile = await _dbContext.MusicianProfiles
+                .Include(p => p.Notifications)
+                .FirstOrDefaultAsync(p => p.UserId == userId && !p.IsDeleted, ct)
+                ?? throw new NotFoundException("Профиль не найден.");
+
+            var newEntity = domainOperation(profile);
+            _dbContext.Entry(newEntity).State = EntityState.Added;
         }
     }
 }

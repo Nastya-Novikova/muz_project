@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.Extensions.Logging;
 using MusicianFinder.Application.Core.Exceptions;
 using MusicianFinder.Application.Interfaces;
 using MusicianFinder.Application.Interfaces.Repositories;
@@ -32,15 +33,20 @@ namespace MusicianFinder.Application.Commands.Events
         /// <inheritdoc />
         public async Task<Unit> Handle(RegisterToEventCommand request, CancellationToken cancellationToken)
         {
-            var @event = await _eventRepository.GetByIdAsync(request.EventId, cancellationToken)
-                ?? throw new NotFoundException("Мероприятие не найдено.");
-
             var profile = await _profileProvider.GetCurrentProfileAsync(cancellationToken);
 
-            @event.Register(profile.Id);
 
+            /*var @event = await _eventRepository.GetByIdAsync(request.EventId, cancellationToken)
+                ?? throw new NotFoundException("Мероприятие не найдено.");
+            @event.Register(profile.Id);
             var registration = @event.Registrations.Last();
-            await _eventRepository.AttachRegistrationAsync(registration, cancellationToken);
+            await _eventRepository.AttachRegistrationAsync(registration, cancellationToken);*/
+
+
+            await _eventRepository.ExecuteAndTrackNewOwnedAsync<EventRegistration>(
+                request.EventId,
+                @event => @event.Register(profile.Id),
+                cancellationToken);
 
             return Unit.Value;
         }

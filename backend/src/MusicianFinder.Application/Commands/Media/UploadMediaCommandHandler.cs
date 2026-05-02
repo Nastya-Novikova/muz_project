@@ -42,7 +42,10 @@ namespace MusicianFinder.Application.Commands.Media
             var portfolioItem = new PortfolioItem(request.Title, fileUrl, request.ContentType, request.Type);
             portfolioItem.SetDescription(request.Description);
 
-            await _profileRepository.AddPortfolioItemAsync(profile.UserId, portfolioItem, cancellationToken);
+            await _profileRepository.ExecuteAndTrackNewOwnedAsync<PortfolioItem>(
+                profile.UserId,
+                p => p.AddPortfolioItem(portfolioItem),
+                cancellationToken);
 
             return portfolioItem.Id;
         }

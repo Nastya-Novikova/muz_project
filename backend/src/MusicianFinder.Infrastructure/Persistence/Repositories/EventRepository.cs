@@ -31,5 +31,19 @@ namespace MusicianFinder.Infrastructure.Persistence.Repositories
             return Task.CompletedTask;
         }
 
+        /// <inheritdoc />
+        public async Task ExecuteAndTrackNewOwnedAsync<T>(
+            Guid eventId,
+            Func<Event, T> domainOperation,
+            CancellationToken ct = default)
+            where T : class
+        {
+            var @event = await GetByIdAsync(eventId, ct)
+                ?? throw new NotFoundException("Мероприятие не найдено.");
+
+            var newEntity = domainOperation(@event);
+            _dbContext.Entry(newEntity).State = EntityState.Added;
+        }
+
     }
 }
