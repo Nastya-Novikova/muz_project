@@ -15,26 +15,32 @@ namespace MusicianFinder.Application.Interfaces.Repositories
         /// <returns>Профиль музыканта или null, если не найден.</returns>
         Task<MusicianProfile?> GetByUserIdAsync(Guid userId, CancellationToken ct = default);
 
+        Task<MusicianProfile?> GetByIdAsync(Guid profileId, CancellationToken ct = default);
+
         /// <summary>
         /// Добавляет новый профиль.
         /// </summary>
         /// <param name="profile">Экземпляр профиля.</param>
         void Add(MusicianProfile profile);
 
-        Task AddPortfolioItemAsync(Guid userId, PortfolioItem item, CancellationToken ct = default);
-
-        Task AddFavoriteAsync(Guid userId, Guid targetProfileId, CancellationToken ct = default);
-
-        /// <summary>
-        /// Добавляет уведомление указанному профилю.
-        /// Использует подход с явной установкой EntityState.Added для owned-типа.
-        /// </summary>
-        Task AddNotificationToProfileAsync(Guid profileId, Notification notification, CancellationToken ct = default);
-
-        Task<MusicianProfile?> GetByIdWithNotificationsAsync(Guid profileId, CancellationToken ct = default);
 
         Task AddNotificationAsync(Guid profileId, Notification notification, CancellationToken ct = default);
 
-        Task<MusicianProfile?> GetByUserIdWithNotificationsAsync(Guid userId, CancellationToken ct = default);
+        /// <summary>
+        /// Выполняет доменную операцию, создающую новую owned-сущность,
+        /// и гарантирует, что она будет сохранена как новая запись.
+        /// </summary>
+        /// <typeparam name="T">Тип owned-сущности.</typeparam>
+        /// <param name="userId">Идентификатор пользователя-владельца профиля.</param>
+        /// <param name="domainOperation">
+        /// Делегат, принимающий профиль и возвращающий созданную owned-сущность.
+        /// </param>
+        /// <param name="ct">Токен отмены.</param>
+        /// <returns>Задача, завершающаяся после выполнения операции.</returns>
+        Task ExecuteAndTrackNewOwnedAsync<T>(
+            Guid userId,
+            Func<MusicianProfile, T> domainOperation,
+            CancellationToken ct = default)
+            where T : class;
     }
 }

@@ -10,8 +10,11 @@ namespace MusicianFinder.Application.Validators.Profiles
     public class UpdateAvatarCommandValidator : AbstractValidator<UpdateAvatarCommand>
     {
         private static readonly string[] AllowedContentTypes = { "image/jpeg", "image/png", "image/gif" };
-        private const long MaxFileSize = 5 * 1024 * 1024; // 5 MB
+        private const long MaxFileSize = 5 * 1024 * 1024;
 
+        /// <summary>
+        /// Инициализирует новый экземпляр валидатора.
+        /// </summary>
         public UpdateAvatarCommandValidator()
         {
             RuleFor(x => x.Content)

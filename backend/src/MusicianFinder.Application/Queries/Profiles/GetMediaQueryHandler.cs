@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using MusicianFinder.Application.DTOs.Media;
+using MusicianFinder.Application.Core.Exceptions;
 using MusicianFinder.Application.Interfaces.ReadRepositories;
 
 namespace MusicianFinder.Application.Queries.Profiles
@@ -24,7 +25,7 @@ namespace MusicianFinder.Application.Queries.Profiles
         public async Task<MediaDto> Handle(GetMediaQuery request, CancellationToken cancellationToken)
         {
             var media = await _profileReadRepository.GetMediaAsync(request.ProfileId, cancellationToken)
-                ?? throw new Application.Core.Exceptions.NotFoundException("Медиа не найдены.");
+                ?? throw new NotFoundException("Медиа не найдены.");
             return media;
         }
     }

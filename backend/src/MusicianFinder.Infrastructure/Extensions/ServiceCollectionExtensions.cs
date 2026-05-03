@@ -46,18 +46,21 @@ namespace MusicianFinder.Infrastructure.Extensions
 
             // Сервисы
             services.AddScoped<ICurrentUserService, CurrentUserService>();
+            services.AddScoped<ICurrentProfileProvider, CurrentProfileProvider>();
             services.AddScoped<IVerificationCodeService, VerificationCodeService>();
             services.AddScoped<IOutboxWriter, OutboxWriter>();
             services.AddScoped<IDomainEventDispatcher, DomainEventDispatcher>();
             services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<IFileStorage, MinioFileStorage>();
             services.AddScoped<IVkService, VkService>();
-            services.AddScoped<INotificationService, NotificationService>();
+            //services.AddScoped<INotificationService, NotificationService>();
             services.AddScoped<ICacheService, RedisCacheService>();
             services.AddSingleton<IIntegrationEventTypeRegistry, IntegrationEventTypeRegistry>();
             services.AddSingleton<IExternalBusPublisher, ExternalBusPublisher>();
             services.AddScoped<IIdempotencyStore, DatabaseIdempotencyStore>();
             services.AddScoped<IReferenceDataValidationService, ReferenceDataValidationService>();
+            services.AddScoped<INotificationWriter, NotificationWriter>();
+            services.AddScoped<IExternalNotificationSender, ExternalNotificationSender>();
 
             // Фоновые процессы
             services.AddHostedService<OutboxProcessor>();

@@ -8,19 +8,16 @@ namespace MusicianFinder.Application.Commands.Notifications
 {
     public class UpdateNotificationSettingsCommandHandler : IRequestHandler<UpdateNotificationSettingsCommand, Unit>
     {
-        private readonly IMusicianProfileRepository _profileRepository;
-        private readonly ICurrentUserService _currentUser;
+        private readonly ICurrentProfileProvider _profileProvider;
 
-        public UpdateNotificationSettingsCommandHandler(IMusicianProfileRepository profileRepository, ICurrentUserService currentUser)
+        public UpdateNotificationSettingsCommandHandler(ICurrentProfileProvider profileProvider)
         {
-            _profileRepository = profileRepository;
-            _currentUser = currentUser;
+            _profileProvider = profileProvider;
         }
 
         public async Task<Unit> Handle(UpdateNotificationSettingsCommand request, CancellationToken cancellationToken)
         {
-            var profile = await _profileRepository.GetByUserIdAsync(_currentUser.UserId, cancellationToken)
-                ?? throw new NotFoundException("Профиль не найден.");
+            var profile = await _profileProvider.GetCurrentProfileAsync(cancellationToken);
 
             var newNotifyByEmail = request.NotifyByEmail ?? profile.NotifyByEmail;
             var newNotifyByVk = request.NotifyByVk ?? profile.NotifyByVk;

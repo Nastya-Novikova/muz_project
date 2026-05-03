@@ -90,8 +90,8 @@ namespace MusicianFinder.API.Controllers
         public async Task<IActionResult> UpdateMyProfile([FromBody] UpdateProfileCommand command)
         {
             SetIdempotencyKey(command);
-            await Mediator.Send(command);
-            return NoContent();
+            var profileId = await Mediator.Send(command);
+            return Ok(new { id = profileId });
         }
 
         /// <summary>

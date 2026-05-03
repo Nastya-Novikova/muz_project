@@ -8,6 +8,9 @@ namespace MusicianFinder.Application.Validators.Favorites
     /// </summary>
     public class RemoveFavoriteCommandValidator : AbstractValidator<RemoveFavoriteCommand>
     {
+        /// <summary>
+        /// Инициализирует новый экземпляр валидатора.
+        /// </summary>
         public RemoveFavoriteCommandValidator()
         {
             RuleFor(x => x.TargetProfileId)

@@ -53,18 +53,12 @@ namespace MusicianFinder.Application.Core.Mapping
                 .ForMember(dto => dto.IsMyProfile, opt => opt.Ignore())
                 .ForMember(dto => dto.IsFavorite, opt => opt.Ignore())
                 .ForMember(dto => dto.IsCollaborated, opt => opt.Ignore())
-                .ForMember(dto => dto.NotifyByEmail, opt => opt.Ignore())
-                .ForMember(dto => dto.NotifyByVk, opt => opt.Ignore());
-            
-            CreateMap<MusicianProfile, NotificationSettingsDto>()
-                .ForMember(dto => dto.NotifyByEmail, opt => opt.Ignore())
-                .ForMember(dto => dto.NotifyByVk, opt => opt.Ignore());
+                .ForMember(dto => dto.NotifyByEmail, opt => opt.MapFrom(src => src.NotifyByEmail))
+                .ForMember(dto => dto.NotifyByVk, opt => opt.MapFrom(src => src.NotifyByVk));
 
-            CreateMap<MusicianProfile, ProfileShortDto>()
-                .ForMember(dto => dto.FullName, opt => opt.MapFrom(src => src.FullName.Value))
-                .ForMember(dto => dto.City, opt => opt.Ignore())
-                .ForMember(dto => dto.Genres, opt => opt.Ignore())
-                .ForMember(dto => dto.Specialties, opt => opt.Ignore());
+            CreateMap<MusicianProfile, NotificationSettingsDto>()
+                .ForMember(dto => dto.NotifyByEmail, opt => opt.MapFrom(src => src.NotifyByEmail))
+                .ForMember(dto => dto.NotifyByVk, opt => opt.MapFrom(src => src.NotifyByVk));
 
             // Мероприятия
             CreateMap<Event, EventDto>()

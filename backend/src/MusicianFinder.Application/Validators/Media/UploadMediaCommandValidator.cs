@@ -14,6 +14,9 @@ namespace MusicianFinder.Application.Validators.Media
         private const long MaxVideoSize = 500 * 1024 * 1024; // 500 MB
         private const long MaxPhotoSize = 5 * 1024 * 1024;   // 5 MB
 
+        /// <summary>
+        /// Инициализирует новый экземпляр валидатора.
+        /// </summary>
         public UploadMediaCommandValidator()
         {
             RuleFor(x => x.Content)
@@ -33,7 +36,6 @@ namespace MusicianFinder.Application.Validators.Media
             .Must((cmd, ct) => IsValidContentType(cmd.Type, ct))
             .WithMessage("Content-Type не соответствует выбранному типу медиа.");
 
-            // Дополнительная проверка расширения (опционально)
             RuleFor(x => x.FileName)
                 .Must((cmd, name) => IsValidExtension(cmd.Type, name))
                 .WithMessage("Расширение файла не соответствует выбранному типу.");

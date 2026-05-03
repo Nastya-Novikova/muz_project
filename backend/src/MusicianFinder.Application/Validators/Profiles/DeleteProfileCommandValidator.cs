@@ -9,10 +9,11 @@ namespace MusicianFinder.Application.Validators.Profiles
     /// </summary>
     public class DeleteProfileCommandValidator : AbstractValidator<DeleteProfileCommand>
     {
+        /// <summary>
+        /// Инициализирует новый экземпляр валидатора.
+        /// </summary>
         public DeleteProfileCommandValidator()
         {
-            /*RuleFor(x => x.IdempotencyKey)
-                .NotEmpty().WithMessage("Ключ идемпотентности обязателен.");*/
         }
     }
 }
