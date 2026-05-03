@@ -41,7 +41,10 @@ namespace MusicianFinder.Infrastructure.Services
                 await _email.SendNotificationAsync(profile.Email, title, message);
 
             if (profile.NotifyByVk && profile.VkUserId != null)
-                await _vk.SendNotificationAsync(profile.UserId, message ?? title);
+            {
+                var vkMessage = string.IsNullOrWhiteSpace(message) ? title : $"{title}\n{message}";
+                await _vk.SendNotificationAsync(profile.UserId, vkMessage);
+            }
         }
     }
 }

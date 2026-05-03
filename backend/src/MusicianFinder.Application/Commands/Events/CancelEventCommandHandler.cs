@@ -1,6 +1,9 @@
 ﻿using MediatR;
 using MusicianFinder.Application.Interfaces;
+using MusicianFinder.Application.Core.Exceptions;
 using MusicianFinder.Application.Interfaces.Repositories;
+using MusicianFinder.Domain.Enums;
+using MusicianFinder.SharedKernel;
 
 namespace MusicianFinder.Application.Commands.Events
 {
@@ -30,9 +33,15 @@ namespace MusicianFinder.Application.Commands.Events
         public async Task<Unit> Handle(CancelEventCommand request, CancellationToken cancellationToken)
         {
             var @event = await _eventRepository.GetByIdAsync(request.EventId, cancellationToken)
-                ?? throw new Application.Core.Exceptions.NotFoundException("Мероприятие не найдено.");
+                ?? throw new NotFoundException("Мероприятие не найдено.");
 
             var profile = await _profileProvider.GetCurrentProfileAsync(cancellationToken);
+
+            if (@event.CreatorProfileId != profile.Id)
+                throw new ForbiddenException("Только создатель может отменить мероприятие.");
+
+            if (@event.Status != EventStatus.Scheduled)
+                throw new DomainException("Отменить можно только запланированное мероприятие.");
 
             @event.Cancel(profile.Id);
             return Unit.Value;

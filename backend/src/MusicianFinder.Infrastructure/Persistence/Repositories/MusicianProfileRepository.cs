@@ -30,64 +30,6 @@ namespace MusicianFinder.Infrastructure.Persistence.Repositories
         /// <inheritdoc />
         public void Add(MusicianProfile profile) => _dbContext.MusicianProfiles.Add(profile);
 
-        public async Task AddPortfolioItemAsync(Guid userId, PortfolioItem item, CancellationToken ct = default)
-        {
-            var profile = await _dbContext.MusicianProfiles
-                .FirstOrDefaultAsync(p => p.UserId == userId && !p.IsDeleted, ct)
-                ?? throw new NotFoundException("Профиль не найден.");
-
-            profile.AddPortfolioItem(item);
-            // При необходимости явно указать состояние (обычно не требуется после IgnoreAutoIncludes)
-            _dbContext.Entry(item).State = EntityState.Added;
-        }
-
-        public async Task AddFavoriteAsync(Guid userId, Guid targetProfileId, CancellationToken ct = default)
-        {
-            var profile = await _dbContext.MusicianProfiles
-                .FirstOrDefaultAsync(p => p.UserId == userId && !p.IsDeleted, ct)
-                ?? throw new NotFoundException("Профиль не найден.");
-
-            profile.AddToFavorites(targetProfileId); // здесь внутри создаётся new Favorite
-
-            // Найти свеже-добавленный объект Favorite
-            var favorite = _dbContext.Entry(profile)
-                .Collection(p => p.Favorites)
-                .CurrentValue?
-                .LastOrDefault();
-
-            if (favorite != null)
-                _dbContext.Entry(favorite).State = EntityState.Added;
-        }
-
-        public async Task AddNotificationToProfileAsync(Guid profileId, Notification notification, CancellationToken ct = default)
-        {
-            var profile = await _dbContext.MusicianProfiles
-                .Include(p => p.Notifications)
-                .FirstOrDefaultAsync(p => p.Id == profileId && !p.IsDeleted, ct)
-                ?? throw new NotFoundException("Профиль не найден.");
-
-            profile.AddNotification(notification);
-
-            // Явно указываем, что это новый owned-объект
-            var added = _dbContext.Entry(profile)
-                .Collection(p => p.Notifications)
-                .CurrentValue?
-                .LastOrDefault();
-
-            if (added != null)
-                _dbContext.Entry(added).State = EntityState.Added;
-        }
-
-        public async Task<MusicianProfile?> GetByUserIdWithNotificationsAsync(Guid userId, CancellationToken ct = default)
-            => await _dbContext.MusicianProfiles
-                .Include(p => p.Notifications)
-                .FirstOrDefaultAsync(p => p.UserId == userId && !p.IsDeleted, ct);
-
-        public async Task<MusicianProfile?> GetByIdWithNotificationsAsync(Guid profileId, CancellationToken ct = default)
-            => await _dbContext.MusicianProfiles
-                .Include(p => p.Notifications)
-                .FirstOrDefaultAsync(p => p.Id == profileId && !p.IsDeleted, ct);
-
         public async Task AddNotificationAsync(Guid profileId, Notification notification, CancellationToken ct = default)
         {
             var profile = await _dbContext.MusicianProfiles
@@ -106,12 +48,6 @@ namespace MusicianFinder.Infrastructure.Persistence.Repositories
         }
 
         /// <inheritdoc />
-        public async Task<MusicianProfile?> GetByUserIdForEditAsync(Guid userId, CancellationToken ct = default)
-            => await _dbContext.MusicianProfiles
-                .Include(p => p.Favorites)
-                .FirstOrDefaultAsync(p => p.UserId == userId && !p.IsDeleted, ct);
-
-        /// <inheritdoc />
         public async Task ExecuteAndTrackNewOwnedAsync<T>(
             Guid userId,
             Func<MusicianProfile, T> domainOperation,
@@ -119,22 +55,6 @@ namespace MusicianFinder.Infrastructure.Persistence.Repositories
             where T : class
         {
             var profile = await GetByUserIdAsync(userId, ct)
-                ?? throw new NotFoundException("Профиль не найден.");
-
-            var newEntity = domainOperation(profile);
-            _dbContext.Entry(newEntity).State = EntityState.Added;
-        }
-
-        /// <inheritdoc />
-        public async Task ExecuteAndTrackNewOwnedWithNotificationsAsync<T>(
-            Guid userId,
-            Func<MusicianProfile, T> domainOperation,
-            CancellationToken ct = default)
-            where T : class
-        {
-            var profile = await _dbContext.MusicianProfiles
-                .Include(p => p.Notifications)
-                .FirstOrDefaultAsync(p => p.UserId == userId && !p.IsDeleted, ct)
                 ?? throw new NotFoundException("Профиль не найден.");
 
             var newEntity = domainOperation(profile);

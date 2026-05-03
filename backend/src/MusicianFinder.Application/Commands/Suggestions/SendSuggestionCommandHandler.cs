@@ -37,7 +37,7 @@ namespace MusicianFinder.Application.Commands.Suggestions
         {
             var fromProfile = await _profileProvider.GetCurrentProfileAsync(cancellationToken);
 
-            var ToProfile = await _profileRepository.GetByIdWithNotificationsAsync(request.ToProfileId, cancellationToken)
+            var ToProfile = await _profileRepository.GetByIdAsync(request.ToProfileId, cancellationToken)
                 ?? throw new NotFoundException("Профиль отправителя не найден.");
 
             var suggestion = new CollaborationSuggestion(fromProfile.Id, request.ToProfileId, request.Message);

@@ -29,7 +29,7 @@ namespace MusicianFinder.Application.Commands.Notifications
         /// <inheritdoc />
         public async Task<Unit> Handle(MarkNotificationAsReadCommand request, CancellationToken cancellationToken)
         {
-            var profile = await _profileRepository.GetByUserIdWithNotificationsAsync(_currentUser.UserId, cancellationToken)
+            var profile = await _profileRepository.GetByUserIdAsync(_currentUser.UserId, cancellationToken)
                 ?? throw new NotFoundException("Профиль не найден.");
 
             var notification = profile.Notifications.FirstOrDefault(n => n.Id == request.NotificationId)

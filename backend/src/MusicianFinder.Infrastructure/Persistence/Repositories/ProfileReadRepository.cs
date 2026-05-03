@@ -97,6 +97,12 @@ namespace MusicianFinder.Infrastructure.Persistence.Repositories
             if (query.GoalIds != null && query.GoalIds.Any())
                 entityQuery = entityQuery.Where(p => p.CollaborationGoalIds.Any(g => query.GoalIds.Contains(g.Value)));
 
+            if (query.DesiredGenreIds != null && query.DesiredGenreIds.Any())
+                entityQuery = entityQuery.Where(p => p.DesiredGenreIds.Any(g => query.DesiredGenreIds.Contains(g.Value)));
+
+            if (query.DesiredSpecialtyIds != null && query.DesiredSpecialtyIds.Any())
+                entityQuery = entityQuery.Where(p => p.DesiredSpecialtyIds.Any(s => query.DesiredSpecialtyIds.Contains(s.Value)));
+
             if (!string.IsNullOrWhiteSpace(query.LookingFor))
                 entityQuery = entityQuery.Where(p => p.LookingFor == Enum.Parse<Domain.Enums.LookingFor>(query.LookingFor));
 

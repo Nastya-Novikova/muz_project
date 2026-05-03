@@ -25,12 +25,6 @@ namespace MusicianFinder.Infrastructure.Persistence.Repositories
         /// <inheritdoc />
         public void Add(Event @event) => _dbContext.Events.Add(@event);
 
-        public Task AttachRegistrationAsync(EventRegistration registration, CancellationToken ct = default)
-        {
-            _dbContext.Entry(registration).State = EntityState.Added;
-            return Task.CompletedTask;
-        }
-
         /// <inheritdoc />
         public async Task ExecuteAndTrackNewOwnedAsync<T>(
             Guid eventId,

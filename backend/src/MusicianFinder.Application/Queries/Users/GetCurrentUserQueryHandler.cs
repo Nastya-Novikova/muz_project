@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using MusicianFinder.Application.DTOs.Auth;
 using MusicianFinder.Application.Interfaces;
+using MusicianFinder.Application.Core.Exceptions;
 using MusicianFinder.Application.Interfaces.ReadRepositories;
 
 namespace MusicianFinder.Application.Queries.Users
@@ -28,7 +29,7 @@ namespace MusicianFinder.Application.Queries.Users
         public async Task<UserDto> Handle(GetCurrentUserQuery request, CancellationToken cancellationToken)
         {
             var userDto = await _userReadRepository.GetByIdAsync(_currentUser.UserId, cancellationToken)
-                ?? throw new Application.Core.Exceptions.NotFoundException("Пользователь не найден.");
+                ?? throw new NotFoundException("Пользователь не найден.");
             return userDto;
         }
     }

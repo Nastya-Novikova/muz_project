@@ -1,56 +1,389 @@
-[2026-05-02 14:52:40] === Запуск расширенного теста API с реальной почтой ===
-[2026-05-02 14:52:40] Временная папка: /tmp/tmp.MiB8a4aQCY
-[2026-05-02 14:52:40] Пересборка контейнеров...
-[2026-05-02 14:53:39] Ожидание доступности API...
-[2026-05-02 14:53:39] API доступен
-[2026-05-02 14:53:39] === Справочные данные ===
-[2026-05-02 14:53:40] === Регистрация пользователей ===
-[2026-05-02 14:53:40] Регистрация user1@test.com ...
-[2026-05-02 14:53:43]   Код подтверждения (HTTP 200): {"success":true}
-[2026-05-02 14:53:43]   Вход (HTTP 200): {"success":true,"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJmNjg0Y2U4MS0xODFkLTRmN2ItYWIyMy0yNGExNWRiNDhkMWMiLCJlbWFpbCI6InVzZXIxQHRlc3QuY29tIiwicm9sZSI6IlVzZXIiLCJuYmYiOjE3Nzc3MDg0MjMsImV4cCI6MTc3ODMxMzIyMywiaWF0IjoxNzc3NzA4NDIzLCJpc3MiOiJNdXNpY2lhbkZpbmRlciIsImF1ZCI6Ik11c2ljaWFuRmluZGVyIn0.ilZaZex3IBA2ug-Fm0FcYKy8Z39YoS07q-VNID2kyxc","user":{"id":"f684ce81-181d-4f7b-ab23-24a15db48d1c","email":"user1@test.com","profileCreated":false,"role":"User"}}
-[2026-05-02 14:53:43]   Создание профиля (HTTP 201): {"id":"e24d865f-fe98-4693-b662-8e7d2364c143"}
-[2026-05-02 14:53:43] User1: profileId=e24d865f-fe98-4693-b662-8e7d2364c143
-[2026-05-02 14:53:43] Регистрация user2@test.com ...
-[2026-05-02 14:53:45]   Код подтверждения (HTTP 200): {"success":true}
-[2026-05-02 14:53:45]   Вход (HTTP 200): {"success":true,"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJkMTZjZDk5Ny01MTNjLTQxMjAtYjZlOC1jOGRkYWZlMTIzMmMiLCJlbWFpbCI6InVzZXIyQHRlc3QuY29tIiwicm9sZSI6IlVzZXIiLCJuYmYiOjE3Nzc3MDg0MjUsImV4cCI6MTc3ODMxMzIyNSwiaWF0IjoxNzc3NzA4NDI1LCJpc3MiOiJNdXNpY2lhbkZpbmRlciIsImF1ZCI6Ik11c2ljaWFuRmluZGVyIn0.Sf_kiO5ZAwmowEmesdUZ3OKgo8qO7egBPKNasVgUSgo","user":{"id":"d16cd997-513c-4120-b6e8-c8ddafe1232c","email":"user2@test.com","profileCreated":false,"role":"User"}}
-[2026-05-02 14:53:45]   Создание профиля (HTTP 201): {"id":"ebcd07d2-876b-448b-8a0a-fcb102cb8d39"}
-[2026-05-02 14:53:45] User2: profileId=ebcd07d2-876b-448b-8a0a-fcb102cb8d39
-[2026-05-02 14:53:45] Регистрация chmo228098@gmail.com ...
-[2026-05-02 14:53:47]   Код подтверждения (HTTP 200): {"success":true}
-[2026-05-02 14:53:47]   Вход (HTTP 200): {"success":true,"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJjYzc0Yjc4ZC04ZWYzLTRkOTgtODIwNy0zZDM1ZDYxYzczMTUiLCJlbWFpbCI6ImNobW8yMjgwOThAZ21haWwuY29tIiwicm9sZSI6IlVzZXIiLCJuYmYiOjE3Nzc3MDg0MjcsImV4cCI6MTc3ODMxMzIyNywiaWF0IjoxNzc3NzA4NDI3LCJpc3MiOiJNdXNpY2lhbkZpbmRlciIsImF1ZCI6Ik11c2ljaWFuRmluZGVyIn0.ZyZQpOQ7uFHbTuWpWt0Jv0jVHV8rJsfQbi914Wrtl5M","user":{"id":"cc74b78d-8ef3-4d98-8207-3d35d61c7315","email":"chmo228098@gmail.com","profileCreated":false,"role":"User"}}
-[2026-05-02 14:53:47]   Создание профиля (HTTP 201): {"id":"88aa9171-ed1d-4dea-92ef-dece240a1458"}
-[2026-05-02 14:53:47] User3: profileId=88aa9171-ed1d-4dea-92ef-dece240a1458
-[2026-05-02 14:53:47] === Валидация ===
-[2026-05-02 14:53:47] Создание с пустым названием (должен 400) (HTTP 400): {"type":"/errors/domain","title":"\u041D\u0430\u0437\u0432\u0430\u043D\u0438\u0435 \u043C\u0435\u0440\u043E\u043F\u0440\u0438\u044F\u0442\u0438\u044F \u043D\u0435 \u043C\u043E\u0436\u0435\u0442 \u0431\u044B\u0442\u044C \u043F\u0443\u0441\u0442\u044B\u043C.","status":400,"instance":"/api/events"}
-[2026-05-02 14:53:48] Неверный код (должен 400) (HTTP 400): {"type":"/errors/validation","title":"\u041E\u0448\u0438\u0431\u043A\u0430 \u0432\u0430\u043B\u0438\u0434\u0430\u0446\u0438\u0438","status":400,"instance":"/api/auth/session","errors":{}}
-[2026-05-02 14:53:48] Создание профиля без токена (должен 401) (HTTP 401): 
-[2026-05-02 14:53:48] === Фильтрация профилей ===
-[2026-05-02 14:53:48] Профили с жанром 1 (HTTP 200): {"items":[{"id":"ebcd07d2-876b-448b-8a0a-fcb102cb8d39","profileType":"Individual","fullName":"User Two","avatarUrl":null,"age":null,"description":null,"phone":null,"telegram":null,"city":{"id":2,"name":"Saint Petersburg","localizedName":"Санкт-Петербург"},"experience":0,"lookingFor":"NotLooking","email":"user2@test.com","genres":[{"id":1,"name":"jazz","localizedName":"Джаз"},{"id":2,"name":"rock","localizedName":"Рок"}],"specialties":[{"id":2,"name":"guitarist","localizedName":"Гитарист"}],"collaborationGoals":[],"desiredGenres":[],"desiredSpecialties":[],"isMyProfile":false,"isFavorite":false,"isCollaborated":false,"audio":[],"video":[],"photos":[],"notifyByEmail":true,"notifyByVk":false}],"total":1,"page":1,"limit":10,"totalPages":1}
-[2026-05-02 14:53:49] Профили в городе 2 (HTTP 200): {"items":[{"id":"ebcd07d2-876b-448b-8a0a-fcb102cb8d39","profileType":"Individual","fullName":"User Two","avatarUrl":null,"age":null,"description":null,"phone":null,"telegram":null,"city":{"id":2,"name":"Saint Petersburg","localizedName":"Санкт-Петербург"},"experience":0,"lookingFor":"NotLooking","email":"user2@test.com","genres":[{"id":1,"name":"jazz","localizedName":"Джаз"},{"id":2,"name":"rock","localizedName":"Рок"}],"specialties":[{"id":2,"name":"guitarist","localizedName":"Гитарист"}],"collaborationGoals":[],"desiredGenres":[],"desiredSpecialties":[],"isMyProfile":false,"isFavorite":false,"isCollaborated":false,"audio":[],"video":[],"photos":[],"notifyByEmail":true,"notifyByVk":false}],"total":1,"page":1,"limit":10,"totalPages":1}
-[2026-05-02 14:53:49] Профили с опытом >=5 (HTTP 200): {"items":[],"total":0,"page":1,"limit":10,"totalPages":0}
-[2026-05-02 14:53:49] Профили ищущие группу (HTTP 200): {"items":[],"total":0,"page":1,"limit":10,"totalPages":0}
-[2026-05-02 14:53:49] === Мероприятия и фильтрация ===
-[2026-05-02 14:53:49] Создание мероприятия 1 (HTTP 201): {"id":"a16443c2-150e-4df3-828a-425129fab71b"}
-[2026-05-02 14:53:50] Создание мероприятия 2 (HTTP 201): {"id":"96c7aabb-82aa-453d-a7d1-1425ac0a1a31"}
-[2026-05-02 14:53:50] Мероприятия в городе 2 (HTTP 200): {"items":[{"id":"96c7aabb-82aa-453d-a7d1-1425ac0a1a31","title":"Rock Fest","description":"Rock event","imageUrl":null,"region":{"id":2,"name":"Leningrad Oblast","localizedName":"Ленинградская область"},"city":{"id":2,"name":"Saint Petersburg","localizedName":"Санкт-Петербург"},"address":"SPb","startDateTime":"2026-05-16T07:53:49","endDateTime":null,"maxParticipants":0,"currentParticipants":0,"isRegistered":false,"isCreator":false,"status":"Scheduled","creatorProfileId":"e24d865f-fe98-4693-b662-8e7d2364c143","creatorFullName":"User One","creatorAvatarUrl":null,"createdAt":"2026-05-02T07:53:50.025964Z","updatedAt":"2026-05-02T07:53:50.025964Z"}],"total":1,"page":1,"limit":20,"totalPages":1}
-[2026-05-02 14:53:50] Поиск Rock (HTTP 200): {"items":[{"id":"96c7aabb-82aa-453d-a7d1-1425ac0a1a31","title":"Rock Fest","description":"Rock event","imageUrl":null,"region":{"id":2,"name":"Leningrad Oblast","localizedName":"Ленинградская область"},"city":{"id":2,"name":"Saint Petersburg","localizedName":"Санкт-Петербург"},"address":"SPb","startDateTime":"2026-05-16T07:53:49","endDateTime":null,"maxParticipants":0,"currentParticipants":0,"isRegistered":false,"isCreator":false,"status":"Scheduled","creatorProfileId":"e24d865f-fe98-4693-b662-8e7d2364c143","creatorFullName":"User One","creatorAvatarUrl":null,"createdAt":"2026-05-02T07:53:50.025964Z","updatedAt":"2026-05-02T07:53:50.025964Z"},{"id":"a16443c2-150e-4df3-828a-425129fab71b","title":"Jazz Night","description":"Jazz event","imageUrl":null,"region":{"id":1,"name":"Moscow Oblast","localizedName":"Московская область"},"city":{"id":1,"name":"Moscow","localizedName":"Москва"},"address":"Moscow","startDateTime":"2026-05-09T07:53:49","endDateTime":null,"maxParticipants":5,"currentParticipants":0,"isRegistered":false,"isCreator":false,"status":"Scheduled","creatorProfileId":"e24d865f-fe98-4693-b662-8e7d2364c143","creatorFullName":"User One","creatorAvatarUrl":null,"createdAt":"2026-05-02T07:53:49.54293Z","updatedAt":"2026-05-02T07:53:49.542939Z"}],"total":2,"page":1,"limit":20,"totalPages":1}
-[2026-05-02 14:53:50] === Регистрация User3 на мероприятие и проверка уведомлений ===
-[2026-05-02 14:53:51] Регистрация User3 на Event1 (HTTP 204): 
-[2026-05-02 14:53:51] Уведомления User3 после регистрации (HTTP 200): {"items":[{"id":"1de94be3-d4cf-47da-a511-6e5e8a7ea6d7","type":"EventRegistration","title":"Регистрация подтверждена","message":"Вы успешно зарегистрировались на мероприятие \"Jazz Night\". 09.05.2026 07:53. Оно будет проходить по адресу: Moscow.","imageUrl":null,"entityType":"Event","entityId":"a16443c2-150e-4df3-828a-425129fab71b","isRead":false,"createdAt":"2026-05-02T07:53:50.896453Z"}],"total":1,"page":1,"limit":10,"totalPages":1}
-[2026-05-02 14:53:51] === Предложение сотрудничества User2 -> User3 ===
-[2026-05-02 14:53:51] Отправка предложения User3 (HTTP 204): 
-[2026-05-02 14:53:51] Ожидание обработки Outbox...
-[2026-05-02 14:54:01] Уведомления User3 после предложения (HTTP 200): {"items":[{"id":"e3f67b8b-5cd7-4f70-9d87-becd40ae68c4","type":"CollaborationReceived","title":"Пользователь User Two отправил вам предложение о сотрудничестве","message":"У вас новое предложение","imageUrl":null,"entityType":"CollaborationSuggestion","entityId":"a91de7f2-2791-4cc8-b6b6-bedd77084bc4","isRead":false,"createdAt":"2026-05-02T07:53:51.339573Z"},{"id":"1de94be3-d4cf-47da-a511-6e5e8a7ea6d7","type":"EventRegistration","title":"Регистрация подтверждена","message":"Вы успешно зарегистрировались на мероприятие \"Jazz Night\". 09.05.2026 07:53. Оно будет проходить по адресу: Moscow.","imageUrl":null,"entityType":"Event","entityId":"a16443c2-150e-4df3-828a-425129fab71b","isRead":false,"createdAt":"2026-05-02T07:53:50.896453Z"}],"total":2,"page":1,"limit":10,"totalPages":1}
-[2026-05-02 14:54:01] === Проверка флагов ===
-[2026-05-02 14:54:01] Добавление в избранное User2->User1 (HTTP 204): 
-[2026-05-02 14:54:02] Профиль User1 от User2 (isFavorite=true) (HTTP 200): {"id":"e24d865f-fe98-4693-b662-8e7d2364c143","profileType":"Individual","fullName":"User One","avatarUrl":null,"age":null,"description":null,"phone":null,"telegram":null,"city":{"id":1,"name":"Moscow","localizedName":"Москва"},"experience":0,"lookingFor":"NotLooking","email":"user1@test.com","genres":[{"id":1,"name":"jazz","localizedName":"Джаз"}],"specialties":[{"id":1,"name":"vocalist","localizedName":"Вокалист"}],"collaborationGoals":[],"desiredGenres":[],"desiredSpecialties":[],"isMyProfile":false,"isFavorite":true,"isCollaborated":false,"audio":[],"video":[],"photos":[],"notifyByEmail":true,"notifyByVk":false}
-[2026-05-02 14:54:02] Профиль User3 от User2 (isCollaborated=true) (HTTP 200): {"id":"88aa9171-ed1d-4dea-92ef-dece240a1458","profileType":"Individual","fullName":"User Three","avatarUrl":null,"age":null,"description":null,"phone":null,"telegram":null,"city":{"id":1,"name":"Moscow","localizedName":"Москва"},"experience":0,"lookingFor":"NotLooking","email":"chmo228098@gmail.com","genres":[],"specialties":[],"collaborationGoals":[],"desiredGenres":[],"desiredSpecialties":[],"isMyProfile":false,"isFavorite":false,"isCollaborated":true,"audio":[],"video":[],"photos":[],"notifyByEmail":true,"notifyByVk":false}
-[2026-05-02 14:54:02] Детали Event1 (Creator=User1) (HTTP 200): {"id":"a16443c2-150e-4df3-828a-425129fab71b","title":"Jazz Night","description":"Jazz event","imageUrl":null,"region":{"id":1,"name":"Moscow Oblast","localizedName":"Московская область"},"city":{"id":1,"name":"Moscow","localizedName":"Москва"},"address":"Moscow","startDateTime":"2026-05-09T07:53:49","endDateTime":null,"maxParticipants":5,"currentParticipants":1,"isRegistered":false,"isCreator":true,"status":"Scheduled","creatorProfileId":"e24d865f-fe98-4693-b662-8e7d2364c143","creatorFullName":"User One","creatorAvatarUrl":null,"createdAt":"2026-05-02T07:53:49.54293Z","updatedAt":"2026-05-02T07:53:50.880815Z"}
-[2026-05-02 14:54:02] === Настройки уведомлений User3 ===
-[2026-05-02 14:54:02] Начальные настройки User3 (HTTP 200): {"notifyByEmail":true,"notifyByVk":false}
-[2026-05-02 14:54:02] Изменение настроек (HTTP 204): 
-[2026-05-02 14:54:02] Настройки после изменения (HTTP 200): {"notifyByEmail":false,"notifyByVk":true}
-[2026-05-02 14:54:02] === Удаление профиля User3 ===
-[2026-05-02 14:54:02] Удаление профиля (HTTP 204): 
-[2026-05-02 14:54:03] Проверка удаления (должен 404) (HTTP 404): {"type":"/errors/not-found","title":"\u041F\u0440\u043E\u0444\u0438\u043B\u044C \u043D\u0435 \u043D\u0430\u0439\u0434\u0435\u043D.","status":404,"instance":"/api/profiles/88aa9171-ed1d-4dea-92ef-dece240a1458"}
-[2026-05-02 14:54:03] === Расширенный тест завершён ===
+[2026-05-02 19:55:19] === Запуск полного тестирования API ===
+[2026-05-02 19:55:19] Временная папка: /tmp/tmp.bTWvkoa3BP
+[2026-05-02 19:56:19] Ожидание доступности API...
+[2026-05-02 19:56:19] API доступен
+[2026-05-02 19:56:19] === Справочные данные ===
+[2026-05-02 19:56:19] Запрос: GET http://localhost:7000/api/metadata/cities
+[2026-05-02 19:56:19] Ответ (HTTP 200): [{"id":1,"name":"Moscow","localizedName":"Москва"},{"id":2,"name":"Saint Petersburg","localizedName":"Санкт-Петербург"},{"id":3,"name":"Novosibirsk","localizedName":"Новосибирск"},{"id":4,"name":"Yekaterinburg","localizedName":"Екатеринбург"},{"id":5,"name":"Kazan","localizedName":"Казань"}]
+[2026-05-02 19:56:19] ✓ GET /api/metadata/cities (200) (Справочник городов доступен)
+[2026-05-02 19:56:19] Запрос: GET http://localhost:7000/api/metadata/regions
+[2026-05-02 19:56:19] Ответ (HTTP 200): [{"id":1,"name":"Moscow Oblast","localizedName":"Московская область"},{"id":2,"name":"Leningrad Oblast","localizedName":"Ленинградская область"},{"id":3,"name":"Novosibirsk Oblast","localizedName":"Новосибирская область"},{"id":4,"name":"Sverdlovsk Oblast","localizedName":"Свердловская область"},{"id":5,"name":"Tatarstan","localizedName":"Татарстан"}]
+[2026-05-02 19:56:19] ✓ GET /api/metadata/regions (200) (Справочник регионов доступен)
+[2026-05-02 19:56:19] Запрос: GET http://localhost:7000/api/metadata/genres
+[2026-05-02 19:56:20] Ответ (HTTP 200): [{"id":1,"name":"jazz","localizedName":"Джаз"},{"id":2,"name":"rock","localizedName":"Рок"},{"id":3,"name":"classical","localizedName":"Классика"},{"id":4,"name":"electronic","localizedName":"Электроника"},{"id":5,"name":"pop","localizedName":"Поп"},{"id":6,"name":"hip-hop","localizedName":"Хип-хоп"},{"id":7,"name":"metal","localizedName":"Метал"},{"id":8,"name":"blues","localizedName":"Блюз"}]
+[2026-05-02 19:56:20] ✓ GET /api/metadata/genres (200) (Справочник жанров доступен)
+[2026-05-02 19:56:20] Запрос: GET http://localhost:7000/api/metadata/specialties
+[2026-05-02 19:56:20] Ответ (HTTP 200): [{"id":1,"name":"vocalist","localizedName":"Вокалист"},{"id":2,"name":"guitarist","localizedName":"Гитарист"},{"id":3,"name":"bassist","localizedName":"Бас-гитарист"},{"id":4,"name":"drummer","localizedName":"Ударник"},{"id":5,"name":"keyboardist","localizedName":"Клавишник"},{"id":6,"name":"composer","localizedName":"Композитор"},{"id":7,"name":"producer","localizedName":"Продюсер"},{"id":8,"name":"sound-engineer","localizedName":"Звукорежиссёр"},{"id":9,"name":"dj","localizedName":"Диджей"},{"id":10,"name":"violinist","localizedName":"Скрипач"}]
+[2026-05-02 19:56:20] ✓ GET /api/metadata/specialties (200) (Справочник специальностей доступен)
+[2026-05-02 19:56:20] Запрос: GET http://localhost:7000/api/metadata/goals
+[2026-05-02 19:56:20] Ответ (HTTP 200): [{"id":1,"name":"band","localizedName":"Ищу участников в группу"},{"id":2,"name":"session","localizedName":"Готов(а) к сессионной работе"},{"id":3,"name":"collaboration","localizedName":"Открыт(а) к совместным проектам"},{"id":4,"name":"producer","localizedName":"Ищу продюсера"},{"id":5,"name":"artist","localizedName":"Ищу исполнителя для песен"}]
+[2026-05-02 19:56:20] ✓ GET /api/metadata/goals (200) (Справочник целей доступен)
+[2026-05-02 19:56:20] === Регистрация пользователей ===
+[2026-05-02 19:56:20] Регистрация user1@test.com ...
+[2026-05-02 19:56:20] Запрос: POST http://localhost:7000/api/auth/code
+[2026-05-02 19:56:20] Тело запроса: {"email":"user1@test.com"}
+[2026-05-02 19:56:22] Ответ (HTTP 200): {"success":true}
+[2026-05-02 19:56:22] Запрос: POST http://localhost:7000/api/auth/session
+[2026-05-02 19:56:22] Тело запроса: {"email":"user1@test.com","code":"111111"}
+[2026-05-02 19:56:23] Ответ (HTTP 200): {"success":true,"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJlYzdlNTEwYy0zNjgwLTQ3ZWMtYjdlZi0zYmYxNzQ5YzMyMDQiLCJlbWFpbCI6InVzZXIxQHRlc3QuY29tIiwicm9sZSI6IlVzZXIiLCJuYmYiOjE3Nzc3MjY1ODMsImV4cCI6MTc3ODMzMTM4MywiaWF0IjoxNzc3NzI2NTgzLCJpc3MiOiJNdXNpY2lhbkZpbmRlciIsImF1ZCI6Ik11c2ljaWFuRmluZGVyIn0.aLi26FsU69snjQCPILUODWYHa4QSKJTwNmk5xT6c8DY","user":{"id":"ec7e510c-3680-47ec-b7ef-3bf1749c3204","email":"user1@test.com","profileCreated":false,"role":"User"}}
+[2026-05-02 19:56:23] Запрос: POST http://localhost:7000/api/profiles
+[2026-05-02 19:56:23] Тело запроса: {
+  "fullName": "User One",
+  "profileType": "Individual",
+  "cityId": 1,
+  "experience": 5,
+  "lookingFor": "LookingForMusician",
+  "genreIds": [
+    1
+  ],
+  "specialtyIds": [
+    1
+  ],
+  "collaborationGoalIds": [
+    1
+  ],
+  "desiredGenreIds": [
+    2
+  ],
+  "desiredSpecialtyIds": [
+    2
+  ]
+}
+[2026-05-02 19:56:23] Ответ (HTTP 201): {"id":"24a43493-74fd-4a43-844d-f8f9616017e2"}
+[2026-05-02 19:56:23] Регистрация user2@test.com ...
+[2026-05-02 19:56:23] Запрос: POST http://localhost:7000/api/auth/code
+[2026-05-02 19:56:23] Тело запроса: {"email":"user2@test.com"}
+[2026-05-02 19:56:25] Ответ (HTTP 200): {"success":true}
+[2026-05-02 19:56:25] Запрос: POST http://localhost:7000/api/auth/session
+[2026-05-02 19:56:25] Тело запроса: {"email":"user2@test.com","code":"111111"}
+[2026-05-02 19:56:25] Ответ (HTTP 200): {"success":true,"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJhM2ZlNTU4NS05ODMyLTQwNWMtYWUyYy05ZDViNzJmMDQ0ZTYiLCJlbWFpbCI6InVzZXIyQHRlc3QuY29tIiwicm9sZSI6IlVzZXIiLCJuYmYiOjE3Nzc3MjY1ODUsImV4cCI6MTc3ODMzMTM4NSwiaWF0IjoxNzc3NzI2NTg1LCJpc3MiOiJNdXNpY2lhbkZpbmRlciIsImF1ZCI6Ik11c2ljaWFuRmluZGVyIn0.qaQI9Y1XdPCkcWjrduR59KxBIVaurvJbKlcS0uJwMGg","user":{"id":"a3fe5585-9832-405c-ae2c-9d5b72f044e6","email":"user2@test.com","profileCreated":false,"role":"User"}}
+[2026-05-02 19:56:25] Запрос: POST http://localhost:7000/api/profiles
+[2026-05-02 19:56:25] Тело запроса: {
+  "fullName": "User Two",
+  "profileType": "Individual",
+  "cityId": 2,
+  "experience": 10,
+  "lookingFor": "LookingForBand",
+  "genreIds": [
+    1,
+    2
+  ],
+  "specialtyIds": [
+    2
+  ],
+  "collaborationGoalIds": [
+    2
+  ],
+  "desiredGenreIds": [
+    1
+  ],
+  "desiredSpecialtyIds": [
+    1
+  ]
+}
+[2026-05-02 19:56:25] Ответ (HTTP 201): {"id":"7fc86323-ba3f-4358-9438-e3a3df2280bc"}
+[2026-05-02 19:56:25] Регистрация chmo228098@gmail.com ...
+[2026-05-02 19:56:25] Запрос: POST http://localhost:7000/api/auth/code
+[2026-05-02 19:56:25] Тело запроса: {"email":"chmo228098@gmail.com"}
+[2026-05-02 19:56:27] Ответ (HTTP 200): {"success":true}
+[2026-05-02 19:56:27] Запрос: POST http://localhost:7000/api/auth/session
+[2026-05-02 19:56:27] Тело запроса: {"email":"chmo228098@gmail.com","code":"111111"}
+[2026-05-02 19:56:27] Ответ (HTTP 200): {"success":true,"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJmYmUzNDY4ZS02ZGZmLTQ0NDMtOWRkNS1lNjlmNTg2MzFjY2UiLCJlbWFpbCI6ImNobW8yMjgwOThAZ21haWwuY29tIiwicm9sZSI6IlVzZXIiLCJuYmYiOjE3Nzc3MjY1ODcsImV4cCI6MTc3ODMzMTM4NywiaWF0IjoxNzc3NzI2NTg3LCJpc3MiOiJNdXNpY2lhbkZpbmRlciIsImF1ZCI6Ik11c2ljaWFuRmluZGVyIn0.Pc9DmXRXp97yOqnVimDZpTnZaKGR-AJbd3kbrSErz9Y","user":{"id":"fbe3468e-6dff-4443-9dd5-e69f58631cce","email":"chmo228098@gmail.com","profileCreated":false,"role":"User"}}
+[2026-05-02 19:56:27] Запрос: POST http://localhost:7000/api/profiles
+[2026-05-02 19:56:27] Тело запроса: {
+  "fullName": "User Three",
+  "profileType": "Individual",
+  "cityId": 1,
+  "experience": 0,
+  "lookingFor": "NotLooking"
+}
+[2026-05-02 19:56:28] Ответ (HTTP 201): {"id":"22496072-6c5e-4718-a80c-7c6f05110732"}
+[2026-05-02 19:56:28] Регистрация user4@test.com (без профиля)...
+[2026-05-02 19:56:28] Запрос: POST http://localhost:7000/api/auth/code
+[2026-05-02 19:56:28] Тело запроса: {"email":"user4@test.com"}
+[2026-05-02 19:56:29] Ответ (HTTP 200): {"success":true}
+[2026-05-02 19:56:29] Запрос: POST http://localhost:7000/api/auth/session
+[2026-05-02 19:56:29] Тело запроса: {"email":"user4@test.com","code":"111111"}
+[2026-05-02 19:56:29] Ответ (HTTP 200): {"success":true,"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJhZmQ3YzUxNC0wYzk2LTRiN2ItODM2Mi05NjFmYmZkY2U1YzAiLCJlbWFpbCI6InVzZXI0QHRlc3QuY29tIiwicm9sZSI6IlVzZXIiLCJuYmYiOjE3Nzc3MjY1ODksImV4cCI6MTc3ODMzMTM4OSwiaWF0IjoxNzc3NzI2NTg5LCJpc3MiOiJNdXNpY2lhbkZpbmRlciIsImF1ZCI6Ik11c2ljaWFuRmluZGVyIn0.iN1nzvXNvueveLvQzxxD_T9JRQIHEYhB0_PEiO-LD0g","user":{"id":"afd7c514-0c96-4b7b-8362-961fbfdce5c0","email":"user4@test.com","profileCreated":false,"role":"User"}}
+[2026-05-02 19:56:29] User4: userId=afd7c514-0c96-4b7b-8362-961fbfdce5c0
+[2026-05-02 19:56:29] === Установка VkUserId и настроек для User3 ===
+[2026-05-02 19:56:30] VkUserId 241302814 установлен для профиля 22496072-6c5e-4718-a80c-7c6f05110732
+[2026-05-02 19:56:30] Запрос: PATCH http://localhost:7000/api/notifications/settings
+[2026-05-02 19:56:30] Тело запроса: {"notifyByEmail":true,"notifyByVk":true}
+[2026-05-02 19:56:30] Ответ (HTTP 204): 
+[2026-05-02 19:56:30] ✓ PATCH /api/notifications/settings User3 (204) (Настройки обновлены)
+[2026-05-02 19:56:30] Запрос: GET http://localhost:7000/api/notifications/settings
+[2026-05-02 19:56:30] Ответ (HTTP 200): {"notifyByEmail":true,"notifyByVk":true}
+[2026-05-02 19:56:31] ✓ User3 notifyByEmail (Email включены)
+[2026-05-02 19:56:31] ✓ User3 notifyByVk (VK включены)
+[2026-05-02 19:56:31] === Профили ===
+[2026-05-02 19:56:31] Запрос: GET http://localhost:7000/api/profiles/24a43493-74fd-4a43-844d-f8f9616017e2
+[2026-05-02 19:56:31] Ответ (HTTP 200): {"id":"24a43493-74fd-4a43-844d-f8f9616017e2","profileType":"Individual","fullName":"User One","avatarUrl":null,"age":null,"description":null,"phone":null,"telegram":null,"city":{"id":1,"name":"Moscow","localizedName":"Москва"},"experience":5,"lookingFor":"LookingForMusician","email":"user1@test.com","genres":[{"id":1,"name":"jazz","localizedName":"Джаз"}],"specialties":[{"id":1,"name":"vocalist","localizedName":"Вокалист"}],"collaborationGoals":[{"id":1,"name":"band","localizedName":"Ищу участников в группу"}],"desiredGenres":[{"id":2,"name":"rock","localizedName":"Рок"}],"desiredSpecialties":[{"id":2,"name":"guitarist","localizedName":"Гитарист"}],"isMyProfile":false,"isFavorite":false,"isCollaborated":false,"audio":[],"video":[],"photos":[],"notifyByEmail":true,"notifyByVk":false}
+[2026-05-02 19:56:31] ✓ GET /api/profiles/{id} (200) (Профиль получен)
+[2026-05-02 19:56:31] ✓ Имя профиля (Имя корректно)
+[2026-05-02 19:56:31] ✓ Количество жанров (Жанры загружены)
+[2026-05-02 19:56:31] ✓ Опыт (Опыт передан)
+[2026-05-02 19:56:31] === Фильтрация профилей (коллекции) ===
+[2026-05-02 19:56:31] Запрос: GET http://localhost:7000/api/profiles?specialtyIds=1&page=1&limit=10
+[2026-05-02 19:56:32] Ответ (HTTP 200): {"items":[{"id":"24a43493-74fd-4a43-844d-f8f9616017e2","profileType":"Individual","fullName":"User One","avatarUrl":null,"age":null,"description":null,"phone":null,"telegram":null,"city":{"id":1,"name":"Moscow","localizedName":"Москва"},"experience":5,"lookingFor":"LookingForMusician","email":"user1@test.com","genres":[{"id":1,"name":"jazz","localizedName":"Джаз"}],"specialties":[{"id":1,"name":"vocalist","localizedName":"Вокалист"}],"collaborationGoals":[{"id":1,"name":"band","localizedName":"Ищу участников в группу"}],"desiredGenres":[{"id":2,"name":"rock","localizedName":"Рок"}],"desiredSpecialties":[{"id":2,"name":"guitarist","localizedName":"Гитарист"}],"isMyProfile":false,"isFavorite":false,"isCollaborated":false,"audio":[],"video":[],"photos":[],"notifyByEmail":true,"notifyByVk":false}],"total":1,"page":1,"limit":10,"totalPages":1}
+[2026-05-02 19:56:32] ✓ Фильтр по специальности 1 (есть результат) (Найдены профили)
+[2026-05-02 19:56:32] Запрос: GET http://localhost:7000/api/profiles?goalIds=1&page=1&limit=10
+[2026-05-02 19:56:32] Ответ (HTTP 200): {"items":[{"id":"24a43493-74fd-4a43-844d-f8f9616017e2","profileType":"Individual","fullName":"User One","avatarUrl":null,"age":null,"description":null,"phone":null,"telegram":null,"city":{"id":1,"name":"Moscow","localizedName":"Москва"},"experience":5,"lookingFor":"LookingForMusician","email":"user1@test.com","genres":[{"id":1,"name":"jazz","localizedName":"Джаз"}],"specialties":[{"id":1,"name":"vocalist","localizedName":"Вокалист"}],"collaborationGoals":[{"id":1,"name":"band","localizedName":"Ищу участников в группу"}],"desiredGenres":[{"id":2,"name":"rock","localizedName":"Рок"}],"desiredSpecialties":[{"id":2,"name":"guitarist","localizedName":"Гитарист"}],"isMyProfile":false,"isFavorite":false,"isCollaborated":false,"audio":[],"video":[],"photos":[],"notifyByEmail":true,"notifyByVk":false}],"total":1,"page":1,"limit":10,"totalPages":1}
+[2026-05-02 19:56:32] ✓ Фильтр по цели сотрудничества 1 (есть результат) (Найдены профили)
+[2026-05-02 19:56:32] Запрос: GET http://localhost:7000/api/profiles?desiredGenreIds=2&page=1&limit=10
+[2026-05-02 19:56:32] Ответ (HTTP 200): {"items":[{"id":"24a43493-74fd-4a43-844d-f8f9616017e2","profileType":"Individual","fullName":"User One","avatarUrl":null,"age":null,"description":null,"phone":null,"telegram":null,"city":{"id":1,"name":"Moscow","localizedName":"Москва"},"experience":5,"lookingFor":"LookingForMusician","email":"user1@test.com","genres":[{"id":1,"name":"jazz","localizedName":"Джаз"}],"specialties":[{"id":1,"name":"vocalist","localizedName":"Вокалист"}],"collaborationGoals":[{"id":1,"name":"band","localizedName":"Ищу участников в группу"}],"desiredGenres":[{"id":2,"name":"rock","localizedName":"Рок"}],"desiredSpecialties":[{"id":2,"name":"guitarist","localizedName":"Гитарист"}],"isMyProfile":false,"isFavorite":false,"isCollaborated":false,"audio":[],"video":[],"photos":[],"notifyByEmail":true,"notifyByVk":false}],"total":1,"page":1,"limit":10,"totalPages":1}
+[2026-05-02 19:56:32] ✓ Фильтр по искомому жанру 2 (есть результат) (Найдены профили)
+[2026-05-02 19:56:32] Запрос: GET http://localhost:7000/api/profiles?desiredSpecialtyIds=2&page=1&limit=10
+[2026-05-02 19:56:32] Ответ (HTTP 200): {"items":[{"id":"24a43493-74fd-4a43-844d-f8f9616017e2","profileType":"Individual","fullName":"User One","avatarUrl":null,"age":null,"description":null,"phone":null,"telegram":null,"city":{"id":1,"name":"Moscow","localizedName":"Москва"},"experience":5,"lookingFor":"LookingForMusician","email":"user1@test.com","genres":[{"id":1,"name":"jazz","localizedName":"Джаз"}],"specialties":[{"id":1,"name":"vocalist","localizedName":"Вокалист"}],"collaborationGoals":[{"id":1,"name":"band","localizedName":"Ищу участников в группу"}],"desiredGenres":[{"id":2,"name":"rock","localizedName":"Рок"}],"desiredSpecialties":[{"id":2,"name":"guitarist","localizedName":"Гитарист"}],"isMyProfile":false,"isFavorite":false,"isCollaborated":false,"audio":[],"video":[],"photos":[],"notifyByEmail":true,"notifyByVk":false}],"total":1,"page":1,"limit":10,"totalPages":1}
+[2026-05-02 19:56:33] ✓ Фильтр по искомой специальности 2 (есть результат) (Найдены профили)
+[2026-05-02 19:56:33] Запрос: GET http://localhost:7000/api/profiles?genreIds=1&page=1&limit=10
+[2026-05-02 19:56:33] Ответ (HTTP 200): {"items":[{"id":"7fc86323-ba3f-4358-9438-e3a3df2280bc","profileType":"Individual","fullName":"User Two","avatarUrl":null,"age":null,"description":null,"phone":null,"telegram":null,"city":{"id":2,"name":"Saint Petersburg","localizedName":"Санкт-Петербург"},"experience":10,"lookingFor":"LookingForBand","email":"user2@test.com","genres":[{"id":1,"name":"jazz","localizedName":"Джаз"},{"id":2,"name":"rock","localizedName":"Рок"}],"specialties":[{"id":2,"name":"guitarist","localizedName":"Гитарист"}],"collaborationGoals":[{"id":2,"name":"session","localizedName":"Готов(а) к сессионной работе"}],"desiredGenres":[{"id":1,"name":"jazz","localizedName":"Джаз"}],"desiredSpecialties":[{"id":1,"name":"vocalist","localizedName":"Вокалист"}],"isMyProfile":false,"isFavorite":false,"isCollaborated":false,"audio":[],"video":[],"photos":[],"notifyByEmail":true,"notifyByVk":false}],"total":1,"page":1,"limit":10,"totalPages":1}
+[2026-05-02 19:56:33] ✓ Фильтр по жанру 1 (кол-во > 0) (Найдены профили)
+[2026-05-02 19:56:33] Запрос: GET http://localhost:7000/api/profiles?cityId=2&page=1&limit=10
+[2026-05-02 19:56:33] Ответ (HTTP 200): {"items":[{"id":"7fc86323-ba3f-4358-9438-e3a3df2280bc","profileType":"Individual","fullName":"User Two","avatarUrl":null,"age":null,"description":null,"phone":null,"telegram":null,"city":{"id":2,"name":"Saint Petersburg","localizedName":"Санкт-Петербург"},"experience":10,"lookingFor":"LookingForBand","email":"user2@test.com","genres":[{"id":1,"name":"jazz","localizedName":"Джаз"},{"id":2,"name":"rock","localizedName":"Рок"}],"specialties":[{"id":2,"name":"guitarist","localizedName":"Гитарист"}],"collaborationGoals":[{"id":2,"name":"session","localizedName":"Готов(а) к сессионной работе"}],"desiredGenres":[{"id":1,"name":"jazz","localizedName":"Джаз"}],"desiredSpecialties":[{"id":1,"name":"vocalist","localizedName":"Вокалист"}],"isMyProfile":false,"isFavorite":false,"isCollaborated":false,"audio":[],"video":[],"photos":[],"notifyByEmail":true,"notifyByVk":false}],"total":1,"page":1,"limit":10,"totalPages":1}
+[2026-05-02 19:56:33] ✓ Фильтр по городу 2 (Saint Petersburg) (Город совпадает)
+[2026-05-02 19:56:33] Запрос: GET http://localhost:7000/api/profiles?experienceMin=5&page=1&limit=10
+[2026-05-02 19:56:33] Ответ (HTTP 200): {"items":[{"id":"7fc86323-ba3f-4358-9438-e3a3df2280bc","profileType":"Individual","fullName":"User Two","avatarUrl":null,"age":null,"description":null,"phone":null,"telegram":null,"city":{"id":2,"name":"Saint Petersburg","localizedName":"Санкт-Петербург"},"experience":10,"lookingFor":"LookingForBand","email":"user2@test.com","genres":[{"id":1,"name":"jazz","localizedName":"Джаз"},{"id":2,"name":"rock","localizedName":"Рок"}],"specialties":[{"id":2,"name":"guitarist","localizedName":"Гитарист"}],"collaborationGoals":[{"id":2,"name":"session","localizedName":"Готов(а) к сессионной работе"}],"desiredGenres":[{"id":1,"name":"jazz","localizedName":"Джаз"}],"desiredSpecialties":[{"id":1,"name":"vocalist","localizedName":"Вокалист"}],"isMyProfile":false,"isFavorite":false,"isCollaborated":false,"audio":[],"video":[],"photos":[],"notifyByEmail":true,"notifyByVk":false}],"total":1,"page":1,"limit":10,"totalPages":1}
+[2026-05-02 19:56:33] ✓ Фильтр по опыту >=5 (найдены профили) (Профили с опытом найдены)
+[2026-05-02 19:56:33] Запрос: GET http://localhost:7000/api/profiles?lookingFor=LookingForBand&page=1&limit=10
+[2026-05-02 19:56:34] Ответ (HTTP 200): {"items":[{"id":"7fc86323-ba3f-4358-9438-e3a3df2280bc","profileType":"Individual","fullName":"User Two","avatarUrl":null,"age":null,"description":null,"phone":null,"telegram":null,"city":{"id":2,"name":"Saint Petersburg","localizedName":"Санкт-Петербург"},"experience":10,"lookingFor":"LookingForBand","email":"user2@test.com","genres":[{"id":1,"name":"jazz","localizedName":"Джаз"},{"id":2,"name":"rock","localizedName":"Рок"}],"specialties":[{"id":2,"name":"guitarist","localizedName":"Гитарист"}],"collaborationGoals":[{"id":2,"name":"session","localizedName":"Готов(а) к сессионной работе"}],"desiredGenres":[{"id":1,"name":"jazz","localizedName":"Джаз"}],"desiredSpecialties":[{"id":1,"name":"vocalist","localizedName":"Вокалист"}],"isMyProfile":false,"isFavorite":false,"isCollaborated":false,"audio":[],"video":[],"photos":[],"notifyByEmail":true,"notifyByVk":false}],"total":1,"page":1,"limit":10,"totalPages":1}
+[2026-05-02 19:56:34] ✓ Фильтр LookingForBand (Значение LookingFor совпадает)
+[2026-05-02 19:56:34] Запрос: GET http://localhost:7000/api/profiles?genreIds=2&cityId=2&page=1&limit=10
+[2026-05-02 19:56:34] Ответ (HTTP 200): {"items":[{"id":"7fc86323-ba3f-4358-9438-e3a3df2280bc","profileType":"Individual","fullName":"User Two","avatarUrl":null,"age":null,"description":null,"phone":null,"telegram":null,"city":{"id":2,"name":"Saint Petersburg","localizedName":"Санкт-Петербург"},"experience":10,"lookingFor":"LookingForBand","email":"user2@test.com","genres":[{"id":1,"name":"jazz","localizedName":"Джаз"},{"id":2,"name":"rock","localizedName":"Рок"}],"specialties":[{"id":2,"name":"guitarist","localizedName":"Гитарист"}],"collaborationGoals":[{"id":2,"name":"session","localizedName":"Готов(а) к сессионной работе"}],"desiredGenres":[{"id":1,"name":"jazz","localizedName":"Джаз"}],"desiredSpecialties":[{"id":1,"name":"vocalist","localizedName":"Вокалист"}],"isMyProfile":false,"isFavorite":false,"isCollaborated":false,"audio":[],"video":[],"photos":[],"notifyByEmail":true,"notifyByVk":false}],"total":1,"page":1,"limit":10,"totalPages":1}
+[2026-05-02 19:56:34] ✓ Фильтр жанр=2 и город=2 (есть результат) (Найден профиль)
+[2026-05-02 19:56:34] === Обновление профиля ===
+[2026-05-02 19:56:34] Запрос: PATCH http://localhost:7000/api/profiles/me
+[2026-05-02 19:56:34] Тело запроса: {"fullName":"User One Updated","description":"Updated","experience":7,"lookingFor":"LookingForBand"}
+[2026-05-02 19:56:34] Ответ (HTTP 200): {"id":"24a43493-74fd-4a43-844d-f8f9616017e2"}
+[2026-05-02 19:56:34] ✓ PATCH /api/profiles/me (200) (Профиль обновлён)
+[2026-05-02 19:56:34] Запрос: GET http://localhost:7000/api/profiles/me
+[2026-05-02 19:56:34] Ответ (HTTP 200): {"id":"24a43493-74fd-4a43-844d-f8f9616017e2","profileType":"Individual","fullName":"User One Updated","avatarUrl":null,"age":null,"description":"Updated","phone":null,"telegram":null,"city":{"id":1,"name":"Moscow","localizedName":"Москва"},"experience":7,"lookingFor":"LookingForBand","email":"user1@test.com","genres":[{"id":1,"name":"jazz","localizedName":"Джаз"}],"specialties":[{"id":1,"name":"vocalist","localizedName":"Вокалист"}],"collaborationGoals":[{"id":1,"name":"band","localizedName":"Ищу участников в группу"}],"desiredGenres":[{"id":2,"name":"rock","localizedName":"Рок"}],"desiredSpecialties":[{"id":2,"name":"guitarist","localizedName":"Гитарист"}],"isMyProfile":true,"isFavorite":false,"isCollaborated":false,"audio":[],"video":[],"photos":[],"notifyByEmail":true,"notifyByVk":false}
+[2026-05-02 19:56:34] ✓ Обновлённое имя (Имя изменено)
+[2026-05-02 19:56:35] ✓ Обновлённый опыт (Опыт изменён)
+[2026-05-02 19:56:35] === Избранное ===
+[2026-05-02 19:56:35] Запрос: PUT http://localhost:7000/api/7fc86323-ba3f-4358-9438-e3a3df2280bc/favorite
+[2026-05-02 19:56:35] Ответ (HTTP 204): 
+[2026-05-02 19:56:35] ✓ PUT /api/{profileId}/favorite (204) (Добавлено)
+[2026-05-02 19:56:35] Запрос: GET http://localhost:7000/api/profiles/7fc86323-ba3f-4358-9438-e3a3df2280bc
+[2026-05-02 19:56:35] Ответ (HTTP 200): {"id":"7fc86323-ba3f-4358-9438-e3a3df2280bc","profileType":"Individual","fullName":"User Two","avatarUrl":null,"age":null,"description":null,"phone":null,"telegram":null,"city":{"id":2,"name":"Saint Petersburg","localizedName":"Санкт-Петербург"},"experience":10,"lookingFor":"LookingForBand","email":"user2@test.com","genres":[{"id":1,"name":"jazz","localizedName":"Джаз"},{"id":2,"name":"rock","localizedName":"Рок"}],"specialties":[{"id":2,"name":"guitarist","localizedName":"Гитарист"}],"collaborationGoals":[{"id":2,"name":"session","localizedName":"Готов(а) к сессионной работе"}],"desiredGenres":[{"id":1,"name":"jazz","localizedName":"Джаз"}],"desiredSpecialties":[{"id":1,"name":"vocalist","localizedName":"Вокалист"}],"isMyProfile":false,"isFavorite":true,"isCollaborated":false,"audio":[],"video":[],"photos":[],"notifyByEmail":true,"notifyByVk":false}
+[2026-05-02 19:56:35] ✓ Флаг isFavorite (Флаг установлен)
+[2026-05-02 19:56:35] Запрос: GET http://localhost:7000/api/me/favorites
+[2026-05-02 19:56:35] Ответ (HTTP 200): {"items":[{"id":"7fc86323-ba3f-4358-9438-e3a3df2280bc","profileType":"Individual","fullName":"User Two","avatarUrl":null,"age":null,"description":null,"phone":null,"telegram":null,"city":{"id":2,"name":"Saint Petersburg","localizedName":"Санкт-Петербург"},"experience":10,"lookingFor":"LookingForBand","email":"user2@test.com","genres":[{"id":1,"name":"jazz","localizedName":"Джаз"},{"id":2,"name":"rock","localizedName":"Рок"}],"specialties":[{"id":2,"name":"guitarist","localizedName":"Гитарист"}],"collaborationGoals":[{"id":2,"name":"session","localizedName":"Готов(а) к сессионной работе"}],"desiredGenres":[{"id":1,"name":"jazz","localizedName":"Джаз"}],"desiredSpecialties":[{"id":1,"name":"vocalist","localizedName":"Вокалист"}],"isMyProfile":false,"isFavorite":true,"isCollaborated":false,"audio":[],"video":[],"photos":[],"notifyByEmail":true,"notifyByVk":false}],"total":1,"page":1,"limit":20,"totalPages":1}
+[2026-05-02 19:56:35] ✓ Список избранного (total=1) (Один профиль в избранном)
+[2026-05-02 19:56:35] Запрос: DELETE http://localhost:7000/api/7fc86323-ba3f-4358-9438-e3a3df2280bc/favorite
+[2026-05-02 19:56:36] Ответ (HTTP 204): 
+[2026-05-02 19:56:36] ✓ DELETE /api/{profileId}/favorite (204) (Удалено)
+[2026-05-02 19:56:36] Запрос: GET http://localhost:7000/api/profiles/7fc86323-ba3f-4358-9438-e3a3df2280bc
+[2026-05-02 19:56:36] Ответ (HTTP 200): {"id":"7fc86323-ba3f-4358-9438-e3a3df2280bc","profileType":"Individual","fullName":"User Two","avatarUrl":null,"age":null,"description":null,"phone":null,"telegram":null,"city":{"id":2,"name":"Saint Petersburg","localizedName":"Санкт-Петербург"},"experience":10,"lookingFor":"LookingForBand","email":"user2@test.com","genres":[{"id":1,"name":"jazz","localizedName":"Джаз"},{"id":2,"name":"rock","localizedName":"Рок"}],"specialties":[{"id":2,"name":"guitarist","localizedName":"Гитарист"}],"collaborationGoals":[{"id":2,"name":"session","localizedName":"Готов(а) к сессионной работе"}],"desiredGenres":[{"id":1,"name":"jazz","localizedName":"Джаз"}],"desiredSpecialties":[{"id":1,"name":"vocalist","localizedName":"Вокалист"}],"isMyProfile":false,"isFavorite":false,"isCollaborated":false,"audio":[],"video":[],"photos":[],"notifyByEmail":true,"notifyByVk":false}
+[2026-05-02 19:56:36] ✓ Флаг isFavorite после удаления (Флаг сброшен)
+[2026-05-02 19:56:36] === Мероприятия ===
+[2026-05-02 19:56:36] Запрос: POST http://localhost:7000/api/events
+[2026-05-02 19:56:36] Тело запроса: {
+  "title": "Jazz Night",
+  "description": "Jazz event",
+  "regionId": 1,
+  "cityId": 1,
+  "address": "Moscow",
+  "startDateTime": "2026-05-09T12:56:36Z",
+  "maxParticipants": 5
+}
+[2026-05-02 19:56:36] Ответ (HTTP 201): {"id":"9123d7a6-25f4-41f1-98aa-8d4881cafe86"}
+[2026-05-02 19:56:36] ✓ POST /api/events (201) (Мероприятие создано)
+[2026-05-02 19:56:36] Запрос: GET http://localhost:7000/api/events/9123d7a6-25f4-41f1-98aa-8d4881cafe86
+[2026-05-02 19:56:37] Ответ (HTTP 200): {"id":"9123d7a6-25f4-41f1-98aa-8d4881cafe86","title":"Jazz Night","description":"Jazz event","imageUrl":null,"region":{"id":1,"name":"Moscow Oblast","localizedName":"Московская область"},"city":{"id":1,"name":"Moscow","localizedName":"Москва"},"address":"Moscow","startDateTime":"2026-05-09T12:56:36","endDateTime":null,"maxParticipants":5,"currentParticipants":0,"isRegistered":false,"isCreator":false,"status":"Scheduled","creatorProfileId":"24a43493-74fd-4a43-844d-f8f9616017e2","creatorFullName":"User One Updated","creatorAvatarUrl":null,"createdAt":"2026-05-02T12:56:36.687163Z","updatedAt":"2026-05-02T12:56:36.687172Z"}
+[2026-05-02 19:56:37] ✓ GET /api/events/{id} (200) (Мероприятие получено)
+[2026-05-02 19:56:37] === Фильтрация мероприятий ===
+[2026-05-02 19:56:37] Запрос: GET http://localhost:7000/api/events?cityId=1
+[2026-05-02 19:56:37] Ответ (HTTP 200): {"items":[{"id":"9123d7a6-25f4-41f1-98aa-8d4881cafe86","title":"Jazz Night","description":"Jazz event","imageUrl":null,"region":{"id":1,"name":"Moscow Oblast","localizedName":"Московская область"},"city":{"id":1,"name":"Moscow","localizedName":"Москва"},"address":"Moscow","startDateTime":"2026-05-09T12:56:36","endDateTime":null,"maxParticipants":5,"currentParticipants":0,"isRegistered":false,"isCreator":false,"status":"Scheduled","creatorProfileId":"24a43493-74fd-4a43-844d-f8f9616017e2","creatorFullName":"User One Updated","creatorAvatarUrl":null,"createdAt":"2026-05-02T12:56:36.687163Z","updatedAt":"2026-05-02T12:56:36.687172Z"}],"total":1,"page":1,"limit":20,"totalPages":1}
+[2026-05-02 19:56:37] ✓ Фильтр по городу 1 (есть результат) (Найдены мероприятия)
+[2026-05-02 19:56:37] Запрос: GET http://localhost:7000/api/events?regionId=1
+[2026-05-02 19:56:37] Ответ (HTTP 200): {"items":[{"id":"9123d7a6-25f4-41f1-98aa-8d4881cafe86","title":"Jazz Night","description":"Jazz event","imageUrl":null,"region":{"id":1,"name":"Moscow Oblast","localizedName":"Московская область"},"city":{"id":1,"name":"Moscow","localizedName":"Москва"},"address":"Moscow","startDateTime":"2026-05-09T12:56:36","endDateTime":null,"maxParticipants":5,"currentParticipants":0,"isRegistered":false,"isCreator":false,"status":"Scheduled","creatorProfileId":"24a43493-74fd-4a43-844d-f8f9616017e2","creatorFullName":"User One Updated","creatorAvatarUrl":null,"createdAt":"2026-05-02T12:56:36.687163Z","updatedAt":"2026-05-02T12:56:36.687172Z"}],"total":1,"page":1,"limit":20,"totalPages":1}
+[2026-05-02 19:56:37] ✓ Фильтр по региону 1 (есть результат) (Найдены мероприятия)
+[2026-05-02 19:56:37] Запрос: GET http://localhost:7000/api/events?query=Jazz
+[2026-05-02 19:56:37] Ответ (HTTP 200): {"items":[{"id":"9123d7a6-25f4-41f1-98aa-8d4881cafe86","title":"Jazz Night","description":"Jazz event","imageUrl":null,"region":{"id":1,"name":"Moscow Oblast","localizedName":"Московская область"},"city":{"id":1,"name":"Moscow","localizedName":"Москва"},"address":"Moscow","startDateTime":"2026-05-09T12:56:36","endDateTime":null,"maxParticipants":5,"currentParticipants":0,"isRegistered":false,"isCreator":false,"status":"Scheduled","creatorProfileId":"24a43493-74fd-4a43-844d-f8f9616017e2","creatorFullName":"User One Updated","creatorAvatarUrl":null,"createdAt":"2026-05-02T12:56:36.687163Z","updatedAt":"2026-05-02T12:56:36.687172Z"}],"total":1,"page":1,"limit":20,"totalPages":1}
+[2026-05-02 19:56:37] ✓ Поиск по названию (есть результат) (Найдены мероприятия)
+[2026-05-02 19:56:37] === Регистрация ===
+[2026-05-02 19:56:37] Запрос: POST http://localhost:7000/api/events/9123d7a6-25f4-41f1-98aa-8d4881cafe86/registration
+[2026-05-02 19:56:38] Ответ (HTTP 204): 
+[2026-05-02 19:56:38] ✓ POST /api/events/{id}/registration User2 (204) (Регистрация успешна)
+[2026-05-02 19:56:38] Запрос: POST http://localhost:7000/api/events/9123d7a6-25f4-41f1-98aa-8d4881cafe86/registration
+[2026-05-02 19:56:38] Ответ (HTTP 204): 
+[2026-05-02 19:56:38] ✓ POST /api/events/{id}/registration User3 (204) (Регистрация успешна)
+[2026-05-02 19:56:38] === Предложение User2 -> User3 ===
+[2026-05-02 19:56:38] Запрос: POST http://localhost:7000/api/suggestions
+[2026-05-02 19:56:38] Тело запроса: {"toProfileId":"22496072-6c5e-4718-a80c-7c6f05110732","message":"Hi"}
+[2026-05-02 19:56:38] Ответ (HTTP 204): 
+[2026-05-02 19:56:38] ✓ POST /api/suggestions User2->User3 (204) (Предложение отправлено)
+[2026-05-02 19:56:38] Ожидание обработки Outbox (15 секунд)...
+[2026-05-02 19:56:53] Запрос: GET http://localhost:7000/api/notifications?page=1&limit=10
+[2026-05-02 19:56:53] Ответ (HTTP 200): {"items":[{"id":"10da5b45-7b01-4005-b181-7ad6f038a7c0","type":"CollaborationReceived","title":"Пользователь User Two отправил вам предложение о сотрудничестве","message":"У вас новое предложение","imageUrl":null,"entityType":"CollaborationSuggestion","entityId":"968ea477-c6f4-4cbc-b15d-d680affc8c25","isRead":false,"createdAt":"2026-05-02T12:56:38.681253Z"},{"id":"5f79bc33-bf62-4b6b-a7e3-15d38258ade8","type":"EventRegistration","title":"Регистрация подтверждена","message":"Вы успешно зарегистрировались на мероприятие \"Jazz Night\". 09.05.2026 12:56. Оно будет проходить по адресу: Moscow.","imageUrl":null,"entityType":"Event","entityId":"9123d7a6-25f4-41f1-98aa-8d4881cafe86","isRead":false,"createdAt":"2026-05-02T12:56:38.362426Z"}],"total":2,"page":1,"limit":10,"totalPages":1}
+[2026-05-02 19:56:54] ✓ Уведомления User3 (количество >= 2) (Есть CollaborationReceived и EventRegistration)
+[2026-05-02 19:56:54] === Проверка созданных/зарегистрированных мероприятий ===
+[2026-05-02 19:56:54] Запрос: GET http://localhost:7000/api/events/created?page=1&limit=10
+[2026-05-02 19:56:54] Ответ (HTTP 200): {"items":[{"id":"9123d7a6-25f4-41f1-98aa-8d4881cafe86","title":"Jazz Night","description":"Jazz event","imageUrl":null,"region":{"id":1,"name":"Moscow Oblast","localizedName":"Московская область"},"city":{"id":1,"name":"Moscow","localizedName":"Москва"},"address":"Moscow","startDateTime":"2026-05-09T12:56:36","endDateTime":null,"maxParticipants":5,"currentParticipants":2,"isRegistered":false,"isCreator":true,"status":"Scheduled","creatorProfileId":"24a43493-74fd-4a43-844d-f8f9616017e2","creatorFullName":"User One Updated","creatorAvatarUrl":null,"createdAt":"2026-05-02T12:56:36.687163Z","updatedAt":"2026-05-02T12:56:38.358003Z"}],"total":1,"page":1,"limit":10,"totalPages":1}
+[2026-05-02 19:56:54] ✓ Созданные мероприятия (total=1) (Есть созданное мероприятие)
+[2026-05-02 19:56:54] ✓ isCreator в созданных (Флаг isCreator установлен)
+[2026-05-02 19:56:54] Запрос: GET http://localhost:7000/api/events/registered?page=1&limit=10
+[2026-05-02 19:56:54] Ответ (HTTP 200): {"items":[{"id":"9123d7a6-25f4-41f1-98aa-8d4881cafe86","title":"Jazz Night","description":"Jazz event","imageUrl":null,"region":{"id":1,"name":"Moscow Oblast","localizedName":"Московская область"},"city":{"id":1,"name":"Moscow","localizedName":"Москва"},"address":"Moscow","startDateTime":"2026-05-09T12:56:36","endDateTime":null,"maxParticipants":5,"currentParticipants":2,"isRegistered":true,"isCreator":false,"status":"Scheduled","creatorProfileId":"24a43493-74fd-4a43-844d-f8f9616017e2","creatorFullName":"User One Updated","creatorAvatarUrl":null,"createdAt":"2026-05-02T12:56:36.687163Z","updatedAt":"2026-05-02T12:56:38.358003Z"}],"total":1,"page":1,"limit":10,"totalPages":1}
+[2026-05-02 19:56:54] ✓ Зарегистрированные мероприятия (total=1) (Есть зарегистрированное мероприятие)
+[2026-05-02 19:56:54] ✓ isRegistered в registered-list (Флаг isRegistered установлен)
+[2026-05-02 19:56:54] === Проверка флагов ===
+[2026-05-02 19:56:55] Запрос: GET http://localhost:7000/api/events/9123d7a6-25f4-41f1-98aa-8d4881cafe86
+[2026-05-02 19:56:55] Ответ (HTTP 200): {"id":"9123d7a6-25f4-41f1-98aa-8d4881cafe86","title":"Jazz Night","description":"Jazz event","imageUrl":null,"region":{"id":1,"name":"Moscow Oblast","localizedName":"Московская область"},"city":{"id":1,"name":"Moscow","localizedName":"Москва"},"address":"Moscow","startDateTime":"2026-05-09T12:56:36","endDateTime":null,"maxParticipants":5,"currentParticipants":2,"isRegistered":true,"isCreator":false,"status":"Scheduled","creatorProfileId":"24a43493-74fd-4a43-844d-f8f9616017e2","creatorFullName":"User One Updated","creatorAvatarUrl":null,"createdAt":"2026-05-02T12:56:36.687163Z","updatedAt":"2026-05-02T12:56:38.358003Z"}
+[2026-05-02 19:56:55] ✓ isRegistered User2 (Зарегистрирован)
+[2026-05-02 19:56:55] ✓ currentParticipants >= 2 (Участники учтены)
+[2026-05-02 19:56:55] Запрос: DELETE http://localhost:7000/api/events/9123d7a6-25f4-41f1-98aa-8d4881cafe86/registration
+[2026-05-02 19:56:55] Ответ (HTTP 204): 
+[2026-05-02 19:56:55] ✓ DELETE /api/events/{id}/registration (204) (Регистрация отменена)
+[2026-05-02 19:56:55] === Обновление мероприятия ===
+[2026-05-02 19:56:55] Запрос: PATCH http://localhost:7000/api/events/9123d7a6-25f4-41f1-98aa-8d4881cafe86
+[2026-05-02 19:56:55] Тело запроса: {"title":"Updated Jazz","description":"New desc"}
+[2026-05-02 19:56:55] Ответ (HTTP 200): {"id":"9123d7a6-25f4-41f1-98aa-8d4881cafe86"}
+[2026-05-02 19:56:55] ✓ PATCH /api/events/{id} (200) (Мероприятие обновлено)
+[2026-05-02 19:56:55] Запрос: GET http://localhost:7000/api/events/9123d7a6-25f4-41f1-98aa-8d4881cafe86
+[2026-05-02 19:56:55] Ответ (HTTP 200): {"id":"9123d7a6-25f4-41f1-98aa-8d4881cafe86","title":"Updated Jazz","description":"New desc","imageUrl":null,"region":{"id":1,"name":"Moscow Oblast","localizedName":"Московская область"},"city":{"id":1,"name":"Moscow","localizedName":"Москва"},"address":"","startDateTime":"2026-05-09T12:56:36","endDateTime":null,"maxParticipants":5,"currentParticipants":1,"isRegistered":false,"isCreator":false,"status":"Scheduled","creatorProfileId":"24a43493-74fd-4a43-844d-f8f9616017e2","creatorFullName":"User One Updated","creatorAvatarUrl":null,"createdAt":"2026-05-02T12:56:36.687163Z","updatedAt":"2026-05-02T12:56:55.735769Z"}
+[2026-05-02 19:56:56] ✓ Обновлённое название (Название обновлено)
+[2026-05-02 19:56:56] === Отмена мероприятия ===
+[2026-05-02 19:56:56] Запрос: DELETE http://localhost:7000/api/events/9123d7a6-25f4-41f1-98aa-8d4881cafe86
+[2026-05-02 19:56:56] Ответ (HTTP 204): 
+[2026-05-02 19:56:56] ✓ DELETE /api/events/{id} (204) (Мероприятие отменено)
+[2026-05-02 19:56:56] Запрос: GET http://localhost:7000/api/events/9123d7a6-25f4-41f1-98aa-8d4881cafe86
+[2026-05-02 19:56:56] Ответ (HTTP 200): {"id":"9123d7a6-25f4-41f1-98aa-8d4881cafe86","title":"Updated Jazz","description":"New desc","imageUrl":null,"region":{"id":1,"name":"Moscow Oblast","localizedName":"Московская область"},"city":{"id":1,"name":"Moscow","localizedName":"Москва"},"address":"","startDateTime":"2026-05-09T12:56:36","endDateTime":null,"maxParticipants":5,"currentParticipants":1,"isRegistered":false,"isCreator":false,"status":"Cancelled","creatorProfileId":"24a43493-74fd-4a43-844d-f8f9616017e2","creatorFullName":"User One Updated","creatorAvatarUrl":null,"createdAt":"2026-05-02T12:56:36.687163Z","updatedAt":"2026-05-02T12:56:56.233871Z"}
+[2026-05-02 19:56:56] ✓ Статус Cancelled (Статус изменился)
+[2026-05-02 19:56:56] Запрос: GET http://localhost:7000/api/events?status=Cancelled
+[2026-05-02 19:56:56] Ответ (HTTP 200): {"items":[{"id":"9123d7a6-25f4-41f1-98aa-8d4881cafe86","title":"Updated Jazz","description":"New desc","imageUrl":null,"region":{"id":1,"name":"Moscow Oblast","localizedName":"Московская область"},"city":{"id":1,"name":"Moscow","localizedName":"Москва"},"address":"","startDateTime":"2026-05-09T12:56:36","endDateTime":null,"maxParticipants":5,"currentParticipants":1,"isRegistered":false,"isCreator":false,"status":"Cancelled","creatorProfileId":"24a43493-74fd-4a43-844d-f8f9616017e2","creatorFullName":"User One Updated","creatorAvatarUrl":null,"createdAt":"2026-05-02T12:56:36.687163Z","updatedAt":"2026-05-02T12:56:56.233871Z"}],"total":1,"page":1,"limit":20,"totalPages":1}
+[2026-05-02 19:56:56] ✓ Фильтр по статусу Cancelled (есть результат) (Найдено отменённое мероприятие)
+[2026-05-02 19:56:56] === Предложение User2 -> User1 ===
+[2026-05-02 19:56:56] Запрос: POST http://localhost:7000/api/suggestions
+[2026-05-02 19:56:56] Тело запроса: {"toProfileId":"24a43493-74fd-4a43-844d-f8f9616017e2","message":"Hi"}
+[2026-05-02 19:56:57] Ответ (HTTP 204): 
+[2026-05-02 19:56:57] ✓ POST /api/suggestions (204) (Предложение отправлено)
+[2026-05-02 19:56:57] Запрос: GET http://localhost:7000/api/notifications?page=1&limit=10
+[2026-05-02 19:56:57] Ответ (HTTP 200): {"items":[{"id":"f8d28e9c-e296-49a2-9731-00eb0bb58393","type":"CollaborationReceived","title":"Пользователь User Two отправил вам предложение о сотрудничестве","message":"У вас новое предложение","imageUrl":null,"entityType":"CollaborationSuggestion","entityId":"9b4fd2dc-c5bf-4baf-be53-151c5c877c07","isRead":false,"createdAt":"2026-05-02T12:56:57.042655Z"}],"total":1,"page":1,"limit":10,"totalPages":1}
+[2026-05-02 19:56:57] ✓ Уведомление CollaborationReceived (Уведомление получено)
+[2026-05-02 19:56:57] Запрос: PATCH http://localhost:7000/api/suggestions/9b4fd2dc-c5bf-4baf-be53-151c5c877c07/status
+[2026-05-02 19:56:57] Тело запроса: {"status":"Accepted"}
+[2026-05-02 19:56:58] Ответ (HTTP 204): 
+[2026-05-02 19:56:58] ✓ PATCH /api/suggestions/{id}/status (204) (Предложение принято)
+[2026-05-02 19:56:58] === Настройки уведомлений ===
+[2026-05-02 19:56:58] Запрос: GET http://localhost:7000/api/notifications/settings
+[2026-05-02 19:56:58] Ответ (HTTP 200): {"notifyByEmail":true,"notifyByVk":false}
+[2026-05-02 19:56:58] ✓ GET /api/notifications/settings (200) (Настройки получены)
+[2026-05-02 19:56:58] Запрос: PATCH http://localhost:7000/api/notifications/settings
+[2026-05-02 19:56:58] Тело запроса: {"notifyByEmail":false,"notifyByVk":true}
+[2026-05-02 19:56:58] Ответ (HTTP 204): 
+[2026-05-02 19:56:58] ✓ PATCH /api/notifications/settings (204) (Настройки обновлены)
+[2026-05-02 19:56:58] Запрос: GET http://localhost:7000/api/notifications/settings
+[2026-05-02 19:56:58] Ответ (HTTP 200): {"notifyByEmail":false,"notifyByVk":true}
+[2026-05-02 19:56:58] ✓ notifyByEmail (Отключены)
+[2026-05-02 19:56:59] ✓ notifyByVk (Включены)
+[2026-05-02 19:56:59] === Негативные тесты ===
+[2026-05-02 19:56:59] Запрос: POST http://localhost:7000/api/profiles
+[2026-05-02 19:56:59] Тело запроса: {"fullName":"Name","profileType":"Individual"}
+[2026-05-02 19:56:59] Ответ (HTTP 400): {"type":"/errors/validation","title":"\u041E\u0448\u0438\u0431\u043A\u0430 \u0432\u0430\u043B\u0438\u0434\u0430\u0446\u0438\u0438","status":400,"instance":"/api/profiles","errors":{"CityId":["\u0413\u043E\u0440\u043E\u0434 \u043E\u0431\u044F\u0437\u0430\u0442\u0435\u043B\u0435\u043D."]}}
+[2026-05-02 19:56:59] ✓ Профиль без cityId (400) (Ошибка валидации)
+[2026-05-02 19:56:59] Запрос: POST http://localhost:7000/api/profiles
+[2026-05-02 19:56:59] Тело запроса: {"fullName":"","profileType":"Individual","cityId":1}
+[2026-05-02 19:56:59] Ответ (HTTP 400): {"type":"/errors/domain","title":"\u0418\u043C\u044F \u043F\u0440\u043E\u0444\u0438\u043B\u044F \u043D\u0435 \u043C\u043E\u0436\u0435\u0442 \u0431\u044B\u0442\u044C \u043F\u0443\u0441\u0442\u044B\u043C.","status":400,"instance":"/api/profiles"}
+[2026-05-02 19:56:59] ✓ Профиль с пустым именем (400) (Ошибка валидации)
+[2026-05-02 19:56:59] Запрос: POST http://localhost:7000/api/profiles
+[2026-05-02 19:56:59] Тело запроса: {"fullName":"Neg","profileType":"Individual","cityId":1,"experience":-1}
+[2026-05-02 19:56:59] Ответ (HTTP 400): {"type":"/errors/validation","title":"\u041E\u0448\u0438\u0431\u043A\u0430 \u0432\u0430\u043B\u0438\u0434\u0430\u0446\u0438\u0438","status":400,"instance":"/api/profiles","errors":{"Experience":["\u041E\u043F\u044B\u0442 \u043D\u0435 \u043C\u043E\u0436\u0435\u0442 \u0431\u044B\u0442\u044C \u043E\u0442\u0440\u0438\u0446\u0430\u0442\u0435\u043B\u044C\u043D\u044B\u043C."]}}
+[2026-05-02 19:56:59] ✓ Профиль с отрицательным опытом (400) (Ошибка валидации)
+[2026-05-02 19:56:59] Запрос: POST http://localhost:7000/api/profiles
+[2026-05-02 19:56:59] Тело запроса: {"fullName":"Neg","profileType":"Individual","cityId":9999,"experience":0}
+[2026-05-02 19:57:00] Ответ (HTTP 400): {"type":"/errors/validation","title":"\u041E\u0448\u0438\u0431\u043A\u0430 \u0432\u0430\u043B\u0438\u0434\u0430\u0446\u0438\u0438","status":400,"instance":"/api/profiles","errors":{"ReferenceData":["\u0413\u043E\u0440\u043E\u0434 \u0441 ID 9999 \u043D\u0435 \u0441\u0443\u0449\u0435\u0441\u0442\u0432\u0443\u0435\u0442."]}}
+[2026-05-02 19:57:00] ✓ Профиль с несуществующим cityId (400) (Ошибка валидации)
+[2026-05-02 19:57:00] Запрос: POST http://localhost:7000/api/profiles
+[2026-05-02 19:57:00] Тело запроса: {"fullName":"Neg","profileType":"Invalid","cityId":1}
+[2026-05-02 19:57:00] Ответ (HTTP 400): {"type":"https://tools.ietf.org/html/rfc9110#section-15.5.1","title":"One or more validation errors occurred.","status":400,"errors":{"command":["The command field is required."],"$.profileType":["The JSON value could not be converted to MusicianFinder.Domain.Enums.ProfileType. Path: $.profileType | LineNumber: 0 | BytePositionInLine: 41."]},"traceId":"00-cfdddc0ed26c0072de0a7217309d26b8-3aa6d37e20e96cf5-00"}
+[2026-05-02 19:57:00] ✓ Профиль с неверным ProfileType (400) (Ошибка валидации)
+[2026-05-02 19:57:00] Запрос: GET http://localhost:7000/api/profiles?page=0
+[2026-05-02 19:57:00] Ответ (HTTP 400): {"type":"/errors/validation","title":"\u041E\u0448\u0438\u0431\u043A\u0430 \u0432\u0430\u043B\u0438\u0434\u0430\u0446\u0438\u0438","status":400,"instance":"/api/profiles","errors":{"Page":["\u041D\u043E\u043C\u0435\u0440 \u0441\u0442\u0440\u0430\u043D\u0438\u0446\u044B \u0434\u043E\u043B\u0436\u0435\u043D \u0431\u044B\u0442\u044C \u003E= 1."]}}
+[2026-05-02 19:57:00] ✓ Поиск профилей page=0 (400) (Ошибка валидации)
+[2026-05-02 19:57:00] Запрос: GET http://localhost:7000/api/profiles?limit=101
+[2026-05-02 19:57:00] Ответ (HTTP 400): {"type":"/errors/validation","title":"\u041E\u0448\u0438\u0431\u043A\u0430 \u0432\u0430\u043B\u0438\u0434\u0430\u0446\u0438\u0438","status":400,"instance":"/api/profiles","errors":{"Limit":["\u0420\u0430\u0437\u043C\u0435\u0440 \u0441\u0442\u0440\u0430\u043D\u0438\u0446\u044B \u0434\u043E\u043B\u0436\u0435\u043D \u0431\u044B\u0442\u044C \u043E\u0442 1 \u0434\u043E 100."]}}
+[2026-05-02 19:57:00] ✓ Поиск профилей limit=101 (400) (Ошибка валидации)
+[2026-05-02 19:57:00] Запрос: POST http://localhost:7000/api/events
+[2026-05-02 19:57:00] Тело запроса: {"title":"NoAddr","regionId":1,"cityId":1,"startDateTime":"2027-01-01T00:00:00Z"}
+[2026-05-02 19:57:00] Ответ (HTTP 400): {"type":"/errors/validation","title":"\u041E\u0448\u0438\u0431\u043A\u0430 \u0432\u0430\u043B\u0438\u0434\u0430\u0446\u0438\u0438","status":400,"instance":"/api/events","errors":{"Address":["\u0410\u0434\u0440\u0435\u0441 \u043E\u0431\u044F\u0437\u0430\u0442\u0435\u043B\u0435\u043D."]}}
+[2026-05-02 19:57:01] ✓ Мероприятие без address (400) (Ошибка валидации)
+[2026-05-02 19:57:01] Запрос: POST http://localhost:7000/api/events
+[2026-05-02 19:57:01] Тело запроса: {"title":"NegMax","regionId":1,"cityId":1,"address":"Test","startDateTime":"2027-01-01T00:00:00Z","maxParticipants":-1}
+[2026-05-02 19:57:01] Ответ (HTTP 400): {"type":"/errors/validation","title":"\u041E\u0448\u0438\u0431\u043A\u0430 \u0432\u0430\u043B\u0438\u0434\u0430\u0446\u0438\u0438","status":400,"instance":"/api/events","errors":{"MaxParticipants":["\u041A\u043E\u043B\u0438\u0447\u0435\u0441\u0442\u0432\u043E \u0443\u0447\u0430\u0441\u0442\u043D\u0438\u043A\u043E\u0432 \u043D\u0435 \u043C\u043E\u0436\u0435\u0442 \u0431\u044B\u0442\u044C \u043E\u0442\u0440\u0438\u0446\u0430\u0442\u0435\u043B\u044C\u043D\u044B\u043C."]}}
+[2026-05-02 19:57:01] ✓ Мероприятие с отрицательным maxParticipants (400) (Ошибка валидации)
+[2026-05-02 19:57:01] Запрос: POST http://localhost:7000/api/events
+[2026-05-02 19:57:01] Тело запроса: {"title":"NegDate","regionId":1,"cityId":1,"address":"Test","startDateTime":"2027-01-01T00:00:00Z","endDateTime":"2026-01-01T00:00:00Z"}
+[2026-05-02 19:57:01] Ответ (HTTP 400): {"type":"/errors/validation","title":"\u041E\u0448\u0438\u0431\u043A\u0430 \u0432\u0430\u043B\u0438\u0434\u0430\u0446\u0438\u0438","status":400,"instance":"/api/events","errors":{"EndDateTime":["\u0414\u0430\u0442\u0430 \u043E\u043A\u043E\u043D\u0447\u0430\u043D\u0438\u044F \u0434\u043E\u043B\u0436\u043D\u0430 \u0431\u044B\u0442\u044C \u043F\u043E\u0437\u0436\u0435 \u0434\u0430\u0442\u044B \u043D\u0430\u0447\u0430\u043B\u0430."]}}
+[2026-05-02 19:57:01] ✓ Мероприятие EndDateTime < StartDateTime (400) (Ошибка валидации)
+[2026-05-02 19:57:01] Запрос: PATCH http://localhost:7000/api/events/9123d7a6-25f4-41f1-98aa-8d4881cafe86
+[2026-05-02 19:57:01] Тело запроса: {"title":"Hacked"}
+[2026-05-02 19:57:01] Ответ (HTTP 403): {"type":"/errors/forbidden","title":"\u0422\u043E\u043B\u044C\u043A\u043E \u0441\u043E\u0437\u0434\u0430\u0442\u0435\u043B\u044C \u043C\u043E\u0436\u0435\u0442 \u0440\u0435\u0434\u0430\u043A\u0442\u0438\u0440\u043E\u0432\u0430\u0442\u044C \u043C\u0435\u0440\u043E\u043F\u0440\u0438\u044F\u0442\u0438\u0435.","status":403,"instance":"/api/events/9123d7a6-25f4-41f1-98aa-8d4881cafe86"}
+[2026-05-02 19:57:01] ✓ Обновление мероприятия не создателем (403) (Доступ запрещён)
+[2026-05-02 19:57:01] Запрос: PATCH http://localhost:7000/api/events/9123d7a6-25f4-41f1-98aa-8d4881cafe86
+[2026-05-02 19:57:01] Тело запроса: {"title":"Hacked"}
+[2026-05-02 19:57:02] Ответ (HTTP 400): {"type":"/errors/domain","title":"\u0420\u0435\u0434\u0430\u043A\u0442\u0438\u0440\u043E\u0432\u0430\u0442\u044C \u043C\u043E\u0436\u043D\u043E \u0442\u043E\u043B\u044C\u043A\u043E \u0437\u0430\u043F\u043B\u0430\u043D\u0438\u0440\u043E\u0432\u0430\u043D\u043D\u043E\u0435 \u043C\u0435\u0440\u043E\u043F\u0440\u0438\u044F\u0442\u0438\u0435.","status":400,"instance":"/api/events/9123d7a6-25f4-41f1-98aa-8d4881cafe86"}
+[2026-05-02 19:57:02] ✓ Обновление отменённого мероприятия (400) (Ошибка домена)
+[2026-05-02 19:57:02] Запрос: DELETE http://localhost:7000/api/events/9123d7a6-25f4-41f1-98aa-8d4881cafe86
+[2026-05-02 19:57:02] Ответ (HTTP 403): {"type":"/errors/forbidden","title":"\u0422\u043E\u043B\u044C\u043A\u043E \u0441\u043E\u0437\u0434\u0430\u0442\u0435\u043B\u044C \u043C\u043E\u0436\u0435\u0442 \u043E\u0442\u043C\u0435\u043D\u0438\u0442\u044C \u043C\u0435\u0440\u043E\u043F\u0440\u0438\u044F\u0442\u0438\u0435.","status":403,"instance":"/api/events/9123d7a6-25f4-41f1-98aa-8d4881cafe86"}
+[2026-05-02 19:57:02] ✓ Отмена мероприятия не создателем (403) (Ошибка домена)
+[2026-05-02 19:57:02] Запрос: POST http://localhost:7000/api/events/9123d7a6-25f4-41f1-98aa-8d4881cafe86/registration
+[2026-05-02 19:57:02] Ответ (HTTP 400): {"type":"/errors/domain","title":"\u041D\u0435\u043B\u044C\u0437\u044F \u0437\u0430\u0440\u0435\u0433\u0438\u0441\u0442\u0440\u0438\u0440\u043E\u0432\u0430\u0442\u044C\u0441\u044F \u043D\u0430 \u043E\u0442\u043C\u0435\u043D\u0451\u043D\u043D\u043E\u0435 \u0438\u043B\u0438 \u0437\u0430\u0432\u0435\u0440\u0448\u0451\u043D\u043D\u043E\u0435 \u043C\u0435\u0440\u043E\u043F\u0440\u0438\u044F\u0442\u0438\u0435.","status":400,"instance":"/api/events/9123d7a6-25f4-41f1-98aa-8d4881cafe86/registration"}
+[2026-05-02 19:57:02] ✓ Регистрация на отменённое мероприятие (400) (Ошибка домена)
+[2026-05-02 19:57:02] Запрос: POST http://localhost:7000/api/events/9123d7a6-25f4-41f1-98aa-8d4881cafe86/registration
+[2026-05-02 19:57:02] Ответ (HTTP 400): {"type":"/errors/domain","title":"\u0421\u043E\u0437\u0434\u0430\u0442\u0435\u043B\u044C \u043C\u0435\u0440\u043E\u043F\u0440\u0438\u044F\u0442\u0438\u044F \u043D\u0435 \u043C\u043E\u0436\u0435\u0442 \u0437\u0430\u0440\u0435\u0433\u0438\u0441\u0442\u0440\u0438\u0440\u043E\u0432\u0430\u0442\u044C\u0441\u044F \u043A\u0430\u043A \u0443\u0447\u0430\u0441\u0442\u043D\u0438\u043A.","status":400,"instance":"/api/events/9123d7a6-25f4-41f1-98aa-8d4881cafe86/registration"}
+[2026-05-02 19:57:02] ✓ Регистрация создателем (400) (Ошибка домена)
+[2026-05-02 19:57:02] Запрос: DELETE http://localhost:7000/api/events/9123d7a6-25f4-41f1-98aa-8d4881cafe86/registration
+[2026-05-02 19:57:02] Ответ (HTTP 400): {"type":"/errors/domain","title":"\u041F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044C \u043D\u0435 \u0437\u0430\u0440\u0435\u0433\u0438\u0441\u0442\u0440\u0438\u0440\u043E\u0432\u0430\u043D.","status":400,"instance":"/api/events/9123d7a6-25f4-41f1-98aa-8d4881cafe86/registration"}
+[2026-05-02 19:57:02] ✓ Отмена регистрации не зарегистрированным (400) (Ошибка домена)
+[2026-05-02 19:57:03] Запрос: GET http://localhost:7000/api/events?page=0
+[2026-05-02 19:57:03] Ответ (HTTP 400): {"type":"/errors/validation","title":"\u041E\u0448\u0438\u0431\u043A\u0430 \u0432\u0430\u043B\u0438\u0434\u0430\u0446\u0438\u0438","status":400,"instance":"/api/events","errors":{"Page":["\u041D\u043E\u043C\u0435\u0440 \u0441\u0442\u0440\u0430\u043D\u0438\u0446\u044B \u0434\u043E\u043B\u0436\u0435\u043D \u0431\u044B\u0442\u044C \u003E= 1."]}}
+[2026-05-02 19:57:03] ✓ Поиск мероприятий page=0 (400) (Ошибка валидации)
+[2026-05-02 19:57:03] Запрос: GET http://localhost:7000/api/events?limit=101
+[2026-05-02 19:57:03] Ответ (HTTP 400): {"type":"/errors/validation","title":"\u041E\u0448\u0438\u0431\u043A\u0430 \u0432\u0430\u043B\u0438\u0434\u0430\u0446\u0438\u0438","status":400,"instance":"/api/events","errors":{"Limit":["\u0420\u0430\u0437\u043C\u0435\u0440 \u0441\u0442\u0440\u0430\u043D\u0438\u0446\u044B \u0434\u043E\u043B\u0436\u0435\u043D \u0431\u044B\u0442\u044C \u043E\u0442 1 \u0434\u043E 100."]}}
+[2026-05-02 19:57:03] ✓ Поиск мероприятий limit=101 (400) (Ошибка валидации)
+[2026-05-02 19:57:03] Запрос: GET http://localhost:7000/api/events?sortBy=invalid
+[2026-05-02 19:57:03] Ответ (HTTP 400): {"type":"/errors/validation","title":"\u041E\u0448\u0438\u0431\u043A\u0430 \u0432\u0430\u043B\u0438\u0434\u0430\u0446\u0438\u0438","status":400,"instance":"/api/events","errors":{"SortBy":["\u041F\u043E\u043B\u0435 \u0441\u043E\u0440\u0442\u0438\u0440\u043E\u0432\u043A\u0438 \u0434\u043E\u043B\u0436\u043D\u043E \u0431\u044B\u0442\u044C \u043E\u0434\u043D\u0438\u043C \u0438\u0437: title, startdatetime, createdat."]}}
+[2026-05-02 19:57:03] ✓ Поиск мероприятий sortBy=invalid (400) (Ошибка валидации)
+[2026-05-02 19:57:03] Запрос: POST http://localhost:7000/api/suggestions
+[2026-05-02 19:57:03] Тело запроса: {"toProfileId":"24a43493-74fd-4a43-844d-f8f9616017e2","message":"Hi"}
+[2026-05-02 19:57:03] Ответ (HTTP 401): 
+[2026-05-02 19:57:03] ✓ Предложение без авторизации (401) (Неавторизован)
+[2026-05-02 19:57:03] Запрос: POST http://localhost:7000/api/suggestions
+[2026-05-02 19:57:03] Тело запроса: {"toProfileId":"24a43493-74fd-4a43-844d-f8f9616017e2","message":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"}
+[2026-05-02 19:57:04] Ответ (HTTP 400): {"type":"/errors/validation","title":"\u041E\u0448\u0438\u0431\u043A\u0430 \u0432\u0430\u043B\u0438\u0434\u0430\u0446\u0438\u0438","status":400,"instance":"/api/suggestions","errors":{"Message":["\u0421\u043E\u043E\u0431\u0449\u0435\u043D\u0438\u0435 \u043D\u0435 \u0434\u043E\u043B\u0436\u043D\u043E \u043F\u0440\u0435\u0432\u044B\u0448\u0430\u0442\u044C 500 \u0441\u0438\u043C\u0432\u043E\u043B\u043E\u0432."]}}
+[2026-05-02 19:57:04] ✓ Предложение с длинным сообщением (400) (Ошибка валидации)
+[2026-05-02 19:57:04] Запрос: PATCH http://localhost:7000/api/suggestions/9b4fd2dc-c5bf-4baf-be53-151c5c877c07/status
+[2026-05-02 19:57:04] Тело запроса: {"status":"Accepted"}
+[2026-05-02 19:57:04] Ответ (HTTP 403): {"type":"/errors/forbidden","title":"\u0422\u043E\u043B\u044C\u043A\u043E \u043F\u043E\u043B\u0443\u0447\u0430\u0442\u0435\u043B\u044C \u043C\u043E\u0436\u0435\u0442 \u043F\u0440\u0438\u043D\u044F\u0442\u044C \u0438\u043B\u0438 \u043E\u0442\u043A\u043B\u043E\u043D\u0438\u0442\u044C \u043F\u0440\u0435\u0434\u043B\u043E\u0436\u0435\u043D\u0438\u0435.","status":403,"instance":"/api/suggestions/9b4fd2dc-c5bf-4baf-be53-151c5c877c07/status"}
+[2026-05-02 19:57:04] ✓ Принятие предложения не получателем (403) (Доступ запрещён)
+[2026-05-02 19:57:04] Запрос: PATCH http://localhost:7000/api/suggestions/9b4fd2dc-c5bf-4baf-be53-151c5c877c07/status
+[2026-05-02 19:57:04] Тело запроса: {"status":"Invalid"}
+[2026-05-02 19:57:04] Ответ (HTTP 400): {"type":"https://tools.ietf.org/html/rfc9110#section-15.5.1","title":"One or more validation errors occurred.","status":400,"errors":{"command":["The command field is required."],"$.status":["The JSON value could not be converted to MusicianFinder.Domain.Enums.SuggestionStatus. Path: $.status | LineNumber: 0 | BytePositionInLine: 19."]},"traceId":"00-92e61624b36b6e328d685e0e4d63bf00-3490d7e8744aa891-00"}
+[2026-05-02 19:57:04] ✓ Обновление статуса на неверный (400) (Ошибка валидации)
+[2026-05-02 19:57:04] Запрос: PATCH http://localhost:7000/api/notifications/00000000-0000-0000-0000-000000000000/read
+[2026-05-02 19:57:04] Ответ (HTTP 401): 
+[2026-05-02 19:57:04] ✓ MarkAsRead без авторизации (401) (Неавторизован)
+[2026-05-02 19:57:04] Запрос: POST http://localhost:7000/api/notifications/read-all
+[2026-05-02 19:57:05] Ответ (HTTP 401): 
+[2026-05-02 19:57:05] ✓ MarkAllRead без авторизации (401) (Неавторизован)
+[2026-05-02 19:57:05] Запрос: PATCH http://localhost:7000/api/notifications/settings
+[2026-05-02 19:57:05] Тело запроса: {"notifyByEmail":false}
+[2026-05-02 19:57:05] Ответ (HTTP 401): 
+[2026-05-02 19:57:05] ✓ Обновление настроек без авторизации (401) (Неавторизован)
+[2026-05-02 19:57:05] Запрос: GET http://localhost:7000/api/user
+[2026-05-02 19:57:05] Ответ (HTTP 401): 
+[2026-05-02 19:57:05] ✓ GET /api/user без авторизации (401) (Неавторизован)
+[2026-05-02 19:57:05] === Удаление профиля User3 ===
+[2026-05-02 19:57:06] Ожидание перед удалением профиля (10 секунд)...
+[2026-05-02 19:57:16] Запрос: DELETE http://localhost:7000/api/profiles/me
+[2026-05-02 19:57:16] Ответ (HTTP 204): 
+[2026-05-02 19:57:16] ✓ DELETE /api/profiles/me (204) (Профиль удалён)
+[2026-05-02 19:57:16] Запрос: GET http://localhost:7000/api/profiles/22496072-6c5e-4718-a80c-7c6f05110732
+[2026-05-02 19:57:16] Ответ (HTTP 404): {"type":"/errors/not-found","title":"\u041F\u0440\u043E\u0444\u0438\u043B\u044C \u043D\u0435 \u043D\u0430\u0439\u0434\u0435\u043D.","status":404,"instance":"/api/profiles/22496072-6c5e-4718-a80c-7c6f05110732"}
+[2026-05-02 19:57:16] ✓ GET удалённого профиля (404) (Профиль не найден)
+[2026-05-02 19:57:16] === Итоги тестирования ===
+[2026-05-02 19:57:16] Пройдено: 86
+[2026-05-02 19:57:16] Провалено: 0
+[2026-05-02 19:57:16] Все тесты пройдены успешно.
+[2026-05-02 19:57:16] === Полный тест завершён ===

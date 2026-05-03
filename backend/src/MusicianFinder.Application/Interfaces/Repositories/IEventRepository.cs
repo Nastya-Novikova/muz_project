@@ -37,12 +37,5 @@ namespace MusicianFinder.Application.Interfaces.Repositories
             Func<Event, T> domainOperation,
             CancellationToken ct = default)
             where T : class;
-
-        /// <summary>
-        /// Помечает переданную регистрацию как новую для вставки в базу данных.
-        /// </summary>
-        /// <param name="registration">Регистрация.</param>
-        /// <param name="ct">Токен отмены.</param>
-        Task AttachRegistrationAsync(EventRegistration registration, CancellationToken ct = default);
     }
 }

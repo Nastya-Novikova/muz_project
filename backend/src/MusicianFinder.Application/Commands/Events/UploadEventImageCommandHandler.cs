@@ -2,6 +2,8 @@
 using MusicianFinder.Application.Interfaces;
 using MusicianFinder.Application.Interfaces.Repositories;
 using MusicianFinder.Application.Core.Exceptions;
+using MusicianFinder.Domain.Enums;
+using MusicianFinder.SharedKernel;
 
 namespace MusicianFinder.Application.Commands.Events
 {
@@ -38,6 +40,12 @@ namespace MusicianFinder.Application.Commands.Events
                 ?? throw new NotFoundException("Мероприятие не найдено.");
 
             var profile = await _profileProvider.GetCurrentProfileAsync(cancellationToken);
+
+            if (@event.CreatorProfileId != profile.Id)
+                throw new ForbiddenException("Только создатель может загрузить изображение мероприятия.");
+
+            if (@event.Status != EventStatus.Scheduled)
+                throw new DomainException("Загружать изображение можно только в запланированное мероприятие.");
 
             using var stream = new MemoryStream(request.Content);
             var imageUrl = await _fileStorage.SaveFileAsync(stream, request.FileName, request.ContentType);

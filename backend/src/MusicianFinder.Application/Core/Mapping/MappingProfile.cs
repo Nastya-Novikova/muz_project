@@ -60,12 +60,6 @@ namespace MusicianFinder.Application.Core.Mapping
                 .ForMember(dto => dto.NotifyByEmail, opt => opt.MapFrom(src => src.NotifyByEmail))
                 .ForMember(dto => dto.NotifyByVk, opt => opt.MapFrom(src => src.NotifyByVk));
 
-            CreateMap<MusicianProfile, ProfileShortDto>()
-                .ForMember(dto => dto.FullName, opt => opt.MapFrom(src => src.FullName.Value))
-                .ForMember(dto => dto.City, opt => opt.Ignore())
-                .ForMember(dto => dto.Genres, opt => opt.Ignore())
-                .ForMember(dto => dto.Specialties, opt => opt.Ignore());
-
             // Мероприятия
             CreateMap<Event, EventDto>()
                 .ForMember(dto => dto.Title, opt => opt.MapFrom(src => src.Title.Value))

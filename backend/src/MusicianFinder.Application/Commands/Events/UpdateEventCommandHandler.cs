@@ -5,6 +5,7 @@ using MusicianFinder.Application.Interfaces.Repositories;
 using MusicianFinder.Domain.Enums;
 using MusicianFinder.Domain.ValueObjects;
 using MusicianFinder.SharedKernel;
+using FluentValidation.Results;
 
 namespace MusicianFinder.Application.Commands.Events
 {
@@ -15,6 +16,7 @@ namespace MusicianFinder.Application.Commands.Events
     {
         private readonly IEventRepository _eventRepository;
         private readonly ICurrentProfileProvider _profileProvider;
+        private readonly IReferenceDataValidationService _referenceDataValidation;
 
         /// <summary>
         /// Инициализирует новый экземпляр обработчика.
@@ -24,10 +26,12 @@ namespace MusicianFinder.Application.Commands.Events
         /// <param name="profileProvider">Репозиторий профилей.</param>
         public UpdateEventCommandHandler(
             IEventRepository eventRepository,
-            ICurrentProfileProvider profileProvider)
+            ICurrentProfileProvider profileProvider,
+            IReferenceDataValidationService referenceDataValidation)
         {
             _eventRepository = eventRepository;
             _profileProvider = profileProvider;
+            _referenceDataValidation = referenceDataValidation;
         }
 
         /// <inheritdoc />
@@ -43,6 +47,8 @@ namespace MusicianFinder.Application.Commands.Events
 
             if (@event.Status != EventStatus.Scheduled)
                 throw new DomainException("Редактировать можно только запланированное мероприятие.");
+
+            await ValidateReferenceDataAsync(request, cancellationToken);
 
             var newTitle = request.Title != null ? new EventTitle(request.Title) : @event.Title;
             var newDescription = request.Description ?? @event.Description;
@@ -60,6 +66,27 @@ namespace MusicianFinder.Application.Commands.Events
                           newStart, newEnd, newMaxParticipants, profile.Id);
 
             return @event.Id;
+        }
+
+        /// <summary>
+        /// Проверяет существование региона и города, если они заданы в команде.
+        /// </summary>
+        /// <param name="command">Команда обновления мероприятия.</param>
+        /// <param name="ct">Токен отмены.</param>
+        /// <exception cref="ValidationException">Если регион или город не найдены.</exception>
+        private async Task ValidateReferenceDataAsync(UpdateEventCommand command, CancellationToken ct)
+        {
+            var errors = new List<string>();
+
+            if (command.RegionId.HasValue)
+                if (!await _referenceDataValidation.RegionExistsAsync(command.RegionId.Value, ct))
+                    errors.Add($"Регион с ID {command.RegionId.Value} не существует.");
+            if (command.CityId.HasValue)
+                if (!await _referenceDataValidation.CityExistsAsync(command.CityId.Value, ct))
+                    errors.Add($"Город с ID {command.CityId.Value} не существует.");
+
+            if (errors.Count > 0)
+                throw new ValidationException(errors.Select(e => new ValidationFailure("ReferenceData", e)));
         }
     }
 }
