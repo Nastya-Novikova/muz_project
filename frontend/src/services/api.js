@@ -434,7 +434,7 @@ export const api = {
     // Обновить настройки уведомлений
     async updateNotificationSettings(settings, token) {
         const response = await authFetch(`${API_URL}/notifications/settings`, {
-            method: 'PUT',
+            method: 'PATCH',
             headers: {
                 ...getAuthHeaders(token),
                 'Idempotency-Key': generateIdempotencyKey()
