@@ -77,11 +77,37 @@ namespace MusicianFinder.Infrastructure.Persistence.Repositories
                 .AsSplitQuery()
                 .Where(p => !p.IsDeleted);
 
-            if (!string.IsNullOrEmpty(query.Query))
-                entityQuery = entityQuery.Where(p => p.FullName.Value.Contains(query.Query));
+            if (!string.IsNullOrWhiteSpace(query.Query))
+            {
+                var search = query.Query.ToLower();
+                entityQuery = entityQuery.Where(p =>
+                    p.FullName.Value.ToLower().Contains(search) ||
+                    (p.Description != null && p.Description.ToLower().Contains(search)));
+            }
 
             if (query.CityId.HasValue)
                 entityQuery = entityQuery.Where(p => p.CityId == query.CityId.Value);
+
+            if (query.GenreIds != null && query.GenreIds.Any())
+                entityQuery = entityQuery.Where(p => p.GenreIds.Any(g => query.GenreIds.Contains(g.Value)));
+
+            if (query.SpecialtyIds != null && query.SpecialtyIds.Any())
+                entityQuery = entityQuery.Where(p => p.SpecialtyIds.Any(s => query.SpecialtyIds.Contains(s.Value)));
+
+            if (query.GoalIds != null && query.GoalIds.Any())
+                entityQuery = entityQuery.Where(p => p.CollaborationGoalIds.Any(g => query.GoalIds.Contains(g.Value)));
+
+            if (query.DesiredGenreIds != null && query.DesiredGenreIds.Any())
+                entityQuery = entityQuery.Where(p => p.DesiredGenreIds.Any(g => query.DesiredGenreIds.Contains(g.Value)));
+
+            if (query.DesiredSpecialtyIds != null && query.DesiredSpecialtyIds.Any())
+                entityQuery = entityQuery.Where(p => p.DesiredSpecialtyIds.Any(s => query.DesiredSpecialtyIds.Contains(s.Value)));
+
+            if (!string.IsNullOrWhiteSpace(query.LookingFor))
+                entityQuery = entityQuery.Where(p => p.LookingFor == Enum.Parse<Domain.Enums.LookingFor>(query.LookingFor));
+
+            if (!string.IsNullOrWhiteSpace(query.ProfileType))
+                entityQuery = entityQuery.Where(p => p.ProfileType == Enum.Parse<Domain.Enums.ProfileType>(query.ProfileType));
 
             if (query.ExperienceMin.HasValue)
                 entityQuery = entityQuery.Where(p => p.Experience >= query.ExperienceMin.Value);

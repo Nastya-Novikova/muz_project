@@ -117,10 +117,15 @@ namespace MusicianFinder.Domain.Entities
         public IReadOnlyCollection<EventRegistration> Registrations => _registrations.AsReadOnly();
 
         /// <summary>
-        /// Регистрирует профиль на мероприятие.
+        /// Регистрирует профиль на мероприятие и возвращает созданную запись.
         /// </summary>
         /// <param name="profileId">Идентификатор регистрируемого профиля.</param>
-        public void Register(Guid profileId)
+        /// <returns>Созданная регистрация <see cref="EventRegistration"/>.</returns>
+        /// <exception cref="DomainException">
+        /// Если создатель пытается зарегистрироваться, мероприятие не Scheduled,
+        /// пользователь уже зарегистрирован, достигнут лимит участников или мероприятие уже началось.
+        /// </exception>
+        public EventRegistration Register(Guid profileId)
         {
             if (CreatorProfileId == profileId)
                 throw new DomainException("Создатель мероприятия не может зарегистрироваться как участник.");
@@ -130,12 +135,20 @@ namespace MusicianFinder.Domain.Entities
                 throw new DomainException("Пользователь уже зарегистрирован.");
             if (MaxParticipants > 0 && _registrations.Count >= MaxParticipants)
                 throw new DomainException("Достигнут лимит участников.");
-            if (StartDateTime < DateTime.UtcNow)
+
+            // Приводим StartDateTime к UTC для надёжного сравнения
+            DateTime startUtc = StartDateTime.Kind == DateTimeKind.Utc
+                ? StartDateTime
+                : StartDateTime.ToUniversalTime();
+
+            if (startUtc < DateTime.UtcNow)
                 throw new DomainException("Мероприятие уже началось.");
 
-            _registrations.Add(new EventRegistration(Id, profileId));
+            var registration = new EventRegistration(Id, profileId);
+            _registrations.Add(registration);
             UpdatedAt = DateTime.UtcNow;
             AddDomainEvent(new UserRegisteredToEvent(Id, profileId));
+            return registration;
         }
 
         /// <summary>

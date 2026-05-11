@@ -8,6 +8,9 @@ namespace MusicianFinder.Application.Validators.Favorites
     /// </summary>
     public class AddFavoriteCommandValidator : AbstractValidator<AddFavoriteCommand>
     {
+        /// <summary>
+        /// Инициализирует новый экземпляр валидатора.
+        /// </summary>
         public AddFavoriteCommandValidator()
         {
             RuleFor(x => x.TargetProfileId)

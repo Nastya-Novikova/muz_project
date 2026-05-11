@@ -10,7 +10,7 @@ namespace MusicianFinder.Application.Commands.Auth
     public class RequestCodeCommand : ICommand<Unit>, IBaseCommand
     {
         /// <summary>
-        /// Email для отправки кода.
+        /// Email, на который будет выслан код подтверждения.
         /// </summary>
         public string Email { get; set; } = string.Empty;
 

@@ -11,6 +11,9 @@ namespace MusicianFinder.Application.Commands.Profiles
     /// </summary>
     public class CreateProfileCommand : ICommand<Guid>, IBaseCommand
     {
+        /// <summary>
+        /// Вид профиля.
+        /// </summary>
         public ProfileType ProfileType { get; set; }
 
         /// <summary>
@@ -46,37 +49,37 @@ namespace MusicianFinder.Application.Commands.Profiles
         /// <summary>
         /// Опыт в годах.
         /// </summary>
-        public int Experience { get; set; }
+        public int? Experience { get; set; } = 0;
 
         /// <summary>
         /// Кого ищет.
         /// </summary>
-        public LookingFor LookingFor { get; set; }
+        public LookingFor? LookingFor { get; set; } = Domain.Enums.LookingFor.NotLooking;
 
         /// <summary>
         /// Идентификаторы предлагаемых жанров.
         /// </summary>
-        public List<int> GenreIds { get; set; } = new();
+        public List<int>? GenreIds { get; set; } = new();
 
         /// <summary>
         /// Идентификаторы специальностей.
         /// </summary>
-        public List<int> SpecialtyIds { get; set; } = new();
+        public List<int>? SpecialtyIds { get; set; } = new();
 
         /// <summary>
         /// Идентификаторы целей сотрудничества.
         /// </summary>
-        public List<int> CollaborationGoalIds { get; set; } = new();
+        public List<int>? CollaborationGoalIds { get; set; } = new();
 
         /// <summary>
         /// Идентификаторы искомых жанров.
         /// </summary>
-        public List<int> DesiredGenreIds { get; set; } = new();
+        public List<int>? DesiredGenreIds { get; set; } = new();
 
         /// <summary>
         /// Идентификаторы искомых специальностей.
         /// </summary>
-        public List<int> DesiredSpecialtyIds { get; set; } = new();
+        public List<int>? DesiredSpecialtyIds { get; set; } = new();
 
         /// <inheritdoc />
         public string IdempotencyKey { get; set; } = string.Empty;

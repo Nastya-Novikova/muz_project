@@ -1,6 +1,9 @@
 ﻿using MediatR;
 using MusicianFinder.Application.Interfaces;
 using MusicianFinder.Application.Interfaces.Repositories;
+using MusicianFinder.Application.Core.Exceptions;
+using MusicianFinder.Domain.Enums;
+using MusicianFinder.SharedKernel;
 
 namespace MusicianFinder.Application.Commands.Events
 {
@@ -10,8 +13,7 @@ namespace MusicianFinder.Application.Commands.Events
     public class UploadEventImageCommandHandler : IRequestHandler<UploadEventImageCommand, string>
     {
         private readonly IEventRepository _eventRepository;
-        private readonly ICurrentUserService _currentUser;
-        private readonly IMusicianProfileRepository _profileRepository;
+        private readonly ICurrentProfileProvider _profileProvider;
         private readonly IFileStorage _fileStorage;
 
         /// <summary>
@@ -19,17 +21,15 @@ namespace MusicianFinder.Application.Commands.Events
         /// </summary>
         /// <param name="eventRepository">Репозиторий мероприятий.</param>
         /// <param name="currentUser">Сервис текущего пользователя.</param>
-        /// <param name="profileRepository">Репозиторий профилей.</param>
+        /// <param name="profileProvider">Репозиторий профилей.</param>
         /// <param name="fileStorage">Файловое хранилище.</param>
         public UploadEventImageCommandHandler(
             IEventRepository eventRepository,
-            ICurrentUserService currentUser,
-            IMusicianProfileRepository profileRepository,
+            ICurrentProfileProvider profileProvider,
             IFileStorage fileStorage)
         {
             _eventRepository = eventRepository;
-            _currentUser = currentUser;
-            _profileRepository = profileRepository;
+            _profileProvider = profileProvider;
             _fileStorage = fileStorage;
         }
 
@@ -37,10 +37,15 @@ namespace MusicianFinder.Application.Commands.Events
         public async Task<string> Handle(UploadEventImageCommand request, CancellationToken cancellationToken)
         {
             var @event = await _eventRepository.GetByIdAsync(request.EventId, cancellationToken)
-                ?? throw new Application.Core.Exceptions.NotFoundException("Мероприятие не найдено.");
+                ?? throw new NotFoundException("Мероприятие не найдено.");
 
-            var profile = await _profileRepository.GetByUserIdAsync(_currentUser.UserId, cancellationToken)
-                ?? throw new Application.Core.Exceptions.NotFoundException("Профиль не найден.");
+            var profile = await _profileProvider.GetCurrentProfileAsync(cancellationToken);
+
+            if (@event.CreatorProfileId != profile.Id)
+                throw new ForbiddenException("Только создатель может загрузить изображение мероприятия.");
+
+            if (@event.Status != EventStatus.Scheduled)
+                throw new DomainException("Загружать изображение можно только в запланированное мероприятие.");
 
             using var stream = new MemoryStream(request.Content);
             var imageUrl = await _fileStorage.SaveFileAsync(stream, request.FileName, request.ContentType);

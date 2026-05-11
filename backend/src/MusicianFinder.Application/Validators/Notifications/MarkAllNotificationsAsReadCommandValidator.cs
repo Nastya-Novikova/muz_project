@@ -8,6 +8,9 @@ namespace MusicianFinder.Application.Validators.Notifications
     /// </summary>
     public class MarkAllNotificationsAsReadCommandValidator : AbstractValidator<MarkAllNotificationsAsReadCommand>
     {
+        /// <summary>
+        /// Инициализирует новый экземпляр валидатора.
+        /// </summary>
         public MarkAllNotificationsAsReadCommandValidator()
         {
         }

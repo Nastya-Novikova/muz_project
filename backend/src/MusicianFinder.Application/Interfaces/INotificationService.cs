@@ -1,4 +1,4 @@
-﻿using MusicianFinder.Domain.Entities;
+﻿/*using MusicianFinder.Domain.Entities;
 using MusicianFinder.Domain.Enums;
 
 namespace MusicianFinder.Application.Interfaces
@@ -24,4 +24,4 @@ namespace MusicianFinder.Application.Interfaces
         /// <param name="data">Данные для формирования текста уведомления.</param>
         Task SendNotificationToUserAsync(Guid userId, NotificationType type, Dictionary<string, object> data);
     }
-}
+}*/

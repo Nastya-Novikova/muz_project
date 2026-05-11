@@ -33,7 +33,6 @@ namespace MusicianFinder.Infrastructure.Persistence.Repositories
             var @event = await _dbContext.Events
                 .AsNoTracking()
                 .Include(e => e.Registrations)
-                .Where(e => e.Status != EventStatus.Cancelled)
                 .FirstOrDefaultAsync(e => e.Id == id && !e.IsDeleted, ct);
 
             return @event == null ? null : await EnrichEventDtoAsync(@event, ct);
@@ -47,17 +46,10 @@ namespace MusicianFinder.Infrastructure.Persistence.Repositories
                 .Include(e => e.Registrations)
                 .Where(e => !e.IsDeleted);
 
-            if (string.IsNullOrEmpty(filter.Status))
-            {
-                query = query.Where(e => e.Status != EventStatus.Cancelled);
-            }
-            else
-            {
-                query = query.Where(e => e.Status == Enum.Parse<EventStatus>(filter.Status));
-            }
-
-            if (!string.IsNullOrEmpty(filter.Query))
-                query = query.Where(e => e.Title.Value.Contains(filter.Query));
+            if (!string.IsNullOrWhiteSpace(filter.Query))
+                query = query.Where(e =>
+                    e.Title.Value.Contains(filter.Query) ||
+                    (e.Description != null && e.Description.Contains(filter.Query)));
 
             if (filter.RegionId.HasValue)
                 query = query.Where(e => e.RegionId == filter.RegionId.Value);
@@ -71,8 +63,8 @@ namespace MusicianFinder.Infrastructure.Persistence.Repositories
             if (filter.ToDate.HasValue)
                 query = query.Where(e => e.StartDateTime <= filter.ToDate.Value);
 
-            if (!string.IsNullOrEmpty(filter.Status))
-                query = query.Where(e => e.Status == Enum.Parse<Domain.Enums.EventStatus>(filter.Status));
+            if (!string.IsNullOrWhiteSpace(filter.Status))
+                query = query.Where(e => e.Status == Enum.Parse<EventStatus>(filter.Status));
 
             if (filter.CreatorProfileId.HasValue)
                 query = query.Where(e => e.CreatorProfileId == filter.CreatorProfileId.Value);
@@ -111,7 +103,6 @@ namespace MusicianFinder.Infrastructure.Persistence.Repositories
                 .AsNoTracking()
                 .Include(e => e.Registrations)
                 .Where(e => e.Registrations.Any(r => r.ProfileId == profileId) && !e.IsDeleted)
-                .Where(e => e.Status != EventStatus.Cancelled)
                 .OrderByDescending(e => e.StartDateTime);
 
             var totalCount = await query.CountAsync(ct);

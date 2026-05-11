@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using MusicianFinder.Application.Core.Pagination;
+using MusicianFinder.Application.Core.Exceptions;
 using MusicianFinder.Application.DTOs.Events;
 using MusicianFinder.Application.Interfaces;
 using MusicianFinder.Application.Interfaces.ReadRepositories;
@@ -35,9 +36,17 @@ namespace MusicianFinder.Application.Queries.Events
         public async Task<PagedResult<EventDto>> Handle(GetMyRegisteredEventsQuery request, CancellationToken cancellationToken)
         {
             var profile = await _profileReadRepository.GetByUserIdAsync(_currentUser.UserId, cancellationToken)
-                ?? throw new Application.Core.Exceptions.NotFoundException("Профиль не найден.");
+                ?? throw new NotFoundException("Профиль не найден.");
 
-            return await _eventReadRepository.GetRegisteredEventsAsync(profile.Id, request.Page, request.Limit, cancellationToken);
+            var result = await _eventReadRepository.GetRegisteredEventsAsync(profile.Id, request.Page, request.Limit, cancellationToken);
+
+            foreach (var dto in result.Items)
+            {
+                dto.IsRegistered = true;
+                dto.IsCreator = dto.CreatorProfileId == profile.Id;
+            }
+
+            return result;
         }
     }
 }

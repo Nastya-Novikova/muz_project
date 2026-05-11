@@ -227,14 +227,15 @@ namespace MusicianFinder.Domain.Entities
         }
 
         /// <summary>
-        /// Добавляет элемент в портфолио.
+        /// Добавляет элемент в портфолио и возвращает его.
         /// </summary>
         /// <param name="item">Элемент портфолио.</param>
-        public void AddPortfolioItem(PortfolioItem item)
+        /// <returns>Добавленный элемент <see cref="PortfolioItem"/>.</returns>
+        public PortfolioItem AddPortfolioItem(PortfolioItem item)
         {
             _portfolio.Add(item);
-            //UpdatedAt = DateTime.UtcNow;
             AddDomainEvent(new PortfolioItemAdded(Id, item.Id));
+            return item;
         }
 
         /// <summary>
@@ -269,15 +270,20 @@ namespace MusicianFinder.Domain.Entities
         }
 
         /// <summary>
-        /// Добавляет профиль в избранное.
+        /// Добавляет профиль в избранное и возвращает созданную запись.
         /// </summary>
         /// <param name="targetProfileId">Идентификатор профиля, добавляемого в избранное.</param>
-        public void AddToFavorites(Guid targetProfileId)
+        /// <returns>Созданный объект <see cref="Favorite"/>.</returns>
+        /// <exception cref="DomainException">Если профиль уже в избранном.</exception>
+        public Favorite AddToFavorites(Guid targetProfileId)
         {
             if (_favorites.Any(f => f.TargetProfileId == targetProfileId))
                 throw new DomainException("Этот профиль уже в избранном.");
-            _favorites.Add(new Favorite(Id, targetProfileId));
+
+            var favorite = new Favorite(Id, targetProfileId);
+            _favorites.Add(favorite);
             AddDomainEvent(new FavoriteAdded(Id, targetProfileId));
+            return favorite;
         }
 
         /// <summary>
