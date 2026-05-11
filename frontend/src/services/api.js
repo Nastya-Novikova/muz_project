@@ -434,7 +434,7 @@ export const api = {
     // Обновить настройки уведомлений
     async updateNotificationSettings(settings, token) {
         const response = await authFetch(`${API_URL}/notifications/settings`, {
-            method: 'PUT',
+            method: 'PATCH',
             headers: {
                 ...getAuthHeaders(token),
                 'Idempotency-Key': generateIdempotencyKey()
@@ -524,6 +524,10 @@ export const api = {
             },
             body: JSON.stringify(eventData)
         });
+
+        if (response.status === 204 || response.status === 201) {
+          return { success: true };
+        }
 
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         return response.json();

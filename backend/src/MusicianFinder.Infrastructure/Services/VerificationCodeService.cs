@@ -53,8 +53,8 @@ namespace MusicianFinder.Infrastructure.Services
 
         private static string GenerateSixDigitCode()
         {
-            return "111111";
-            //return new Random().Next(100000, 999999).ToString();
+            //return "111111";
+            return new Random().Next(100000, 999999).ToString();
         }
     }
 }
