@@ -446,3 +446,4 @@ backend/src/MusicianFinder.Infrastructure/Migrations/
 /init.sql
 /backend/src/MusicianFinder.Infrastructure/Migrations/
 /test_favorites_log.txt
+/test_full_log.txt
