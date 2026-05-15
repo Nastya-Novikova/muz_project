@@ -525,6 +525,10 @@ export const api = {
             body: JSON.stringify(eventData)
         });
 
+        if (response.status === 204 || response.status === 201) {
+          return { success: true };
+        }
+
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         return response.json();
     },
