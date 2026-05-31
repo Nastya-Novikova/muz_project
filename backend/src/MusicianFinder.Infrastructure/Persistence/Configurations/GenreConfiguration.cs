@@ -19,14 +19,26 @@ namespace MusicianFinder.Infrastructure.Persistence.Configurations
             builder.Property(g => g.LocalizedName).IsRequired().HasMaxLength(50);
 
             builder.HasData(
-                new Genre(1, "jazz", "Джаз"),
-                new Genre(2, "rock", "Рок"),
-                new Genre(3, "classical", "Классика"),
-                new Genre(4, "electronic", "Электроника"),
-                new Genre(5, "pop", "Поп"),
-                new Genre(6, "hip-hop", "Хип-хоп"),
-                new Genre(7, "metal", "Метал"),
-                new Genre(8, "blues", "Блюз")
+                new Genre(1, "Alternative", "Альтернатива"),
+                new Genre(2, "Blues", "Блюз"),
+                new Genre(3, "Jazz", "Джаз"),
+                new Genre(4, "Disco", "Диско"),
+                new Genre(5, "Indie", "Инди"),
+                new Genre(6, "Country", "Кантри"),
+                new Genre(7, "Classical", "Классика"),
+                new Genre(8, "Metal", "Метал"),
+                new Genre(9, "Punk Rock", "Панк-рок"),
+                new Genre(10, "Pop", "Поп"),
+                new Genre(11, "Reggae", "Регги"),
+                new Genre(12, "R&B", "Ритм-н-блюз"),
+                new Genre(13, "Rock", "Рок"),
+                new Genre(14, "Romance", "Романс"),
+                new Genre(15, "Soul", "Соул"),
+                new Genre(16, "Funk", "Фанк"),
+                new Genre(17, "Folk", "Фолк"),
+                new Genre(18, "Hip-Hop", "Хип-хоп"),
+                new Genre(19, "Chanson", "Шансон"),
+                new Genre(20, "Electronic", "Электроника")
             );
         }
     }

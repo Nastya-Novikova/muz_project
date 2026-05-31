@@ -19,16 +19,26 @@ namespace MusicianFinder.Infrastructure.Persistence.Configurations
             builder.Property(s => s.LocalizedName).IsRequired().HasMaxLength(50);
 
             builder.HasData(
-                new MusicalSpecialty(1, "vocalist", "Вокалист"),
-                new MusicalSpecialty(2, "guitarist", "Гитарист"),
-                new MusicalSpecialty(3, "bassist", "Бас-гитарист"),
-                new MusicalSpecialty(4, "drummer", "Ударник"),
-                new MusicalSpecialty(5, "keyboardist", "Клавишник"),
-                new MusicalSpecialty(6, "composer", "Композитор"),
-                new MusicalSpecialty(7, "producer", "Продюсер"),
-                new MusicalSpecialty(8, "sound-engineer", "Звукорежиссёр"),
-                new MusicalSpecialty(9, "dj", "Диджей"),
-                new MusicalSpecialty(10, "violinist", "Скрипач")
+                new MusicalSpecialty(1, "Arranger", "Аранжировщик"),
+                new MusicalSpecialty(2, "Bassist", "Бас-гитарист"),
+                new MusicalSpecialty(3, "Beatmaker", "Битмейкер"),
+                new MusicalSpecialty(4, "Cellist", "Виолончелист"),
+                new MusicalSpecialty(5, "Vocalist", "Вокалист"),
+                new MusicalSpecialty(6, "Guitarist", "Гитарист"),
+                new MusicalSpecialty(7, "DJ", "Диджей"),
+                new MusicalSpecialty(8, "Conductor", "Дирижёр"),
+                new MusicalSpecialty(9, "Sound Engineer", "Звукорежиссёр"),
+                new MusicalSpecialty(10, "Keyboardist", "Клавишник"),
+                new MusicalSpecialty(11, "Composer", "Композитор"),
+                new MusicalSpecialty(12, "Concert Manager", "Концертный менеджер"),
+                new MusicalSpecialty(13, "Pianist", "Пианист"),
+                new MusicalSpecialty(14, "Producer", "Продюсер"),
+                new MusicalSpecialty(15, "Rapper", "Рэпер"),
+                new MusicalSpecialty(16, "Saxophonist", "Саксофонист"),
+                new MusicalSpecialty(17, "Violinist", "Скрипач"),
+                new MusicalSpecialty(18, "Trumpeter", "Трубач"),
+                new MusicalSpecialty(19, "Drummer", "Ударник"),
+                new MusicalSpecialty(20, "Flutist", "Флейтист")
             );
         }
     }
