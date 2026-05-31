@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom'; 
+import { useAuth } from '../../context/AuthContext';
 import Header from '../../components/Header/Header';
 import MultiSelectDropdown from '../../components/MultiSelectDropDown/MultiSelectDropDown';
 import SelectFilter from '../../components/SelectFilter/SelectFilter';
@@ -24,6 +25,7 @@ function HomePage() {
   const [searchError, setSearchError] = useState('');
 
   const { cities, activities, genres: genreData } = useFilters();
+  const { getToken } = useAuth(); 
   const navigate = useNavigate();
 
   const handleSearch = async (e) => {
@@ -66,8 +68,8 @@ function HomePage() {
       } else if (lookingForMusician && !lookingForBand) {
         searchParams.lookingFor = 'LookingForMusician';
       }
-
-      const response = await api.searchMusicians(Object.keys(searchParams).length > 0 ? searchParams : {}, );
+      const token = getToken();
+      const response = await api.searchMusicians(Object.keys(searchParams).length > 0 ? searchParams : {}, token);
       console.log('Получены результаты поиска:', response);
       const users = response.items || [];
       setSearchResults(users);

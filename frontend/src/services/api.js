@@ -248,7 +248,7 @@ export const api = {
     },
 
     // Поиск музыкантов
-    async searchMusicians(searchParams = {}) {
+    async searchMusicians(searchParams = {}, token) {
         const params = new URLSearchParams();
         Object.entries(searchParams).forEach(([key, value]) => {
             if (value !== undefined && value !== null && value !== '') {
@@ -261,7 +261,11 @@ export const api = {
         });
         const query = params.toString();
         const url = `${API_URL}/profiles${query ? '?' + query : ''}`;
-        const response = await fetch(url);
+        const response = await authFetch(url, {
+            headers: {
+                ...getAuthHeaders(token)
+            },
+        });
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({ message: 'HTTP error!' }));
             throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
