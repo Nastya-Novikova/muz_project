@@ -52,11 +52,11 @@ namespace MusicianFinder.Application.Behaviors
 
                     //await _dbContext.SaveChangesAsync(cancellationToken);
 
-                    System.Diagnostics.Debug.WriteLine($"=== States at {DateTime.UtcNow:O} ===");
+                    /*System.Diagnostics.Debug.WriteLine($"=== States at {DateTime.UtcNow:O} ===");
                     foreach (var entry in _dbContext.ChangeTracker.Entries())
                     {
                         System.Diagnostics.Debug.WriteLine($"{entry.Entity.GetType().Name} ({entry.Property("Id").CurrentValue}) -> {entry.State}");
-                    }
+                    }*/
 
                     try
                     {
