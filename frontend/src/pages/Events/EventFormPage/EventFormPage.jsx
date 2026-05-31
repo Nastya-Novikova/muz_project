@@ -292,7 +292,7 @@ function EventFormPage() {
                     value={formData.maxParticipants}
                     onChange={handleChange}
                     min="1"
-                    max="1000"
+                    max="1000000"
                     placeholder="10"
                     required
                   />

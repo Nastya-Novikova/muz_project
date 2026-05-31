@@ -28,34 +28,6 @@ function ProfilePage() {
   const [isSuggestionModalOpen, setIsSuggestionModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const checkFavoriteStatus = async (profileId, token) => {
-    if (!profileId || isOwnProfile) return;
-    
-    setIsCheckingFavorite(true);
-    try {
-      const response = await api.checkIsFavorite(profileId, token);
-      setIsFavorite(response.isFavorite || false);
-    } catch (err) {
-      console.error('Ошибка проверки избранного:', err);
-    } finally {
-      setIsCheckingFavorite(false);
-    }
-  };
-
-  const checkCollaborationStatus = async (profileId, token) => {
-    if (!profileId || isOwnProfile) return;
-    
-    setSendingCollaboration(true);
-    try {
-      const response = await api.checkCollaboration(profileId, token);
-      setIsCollaboration(response.isCollaborated || false);
-    } catch (err) {
-      console.error('Ошибка проверки предложения:', err);
-    } finally {
-      setSendingCollaboration(false);
-    }
-  };
-
   useEffect(() => {
     const loadProfile = async () => {
       setLoading(true);
@@ -74,24 +46,35 @@ function ProfilePage() {
             setAvatarUrl(api.getAvatarUrl(myProfile.avatarUrl));
           }
 
-          const media = await api.getMedia(myProfile.id, token);
-          setMediaData(media);
+          setMediaData({
+            audio: myProfile.audio || [],
+            video: myProfile.video || [],
+            photos: myProfile.photos || []
+          });
+
         } else {
           // Чужой профиль
-          const otherProfileData = await api.getProfileById(userId);
+          const otherProfileData = await api.getProfileById(userId, token);
           if (otherProfileData.avatar) { 
             setAvatarUrl(api.getAvatarUrl(otherProfileData.avatarUrl));
           }
 
           setProfileData(otherProfileData);
 
-          const media = await api.getMedia(userId, token);
-          setMediaData(media);
+          setMediaData({
+            audio: otherProfileData.audio || [],
+            video: otherProfileData.video || [],
+            photos: otherProfileData.photos || []
+          });
 
           const isViewingOwnProfile = userId === myProfile.id;
           if (!isViewingOwnProfile) {
-            await checkFavoriteStatus(userId, token);
-            await checkCollaborationStatus(userId, token);
+            setIsFavorite(otherProfileData.isFavorite);
+            setIsCollaboration(otherProfileData.isCollaborated);
+            console.log('Данные с бэкенда:', {
+            isFavorite: otherProfileData.isFavorite,
+            isCollaborated: otherProfileData.isCollaborated
+    });
           }
         }
       } catch (err) {

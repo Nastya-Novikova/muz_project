@@ -270,8 +270,12 @@ export const api = {
     },
 
     // Получить профиль по ID
-    async getProfileById(userId) {
-        const response = await authFetch(`${API_URL}/profiles/${userId}`);
+    async getProfileById(userId, token) {
+        const response = await authFetch(`${API_URL}/profiles/${userId}`, {
+          headers: {
+                ...getAuthHeaders(token)
+            },
+        });
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({ message: 'HTTP error!' }));
             throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
